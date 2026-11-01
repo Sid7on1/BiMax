@@ -1,0 +1,195 @@
+{
+  "row": 1,
+  "query": 56,
+  "id": "mab-1-56",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:48:58.023535+00:00",
+  "valid": true,
+  "question": "D1NZ is a series based on what oversteering technique?",
+  "references": [
+    "Drifting"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 199.6800840000069,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 54,
+        "maxInputChars": 54,
+        "requiredProviderTruncation": false,
+        "promptTokens": 16,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-323",
+        "context-324",
+        "context-238"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 5) studio album, released on March 14, 2000, and charting at #131 on The Billboard 200. The song was the first Poison single with lead guitarist Blues Saraceno.\n\nDocument 2345:\nD1NZ\nD1NZ is a production car drifting series in New Zealand. There is currently no New Zealand drifting championship so D1NZ is the premier series running as a clubsport advanced event under MotorSport New Zealand. It began early in 2003 as a small competition consisting of several drifting teams from all over the country in order to organise and regulate Drifting events on the circuit. Since then it has continued to grow larger and more professional, now involving professional drivers with sponsored cars. The series now includes two championships: Pro and Pro-sport. New competitors generally need to prove themselves in the Pro-sport championship before entering the Pro championship (unless coming from an equivalent international series). Organizers aim to promote and educate Drifting in New Zealand, with a regulated safe environment. Desp\n- (part 1 of 5, excerpt) ite similar moniker, the series is not related to the Japanese D1 Grand Prix series. It has been recognised as the longest running drifting series in the world.\n\nDocument 2346:\nBelgian railway line 130A\n- (part 5 of 5, excerpt) Raaz Pichhle Janm Ka (Hindi: \u0930\u093e\u091c\u093c \u092a\u093f\u091b\u0932\u0947 \u091c\u0928\u092e \u0915\u093e , \"Past Life Secrets\") is an Indian reality television series based on the technique of past life regression. The NDTV Imagine show is hosted by actor Ravi Kishan, while the past life regression sessions are conducted by Mumbai-based psychologist Trupti Jayin. The first season started on December 7, 2009, was planned for a 20-episode run from Monday to Friday, 9.30 pm, by Ideas Box Entertainment, got an extension of 20 episodes, and ended on January",
+      "evidence": [
+        {
+          "sourceId": "memory:context-323",
+          "sourceVersion": "sha256:213527a16fc78871c8d6674da723ddf01da55c59359725be646ab13bf89d1496",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-323",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "studio album, released on March 14, 2000, and charting at #131 on The Billboard 200. The song was the first Poison single with lead guitarist Blues Saraceno.\n\nDocument 2345:\nD1NZ\nD1NZ is a production car drifting series in New Zealand. There is currently no New Zealand drifting championship so D1NZ is the premier series running as a clubsport advanced event under MotorSport New Zealand. It began early in 2003 as a small competition consisting of several drifting teams from all over the country in order to organise and regulate Drifting events on the circuit. Since then it has continued to grow larger and more professional, now involving professional drivers with sponsored cars. The series now includes two championships: Pro and Pro-sport. New competitors generally need to prove themselves in the Pro-sport championship before entering the Pro championship (unless coming from an equivalent international series). Organizers aim to promote and educate Drifting in New Zealand, with a regulated safe environment. Desp",
+          "id": "ev_3e0311b8f3a1270995189da2",
+          "observedAt": "2026-10-14T04:48:58.242Z"
+        },
+        {
+          "sourceId": "memory:context-324",
+          "sourceVersion": "sha256:9f2a2b413cad24446030df12554fb8ad89ee31886e3e46d5648b8bdb36d2a7cf",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-324",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "ite similar moniker, the series is not related to the Japanese D1 Grand Prix series. It has been recognised as the longest running drifting series in the world.\n\nDocument 2346:\nBelgian railway line 130A",
+          "id": "ev_5cd27f3a3d3eccb38e5f381a",
+          "observedAt": "2026-10-14T04:48:58.243Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:219d6e050379f46e6089a0922ebb75a490d676906a7f16536387370ec90e47dc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Raaz Pichhle Janm Ka (Hindi: \u0930\u093e\u091c\u093c \u092a\u093f\u091b\u0932\u0947 \u091c\u0928\u092e \u0915\u093e , \"Past Life Secrets\") is an Indian reality television series based on the technique of past life regression. The NDTV Imagine show is hosted by actor Ravi Kishan, while the past life regression sessions are conducted by Mumbai-based psychologist Trupti Jayin. The first season started on December 7, 2009, was planned for a 20-episode run from Monday to Friday, 9.30 pm, by Ideas Box Entertainment, got an extension of 20 episodes, and ended on January",
+          "id": "ev_8484f87d87cbe217a91b686e",
+          "observedAt": "2026-10-14T04:48:58.243Z"
+        }
+      ],
+      "sourceIds": [
+        "context-323",
+        "context-324",
+        "context-238"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 20.82704200000444,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-323",
+        "context-324",
+        "context-238"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 5) studio album, released on March 14, 2000, and charting at #131 on The Billboard 200. The song was the first Poison single with lead guitarist Blues Saraceno.\n\nDocument 2345:\nD1NZ\nD1NZ is a production car drifting series in New Zealand. There is currently no New Zealand drifting championship so D1NZ is the premier series running as a clubsport advanced event under MotorSport New Zealand. It began early in 2003 as a small competition consisting of several drifting teams from all over the country in order to organise and regulate Drifting events on the circuit. Since then it has continued to grow larger and more professional, now involving professional drivers with sponsored cars. The series now includes two championships: Pro and Pro-sport. New competitors generally need to prove themselves in the Pro-sport championship before entering the Pro championship (unless coming from an equivalent international series). Organizers aim to promote and educate Drifting in New Zealand, with a regulated safe environment. Desp\n- (part 1 of 5, excerpt) ite similar moniker, the series is not related to the Japanese D1 Grand Prix series. It has been recognised as the longest running drifting series in the world.\n\nDocument 2346:\nBelgian railway line 130A\n- (part 5 of 5, excerpt) Raaz Pichhle Janm Ka (Hindi: \u0930\u093e\u091c\u093c \u092a\u093f\u091b\u0932\u0947 \u091c\u0928\u092e \u0915\u093e , \"Past Life Secrets\") is an Indian reality television series based on the technique of past life regression. The NDTV Imagine show is hosted by actor Ravi Kishan, while the past life regression sessions are conducted by Mumbai-based psychologist Trupti Jayin. The first season started on December 7, 2009, was planned for a 20-episode run from Monday to Friday, 9.30 pm, by Ideas Box Entertainment, got an extension of 20 episodes, and ended on January",
+      "evidence": [
+        {
+          "sourceId": "memory:context-323",
+          "sourceVersion": "sha256:213527a16fc78871c8d6674da723ddf01da55c59359725be646ab13bf89d1496",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-323",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "studio album, released on March 14, 2000, and charting at #131 on The Billboard 200. The song was the first Poison single with lead guitarist Blues Saraceno.\n\nDocument 2345:\nD1NZ\nD1NZ is a production car drifting series in New Zealand. There is currently no New Zealand drifting championship so D1NZ is the premier series running as a clubsport advanced event under MotorSport New Zealand. It began early in 2003 as a small competition consisting of several drifting teams from all over the country in order to organise and regulate Drifting events on the circuit. Since then it has continued to grow larger and more professional, now involving professional drivers with sponsored cars. The series now includes two championships: Pro and Pro-sport. New competitors generally need to prove themselves in the Pro-sport championship before entering the Pro championship (unless coming from an equivalent international series). Organizers aim to promote and educate Drifting in New Zealand, with a regulated safe environment. Desp",
+          "id": "ev_3e0311b8f3a1270995189da2",
+          "observedAt": "2026-10-14T04:48:58.249Z"
+        },
+        {
+          "sourceId": "memory:context-324",
+          "sourceVersion": "sha256:9f2a2b413cad24446030df12554fb8ad89ee31886e3e46d5648b8bdb36d2a7cf",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-324",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "ite similar moniker, the series is not related to the Japanese D1 Grand Prix series. It has been recognised as the longest running drifting series in the world.\n\nDocument 2346:\nBelgian railway line 130A",
+          "id": "ev_5cd27f3a3d3eccb38e5f381a",
+          "observedAt": "2026-10-14T04:48:58.250Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:219d6e050379f46e6089a0922ebb75a490d676906a7f16536387370ec90e47dc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Raaz Pichhle Janm Ka (Hindi: \u0930\u093e\u091c\u093c \u092a\u093f\u091b\u0932\u0947 \u091c\u0928\u092e \u0915\u093e , \"Past Life Secrets\") is an Indian reality television series based on the technique of past life regression. The NDTV Imagine show is hosted by actor Ravi Kishan, while the past life regression sessions are conducted by Mumbai-based psychologist Trupti Jayin. The first season started on December 7, 2009, was planned for a 20-episode run from Monday to Friday, 9.30 pm, by Ideas Box Entertainment, got an extension of 20 episodes, and ended on January",
+          "id": "ev_8484f87d87cbe217a91b686e",
+          "observedAt": "2026-10-14T04:48:58.250Z"
+        }
+      ],
+      "sourceIds": [
+        "context-323",
+        "context-324",
+        "context-238"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.13162500000908,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T04:48:58.251297+00:00"
+}

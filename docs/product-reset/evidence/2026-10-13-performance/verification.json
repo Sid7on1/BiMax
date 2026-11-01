@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "date": "2026-10-13",
+  "scope": "Offline non-CU/non-UI graph performance and exact outcomes. Not installed total-task latency, application peak RSS/energy, competitor or full semantic qualification.",
+  "checks": [
+    {
+      "command": "node node_modules/jest/bin/jest.js --coverage=false --maxWorkers=2",
+      "exit_code": 0,
+      "suites_passed": 446,
+      "tests_passed": 4256,
+      "existing_skipped_tests": 19,
+      "existing_skipped_suites": 1,
+      "receipt": "full-jest.log"
+    },
+    {
+      "command": "npm run test:bun",
+      "exit_code": 0,
+      "tests_passed": 133,
+      "receipt": "full-bun.log"
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_code": 0,
+      "tests_passed": 3,
+      "receipt": "node-scripts.log"
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "receipt": "build.log"
+    },
+    {
+      "command": "tsc --noEmit -p app/tsconfig.json",
+      "exit_code": 0,
+      "receipt": "app-typecheck.log"
+    },
+    {
+      "command": "npm run lint",
+      "exit_code": 0,
+      "errors": 0,
+      "warnings": 1823,
+      "receipt": "lint.log"
+    },
+    {
+      "command": "npm --prefix app run build",
+      "exit_code": 0,
+      "receipt": "app-build.log"
+    },
+    {
+      "command": "npm run build:engine",
+      "exit_code": 0,
+      "receipt": "engine-build.log"
+    },
+    {
+      "command": "npm --prefix app run verify:engine",
+      "exit_code": 0,
+      "real_message_port_exchanges": 7,
+      "outbound_bytes": 46637,
+      "receipt": "engine-smoke.log"
+    },
+    {
+      "command": "python3 scripts/prove-performance.py",
+      "exit_code": 0,
+      "assertion_caught_source_faults": 8,
+      "restored_tests_passed": 6,
+      "receipt": "mutations/results.json"
+    },
+    {
+      "command": "node --expose-gc graph-benchmark.cjs",
+      "exit_code": 0,
+      "paired_cases": 8,
+      "warmups": 4,
+      "repetitions": 11,
+      "discard_count": 0,
+      "receipt": "graph-benchmark.json"
+    },
+    {
+      "command": "node --expose-gc heap-benchmark.cjs",
+      "exit_code": 0,
+      "candidate": "rejected",
+      "paired_cases": 16,
+      "warmups": 4,
+      "repetitions": 11,
+      "discard_count": 0,
+      "receipt": "heap-benchmark.json"
+    },
+    {
+      "command": "node check-candidate.cjs",
+      "exit_code": 0,
+      "prefixes_checked": 10800,
+      "receipt": "candidate-checks.json"
+    }
+  ],
+  "new_tests": 6,
+  "source_faults": 8,
+  "production_heap_changed": false,
+  "installed_app_changed": false,
+  "new_commit_or_push": false,
+  "remaining_target": [
+    "Installed startup/indexing/task traces",
+    "Application peak RSS, energy and supported-machine coverage",
+    "Bounded heap without general-input regressions",
+    "Large multi-file graph publication, single-symbol cost, concurrent refresh",
+    "Hosted CI, full C01/C04/R02 and release"
+  ]
+}

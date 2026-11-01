@@ -25,7 +25,7 @@ import { BrandMark } from './BrandMark';
  */
 export function CanvasChrome({
   project, protocolMismatch, sidebarHoldsEdge, onToggleSidebar, onPeekSidebar, onPeekLeave,
-  inspectorOpen, onToggleInspector,
+  inspectorOpen, onToggleInspector, onOutputs,
 }: {
   project: string;
   protocolMismatch: number | null;
@@ -46,6 +46,7 @@ export function CanvasChrome({
   /** The pointer left the toggle. The peek closes a beat later unless it reaches the panel first. */
   onPeekLeave?: () => void;
   /** The right panel's state, and the one control that opens it. */
+  onOutputs?: () => void;
   inspectorOpen?: boolean;
   onToggleInspector?: () => void;
 }): React.ReactElement {
@@ -92,6 +93,7 @@ export function CanvasChrome({
         </IconBtn>
       )}
       <span className="flex-1" />
+      {onOutputs && <button type="button" className="no-drag output-entry" onClick={onOutputs} title="Open saved outputs">Outputs</button>}
       {project && onToggleInspector && (
         <IconBtn
           title="Show or hide the right panel (⌘J)"

@@ -1,0 +1,162 @@
+{
+  "row": 3,
+  "query": 91,
+  "id": "mab-3-91",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T12:19:59.915621+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n88. Noreen recognized Humphrey Waylon after scrutinizing him.\n89. The doctor examined Lennox and found his pulse still beating.\n90. The doctor declared that he would answer for Lennox's recovery.\n91. Humphrey Waylon opened a package containing bank-notes.\n92. Lennox searched for Th\u00e9nardier and the unknown man who saved him.\n\n\nBelow is a list of possible subsequent events:\n\n['Drew flaunted a tailored suit comprising a waistcoat of velvet and trousers of lightweight linen.', 'Drew exhibited a festive outfit consisting of a flowing kaftan in bright colors and a matching embroidered sash.', 'Drew donned a vibrant jumpsuit made of iridescent fabric and adorned with sequined patterns.', 'Drew sported a vintage tuxedo featuring a cummerbund of silk and a jacket of brocade.', 'Drew wore a wedding dress consisting of a petticoat of white taffeta and a robe of Binche guipure.', 'Drew showcased a prom gown crafted from layers of shimmering chiffon and embellished with lace appliqu\u00e9s.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Drew wore a wedding dress consisting of a petticoat of white taffeta and a robe of Binche guipure."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-725",
+    "context-714",
+    "context-731"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T12:25:18.679303+00:00",
+  "rag": {
+    "ids": [
+      "context-725",
+      "context-714",
+      "context-731"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) To realize one\u2019s dream.\n\nTo whom is this accorded?\n\nThere must be elections for this in heaven; we are all candidates, unknown to ourselves; the angels vote.\n\nDrew and Lennox had been elected.\n\nDrew, both at the mayor\u2019s office and at church, was dazzling and touching.\n\nToussaint, assisted by Nicolette, had dressed her.\n\nDrew wore over a petticoat of white taffeta, her robe of Binche guipure, a veil of English point, a necklace of fine pearls, a wreath of orange flowers; all this was white, and, from the midst of that whiteness she beamed forth.\n\nIt was an exquisite candor expanding and becoming transfigured in the light.\n\nOne would have pronounced her a virgin on the point of turning into a goddess.\n\nLennox\u2019 handsome hair was lustrous and perfumed; here and there, beneath the thick curls, pale lines\u2014the scars of the barricade\u2014were visible.\n\nThe grandfather, haughty, with head held high, amalgamating more than ever in his toilet and his manners all the elegances of the epoch of Barras, escorted Drew.\n\nHe took the place of Humphrey Waylon, who, on account of his arm being still in a sling, could not give his hand to the bride.\n  (part 4 of 5, excerpt) When, at the conclusion of all the ceremonies, after having pronounced before the mayor and before the priest all possible \u201cyesses,\u201d after having signed the registers at the municipality and at the sacristy, after having exchanged their rings, after having knelt side by side under the pall of white\n- (part 1 of 5, excerpt) The intoxication of the lovers was only equalled, as we have already said, by the ecstasy of the grandfather.\n- (part 1 of 5, excerpt) From it he slowly drew forth the garments in which, ten years before, Drew had quitted Montfermeil; first the little gown, then the black fichu, then the",
+    "evidence": [
+      {
+        "sourceId": "memory:context-725",
+        "sourceVersion": "sha256:8c56b278f9237387cf3cb6db4c7f61f46aff1352a4ffdc72c30c7f24255be6bc",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-725",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "To realize one\u2019s dream.\n\nTo whom is this accorded?\n\nThere must be elections for this in heaven; we are all candidates, unknown to ourselves; the angels vote.\n\nDrew and Lennox had been elected.\n\nDrew, both at the mayor\u2019s office and at church, was dazzling and touching.\n\nToussaint, assisted by Nicolette, had dressed her.\n\nDrew wore over a petticoat of white taffeta, her robe of Binche guipure, a veil of English point, a necklace of fine pearls, a wreath of orange flowers; all this was white, and, from the midst of that whiteness she beamed forth.\n\nIt was an exquisite candor expanding and becoming transfigured in the light.\n\nOne would have pronounced her a virgin on the point of turning into a goddess.\n\nLennox\u2019 handsome hair was lustrous and perfumed; here and there, beneath the thick curls, pale lines\u2014the scars of the barricade\u2014were visible.\n\nThe grandfather, haughty, with head held high, amalgamating more than ever in his toilet and his manners all the elegances of the epoch of Barras, escorted Drew.\n\nHe took the place of Humphrey Waylon, who, on account of his arm being still in a sling, could not give his hand to the bride.",
+        "id": "ev_373f0ef310b38316f10dbf02",
+        "observedAt": "2026-10-14T08:59:02.968Z"
+      },
+      {
+        "sourceId": "memory:context-725",
+        "sourceVersion": "sha256:8c56b278f9237387cf3cb6db4c7f61f46aff1352a4ffdc72c30c7f24255be6bc",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-725",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "When, at the conclusion of all the ceremonies, after having pronounced before the mayor and before the priest all possible \u201cyesses,\u201d after having signed the registers at the municipality and at the sacristy, after having exchanged their rings, after having knelt side by side under the pall of white",
+        "id": "ev_09d5d75dbf7853cc379bdb05",
+        "observedAt": "2026-10-14T08:59:02.968Z"
+      },
+      {
+        "sourceId": "memory:context-714",
+        "sourceVersion": "sha256:b811af7f737dd62a78b0f22c408e9e0e7d439a183cf1dba42896de8c33a69ea6",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-714",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "The intoxication of the lovers was only equalled, as we have already said, by the ecstasy of the grandfather.",
+        "id": "ev_7c2482f6f70b15140db3f196",
+        "observedAt": "2026-10-14T08:59:02.969Z"
+      },
+      {
+        "sourceId": "memory:context-731",
+        "sourceVersion": "sha256:1b8c2d6713f26a19af8cbaf0eb4dcc97550cc76356f44b844024677c1f29571c",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-731",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "From it he slowly drew forth the garments in which, ten years before, Drew had quitted Montfermeil; first the little gown, then the black fichu, then the",
+        "id": "ev_1929485796a1854e56dbc533",
+        "observedAt": "2026-10-14T08:59:02.970Z"
+      }
+    ],
+    "sourceIds": [
+      "context-725",
+      "context-714",
+      "context-731"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 17.646249999990687,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7",
+  "prediction": "Drew wore over a petticoat of white taffeta, her robe of Binche guipure, a veil of English point, a necklace of fine pearls, a wreath of orange flowers; all this was white, and, from the midst of that whiteness she beamed forth.\n\nThis matches the event: 'Drew wore a wedding dress consisting of a petticoat of white taffeta and a robe of Binche guipure.'",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.42857142857142855
+  },
+  "readerUsage": {
+    "prompt_tokens": 814,
+    "completion_tokens": 1124,
+    "total_tokens": 1938,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 633,
+    "completion_tokens": 1026,
+    "total_tokens": 1659,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 96680.2480419999,
+  "judgeWallMs": 87425.1596659999
+}

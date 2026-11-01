@@ -1,0 +1,124 @@
+{
+  "checked_at_utc": "2026-10-06T18:26:38.353531+00:00",
+  "kind": "Source comparison and six controlled runtime assertions",
+  "arc": {
+    "url": "https://github.com/shhivv/arc-cua",
+    "commit": "74ffae1108b1cb4b1f6b161084af12646f544ba5",
+    "version": "0.1.1",
+    "license": "MIT",
+    "checkout": "/tmp/bimax-arc-review-iffcs8gt/arc-cua",
+    "files_inspected_in_full_or_targeted_sections": {
+      "LICENSE": "1126322e2cc8d165adc4c792eeb195717de2bcc7b39be1ce77959d78e87ef685",
+      "pyproject.toml": "a98d85974b1bd0f2403bd081de73cf02832ac602757ff2dfca8c83f16d7849b6",
+      "README.md": "ef720cc6e6bef7359202e0344ac8bd18ff6b508015c1988ba24b135b44a28a7c",
+      "docs/driver.md": "6d3cff7e990a812fea7aff0e2317dfa08c4e34bb28fa7bc4a74651427692a9a9",
+      "docs/internals.md": "98b38fc2748be9aa0f24651fc7b1c2659a61dad916b6f13fc2291d2fa0ee9d86",
+      "benchmarks/README.md": "4af08d4033fc3f7b9b0fadd1978a1b1d64de001f0d22a7a8b707f2864f75fb4c",
+      "benchmarks/workflows.py": "1eda44e1a15f06eb4f6e35e336bba795c2315d27847e2206e08c86f766a6a01c",
+      "src/arc_cua/runtime.py": "246159e5c6ef61ad72298fed0b2bc0982d7d007f8ed16eab044d30c1a535c6fd",
+      "src/arc_cua/driver.py": "ce80235062ca6eb3d0ff08dd2d2ae563d91e0e1e9be9587da99b6d1f21c42dc5",
+      "src/arc_cua/models.py": "69182f90e89889cb3958fa4faed0422bb6a2947c08ccced788328605df7a5e47",
+      "src/arc_cua/safety.py": "cd168a32365c87ca4778263e41557cce91eab4c2c7468773b77d4a673e4b8cbe",
+      "src/arc_cua/validation.py": "769acf5fee59246770084807e131e55dc24914cd8e6b326be7dde025521794ad",
+      "src/arc_cua/settling.py": "6ae63f04ae8d3f5d440e270c2086e4ac740f4eac4f6d9d10ba02b497020d18fc",
+      "src/arc_cua/api.py": "e633b90811d517c1a1d537acd0c35cf0e01e8d5f3442b8a47bc7218bc4577888",
+      "src/arc_cua/cli.py": "319dfa789d75f739ae51b87ace480d24a51aa372bd31e6635d0e1b9d742fe216",
+      "src/arc_cua/policies/choice.py": "6dc436c2868fba624c557f7035d8834989ebc06c9026fd21af07ff4771f9b166",
+      "src/arc_cua/policies/typesafe.py": "ed83aaf745c0803f630d6f016b9cd8d82082c87333d0a22e3eb365dd130073d8",
+      "src/arc_cua/policies/_openai_decisions.py": "80f84d763f5e787080b9deedef3b005ec9fd17dc64244ad72af2e13852a019bd",
+      "src/arc_cua/backends/macos_background.py": "1738c6bcd448c71fb6f861babee00d8554326d56dc08213347c241a6e0592619",
+      "src/arc_cua/backends/macos_parking.py": "10718d666a1a2e35be667a2939a0ca1cd5fbbea0291c0f32bfed831f4b76f687",
+      "src/arc_cua/backends/macos_hybrid.py": "69666c3b45da9565bfaf26dde4f67318360ca54dbec69f40cd5918d42a40c7fe",
+      "src/arc_cua/backends/chrome.py": "5518d7d68fdfccfa76c680800df28bf3f7d59798f12136ba382eb5d012819f9e"
+    }
+  },
+  "bimax": {
+    "head": "808644a9c7559d4d2e06d06f73849c89ad54183d",
+    "archive": "/Users/vishsiddharth/Developer/bimax-archive/computer-use/2026-10-04-retired-cua-driver",
+    "base_commit": "58c5ed72ee2137a8638005597de1e31bd963660f",
+    "manifest_sha256": "efbb13cfe5864418d31c16b71c056222a119ebed3d133a7d4cba7205adb8cc8f",
+    "manifest_files_checked": 55,
+    "manifest_mismatches": [],
+    "archived_host_files_inspected": {
+      "look.service.ts": "d70b771e66d49e07b00c828a6226845fedd32fc44854d22b7bd42417a16ed184",
+      "look.driver.ts": "27afdf4d85a1dd5aa61b25376fe01dedf109f0f3b555b88a0ebe1b2e5488a88c",
+      "look.commit.ts": "87ce63fa43a3fded99671bf99ce442564ec7e8fcb5103faafb439968b8026147",
+      "look.grants.ts": "c8e1b90e09a1a4d3c92022a834c27ae06b7aabae656b82a585801d885abb4784",
+      "look.manifest.ts": "591141722e17a2ecf166516e2ebf162c12640c8b8138912daaba2193dc716724",
+      "look.observation.ts": "d37f26f1e9f6dab05095b14c16e15092d446e360fb7eea357c9dd7ed4498f725",
+      "look.identity.ts": "3f68fc8e909c05a46a5599c88c91ae0aa2fb0de5b422110cb776eef196c0aee1"
+    },
+    "archived_driver_version": "0.31.0"
+  },
+  "limitations": {
+    "native_actions_executed": false,
+    "live_provider_executed": false,
+    "upstream_full_tests_executed": false,
+    "benchmark_executed": false,
+    "installed_app_executed": false,
+    "cu_reactivated": false,
+    "product_ready_or_win_established": false,
+    "missing_guidance": [
+      "competitive/03_CAPABILITY_MATRIX.md"
+    ]
+  },
+  "runtime_probe": {
+    "scope": "In-memory runtime only; no native or provider execution",
+    "checks": [
+      {
+        "name": "completion_without_verifier",
+        "status": "SUBTASK_COMPLETE",
+        "fake_dispatches": [],
+        "reason": null
+      },
+      {
+        "name": "independent_verifier_rejects",
+        "status": "NEEDS_AGENT",
+        "fake_dispatches": [],
+        "reason": "Verification callback rejected SUBTASK_COMPLETE."
+      },
+      {
+        "name": "cancel_during_decision",
+        "status": "NEEDS_AGENT",
+        "fake_dispatches": [
+          "CLICK"
+        ],
+        "reason": "Execution cancelled by caller."
+      },
+      {
+        "name": "deadline_passed_during_decision",
+        "status": "NEEDS_AGENT",
+        "fake_dispatches": [
+          "CLICK"
+        ],
+        "reason": "Wall-clock timeout (0.01s) exceeded."
+      },
+      {
+        "name": "named_send_click_refused",
+        "status": "NEEDS_AGENT",
+        "fake_dispatches": [],
+        "reason": "Refused CLICK on 'Send': a send action, which the subtask does not allow (allowed_risks)."
+      },
+      {
+        "name": "type_plus_enter_outside_named_click_risk_gate",
+        "status": "SUBTASK_COMPLETE",
+        "fake_dispatches": [
+          "TYPE_TEXT",
+          "PRESS_KEY"
+        ],
+        "reason": null
+      }
+    ],
+    "assertions_passed": 6
+  },
+  "verification": {
+    "diff_check": "pass",
+    "new_documentation_local_links": "pass",
+    "legacy_ledger_broken_link_observed": "competitive/evidence/2026-09-09-learning-loop/report.json (unchanged)",
+    "baseline_dirty_files": 50,
+    "baseline_files_byte_identical": 49,
+    "prior_source_ledger_content_byte_identical": true,
+    "only_prior_dirty_file_extended": "docs/product-reset/competitive/08_SOURCE_LEDGER.md",
+    "arc_checkout_tracked_status": "clean"
+  }
+}

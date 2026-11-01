@@ -1,0 +1,354 @@
+{
+  "row": 10,
+  "query": 51,
+  "id": "mab-10-51",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:43:54.956978+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n48. Bea described Mr. Bea as a poor but generous man.\n49. Bea tried to comfort the narrator upon his return home.\n50. Bea climbed into the carrier's cart and hugged Tiberius tightly.\n51. Bea gave Tiberius paper bags of cakes and a purse.\n52. Tiberius examined the purse and found three bright shillings and two half-crowns with a note from his mother.\n\n\nBelow is a list of possible subsequent events:\n\n['Tiberius sent a telegram to Bea informing her of his successful journey and Mrs. Barkis expressing interest.', 'Tiberius shared a postcard with Bea highlighting his travels and Miss Barkis being eager to meet.', 'Tiberius delivered a message to Bea regarding his timely return and Mr. Barkis appearing hopeful.', 'Tiberius recounted a story to Bea about his exciting trip and Mrs. Barkis being particularly supportive.', 'Tiberius wrote a letter to Bea about his safe arrival and Mr. Barkis being willing.', 'Tiberius composed a poem for Bea detailing his recent adventures and Mr. Barkis showing enthusiasm.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Tiberius wrote a letter to Bea about his safe arrival and Mr. Barkis being willing."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 481.9426249999997,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1239,
+        "maxInputChars": 1239,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-51",
+        "context-50",
+        "context-58"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 4) me round the neck. This she was doing when Bea came running in, and bounced down on the ground beside us, and went mad about us both for a quarter of an hour.\n\nIt seemed that I had not been expected so soon, the carrier being much before his usual time. It seemed, too, that Mr. and Miss Brevin had gone out upon a visit in the neighbourhood, and would not return before night. I had never hoped for this. I had never thought it possible that we three could be together undisturbed, once more; and I felt, for the time, as if the old days were come back.\n\nWe dined together by the fireside. Bea was in attendance to wait upon us, but my mother wouldn't let her do it, and made her dine with us. I had my own old plate, with a brown view of a man-of-war in full sail upon it, which Bea had hoarded somewhere all the time I had been away, and would not have had broken, she said, for a hundred pounds. I had my own old mug with Tiberius on it, and my own old little knife and fork that wouldn't cut.\n\nWhile we were at table, I thought it a favourable occasion to tell Bea about Mr. Barkis, who, before I had finished what I had to tell her, began to laugh, and throw her apron over her face.\n  (part 3 of 4, excerpt) Her own was as red as ever I saw it, or any other face, I think; but she only covered it again, for a few moments at a time, when she was taken with a violent fit of laughter; and after two or three of those attacks, went on with her dinner.\n- (part 1 of 5, excerpt) 'I gave your message, Mr. Barkis,' I said: 'I wrote to Bea.'\n\n'Ah!' said Mr. Barkis.\n\nMr. Barkis seemed gruff, and answered drily.\n- (part 1 of 4, excerpt) I might have been surprised by the feeling tone in which he spoke, if I had given it a thought; but I gave it none until afterwards. I hurried",
+      "evidence": [
+        {
+          "sourceId": "memory:context-51",
+          "sourceVersion": "sha256:5a545da3be2381a5d2dc40bb0fe42f7c00be7075d7f4a527b9f9f52d495b5e34",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-51",
+            "part": 2,
+            "parts": 4
+          },
+          "text": "me round the neck. This she was doing when Bea came running in, and bounced down on the ground beside us, and went mad about us both for a quarter of an hour.\n\nIt seemed that I had not been expected so soon, the carrier being much before his usual time. It seemed, too, that Mr. and Miss Brevin had gone out upon a visit in the neighbourhood, and would not return before night. I had never hoped for this. I had never thought it possible that we three could be together undisturbed, once more; and I felt, for the time, as if the old days were come back.\n\nWe dined together by the fireside. Bea was in attendance to wait upon us, but my mother wouldn't let her do it, and made her dine with us. I had my own old plate, with a brown view of a man-of-war in full sail upon it, which Bea had hoarded somewhere all the time I had been away, and would not have had broken, she said, for a hundred pounds. I had my own old mug with Tiberius on it, and my own old little knife and fork that wouldn't cut.\n\nWhile we were at table, I thought it a favourable occasion to tell Bea about Mr. Barkis, who, before I had finished what I had to tell her, began to laugh, and throw her apron over her face.",
+          "id": "ev_b5a2d06be39f0c55168b0abc",
+          "observedAt": "2026-10-14T08:43:55.441Z"
+        },
+        {
+          "sourceId": "memory:context-51",
+          "sourceVersion": "sha256:5a545da3be2381a5d2dc40bb0fe42f7c00be7075d7f4a527b9f9f52d495b5e34",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-51",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Her own was as red as ever I saw it, or any other face, I think; but she only covered it again, for a few moments at a time, when she was taken with a violent fit of laughter; and after two or three of those attacks, went on with her dinner.",
+          "id": "ev_fcd38bf4eabeaf180a547759",
+          "observedAt": "2026-10-14T08:43:55.441Z"
+        },
+        {
+          "sourceId": "memory:context-50",
+          "sourceVersion": "sha256:32f420d2b84fbf5fe03f2179bf78071d37f148641fe6b79f85a7455243f45c57",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-50",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "'I gave your message, Mr. Barkis,' I said: 'I wrote to Bea.'\n\n'Ah!' said Mr. Barkis.\n\nMr. Barkis seemed gruff, and answered drily.",
+          "id": "ev_b818ca90128c9288249566d1",
+          "observedAt": "2026-10-14T08:43:55.442Z"
+        },
+        {
+          "sourceId": "memory:context-58",
+          "sourceVersion": "sha256:fbbeb32457c8a8babde0cbfe46190d051bea2e8ca6197a0cdf2275fa85b2c7eb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-58",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "I might have been surprised by the feeling tone in which he spoke, if I had given it a thought; but I gave it none until afterwards. I hurried",
+          "id": "ev_ff984e385587413fddc5530a",
+          "observedAt": "2026-10-14T08:43:55.443Z"
+        }
+      ],
+      "sourceIds": [
+        "context-51",
+        "context-50",
+        "context-58"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.04266699999971,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-51",
+        "context-50",
+        "context-58"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) I wish I had died. I wish I had died then, with that feeling in my heart! I should have been more fit for Heaven than I ever have been since.\n\n'He is your brother,' said my mother, fondling me. 'Davy, my pretty boy! My poor child!' Then she kissed me more and more, and clasped me round the neck. This she was doing when Bea came running in, and bounced down on the ground beside us, and went mad about us both for a quarter of an hour.\n  (part 2 of 4, excerpt) me round the neck. This she was doing when Bea came running in, and bounced down on the ground beside us, and went mad about us both for a quarter of an hour.\n\nIt seemed that I had not been expected so soon, the carrier being much before his usual time. It seemed, too, that Mr. and Miss Brevin had gone out upon a visit in the neighbourhood, and would not return before night. I had never hoped for this. I had never thought it possible that we three could be together undisturbed, once more; and I felt, for the time, as if the old days were come back.\n  (part 3 of 4, excerpt) 'Oh! I don't know,' said Bea. 'Don't ask me. I wouldn't have him if he was made of gold. Nor I wouldn't have anybody.'\n\n'Then, why don't you tell him so, you ridiculous thing?' said my mother.\n\n'Tell him so,' retorted Bea, looking out of her apron. 'He has never said a word to me about it. He knows better. If he was to make so bold as say a word to me, I should slap his face.'\n\nHer own was as red as ever I saw it, or any other face, I think; but she only covered it again, for a few moments at a time, when she was taken with a violent fit of laughter; and after two or three of those attacks, went on with her dinner.\n- (part 1 of 5, excerpt) 'You look very well, Mr. Barkis,' I said, thinking he would like to know it.\n\nMr. Barkis rubbed his cheek with his cuff, and then looked at his cuff as if he expected to find some of the bloom upon it; but made no other acknowledgement of the compliment.\n\n'I gave your message, Mr. Barkis,' I said: 'I wrote to Bea.'\n\n'Ah!' said Mr. Barkis.\n\nMr. Barkis seemed gruff, and answered drily.\n\n'Wasn't it right, Mr. Barkis?' I asked, after a little hesitation.\n\n'Why, no,' said Mr. Barkis.\n\n'Not the message?'\n  (part 2 of 5, excerpt) says he's willin',' said Mr. Barkis, turning his glance slowly on me again, 'it's as much as to say, that man's a-waitin' for a answer.'\n\n'Well, Mr. Barkis?'\n\n'Well,' said Mr. Barkis, carrying his eyes back to his horse's ears; 'that man's been a-waitin' for a answer ever since.'\n\n'Have you told her so, Mr. Barkis?'\n\n'No--no,' growled Mr. Barkis, reflecting about it. 'I ain't got no call to go and tell her so. I never said six words to her myself, I ain't a-goin' to tell her so.'\n  (part 3 of 5, excerpt) This extremely artful suggestion Mr. Barkis accompanied with a nudge of his elbow that gave me quite a stitch in my side. After that, he slouched over his horse in his usual manner; and made no other reference to the subject except, half an hour afterwards, taking a piece of chalk from his pocket, and writing up, inside the tilt of the cart, 'Oswald Bea'--apparently as a private memorandum.\n  (part 4 of 5, excerpt) what a strange feeling it was to be going home when it was not home, and to find that every object I looked at, reminded me of the happy old home, which was like a dream I could never dream again! The days when my mother and I and Bea were all in all to one another, and there was no one to come between us, rose up before me so sorrowfully on the road, that I am not sure I was glad to be there--not sure but that I would rather have remained away, and forgotten it in Kyra's company. But there I was; and soon I was at our house, where the bare old elm-trees wrung their many hands in the bleak wintry air, and shreds of the old rooks'-nests drifted away upon\n- (part 1 of 4, excerpt) 'Don't hurry, Tiberius,' said Mr. Sharp. 'There's time enough, my boy, don't hurry.'\n\nI might have been surprised by the feeling tone in which he spoke, if I had given it a thought; but I gave it none until afterwards. I hurried away to the parlour; and there I found Mr. Creakle, sitting at his breakfast with the cane and a newspaper before him, and Mrs. Creakle with an opened letter in her hand. But no hamper.\n\n'Tiberius Kayla,' said Mrs. Creakle, leading me to a sofa, and sitting down beside me. 'I want to speak to you very particularly. I have something to tell you, my child.'\n  (part 2 of 4, excerpt) we all have to learn it, Tiberius; some of us when we are young, some of us when we are old, some of us at all times of our lives.'\n\nI looked at her earnestly.\n\n'When you came away from home at the end of the vacation,' said Mrs. Creakle, after a pause, 'were they all well?' After another pause, 'Was your mama well?'\n\nI trembled without distinctly knowing why, and still looked at her earnestly, making no attempt to answer.\n\n'Because,' said she, 'I grieve to tell you that I hear this morning your mama is very ill.'\n\nA mist rose between Mrs. Creakle and me, and her figure seemed to move in it for an instant. Then I felt the burning tears run down my face, and it was steady again.\n\n'She is very dangerously ill,' she added.\n\nI knew all now.\n  (part 4 of 4, excerpt) I was to go home next night; not by the mail, but by the heavy night-coach, which was called the Farmer, and was principally used by country-people travelling short intermediate distances upon the road. We had no story-telling that evening, and Isaiah insisted on lending me his pillow. I don't know what good he thought it would do me, for I had one of my own: but it was all he had to lend, poor fellow, except a sheet of letter-paper full of skeletons; and that he gave me at parting, as a so",
+      "evidence": [
+        {
+          "sourceId": "memory:context-51",
+          "sourceVersion": "sha256:5a545da3be2381a5d2dc40bb0fe42f7c00be7075d7f4a527b9f9f52d495b5e34",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-51",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "I wish I had died. I wish I had died then, with that feeling in my heart! I should have been more fit for Heaven than I ever have been since.\n\n'He is your brother,' said my mother, fondling me. 'Davy, my pretty boy! My poor child!' Then she kissed me more and more, and clasped me round the neck. This she was doing when Bea came running in, and bounced down on the ground beside us, and went mad about us both for a quarter of an hour.",
+          "id": "ev_a3146b17d42c86eaf578df20",
+          "observedAt": "2026-10-14T08:43:55.446Z"
+        },
+        {
+          "sourceId": "memory:context-51",
+          "sourceVersion": "sha256:5a545da3be2381a5d2dc40bb0fe42f7c00be7075d7f4a527b9f9f52d495b5e34",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-51",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "me round the neck. This she was doing when Bea came running in, and bounced down on the ground beside us, and went mad about us both for a quarter of an hour.\n\nIt seemed that I had not been expected so soon, the carrier being much before his usual time. It seemed, too, that Mr. and Miss Brevin had gone out upon a visit in the neighbourhood, and would not return before night. I had never hoped for this. I had never thought it possible that we three could be together undisturbed, once more; and I felt, for the time, as if the old days were come back.",
+          "id": "ev_17fa5addef1dc6a017d0307d",
+          "observedAt": "2026-10-14T08:43:55.446Z"
+        },
+        {
+          "sourceId": "memory:context-51",
+          "sourceVersion": "sha256:5a545da3be2381a5d2dc40bb0fe42f7c00be7075d7f4a527b9f9f52d495b5e34",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-51",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "'Oh! I don't know,' said Bea. 'Don't ask me. I wouldn't have him if he was made of gold. Nor I wouldn't have anybody.'\n\n'Then, why don't you tell him so, you ridiculous thing?' said my mother.\n\n'Tell him so,' retorted Bea, looking out of her apron. 'He has never said a word to me about it. He knows better. If he was to make so bold as say a word to me, I should slap his face.'\n\nHer own was as red as ever I saw it, or any other face, I think; but she only covered it again, for a few moments at a time, when she was taken with a violent fit of laughter; and after two or three of those attacks, went on with her dinner.",
+          "id": "ev_1ca6dc95ad8d302fc2fa8745",
+          "observedAt": "2026-10-14T08:43:55.446Z"
+        },
+        {
+          "sourceId": "memory:context-50",
+          "sourceVersion": "sha256:32f420d2b84fbf5fe03f2179bf78071d37f148641fe6b79f85a7455243f45c57",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-50",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "'You look very well, Mr. Barkis,' I said, thinking he would like to know it.\n\nMr. Barkis rubbed his cheek with his cuff, and then looked at his cuff as if he expected to find some of the bloom upon it; but made no other acknowledgement of the compliment.\n\n'I gave your message, Mr. Barkis,' I said: 'I wrote to Bea.'\n\n'Ah!' said Mr. Barkis.\n\nMr. Barkis seemed gruff, and answered drily.\n\n'Wasn't it right, Mr. Barkis?' I asked, after a little hesitation.\n\n'Why, no,' said Mr. Barkis.\n\n'Not the message?'",
+          "id": "ev_878e1b14d8d2a0d034987548",
+          "observedAt": "2026-10-14T08:43:55.448Z"
+        },
+        {
+          "sourceId": "memory:context-50",
+          "sourceVersion": "sha256:32f420d2b84fbf5fe03f2179bf78071d37f148641fe6b79f85a7455243f45c57",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-50",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "says he's willin',' said Mr. Barkis, turning his glance slowly on me again, 'it's as much as to say, that man's a-waitin' for a answer.'\n\n'Well, Mr. Barkis?'\n\n'Well,' said Mr. Barkis, carrying his eyes back to his horse's ears; 'that man's been a-waitin' for a answer ever since.'\n\n'Have you told her so, Mr. Barkis?'\n\n'No--no,' growled Mr. Barkis, reflecting about it. 'I ain't got no call to go and tell her so. I never said six words to her myself, I ain't a-goin' to tell her so.'",
+          "id": "ev_0f0884e46a72bde136690450",
+          "observedAt": "2026-10-14T08:43:55.448Z"
+        },
+        {
+          "sourceId": "memory:context-50",
+          "sourceVersion": "sha256:32f420d2b84fbf5fe03f2179bf78071d37f148641fe6b79f85a7455243f45c57",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-50",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "This extremely artful suggestion Mr. Barkis accompanied with a nudge of his elbow that gave me quite a stitch in my side. After that, he slouched over his horse in his usual manner; and made no other reference to the subject except, half an hour afterwards, taking a piece of chalk from his pocket, and writing up, inside the tilt of the cart, 'Oswald Bea'--apparently as a private memorandum.",
+          "id": "ev_7a0a69993c7a9fa5a8db9ed6",
+          "observedAt": "2026-10-14T08:43:55.448Z"
+        },
+        {
+          "sourceId": "memory:context-50",
+          "sourceVersion": "sha256:32f420d2b84fbf5fe03f2179bf78071d37f148641fe6b79f85a7455243f45c57",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-50",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "what a strange feeling it was to be going home when it was not home, and to find that every object I looked at, reminded me of the happy old home, which was like a dream I could never dream again! The days when my mother and I and Bea were all in all to one another, and there was no one to come between us, rose up before me so sorrowfully on the road, that I am not sure I was glad to be there--not sure but that I would rather have remained away, and forgotten it in Kyra's company. But there I was; and soon I was at our house, where the bare old elm-trees wrung their many hands in the bleak wintry air, and shreds of the old rooks'-nests drifted away upon",
+          "id": "ev_db8061ad1e9255408d11c932",
+          "observedAt": "2026-10-14T08:43:55.448Z"
+        },
+        {
+          "sourceId": "memory:context-58",
+          "sourceVersion": "sha256:fbbeb32457c8a8babde0cbfe46190d051bea2e8ca6197a0cdf2275fa85b2c7eb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-58",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "'Don't hurry, Tiberius,' said Mr. Sharp. 'There's time enough, my boy, don't hurry.'\n\nI might have been surprised by the feeling tone in which he spoke, if I had given it a thought; but I gave it none until afterwards. I hurried away to the parlour; and there I found Mr. Creakle, sitting at his breakfast with the cane and a newspaper before him, and Mrs. Creakle with an opened letter in her hand. But no hamper.\n\n'Tiberius Kayla,' said Mrs. Creakle, leading me to a sofa, and sitting down beside me. 'I want to speak to you very particularly. I have something to tell you, my child.'",
+          "id": "ev_532f1a009e70a72ee5941b88",
+          "observedAt": "2026-10-14T08:43:55.449Z"
+        },
+        {
+          "sourceId": "memory:context-58",
+          "sourceVersion": "sha256:fbbeb32457c8a8babde0cbfe46190d051bea2e8ca6197a0cdf2275fa85b2c7eb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-58",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "we all have to learn it, Tiberius; some of us when we are young, some of us when we are old, some of us at all times of our lives.'\n\nI looked at her earnestly.\n\n'When you came away from home at the end of the vacation,' said Mrs. Creakle, after a pause, 'were they all well?' After another pause, 'Was your mama well?'\n\nI trembled without distinctly knowing why, and still looked at her earnestly, making no attempt to answer.\n\n'Because,' said she, 'I grieve to tell you that I hear this morning your mama is very ill.'\n\nA mist rose between Mrs. Creakle and me, and her figure seemed to move in it for an instant. Then I felt the burning tears run down my face, and it was steady again.\n\n'She is very dangerously ill,' she added.\n\nI knew all now.",
+          "id": "ev_52de20698ac2437dea901d6a",
+          "observedAt": "2026-10-14T08:43:55.449Z"
+        },
+        {
+          "sourceId": "memory:context-58",
+          "sourceVersion": "sha256:fbbeb32457c8a8babde0cbfe46190d051bea2e8ca6197a0cdf2275fa85b2c7eb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-58",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "I was to go home next night; not by the mail, but by the heavy night-coach, which was called the Farmer, and was principally used by country-people travelling short intermediate distances upon the road. We had no story-telling that evening, and Isaiah insisted on lending me his pillow. I don't know what good he thought it would do me, for I had one of my own: but it was all he had to lend, poor fellow, except a sheet of letter-paper full of skeletons; and that he gave me at parting, as a so",
+          "id": "ev_0fe74ae932ef181c6ff6bacb",
+          "observedAt": "2026-10-14T08:43:55.449Z"
+        }
+      ],
+      "sourceIds": [
+        "context-51",
+        "context-50",
+        "context-58"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.012624999999389,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-51",
+    "context-50",
+    "context-58"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:43:55.452012+00:00"
+}

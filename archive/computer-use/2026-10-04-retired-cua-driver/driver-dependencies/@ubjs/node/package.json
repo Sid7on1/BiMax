@@ -1,0 +1,42 @@
+{
+  "name": "@ubjs/node",
+  "version": "0.31.0-3",
+  "description": "Call Rust libraries from Node.js without hand-written glue — the N-API runtime backend for uniffi-bindgen-react-native.",
+  "main": "lib.js",
+  "types": "index.d.ts",
+  "homepage": "https://github.com/jhugman/uniffi-bindgen-react-native/tree/main/runtimes/napi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jhugman/uniffi-bindgen-react-native.git",
+    "directory": "runtimes/napi"
+  },
+  "license": "MPL-2.0",
+  "author": {
+    "name": "James Hugman",
+    "email": "james@hugman.tv"
+  },
+  "keywords": [
+    "uniffi",
+    "napi",
+    "node-api",
+    "rust",
+    "ffi",
+    "libffi"
+  ],
+  "bugs": {
+    "url": "https://github.com/jhugman/uniffi-bindgen-react-native/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "optionalDependencies": {
+    "@ubjs/node-darwin-arm64": "0.31.0-3",
+    "@ubjs/node-darwin-x64": "0.31.0-3",
+    "@ubjs/node-linux-arm64-gnu": "0.31.0-3",
+    "@ubjs/node-linux-arm64-musl": "0.31.0-3",
+    "@ubjs/node-linux-x64-gnu": "0.31.0-3",
+    "@ubjs/node-linux-x64-musl": "0.31.0-3",
+    "@ubjs/node-win32-arm64-msvc": "0.31.0-3",
+    "@ubjs/node-win32-x64-msvc": "0.31.0-3"
+  }
+}

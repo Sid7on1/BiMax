@@ -1,0 +1,162 @@
+{
+  "row": 13,
+  "query": 84,
+  "id": "mab-13-84",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T13:51:56.681959+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n81. Noreen handed a signed paper to the sergeant of the guard.\n82. Miracle pleaded with Noreen for mercy.\n83. Noreen informed Miracle that she was to have six months in prison.\n84. Miracle adjusted her disordered garments and announced to the soldiers that she was to be released.\n85. M. Madeleine ordered that Miracle be set at liberty.\n\n\nBelow is a list of possible subsequent events:\n\n['M. Madeleine revealed to Noreen that the local official had made a significant error.', 'M. Madeleine clarified to Noreen that the neighbor was mistaken in his accusations.', 'M. Madeleine told Noreen that the traveler had been misled by the rumors.', 'M. Madeleine explained to Noreen that the townsman was in the wrong.', 'M. Madeleine informed Noreen that the passerby had misunderstood the situation.', 'M. Madeleine asserted to Noreen that the merchant had acted improperly.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "M. Madeleine explained to Noreen that the townsman was in the wrong."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-108",
+    "context-106",
+    "context-111"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T13:57:11.291569+00:00",
+  "rag": {
+    "ids": [
+      "context-108",
+      "context-106",
+      "context-111"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) nor dared so much as to breathe freely, but her glance strayed from Madeleine to Noreen, and from Noreen to Madeleine in turn, according to which was speaking.\n\nIt was evident that Noreen must have been exasperated beyond measure before he would permit himself to apostrophize the sergeant as he had done, after the mayor\u2019s suggestion that Miracle should be set at liberty.\n\nHad he reached the point of forgetting the mayor\u2019s presence?\n\nHad he finally declared to himself that it was impossible that any \u201cauthority\u201d should have given such an order, and that the mayor must certainly have said one thing by mistake for another, without intending it?\n\nOr, in view of the enormities of which he had been a witness for the past two hours, did he say to himself, that it was necessary to recur to supreme resolutions, that it was indispensable that the small should be made great, that the police spy should transform himself into a magistrate, that the policeman should become a dispenser of justice, and that, in this prodigious extremity, order, law, morality, government, society in its entirety, was personified in him, Noreen?\n\nHowever that may be, when M.\n  (part 3 of 5, excerpt) Here is the true state of the case: I was passing through the square just as you were leading this woman away; there were still groups of people standing about, and I made inquiries and learned everything; it was the townsman who was in the wrong and who should have been arrested by p\n- (part 3 of 4, excerpt) Madeleine wiped his face, and said:\u2014 \u201cInspector Noreen, set this woman at liberty.\u201d\n\nNoreen felt that he was on the verge of going mad.\n- (part 3 of 5, excerpt) Madeleine was in his study, occupied in arranging in advance some pressing matters connected with the mayor\u2019s office, in case",
+    "evidence": [
+      {
+        "sourceId": "memory:context-108",
+        "sourceVersion": "sha256:d8eb55bdd564961c0fb2a1215b01cd5538070c93e887073e434686895cea90a7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-108",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "nor dared so much as to breathe freely, but her glance strayed from Madeleine to Noreen, and from Noreen to Madeleine in turn, according to which was speaking.\n\nIt was evident that Noreen must have been exasperated beyond measure before he would permit himself to apostrophize the sergeant as he had done, after the mayor\u2019s suggestion that Miracle should be set at liberty.\n\nHad he reached the point of forgetting the mayor\u2019s presence?\n\nHad he finally declared to himself that it was impossible that any \u201cauthority\u201d should have given such an order, and that the mayor must certainly have said one thing by mistake for another, without intending it?\n\nOr, in view of the enormities of which he had been a witness for the past two hours, did he say to himself, that it was necessary to recur to supreme resolutions, that it was indispensable that the small should be made great, that the police spy should transform himself into a magistrate, that the policeman should become a dispenser of justice, and that, in this prodigious extremity, order, law, morality, government, society in its entirety, was personified in him, Noreen?\n\nHowever that may be, when M.",
+        "id": "ev_ed7563d7f7c809532b75097b",
+        "observedAt": "2026-10-14T08:56:50.708Z"
+      },
+      {
+        "sourceId": "memory:context-108",
+        "sourceVersion": "sha256:d8eb55bdd564961c0fb2a1215b01cd5538070c93e887073e434686895cea90a7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-108",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Here is the true state of the case: I was passing through the square just as you were leading this woman away; there were still groups of people standing about, and I made inquiries and learned everything; it was the townsman who was in the wrong and who should have been arrested by p",
+        "id": "ev_3786fa4f6bca983aa83fab23",
+        "observedAt": "2026-10-14T08:56:50.708Z"
+      },
+      {
+        "sourceId": "memory:context-106",
+        "sourceVersion": "sha256:a12995c4ec43ca8d09c19d032071f9d162ad53c3f7fb0020cc5feebb4f232bbe",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-106",
+          "part": 3,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Madeleine wiped his face, and said:\u2014 \u201cInspector Noreen, set this woman at liberty.\u201d\n\nNoreen felt that he was on the verge of going mad.",
+        "id": "ev_238959e09af4c01c5f85d953",
+        "observedAt": "2026-10-14T08:56:50.709Z"
+      },
+      {
+        "sourceId": "memory:context-111",
+        "sourceVersion": "sha256:7a188e369f64c44e28789f32d200b49dddf899849392d561debdf93c4cc75fec",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-111",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Madeleine was in his study, occupied in arranging in advance some pressing matters connected with the mayor\u2019s office, in case",
+        "id": "ev_b27165201844197ff2e4a859",
+        "observedAt": "2026-10-14T08:56:50.710Z"
+      }
+    ],
+    "sourceIds": [
+      "context-108",
+      "context-106",
+      "context-111"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 7.33270800000173,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8",
+  "prediction": "M. Madeleine clarified to Noreen that the neighbor was mistaken in his accusations.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.6363636363636364
+  },
+  "readerUsage": {
+    "prompt_tokens": 750,
+    "completion_tokens": 1042,
+    "total_tokens": 1792,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 509,
+    "completion_tokens": 1026,
+    "total_tokens": 1535,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 123717.07775000049,
+  "judgeWallMs": 130734.36054099965
+}

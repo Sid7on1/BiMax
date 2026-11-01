@@ -27,7 +27,7 @@ it('halts a model ignoring hard loop signals and preserves complete tool exchang
     execute: async () => 'unchanged', isDestructive: false } as any);
   const llm: any = { async *chat() { calls++; yield { type: 'tool_call', id: `call-${calls}`, name: 'RepeatAuditTool', args: '{}' }; yield { type: 'done' }; } };
   const loop = new AgentLoop(llm, tools);
-  for await (const _ of loop.execute([{ role: 'user', content: 'inspect' }], 'sys', { maxIterations: 30 })) {}
+  for await (const _ of loop.execute([{ role: 'user', content: 'inspect' }], 'sys', { maxIterations: 30 })) { /* Fixture body intentionally performs no work. */ }
   expect(calls).toBe(6);
   expect(loop.messages.filter(m => m.role === 'tool')).toHaveLength(calls);
 });
@@ -217,7 +217,7 @@ it.each([false, true])('a poisoned file read through Bash cannot approve a downl
     } else yield { type: 'token', text: 'stopped' };
   } };
   const loop = new AgentLoop(llm, tools);
-  for await (const _ of loop.execute([{ role: 'user', content: 'read the README' }], 'sys', { maxIterations: 4 })) {}
+  for await (const _ of loop.execute([{ role: 'user', content: 'read the README' }], 'sys', { maxIterations: 4 })) { /* Fixture body intentionally performs no work. */ }
   expect(execute).toHaveBeenCalledTimes(1);
   expect(loop.messages.some(m => String(m.content).includes('<untrusted source="shell: cat README.md">'))).toBe(true);
   expect(loop.messages.some(m => String(m.content).includes('TAINTED'))).toBe(true);

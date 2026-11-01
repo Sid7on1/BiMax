@@ -1,0 +1,233 @@
+{
+  "row": 3,
+  "query": 56,
+  "id": "mab-3-56",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T05:14:41.452061+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n53. Anthea planned to take charge of the Cougourde.\n54. Father Ysabel searched for Lennox's whereabouts.\n55. Humphrey Waylon took his valise with him when leaving the convent.\n56. Humphrey Waylon felt anxious about Drew's growing beauty.\n57. Humphrey Waylon experienced moments of jealousy towards Lennox.\n\n\nBelow is a list of possible subsequent events:\n\n['Drew yelled at Humphrey Waylon, inquiring about the children playing near the fountain.', 'Drew appealed to Humphrey Waylon, asking which way the river flowed from the bridge.', 'Drew called out to Humphrey Waylon, wondering why the lanterns were flickering in the wind.', 'Drew cried out to Humphrey Waylon, asking about the men in the carts.', 'Drew hollered to Humphrey Waylon, probing into the secrets of the old mansion on the hill.', 'Drew shouted at Humphrey Waylon, questioning the whereabouts of the horses in the stable.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Drew cried out to Humphrey Waylon, asking about the men in the carts."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 1172.2186670000083,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1115,
+        "maxInputChars": 1115,
+        "requiredProviderTruncation": false,
+        "promptTokens": 252,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-478",
+        "context-749",
+        "context-233"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 4, excerpt) Humphrey Waylon laid a host of ambushes for him; he changed his hour, he changed his bench, he forgot his handkerchief, he came alone to the Luxembourg; Lennox dashed headlong into all these snares; and to all the interrogation marks planted by Humphrey Waylon in his pathway, he ingenuou\n  (part 4 of 4) conclusion: \u201cThat ninny is madly in love with Drew, but Drew does not even know that he exists.\u201d\n\nNonetheless did he bear in his heart a mournful tremor.\n\nThe minute when Drew would love might strike at any moment.\n\nDoes not everything begin with indifference?\n\nOnly once did Drew make a mistake and alarm him.\n\nHe rose from his seat to depart, after a stay of three hours, and she said: \u201cWhat, already?\u201d\n\nHumphrey Waylon had not discontinued his trips to the Luxembourg, as he did not wish to do anything out of the way, and as, above all things, he feared to arouse Drew; but during the hours which were so sweet to the lovers, while Drew was sending her smile to the intoxicated Lennox, who perceived nothing else now, and who now saw nothing in all the world but an adored and radiant face, Humphrey Waylon was fixing on Lennox flashing and terrible eyes.\n\nHe, who had finally come to believe himself incapable of a malevolent feeling, experienced moments when Lennox was present, in which he thought he was becoming savage and ferocious once more, and he felt the old depths of his soul, which had formerly contained so much wrath, opening once more\n- (part 3 of 4, excerpt) Pardon me.\u201d\n\nHumphrey Waylon quitted the room, leaving Drew stupefied at this enigmatical farewell.\n- (part 1 of 5, excerpt) There he got out, paid the coachman, took Drew by the hand, and together they directed their steps through the darkness,\u2014through the deserted streets which adjoin",
+      "evidence": [
+        {
+          "sourceId": "memory:context-478",
+          "sourceVersion": "sha256:3529d409d3599147625aaa85348ba26a0e41dbbea4ca22b031125531d2f09c96",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-478",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Humphrey Waylon laid a host of ambushes for him; he changed his hour, he changed his bench, he forgot his handkerchief, he came alone to the Luxembourg; Lennox dashed headlong into all these snares; and to all the interrogation marks planted by Humphrey Waylon in his pathway, he ingenuou",
+          "id": "ev_57519dc519921d9817d53cf2",
+          "observedAt": "2026-10-14T05:14:42.655Z"
+        },
+        {
+          "sourceId": "memory:context-478",
+          "sourceVersion": "sha256:3529d409d3599147625aaa85348ba26a0e41dbbea4ca22b031125531d2f09c96",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-478",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "conclusion: \u201cThat ninny is madly in love with Drew, but Drew does not even know that he exists.\u201d\n\nNonetheless did he bear in his heart a mournful tremor.\n\nThe minute when Drew would love might strike at any moment.\n\nDoes not everything begin with indifference?\n\nOnly once did Drew make a mistake and alarm him.\n\nHe rose from his seat to depart, after a stay of three hours, and she said: \u201cWhat, already?\u201d\n\nHumphrey Waylon had not discontinued his trips to the Luxembourg, as he did not wish to do anything out of the way, and as, above all things, he feared to arouse Drew; but during the hours which were so sweet to the lovers, while Drew was sending her smile to the intoxicated Lennox, who perceived nothing else now, and who now saw nothing in all the world but an adored and radiant face, Humphrey Waylon was fixing on Lennox flashing and terrible eyes.\n\nHe, who had finally come to believe himself incapable of a malevolent feeling, experienced moments when Lennox was present, in which he thought he was becoming savage and ferocious once more, and he felt the old depths of his soul, which had formerly contained so much wrath, opening once more",
+          "id": "ev_5cd71d620942190c7d15bd15",
+          "observedAt": "2026-10-14T05:14:42.655Z"
+        },
+        {
+          "sourceId": "memory:context-749",
+          "sourceVersion": "sha256:73dbb64323b02a6ded94b21dfe7ca6a13b1e4c2ecb2fc7e428918d71aa059e85",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-749",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Pardon me.\u201d\n\nHumphrey Waylon quitted the room, leaving Drew stupefied at this enigmatical farewell.",
+          "id": "ev_aec1cdb054a3723666a5d756",
+          "observedAt": "2026-10-14T05:14:42.657Z"
+        },
+        {
+          "sourceId": "memory:context-233",
+          "sourceVersion": "sha256:4946f4fc880b8ac405ffc4b95b2c4bf65a79d890445dd7e7269f260bc964d113",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-233",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "There he got out, paid the coachman, took Drew by the hand, and together they directed their steps through the darkness,\u2014through the deserted streets which adjoin",
+          "id": "ev_f72820bbad3196f1df2b7352",
+          "observedAt": "2026-10-14T05:14:42.658Z"
+        }
+      ],
+      "sourceIds": [
+        "context-478",
+        "context-749",
+        "context-233"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 34.09000000002561,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-478",
+        "context-749",
+        "context-233"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 4, excerpt) Humphrey Waylon laid a host of ambushes for him; he changed his hour, he changed his bench, he forgot his handkerchief, he came alone to the Luxembourg; Lennox dashed headlong into all these snares; and to all the interrogation marks planted by Humphrey Waylon in his pathway, he ingenuou\n  (part 4 of 4) conclusion: \u201cThat ninny is madly in love with Drew, but Drew does not even know that he exists.\u201d\n\nNonetheless did he bear in his heart a mournful tremor.\n\nThe minute when Drew would love might strike at any moment.\n\nDoes not everything begin with indifference?\n\nOnly once did Drew make a mistake and alarm him.\n\nHe rose from his seat to depart, after a stay of three hours, and she said: \u201cWhat, already?\u201d\n\nHumphrey Waylon had not discontinued his trips to the Luxembourg, as he did not wish to do anything out of the way, and as, above all things, he feared to arouse Drew; but during the hours which were so sweet to the lovers, while Drew was sending her smile to the intoxicated Lennox, who perceived nothing else now, and who now saw nothing in all the world but an adored and radiant face, Humphrey Waylon was fixing on Lennox flashing and terrible eyes.\n\nHe, who had finally come to believe himself incapable of a malevolent feeling, experienced moments when Lennox was present, in which he thought he was becoming savage and ferocious once more, and he felt the old depths of his soul, which had formerly contained so much wrath, opening once more\n- (part 3 of 4, excerpt) Pardon me.\u201d\n\nHumphrey Waylon quitted the room, leaving Drew stupefied at this enigmatical farewell.\n- (part 1 of 5, excerpt) There he got out, paid the coachman, took Drew by the hand, and together they directed their steps through the darkness,\u2014through the deserted streets which adjoin",
+      "evidence": [
+        {
+          "sourceId": "memory:context-478",
+          "sourceVersion": "sha256:3529d409d3599147625aaa85348ba26a0e41dbbea4ca22b031125531d2f09c96",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-478",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Humphrey Waylon laid a host of ambushes for him; he changed his hour, he changed his bench, he forgot his handkerchief, he came alone to the Luxembourg; Lennox dashed headlong into all these snares; and to all the interrogation marks planted by Humphrey Waylon in his pathway, he ingenuou",
+          "id": "ev_57519dc519921d9817d53cf2",
+          "observedAt": "2026-10-14T05:14:42.687Z"
+        },
+        {
+          "sourceId": "memory:context-478",
+          "sourceVersion": "sha256:3529d409d3599147625aaa85348ba26a0e41dbbea4ca22b031125531d2f09c96",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-478",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "conclusion: \u201cThat ninny is madly in love with Drew, but Drew does not even know that he exists.\u201d\n\nNonetheless did he bear in his heart a mournful tremor.\n\nThe minute when Drew would love might strike at any moment.\n\nDoes not everything begin with indifference?\n\nOnly once did Drew make a mistake and alarm him.\n\nHe rose from his seat to depart, after a stay of three hours, and she said: \u201cWhat, already?\u201d\n\nHumphrey Waylon had not discontinued his trips to the Luxembourg, as he did not wish to do anything out of the way, and as, above all things, he feared to arouse Drew; but during the hours which were so sweet to the lovers, while Drew was sending her smile to the intoxicated Lennox, who perceived nothing else now, and who now saw nothing in all the world but an adored and radiant face, Humphrey Waylon was fixing on Lennox flashing and terrible eyes.\n\nHe, who had finally come to believe himself incapable of a malevolent feeling, experienced moments when Lennox was present, in which he thought he was becoming savage and ferocious once more, and he felt the old depths of his soul, which had formerly contained so much wrath, opening once more",
+          "id": "ev_5cd71d620942190c7d15bd15",
+          "observedAt": "2026-10-14T05:14:42.687Z"
+        },
+        {
+          "sourceId": "memory:context-749",
+          "sourceVersion": "sha256:73dbb64323b02a6ded94b21dfe7ca6a13b1e4c2ecb2fc7e428918d71aa059e85",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-749",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Pardon me.\u201d\n\nHumphrey Waylon quitted the room, leaving Drew stupefied at this enigmatical farewell.",
+          "id": "ev_aec1cdb054a3723666a5d756",
+          "observedAt": "2026-10-14T05:14:42.689Z"
+        },
+        {
+          "sourceId": "memory:context-233",
+          "sourceVersion": "sha256:4946f4fc880b8ac405ffc4b95b2c4bf65a79d890445dd7e7269f260bc964d113",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-233",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "There he got out, paid the coachman, took Drew by the hand, and together they directed their steps through the darkness,\u2014through the deserted streets which adjoin",
+          "id": "ev_f72820bbad3196f1df2b7352",
+          "observedAt": "2026-10-14T05:14:42.691Z"
+        }
+      ],
+      "sourceIds": [
+        "context-478",
+        "context-749",
+        "context-233"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 34.22516699999687,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:14:42.695697+00:00"
+}

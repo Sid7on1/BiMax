@@ -1,0 +1,145 @@
+{
+  "row": 0,
+  "query": 78,
+  "id": "mab-0-78",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:26:26.043309+00:00",
+  "valid": true,
+  "question": "What is the Norman architecture idiom?",
+  "references": [
+    "Romanesque",
+    "Romanesque",
+    "Romanesque"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-87",
+    "context-227",
+    "context-85"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T15:27:02.608660+00:00",
+  "rag": {
+    "ids": [
+      "context-87",
+      "context-227",
+      "context-85"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 6) it is determined that laboratory measurements of forces are fully consistent with the conceptual definition of force offered by Newtonian mechanics.\n\nDocument 444:\nBritain's imperialist ambitions can be seen as early as the sixteenth century. In 1599 the British East India Company was established and was chartered by Queen Elizabeth in the following year. With the establishment of trading posts in India, the British were able to maintain strength relative to others empires such as the Portuguese who already had set up trading posts in India. In 1767 political activity caused exploitation of the East India Company causing the plundering of the local economy, almost bringing the company into bankruptcy.\n\nDocument 445:\nNorman architecture typically stands out as a new stage in the architectural history of the regions they subdued. They spread a unique Romanesque idiom to England and Italy, and the encastellation of these regions with keeps in their north French style fundamentally altered the military landscape. Their style was characterised by rounded arches, particularly over windows and doorways, and massive proportions.\n- (part 4 of 5, excerpt) Document 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n- (part 3 of 5, excerpt) Gothic architecture is represented in the majestic churches but also at the burgher houses and fortifications. The most significant buildings are St. John's Cathedral (14th century), the temple is a typical example of the so-called Masovian",
+    "evidence": [
+      {
+        "sourceId": "memory:context-87",
+        "sourceVersion": "sha256:4f6a8e1a64f779135d8a6162cd03f38c1a9018607e8ba531dc786f57fadfdf02",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-87",
+          "part": 5,
+          "parts": 6
+        },
+        "text": "it is determined that laboratory measurements of forces are fully consistent with the conceptual definition of force offered by Newtonian mechanics.\n\nDocument 444:\nBritain's imperialist ambitions can be seen as early as the sixteenth century. In 1599 the British East India Company was established and was chartered by Queen Elizabeth in the following year. With the establishment of trading posts in India, the British were able to maintain strength relative to others empires such as the Portuguese who already had set up trading posts in India. In 1767 political activity caused exploitation of the East India Company causing the plundering of the local economy, almost bringing the company into bankruptcy.\n\nDocument 445:\nNorman architecture typically stands out as a new stage in the architectural history of the regions they subdued. They spread a unique Romanesque idiom to England and Italy, and the encastellation of these regions with keeps in their north French style fundamentally altered the military landscape. Their style was characterised by rounded arches, particularly over windows and doorways, and massive proportions.",
+        "id": "ev_00d5e354188ddc3dd77e07a6",
+        "observedAt": "2026-10-14T15:18:05.310Z"
+      },
+      {
+        "sourceId": "memory:context-227",
+        "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-227",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Document 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.",
+        "id": "ev_1ea25ce133d41c4c76a3066d",
+        "observedAt": "2026-10-14T15:18:05.310Z"
+      },
+      {
+        "sourceId": "memory:context-85",
+        "sourceVersion": "sha256:8521671c01df7422599160a500011031c60f3bdf7730f92631292cce2891eb2a",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-85",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Gothic architecture is represented in the majestic churches but also at the burgher houses and fortifications. The most significant buildings are St. John's Cathedral (14th century), the temple is a typical example of the so-called Masovian",
+        "id": "ev_2369179296848af711ca26a7",
+        "observedAt": "2026-10-14T15:18:05.310Z"
+      }
+    ],
+    "sourceIds": [
+      "context-87",
+      "context-227",
+      "context-85"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 4.073374999999942,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+  "prediction": "Norman architecture is described as a unique Romanesque idiom spread to England and Italy, characterized by rounded arches (particularly over windows and doorways) and massive proportions. It involved the encastellation of regions with keeps in the north French style, fundamentally altering the military landscape. In England, it immediately succeeded Anglo-Saxon architecture and preceded Early Gothic. In southern Italy, the Normans incorporated Islamic, Lombard, and Byzantine building techniques, creating a distinctive Norman-Arab architecture within the Kingdom of Sicily.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.028169014084507043
+  },
+  "readerUsage": {
+    "prompt_tokens": 463,
+    "completion_tokens": 1125,
+    "total_tokens": 1588,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 337,
+    "completion_tokens": 524,
+    "total_tokens": 861,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 521,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 21881.531416000144,
+  "judgeWallMs": 14680.235166000784
+}

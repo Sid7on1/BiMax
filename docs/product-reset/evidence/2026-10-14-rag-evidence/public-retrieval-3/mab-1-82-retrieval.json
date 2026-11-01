@@ -1,0 +1,235 @@
+{
+  "row": 1,
+  "query": 82,
+  "id": "mab-1-82",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:41:10.719603+00:00",
+  "valid": true,
+  "question": "Rostker v. Goldberg held that the practice of what way of filling armed forces vacancies was consitutional?",
+  "references": [
+    "Conscription"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 371.4416659999988,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 107,
+        "maxInputChars": 107,
+        "requiredProviderTruncation": false,
+        "promptTokens": 28,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-240",
+        "context-92",
+        "context-184"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) starring Ajith Kumar and Nayantara. He is an oldest son of dancer Mugur Sundar, and an older brother to fellow choreographers Prabhu Deva and Nagendra Prasad.\n\nDocument 1710:\nRostker v. Goldberg\nRostker v. Goldberg, 453 U.S. 57 (1981) , was a decision of the United States Supreme Court holding that the practice of requiring only men to register for the draft was constitutional. After extensive hearings, floor debate and committee sessions on the matter, the United States Congress enacted the law, as it had previously been, to apply to men only. Several attorneys, including Robert L. Goldberg, subsequently challenged the gender distinction as unconstitutional. (The named defendant is Bernard D. Rostker, Director of the Selective Service System.) In a 6-3 decision, the Supreme Court held that this gender distinction was not a violation of the equal protection component of the due process clause, and that the Act would stand as passed.\n\nDocument 1711:\nGallery of flags of dependent territories\nThis overview contains the flags of dependent territories and other areas of special sovereignty. Territories without a separate flag other than that of their controlling country are excluded.\n- (part 1 of 5, excerpt) nd prohibiting discrimination by any government agency, including the armed forces. In practice the services, particularly the Navy and the Marines, found ways to evade this order \u2014 the Marine Corps remained all-white until 1942. In September 1942, at Eleanor's instigation, Roosevelt met with a delegation of African-American leaders, who demanded full integration into the forces, including the right to s\n- (part 3 of 5, excerpt) The Red Army defeated the White Armed Forces of South Russia in Ukraine and the army led by Admiral Aleksandr Kolchak in Sibe",
+      "evidence": [
+        {
+          "sourceId": "memory:context-240",
+          "sourceVersion": "sha256:450d9ec50092ffd3771975eba227f229f20369b488d5b9a9b22e966a00a140a4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-240",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "starring Ajith Kumar and Nayantara. He is an oldest son of dancer Mugur Sundar, and an older brother to fellow choreographers Prabhu Deva and Nagendra Prasad.\n\nDocument 1710:\nRostker v. Goldberg\nRostker v. Goldberg, 453 U.S. 57 (1981) , was a decision of the United States Supreme Court holding that the practice of requiring only men to register for the draft was constitutional. After extensive hearings, floor debate and committee sessions on the matter, the United States Congress enacted the law, as it had previously been, to apply to men only. Several attorneys, including Robert L. Goldberg, subsequently challenged the gender distinction as unconstitutional. (The named defendant is Bernard D. Rostker, Director of the Selective Service System.) In a 6-3 decision, the Supreme Court held that this gender distinction was not a violation of the equal protection component of the due process clause, and that the Act would stand as passed.\n\nDocument 1711:\nGallery of flags of dependent territories\nThis overview contains the flags of dependent territories and other areas of special sovereignty. Territories without a separate flag other than that of their controlling country are excluded.",
+          "id": "ev_95c6d95f26a66ae790d3b43c",
+          "observedAt": "2026-10-14T08:41:11.095Z"
+        },
+        {
+          "sourceId": "memory:context-92",
+          "sourceVersion": "sha256:94bfe96d231e72768c07fa71baf41eb4d86555f32242748f948840962c351c4c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-92",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "nd prohibiting discrimination by any government agency, including the armed forces. In practice the services, particularly the Navy and the Marines, found ways to evade this order \u2014 the Marine Corps remained all-white until 1942. In September 1942, at Eleanor's instigation, Roosevelt met with a delegation of African-American leaders, who demanded full integration into the forces, including the right to s",
+          "id": "ev_0764f78b0b6c3bf2abc16692",
+          "observedAt": "2026-10-14T08:41:11.095Z"
+        },
+        {
+          "sourceId": "memory:context-184",
+          "sourceVersion": "sha256:631c6cfe50526c9d266fdf8c6bda223a7a6e6996be141674f320d372044a3092",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-184",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The Red Army defeated the White Armed Forces of South Russia in Ukraine and the army led by Admiral Aleksandr Kolchak in Sibe",
+          "id": "ev_aad043dbe851483a0cb43bdb",
+          "observedAt": "2026-10-14T08:41:11.096Z"
+        }
+      ],
+      "sourceIds": [
+        "context-240",
+        "context-92",
+        "context-184"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.573000000003958,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-240",
+        "context-92",
+        "context-184"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) starring Ajith Kumar and Nayantara. He is an oldest son of dancer Mugur Sundar, and an older brother to fellow choreographers Prabhu Deva and Nagendra Prasad.\n\nDocument 1710:\nRostker v. Goldberg\nRostker v. Goldberg, 453 U.S. 57 (1981) , was a decision of the United States Supreme Court holding that the practice of requiring only men to register for the draft was constitutional. After extensive hearings, floor debate and committee sessions on the matter, the United States Congress enacted the law, as it had previously been, to apply to men only. Several attorneys, including Robert L. Goldberg, subsequently challenged the gender distinction as unconstitutional. (The named defendant is Bernard D. Rostker, Director of the Selective Service System.) In a 6-3 decision, the Supreme Court held that this gender distinction was not a violation of the equal protection component of the due process clause, and that the Act would stand as passed.\n\nDocument 1711:\nGallery of flags of dependent territories\nThis overview contains the flags of dependent territories and other areas of special sovereignty. Territories without a separate flag other than that of their controlling country are excluded.\n- (part 1 of 5) nd prohibiting discrimination by any government agency, including the armed forces. In practice the services, particularly the Navy and the Marines, found ways to evade this order \u2014 the Marine Corps remained all-white until 1942. In September 1942, at Eleanor's instigation, Roosevelt met with a delegation of African-American leaders, who demanded full integration into the forces, including the right to serve in combat roles and in the Navy, the Marine Corps and the United States Army Air Forces. Roosevelt agreed, but then did nothing to implement his promise. It was left to his successor, Harry S. Truman, to fully desegregate the armed forces.\n  (part 2 of 5) Forces. Roosevelt agreed, but then did nothing to implement his promise. It was left to his successor, Harry S. Truman, to fully desegregate the armed forces.\n\nDocument 676:\nChuck Long\nCharles Franklin Long Jr. (born February 18, 1963) is an American football coach. He played quarterback in college at Iowa for Hayden Fry and professionally with the Detroit Lions and the Los Angeles Rams. He is an inductee of the College Football Hall of Fame. After his professional career, Chuck became the head football coach of San Diego State University, but was fired on November 23, 2008. Long also held a position as the offensive coordinator for the Kansas Jayhawks under head coach Turner Gill before Gill was fired in 2011. Later, Chuck became an analyst for the Big Ten Network. On September 11, 2014 Chuck was named the CEO and Executive Director of the Iowa Sports Foundation, the organization that runs the Iowa Games, the Senior Games and the Live Healthy Iowa challenge.\n- (part 2 of 5) Corps and, while serving as the Assistant Secretary for Health, was the operational head of the Public Health Service.\n\nDocument 1312:\n\nRussian Civil War\n\nThe Russian Civil War (Russian: \u0413\u0440\u0430\u0436\u0434\u0430\u0301\u043d\u0441\u043a\u0430\u044f \u0432\u043e\u0439\u043d\u0430\u0301 \u0432 \u0420\u043e\u0441\u0441\u0438\u0301\u0438 , \"Grazhdanskaya voyna v Rossiyi\" ; November 1917 \u2013 October 1922) was a multi-party war in the former Russian Empire immediately after the Russian Revolutions of 1917, as many factions vied to determine Russia's political future.\n\nThe two largest combatant groups were the Red Army, fighting for the Bolshevik form of socialism led by Vladimir Lenin, and the loosely allied forces known as the White Army, which included diverse interests favoring monarchism, capitalism and alternative forms of socialism, each with democratic and antidemocratic variants.\n\nIn addition, rival militant socialists and nonideological Green armies fought against both the Bolsheviks and the Whites.\n\nEight foreign nations intervened against the Red Army, notably the Allied Forces and the pro-German armies.\n\nThe Red Army defeated the White Armed Forces of South Russia in Ukraine and the army led by Admiral Aleksandr Kolchak in Siberia in 1919.\n  (part 3 of 5) pro-German armies.\n\nThe Red Army defeated the White Armed Forces of South Russia in Ukraine and the army led by Admiral Aleksandr Kolchak in Siberia in 1919.\n\nThe remains of the White forces commanded by Pyotr Nikolayevich Wrangel were beaten in Crimea and evacuated in late 1920.\n\nLesser battles of the war continued on the periphery for two more years, and minor skirmishes with the remnants of the White forces in the Far East continued well into 1923.\n\nThe war ended in 1923 in the sense that Red control of the newly formed Soviet Union was now assured, although armed national resistance in Central Asia was not completely crushed until 1934.\n\nThere were an estimated 7,000,000\u201312,000,000 casualties during the war, mostly civilians.\n\nThe Russian Civil War has been described by some as the greatest national catastrophe that Europe had yet seen.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-240",
+          "sourceVersion": "sha256:450d9ec50092ffd3771975eba227f229f20369b488d5b9a9b22e966a00a140a4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-240",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "starring Ajith Kumar and Nayantara. He is an oldest son of dancer Mugur Sundar, and an older brother to fellow choreographers Prabhu Deva and Nagendra Prasad.\n\nDocument 1710:\nRostker v. Goldberg\nRostker v. Goldberg, 453 U.S. 57 (1981) , was a decision of the United States Supreme Court holding that the practice of requiring only men to register for the draft was constitutional. After extensive hearings, floor debate and committee sessions on the matter, the United States Congress enacted the law, as it had previously been, to apply to men only. Several attorneys, including Robert L. Goldberg, subsequently challenged the gender distinction as unconstitutional. (The named defendant is Bernard D. Rostker, Director of the Selective Service System.) In a 6-3 decision, the Supreme Court held that this gender distinction was not a violation of the equal protection component of the due process clause, and that the Act would stand as passed.\n\nDocument 1711:\nGallery of flags of dependent territories\nThis overview contains the flags of dependent territories and other areas of special sovereignty. Territories without a separate flag other than that of their controlling country are excluded.",
+          "id": "ev_95c6d95f26a66ae790d3b43c",
+          "observedAt": "2026-10-14T08:41:11.101Z"
+        },
+        {
+          "sourceId": "memory:context-92",
+          "sourceVersion": "sha256:94bfe96d231e72768c07fa71baf41eb4d86555f32242748f948840962c351c4c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-92",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "nd prohibiting discrimination by any government agency, including the armed forces. In practice the services, particularly the Navy and the Marines, found ways to evade this order \u2014 the Marine Corps remained all-white until 1942. In September 1942, at Eleanor's instigation, Roosevelt met with a delegation of African-American leaders, who demanded full integration into the forces, including the right to serve in combat roles and in the Navy, the Marine Corps and the United States Army Air Forces. Roosevelt agreed, but then did nothing to implement his promise. It was left to his successor, Harry S. Truman, to fully desegregate the armed forces.",
+          "id": "ev_ab0e74c250d2d39f3fba38df",
+          "observedAt": "2026-10-14T08:41:11.101Z"
+        },
+        {
+          "sourceId": "memory:context-92",
+          "sourceVersion": "sha256:94bfe96d231e72768c07fa71baf41eb4d86555f32242748f948840962c351c4c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-92",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "Forces. Roosevelt agreed, but then did nothing to implement his promise. It was left to his successor, Harry S. Truman, to fully desegregate the armed forces.\n\nDocument 676:\nChuck Long\nCharles Franklin Long Jr. (born February 18, 1963) is an American football coach. He played quarterback in college at Iowa for Hayden Fry and professionally with the Detroit Lions and the Los Angeles Rams. He is an inductee of the College Football Hall of Fame. After his professional career, Chuck became the head football coach of San Diego State University, but was fired on November 23, 2008. Long also held a position as the offensive coordinator for the Kansas Jayhawks under head coach Turner Gill before Gill was fired in 2011. Later, Chuck became an analyst for the Big Ten Network. On September 11, 2014 Chuck was named the CEO and Executive Director of the Iowa Sports Foundation, the organization that runs the Iowa Games, the Senior Games and the Live Healthy Iowa challenge.",
+          "id": "ev_8d6dd6ebf2ddc36cc610f260",
+          "observedAt": "2026-10-14T08:41:11.101Z"
+        },
+        {
+          "sourceId": "memory:context-184",
+          "sourceVersion": "sha256:631c6cfe50526c9d266fdf8c6bda223a7a6e6996be141674f320d372044a3092",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-184",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "Corps and, while serving as the Assistant Secretary for Health, was the operational head of the Public Health Service.\n\nDocument 1312:\n\nRussian Civil War\n\nThe Russian Civil War (Russian: \u0413\u0440\u0430\u0436\u0434\u0430\u0301\u043d\u0441\u043a\u0430\u044f \u0432\u043e\u0439\u043d\u0430\u0301 \u0432 \u0420\u043e\u0441\u0441\u0438\u0301\u0438 , \"Grazhdanskaya voyna v Rossiyi\" ; November 1917 \u2013 October 1922) was a multi-party war in the former Russian Empire immediately after the Russian Revolutions of 1917, as many factions vied to determine Russia's political future.\n\nThe two largest combatant groups were the Red Army, fighting for the Bolshevik form of socialism led by Vladimir Lenin, and the loosely allied forces known as the White Army, which included diverse interests favoring monarchism, capitalism and alternative forms of socialism, each with democratic and antidemocratic variants.\n\nIn addition, rival militant socialists and nonideological Green armies fought against both the Bolsheviks and the Whites.\n\nEight foreign nations intervened against the Red Army, notably the Allied Forces and the pro-German armies.\n\nThe Red Army defeated the White Armed Forces of South Russia in Ukraine and the army led by Admiral Aleksandr Kolchak in Siberia in 1919.",
+          "id": "ev_ac6ede96df6699c49c402128",
+          "observedAt": "2026-10-14T08:41:11.101Z"
+        },
+        {
+          "sourceId": "memory:context-184",
+          "sourceVersion": "sha256:631c6cfe50526c9d266fdf8c6bda223a7a6e6996be141674f320d372044a3092",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-184",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "pro-German armies.\n\nThe Red Army defeated the White Armed Forces of South Russia in Ukraine and the army led by Admiral Aleksandr Kolchak in Siberia in 1919.\n\nThe remains of the White forces commanded by Pyotr Nikolayevich Wrangel were beaten in Crimea and evacuated in late 1920.\n\nLesser battles of the war continued on the periphery for two more years, and minor skirmishes with the remnants of the White forces in the Far East continued well into 1923.\n\nThe war ended in 1923 in the sense that Red control of the newly formed Soviet Union was now assured, although armed national resistance in Central Asia was not completely crushed until 1934.\n\nThere were an estimated 7,000,000\u201312,000,000 casualties during the war, mostly civilians.\n\nThe Russian Civil War has been described by some as the greatest national catastrophe that Europe had yet seen.",
+          "id": "ev_ca271a91864f0d1d1b4a2bf2",
+          "observedAt": "2026-10-14T08:41:11.101Z"
+        }
+      ],
+      "sourceIds": [
+        "context-240",
+        "context-92",
+        "context-184"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.909790999998222,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-240",
+    "context-92",
+    "context-184"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:41:11.102898+00:00"
+}

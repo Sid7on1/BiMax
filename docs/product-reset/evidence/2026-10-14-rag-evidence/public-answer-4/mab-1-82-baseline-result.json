@@ -1,0 +1,143 @@
+{
+  "row": 1,
+  "query": 82,
+  "id": "mab-1-82",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:47:27.576907+00:00",
+  "valid": true,
+  "question": "Rostker v. Goldberg held that the practice of what way of filling armed forces vacancies was consitutional?",
+  "references": [
+    "Conscription"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-240",
+    "context-92",
+    "context-184"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:47:56.386406+00:00",
+  "rag": {
+    "ids": [
+      "context-240",
+      "context-92",
+      "context-184"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) starring Ajith Kumar and Nayantara. He is an oldest son of dancer Mugur Sundar, and an older brother to fellow choreographers Prabhu Deva and Nagendra Prasad.\n\nDocument 1710:\nRostker v. Goldberg\nRostker v. Goldberg, 453 U.S. 57 (1981) , was a decision of the United States Supreme Court holding that the practice of requiring only men to register for the draft was constitutional. After extensive hearings, floor debate and committee sessions on the matter, the United States Congress enacted the law, as it had previously been, to apply to men only. Several attorneys, including Robert L. Goldberg, subsequently challenged the gender distinction as unconstitutional. (The named defendant is Bernard D. Rostker, Director of the Selective Service System.) In a 6-3 decision, the Supreme Court held that this gender distinction was not a violation of the equal protection component of the due process clause, and that the Act would stand as passed.\n\nDocument 1711:\nGallery of flags of dependent territories\nThis overview contains the flags of dependent territories and other areas of special sovereignty. Territories without a separate flag other than that of their controlling country are excluded.\n- (part 1 of 5, excerpt) nd prohibiting discrimination by any government agency, including the armed forces. In practice the services, particularly the Navy and the Marines, found ways to evade this order \u2014 the Marine Corps remained all-white until 1942. In September 1942, at Eleanor's instigation, Roosevelt met with a delegation of African-American leaders, who demanded full integration into the forces, including the right to s\n- (part 3 of 5, excerpt) The Red Army defeated the White Armed Forces of South Russia in Ukraine and the army led by Admiral Aleksandr Kolchak in Sibe",
+    "evidence": [
+      {
+        "sourceId": "memory:context-240",
+        "sourceVersion": "sha256:450d9ec50092ffd3771975eba227f229f20369b488d5b9a9b22e966a00a140a4",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-240",
+          "part": 3,
+          "parts": 5
+        },
+        "text": "starring Ajith Kumar and Nayantara. He is an oldest son of dancer Mugur Sundar, and an older brother to fellow choreographers Prabhu Deva and Nagendra Prasad.\n\nDocument 1710:\nRostker v. Goldberg\nRostker v. Goldberg, 453 U.S. 57 (1981) , was a decision of the United States Supreme Court holding that the practice of requiring only men to register for the draft was constitutional. After extensive hearings, floor debate and committee sessions on the matter, the United States Congress enacted the law, as it had previously been, to apply to men only. Several attorneys, including Robert L. Goldberg, subsequently challenged the gender distinction as unconstitutional. (The named defendant is Bernard D. Rostker, Director of the Selective Service System.) In a 6-3 decision, the Supreme Court held that this gender distinction was not a violation of the equal protection component of the due process clause, and that the Act would stand as passed.\n\nDocument 1711:\nGallery of flags of dependent territories\nThis overview contains the flags of dependent territories and other areas of special sovereignty. Territories without a separate flag other than that of their controlling country are excluded.",
+        "id": "ev_95c6d95f26a66ae790d3b43c",
+        "observedAt": "2026-10-14T08:41:11.095Z"
+      },
+      {
+        "sourceId": "memory:context-92",
+        "sourceVersion": "sha256:94bfe96d231e72768c07fa71baf41eb4d86555f32242748f948840962c351c4c",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-92",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "nd prohibiting discrimination by any government agency, including the armed forces. In practice the services, particularly the Navy and the Marines, found ways to evade this order \u2014 the Marine Corps remained all-white until 1942. In September 1942, at Eleanor's instigation, Roosevelt met with a delegation of African-American leaders, who demanded full integration into the forces, including the right to s",
+        "id": "ev_0764f78b0b6c3bf2abc16692",
+        "observedAt": "2026-10-14T08:41:11.095Z"
+      },
+      {
+        "sourceId": "memory:context-184",
+        "sourceVersion": "sha256:631c6cfe50526c9d266fdf8c6bda223a7a6e6996be141674f320d372044a3092",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-184",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "The Red Army defeated the White Armed Forces of South Russia in Ukraine and the army led by Admiral Aleksandr Kolchak in Sibe",
+        "id": "ev_aad043dbe851483a0cb43bdb",
+        "observedAt": "2026-10-14T08:41:11.096Z"
+      }
+    ],
+    "sourceIds": [
+      "context-240",
+      "context-92",
+      "context-184"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 5.573000000003958,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Rostker v. Goldberg held that the practice of **requiring only men to register for the draft** was constitutional.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 516,
+    "completion_tokens": 644,
+    "total_tokens": 1160,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 617,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 276,
+    "completion_tokens": 1026,
+    "total_tokens": 1302,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 14790.50400000051,
+  "judgeWallMs": 11115.203125000335
+}

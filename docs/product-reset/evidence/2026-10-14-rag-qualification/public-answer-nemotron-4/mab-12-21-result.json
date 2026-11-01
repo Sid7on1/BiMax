@@ -1,0 +1,273 @@
+{
+  "row": 12,
+  "query": 21,
+  "id": "mab-12-21",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n18. Marianne expressed his interest in Miss Lucian Robillard.\n19. Lucian's father reluctantly accepted her marriage to Marianne.\n20. Lucian adjusted to life in north Georgia after leaving Savannah.\n21. Lucian's three little boys died before learning to walk.\n22. Lucian taught Debbie how to be more gentle and sedate.\n\n\nBelow is a list of possible subsequent events:\n\n['Marianne steered the gala discourse.', 'Marianne dominated the supper conversation.', 'Marianne commanded the morning assembly.', 'Marianne captured the breakfast debate.', 'Marianne led the lunch discussion.', 'Marianne overshadowed the evening meeting.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Marianne dominated the supper conversation."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 128.8573749999996,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 851,
+        "maxInputChars": 851,
+        "requiredProviderTruncation": false,
+        "promptTokens": 178,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-28",
+        "context-30",
+        "context-29"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) just anyone.\u201d\n\n\u201cYou fly high,\u201d observed Andrew, dryly.\n\nBut they did their best for Marianne.\n\nJames and Andrew were old men and they stood well in Savannah.\n\nThey had many friends, and for a month they carried Marianne from home to home, to suppers, dances and picnics.\n\n\u201cThere\u2019s only one who takes me eye,\u201d Marianne said finally.\n\n\u201cAnd she not even born when I landed here.\u201d\n\n\u201cAnd who is it takes your eye?\u201d \u201cMiss Lucian Robillard,\u201d said Marianne, trying to speak casually, for the slightly tilting dark eyes of Lucian Robillard had taken more than his eye.\n\nDespite a mystifying listlessness of manner, so strange in a girl of fifteen, she charmed him.\n\nMoreover, there was a haunting look of despair about her that went to his heart and made him more gentle with her than he had ever been with any person in all the world.\n\n\u201cAnd you old enough to be her father!\u201d \u201cAnd me in me prime!\u201d cried Marianne stung.\n\nJames spoke gently.\n\n\u201cJerry, there\u2019s no girl in Savannah you\u2019d have less chance of marrying.\n\nHer father is a Robillard, and those French are proud as Lucifer.\n\nAnd her mother\u2014God rest her soul\u2014was a very great lady.\u201d \u201cI care not,\u201d said Marianne heatedly.\n  (part 4 of 5, excerpt) Fifteen is too young to know much about love.\u201d \u201cThey\u2019d rather have that breakneck cousin for her than you.\u201d So, James and Andrew were as startled as anyone when the news came out that the daughter of Pierre Robillard was to marry the little Irishman from up the country.\n- (part 4 of 4, excerpt) Then followed three little boys, each of whom died before he had learned to walk\u2014three little boys who now lay under the twisted cedars in th\n- (part 1 of 4, excerpt) The thunderstruck Robillards knew the answer in part, but only Lucian and her mammy ever knew the whole story of the night wh",
+      "evidence": [
+        {
+          "sourceId": "memory:context-28",
+          "sourceVersion": "sha256:f75575c04f5d44066ba0dac0a0e38f735583e18429427dc55fdf1ba7dd52a4fb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-28",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "just anyone.\u201d\n\n\u201cYou fly high,\u201d observed Andrew, dryly.\n\nBut they did their best for Marianne.\n\nJames and Andrew were old men and they stood well in Savannah.\n\nThey had many friends, and for a month they carried Marianne from home to home, to suppers, dances and picnics.\n\n\u201cThere\u2019s only one who takes me eye,\u201d Marianne said finally.\n\n\u201cAnd she not even born when I landed here.\u201d\n\n\u201cAnd who is it takes your eye?\u201d \u201cMiss Lucian Robillard,\u201d said Marianne, trying to speak casually, for the slightly tilting dark eyes of Lucian Robillard had taken more than his eye.\n\nDespite a mystifying listlessness of manner, so strange in a girl of fifteen, she charmed him.\n\nMoreover, there was a haunting look of despair about her that went to his heart and made him more gentle with her than he had ever been with any person in all the world.\n\n\u201cAnd you old enough to be her father!\u201d \u201cAnd me in me prime!\u201d cried Marianne stung.\n\nJames spoke gently.\n\n\u201cJerry, there\u2019s no girl in Savannah you\u2019d have less chance of marrying.\n\nHer father is a Robillard, and those French are proud as Lucifer.\n\nAnd her mother\u2014God rest her soul\u2014was a very great lady.\u201d \u201cI care not,\u201d said Marianne heatedly.",
+          "id": "ev_cc569248b9fbaaf28bd22347",
+          "observedAt": "2026-10-14T04:45:33.808Z"
+        },
+        {
+          "sourceId": "memory:context-28",
+          "sourceVersion": "sha256:f75575c04f5d44066ba0dac0a0e38f735583e18429427dc55fdf1ba7dd52a4fb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-28",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Fifteen is too young to know much about love.\u201d \u201cThey\u2019d rather have that breakneck cousin for her than you.\u201d So, James and Andrew were as startled as anyone when the news came out that the daughter of Pierre Robillard was to marry the little Irishman from up the country.",
+          "id": "ev_b1070cbe8403f1ce2633ec34",
+          "observedAt": "2026-10-14T04:45:33.808Z"
+        },
+        {
+          "sourceId": "memory:context-30",
+          "sourceVersion": "sha256:9adae6a68b8cea2708ae581d72d58a195f6e4cb5afd4ccf67d9d11d7d2fe5cb0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-30",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Then followed three little boys, each of whom died before he had learned to walk\u2014three little boys who now lay under the twisted cedars in th",
+          "id": "ev_9db704a1598f15d69976740c",
+          "observedAt": "2026-10-14T04:45:33.809Z"
+        },
+        {
+          "sourceId": "memory:context-29",
+          "sourceVersion": "sha256:a3372038c214c5de514026e45df62883d552ff77d394b91118bff85b10f9e62f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-29",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "The thunderstruck Robillards knew the answer in part, but only Lucian and her mammy ever knew the whole story of the night wh",
+          "id": "ev_392df61114c201f01ebb4816",
+          "observedAt": "2026-10-14T04:45:33.809Z"
+        }
+      ],
+      "sourceIds": [
+        "context-28",
+        "context-30",
+        "context-29"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.678708999999799,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-28",
+        "context-30",
+        "context-29"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) just anyone.\u201d\n\n\u201cYou fly high,\u201d observed Andrew, dryly.\n\nBut they did their best for Marianne.\n\nJames and Andrew were old men and they stood well in Savannah.\n\nThey had many friends, and for a month they carried Marianne from home to home, to suppers, dances and picnics.\n\n\u201cThere\u2019s only one who takes me eye,\u201d Marianne said finally.\n\n\u201cAnd she not even born when I landed here.\u201d\n\n\u201cAnd who is it takes your eye?\u201d \u201cMiss Lucian Robillard,\u201d said Marianne, trying to speak casually, for the slightly tilting dark eyes of Lucian Robillard had taken more than his eye.\n\nDespite a mystifying listlessness of manner, so strange in a girl of fifteen, she charmed him.\n\nMoreover, there was a haunting look of despair about her that went to his heart and made him more gentle with her than he had ever been with any person in all the world.\n\n\u201cAnd you old enough to be her father!\u201d \u201cAnd me in me prime!\u201d cried Marianne stung.\n\nJames spoke gently.\n\n\u201cJerry, there\u2019s no girl in Savannah you\u2019d have less chance of marrying.\n\nHer father is a Robillard, and those French are proud as Lucifer.\n\nAnd her mother\u2014God rest her soul\u2014was a very great lady.\u201d \u201cI care not,\u201d said Marianne heatedly.\n  (part 4 of 5, excerpt) Fifteen is too young to know much about love.\u201d \u201cThey\u2019d rather have that breakneck cousin for her than you.\u201d So, James and Andrew were as startled as anyone when the news came out that the daughter of Pierre Robillard was to marry the little Irishman from up the country.\n- (part 4 of 4, excerpt) Then followed three little boys, each of whom died before he had learned to walk\u2014three little boys who now lay under the twisted cedars in th\n- (part 1 of 4, excerpt) The thunderstruck Robillards knew the answer in part, but only Lucian and her mammy ever knew the whole story of the night wh",
+      "evidence": [
+        {
+          "sourceId": "memory:context-28",
+          "sourceVersion": "sha256:f75575c04f5d44066ba0dac0a0e38f735583e18429427dc55fdf1ba7dd52a4fb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-28",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "just anyone.\u201d\n\n\u201cYou fly high,\u201d observed Andrew, dryly.\n\nBut they did their best for Marianne.\n\nJames and Andrew were old men and they stood well in Savannah.\n\nThey had many friends, and for a month they carried Marianne from home to home, to suppers, dances and picnics.\n\n\u201cThere\u2019s only one who takes me eye,\u201d Marianne said finally.\n\n\u201cAnd she not even born when I landed here.\u201d\n\n\u201cAnd who is it takes your eye?\u201d \u201cMiss Lucian Robillard,\u201d said Marianne, trying to speak casually, for the slightly tilting dark eyes of Lucian Robillard had taken more than his eye.\n\nDespite a mystifying listlessness of manner, so strange in a girl of fifteen, she charmed him.\n\nMoreover, there was a haunting look of despair about her that went to his heart and made him more gentle with her than he had ever been with any person in all the world.\n\n\u201cAnd you old enough to be her father!\u201d \u201cAnd me in me prime!\u201d cried Marianne stung.\n\nJames spoke gently.\n\n\u201cJerry, there\u2019s no girl in Savannah you\u2019d have less chance of marrying.\n\nHer father is a Robillard, and those French are proud as Lucifer.\n\nAnd her mother\u2014God rest her soul\u2014was a very great lady.\u201d \u201cI care not,\u201d said Marianne heatedly.",
+          "id": "ev_cc569248b9fbaaf28bd22347",
+          "observedAt": "2026-10-14T04:45:33.813Z"
+        },
+        {
+          "sourceId": "memory:context-28",
+          "sourceVersion": "sha256:f75575c04f5d44066ba0dac0a0e38f735583e18429427dc55fdf1ba7dd52a4fb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-28",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Fifteen is too young to know much about love.\u201d \u201cThey\u2019d rather have that breakneck cousin for her than you.\u201d So, James and Andrew were as startled as anyone when the news came out that the daughter of Pierre Robillard was to marry the little Irishman from up the country.",
+          "id": "ev_b1070cbe8403f1ce2633ec34",
+          "observedAt": "2026-10-14T04:45:33.813Z"
+        },
+        {
+          "sourceId": "memory:context-30",
+          "sourceVersion": "sha256:9adae6a68b8cea2708ae581d72d58a195f6e4cb5afd4ccf67d9d11d7d2fe5cb0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-30",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Then followed three little boys, each of whom died before he had learned to walk\u2014three little boys who now lay under the twisted cedars in th",
+          "id": "ev_9db704a1598f15d69976740c",
+          "observedAt": "2026-10-14T04:45:33.813Z"
+        },
+        {
+          "sourceId": "memory:context-29",
+          "sourceVersion": "sha256:a3372038c214c5de514026e45df62883d552ff77d394b91118bff85b10f9e62f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-29",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "The thunderstruck Robillards knew the answer in part, but only Lucian and her mammy ever knew the whole story of the night wh",
+          "id": "ev_392df61114c201f01ebb4816",
+          "observedAt": "2026-10-14T04:45:33.813Z"
+        }
+      ],
+      "sourceIds": [
+        "context-28",
+        "context-30",
+        "context-29"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.039165999998659,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:44:06.923589+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Marianne led the lunch discussion.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 714,
+    "completion_tokens": 1033,
+    "total_tokens": 1747,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 425,
+    "completion_tokens": 796,
+    "total_tokens": 1221,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 793,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 16860.101999999868,
+  "judgeWallMs": 8292.219208000006,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.25
+  },
+  "ended": "2026-10-14T07:44:32.854455+00:00"
+}

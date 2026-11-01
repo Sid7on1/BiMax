@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T09:10:11.779930+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 3,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/25 (Thu) 04:12\nQuestion: Current Date: 2023/05/25 (Thu) 04:12,\n\n Now Answer the Question: How many days did I spend in total traveling in Hawaii and in New York City?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) You're on your way to a healthier, happier you!\"}], 'Chat Time: 2023/05/20 (Sat) 18:06', [{'role': 'user', 'content': \"I'm thinking of planning another trip soon and I was wondering if you could help me with some budgeting tips.\n  (part 2 of 4) (Sat) 18:06', [{'role': 'user', 'content': \"I'm thinking of planning another trip soon and I was wondering if you could help me with some budgeting tips.\n\nBy the way, I recently got back from a solo trip to New York City for five days and I was able to save a lot by staying at a hostel and eating at local cafes.\"}, {'role': 'assistant', 'content': \"Congratulations on your recent solo trip to New York City!\n\nThat's amazing that you were able to save money by staying at a hostel and eating at local cafes.\n\nThose are great budgeting tips right there!\\n\\nI'd be happy to help you with more budgeting tips for your next trip.\n\nHere are a few general tips to get you started:\\n\\n1.\n\n**Set a realistic budget**: Decide how much you can afford to spend on your trip and stick to it.\n\nConsider all expenses, including transportation, accommodation, food, activities, and miscellaneous costs.\\n2.\n\n**Plan ahead**: Booking flights, accommodation, and activities well in advance can help you save money.\n\nMany airlines, hotels, and tour operators offer early bird discounts or promotions.\\n3.\n\n**Accommodation**: As you've already experienced, staying at a hostel can be a cost-effective option.\n- (part 3 of 5, excerpt) fantasy novel that draws inspiration from Middle Eastern and Jewish mythology, set in early 20th-century New York City.\\n5.\n\n**The City of Brass** by S.A.\n- (part 4 of 4, excerpt) Let's focus on tracking your car maintenance expenses.\\n\\nTo make it easier to track your expenses, I'll create a simple table for y"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 143.93091700003424
+}

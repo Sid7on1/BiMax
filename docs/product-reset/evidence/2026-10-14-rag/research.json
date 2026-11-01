@@ -1,0 +1,42 @@
+{
+  "checked_date": "2026-10-14",
+  "scope": "First-party source and primary research; references do not establish Bimax performance",
+  "sources": [
+    {
+      "url": "https://www.elastic.co/docs/reference/elasticsearch/rest-apis/reciprocal-rank-fusion",
+      "decision": "Keep the existing chunk-level RRF ranks and bounded reranker input. Backfill only empty document places; a smaller candidate window can hide sources. No Elasticsearch code copied."
+    },
+    {
+      "url": "https://www.anthropic.com/engineering/contextual-retrieval",
+      "decision": "Contextual embeddings/BM25 and reranking motivate quality evaluation; LLM-generated chunk context deferred until independent quality/cost/provider evidence. Vendor-reported gains are not Bimax gains."
+    },
+    {
+      "url": "https://aclanthology.org/2024.tacl-1.9/",
+      "decision": "Lost in the Middle supports testing evidence placement separately from model answer quality; no claimed Bimax model gain."
+    },
+    {
+      "url": "https://arxiv.org/abs/2608.21690",
+      "decision": "Context as an Environment: Programmatic Context Management for Long-Horizon Agents. Author-reported results and the pasted notes are research, not measured Bimax scores; no evaluator or implementation imported."
+    },
+    {
+      "url": "https://github.com/xiaowu0162/LongMemEval-V2",
+      "decision": "Official benchmark repository verified: public harness, compact evidence and downstream answers, separate reader/embedding/judge requirements. Dataset, model evaluation, costs and Bimax score remain Target. No download/import executed."
+    },
+    {
+      "url": "https://github.com/HUST-AI-HYZ/MemoryAgentBench",
+      "decision": "Official ICLR 2026 incremental interaction memory benchmark inspected. External answer-quality qualification remains Target; no copied code or published Bimax score."
+    }
+  ],
+  "notes": [
+    {
+      "path": "/Users/vishsiddharth/.codex/attachments/a9226ff1-5dda-4e33-9864-d38d0b6c7c18/Pasted text.txt",
+      "sha256": "fdb737dd55266a34f677acfe41652f8b58cbea927f40e4e262e5492866664c4e",
+      "use": "User-provided hypotheses and proposed benchmark methodology; hypothetical scores not adopted"
+    },
+    {
+      "path": "/Users/vishsiddharth/.codex/attachments/1e2ee8e6-8776-4eca-9998-3f81215fcac3/Pasted text.txt",
+      "sha256": "d1f7eb5ee655af6dc0831a5b1e11b1df84d0a8bf6868ac425546327c629c215d",
+      "use": "User-provided hypotheses and proposed benchmark methodology; hypothetical scores not adopted"
+    }
+  ]
+}

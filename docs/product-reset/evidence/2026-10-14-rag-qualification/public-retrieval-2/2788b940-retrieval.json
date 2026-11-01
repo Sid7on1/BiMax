@@ -1,0 +1,235 @@
+{
+  "row": 104,
+  "id": "2788b940",
+  "stratum": "multi-session",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T04:55:18.291359+00:00",
+  "valid": true,
+  "question": "How many fitness classes do I attend in a typical week?",
+  "references": [
+    "5"
+  ],
+  "kind": "multi-session",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 20:00",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 364.3294169999972,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 55,
+        "maxInputChars": 55,
+        "requiredProviderTruncation": false,
+        "promptTokens": 14,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_8f6b938d_3",
+        "answer_8f6b938d_4",
+        "answer_8f6b938d_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 14, excerpt) Session date: 2023/05/29 (Mon) 11:35\nuser: I'm looking to explore some new fitness routines and was wondering if you have any recommendations for strength training exercises I can do at home. By the way, I'm not free on Sundays since I have my yoga class at 6:00 PM, so anything that can be done on other days would be great.\nassistant: I'm happy to help you with some strength training exercises you can do at home!\n\nFirstly, it's great that you have a regular yoga practice on Sundays! Yoga can be an excellent complement to strength training, improving flexibility and balance.\n\nHere are some effective strength training exercises you can do at home on other days of the week:\n  (part 3 of 14) of cardio (jogging in place, jumping jacks, etc.)\n* Rest for 60-90 seconds between sets\n* Stretch after each workout to prevent injury and improve flexibility\n\nYou can do these exercises on Monday, Tuesday, Thursday, Friday, or Saturday, depending on your schedule. Make sure to give your body at least one rest day per week.\n\nI hope this helps you get started with your strength training journey!\nuser: I'm interested in trying out the bodyweight exercises, specifically the squats and lunges. Can you provide me with some tips on how to do them correctly, like the proper form and technique?\nassistant: Bodyweight exercises like squats and lunges are excellent for building strength and can be modified to suit your fitness level.\n\n**Squats:**\n- (part 10 of 22, excerpt) user: I'm thinking of trying some new protein-rich snacks to support my weightlifting classes. Do you have any recommendations on how to incorporate pro\n- (part 13 of 16, excerpt) * Take progress photos, measurements, or track your workouts to see how far you've come\n\n**Make it Fun**:",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_8f6b938d_3",
+          "sourceVersion": "sha256:7f4d55b07f63f307cdf6d4ee41fd096d68a9d3a7722e366cddf72cf1cb1f9a53",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f6b938d_3",
+            "part": 1,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "Session date: 2023/05/29 (Mon) 11:35\nuser: I'm looking to explore some new fitness routines and was wondering if you have any recommendations for strength training exercises I can do at home. By the way, I'm not free on Sundays since I have my yoga class at 6:00 PM, so anything that can be done on other days would be great.\nassistant: I'm happy to help you with some strength training exercises you can do at home!\n\nFirstly, it's great that you have a regular yoga practice on Sundays! Yoga can be an excellent complement to strength training, improving flexibility and balance.\n\nHere are some effective strength training exercises you can do at home on other days of the week:",
+          "id": "ev_1787a3b270834929362d480d",
+          "observedAt": "2026-10-14T04:55:18.674Z"
+        },
+        {
+          "sourceId": "memory:answer_8f6b938d_3",
+          "sourceVersion": "sha256:7f4d55b07f63f307cdf6d4ee41fd096d68a9d3a7722e366cddf72cf1cb1f9a53",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f6b938d_3",
+            "part": 3,
+            "parts": 14
+          },
+          "text": "of cardio (jogging in place, jumping jacks, etc.)\n* Rest for 60-90 seconds between sets\n* Stretch after each workout to prevent injury and improve flexibility\n\nYou can do these exercises on Monday, Tuesday, Thursday, Friday, or Saturday, depending on your schedule. Make sure to give your body at least one rest day per week.\n\nI hope this helps you get started with your strength training journey!\nuser: I'm interested in trying out the bodyweight exercises, specifically the squats and lunges. Can you provide me with some tips on how to do them correctly, like the proper form and technique?\nassistant: Bodyweight exercises like squats and lunges are excellent for building strength and can be modified to suit your fitness level.\n\n**Squats:**",
+          "id": "ev_58bd91d72237bedc0e2a8a23",
+          "observedAt": "2026-10-14T04:55:18.675Z"
+        },
+        {
+          "sourceId": "memory:answer_8f6b938d_4",
+          "sourceVersion": "sha256:1cad25e56b83c45f283e2a2258cb808e8bdd9c291d12709b1da11c260fe7c752",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f6b938d_4",
+            "part": 10,
+            "parts": 22,
+            "partial": true
+          },
+          "text": "user: I'm thinking of trying some new protein-rich snacks to support my weightlifting classes. Do you have any recommendations on how to incorporate pro",
+          "id": "ev_dd24d9a8a08ca07cb31b8818",
+          "observedAt": "2026-10-14T04:55:18.675Z"
+        },
+        {
+          "sourceId": "memory:answer_8f6b938d_1",
+          "sourceVersion": "sha256:8776c146871a10cf544a5a2e235be621c486c68966765cc23a88b4289264607d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f6b938d_1",
+            "part": 13,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "* Take progress photos, measurements, or track your workouts to see how far you've come\n\n**Make it Fun**:",
+          "id": "ev_6f768b5e11e7c3592745c401",
+          "observedAt": "2026-10-14T04:55:18.675Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_8f6b938d_3",
+        "answer_8f6b938d_4",
+        "answer_8f6b938d_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 21.000749999999243,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_8f6b938d_3",
+        "answer_8f6b938d_4",
+        "answer_8f6b938d_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 14, excerpt) Session date: 2023/05/29 (Mon) 11:35\nuser: I'm looking to explore some new fitness routines and was wondering if you have any recommendations for strength training exercises I can do at home. By the way, I'm not free on Sundays since I have my yoga class at 6:00 PM, so anything that can be done on other days would be great.\nassistant: I'm happy to help you with some strength training exercises you can do at home!\n\nFirstly, it's great that you have a regular yoga practice on Sundays! Yoga can be an excellent complement to strength training, improving flexibility and balance.\n\nHere are some effective strength training exercises you can do at home on other days of the week:\n  (part 3 of 14) of cardio (jogging in place, jumping jacks, etc.)\n* Rest for 60-90 seconds between sets\n* Stretch after each workout to prevent injury and improve flexibility\n\nYou can do these exercises on Monday, Tuesday, Thursday, Friday, or Saturday, depending on your schedule. Make sure to give your body at least one rest day per week.\n\nI hope this helps you get started with your strength training journey!\nuser: I'm interested in trying out the bodyweight exercises, specifically the squats and lunges. Can you provide me with some tips on how to do them correctly, like the proper form and technique?\nassistant: Bodyweight exercises like squats and lunges are excellent for building strength and can be modified to suit your fitness level.\n\n**Squats:**\n- (part 10 of 22, excerpt) user: I'm thinking of trying some new protein-rich snacks to support my weightlifting classes. Do you have any recommendations on how to incorporate pro\n- (part 13 of 16, excerpt) * Take progress photos, measurements, or track your workouts to see how far you've come\n\n**Make it Fun**:",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_8f6b938d_3",
+          "sourceVersion": "sha256:7f4d55b07f63f307cdf6d4ee41fd096d68a9d3a7722e366cddf72cf1cb1f9a53",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f6b938d_3",
+            "part": 1,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "Session date: 2023/05/29 (Mon) 11:35\nuser: I'm looking to explore some new fitness routines and was wondering if you have any recommendations for strength training exercises I can do at home. By the way, I'm not free on Sundays since I have my yoga class at 6:00 PM, so anything that can be done on other days would be great.\nassistant: I'm happy to help you with some strength training exercises you can do at home!\n\nFirstly, it's great that you have a regular yoga practice on Sundays! Yoga can be an excellent complement to strength training, improving flexibility and balance.\n\nHere are some effective strength training exercises you can do at home on other days of the week:",
+          "id": "ev_1787a3b270834929362d480d",
+          "observedAt": "2026-10-14T04:55:18.680Z"
+        },
+        {
+          "sourceId": "memory:answer_8f6b938d_3",
+          "sourceVersion": "sha256:7f4d55b07f63f307cdf6d4ee41fd096d68a9d3a7722e366cddf72cf1cb1f9a53",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f6b938d_3",
+            "part": 3,
+            "parts": 14
+          },
+          "text": "of cardio (jogging in place, jumping jacks, etc.)\n* Rest for 60-90 seconds between sets\n* Stretch after each workout to prevent injury and improve flexibility\n\nYou can do these exercises on Monday, Tuesday, Thursday, Friday, or Saturday, depending on your schedule. Make sure to give your body at least one rest day per week.\n\nI hope this helps you get started with your strength training journey!\nuser: I'm interested in trying out the bodyweight exercises, specifically the squats and lunges. Can you provide me with some tips on how to do them correctly, like the proper form and technique?\nassistant: Bodyweight exercises like squats and lunges are excellent for building strength and can be modified to suit your fitness level.\n\n**Squats:**",
+          "id": "ev_58bd91d72237bedc0e2a8a23",
+          "observedAt": "2026-10-14T04:55:18.680Z"
+        },
+        {
+          "sourceId": "memory:answer_8f6b938d_4",
+          "sourceVersion": "sha256:1cad25e56b83c45f283e2a2258cb808e8bdd9c291d12709b1da11c260fe7c752",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f6b938d_4",
+            "part": 10,
+            "parts": 22,
+            "partial": true
+          },
+          "text": "user: I'm thinking of trying some new protein-rich snacks to support my weightlifting classes. Do you have any recommendations on how to incorporate pro",
+          "id": "ev_dd24d9a8a08ca07cb31b8818",
+          "observedAt": "2026-10-14T04:55:18.680Z"
+        },
+        {
+          "sourceId": "memory:answer_8f6b938d_1",
+          "sourceVersion": "sha256:8776c146871a10cf544a5a2e235be621c486c68966765cc23a88b4289264607d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f6b938d_1",
+            "part": 13,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "* Take progress photos, measurements, or track your workouts to see how far you've come\n\n**Make it Fun**:",
+          "id": "ev_6f768b5e11e7c3592745c401",
+          "observedAt": "2026-10-14T04:55:18.680Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_8f6b938d_3",
+        "answer_8f6b938d_4",
+        "answer_8f6b938d_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.80449999999837,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 0.75,
+    "complete": false
+  },
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T04:55:18.682599+00:00"
+}

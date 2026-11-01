@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T09:09:33.530751+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 0,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/24 (Wed) 21:11\nQuestion: Current Date: 2023/05/24 (Wed) 21:11,\n\n Now Answer the Question: Who gave me a new stand mixer as a birthday gift?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 4) Player One,\" you\\'ll likely appreciate the more cerebral and thought-provoking approach of \"The First Fifteen Lives of Harry August.\"\\n\\nI hope this helps!\n\nLet me know if you have any other questions or if you\\'d like more recommendations.'}], 'Chat Time: 2023/05/22 (Mon) 11:58', [{'role': 'user', 'content': \"I'm looking for some new recipes to try out, especially desserts.\n\nDo you have any recommendations for cakes or cookies that don't require a stand mixer, just in case mine breaks down again?\n\nBy the way, I had to take mine to a repair shop last month and it took two weeks to fix, so I had to bake a few things by hand in the meantime.\"}, {'role': 'assistant', 'content': \"I totally understand your concern!\n\nHaving a stand mixer break down can be frustrating, especially when you're in the middle of baking.\n\nBut don't worry, I've got you covered with some delicious cake and cookie recipes that don't require a stand mixer.\n\nYou can always whip them up by hand with a bit of elbow grease!\\n\\nHere are some tasty options:\\n\\n**Cakes:**\\n\\n1.\n\n**Flourless Chocolate Cake**: This rich, mocha-flavored cake is made with ground almonds, dark chocolate, and eggs.\n- (part 2 of 5, excerpt) I'm always looking for new ideas!\"}, {'role': 'user', 'content': \"I actually got my new stand mixer as a birthday gift from my sister last month, and it's been a game-changer for making caramel.\n\nI've been using a recipe that involves melting sugar and butter together, then slowly adding heavy cream to create a smooth caramel sauce.\n\nIt's worked out really well so far!\"}, {'role': 'assistant', 'content': \"Happy belated birthday!\n- (part 2 of 5, excerpt) **Plan ahead**: Allow extra time for mixing and prep work when baking without a stand mixer.\\n\\nBy having these essential uten"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 107.48012499971082
+}

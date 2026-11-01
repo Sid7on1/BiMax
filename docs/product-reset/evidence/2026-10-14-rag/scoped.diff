@@ -1,0 +1,227 @@
+--- starting/src/memory/vector.store.ts
++++ current/src/memory/vector.store.ts
+@@ -223,7 +223,7 @@
+   /** Indexed over CHUNKS, not documents — the unit retrieval scores. */
+   private index = new Bm25Index();
+   private indexDirty = true;
+-  private chunkOwner = new Map<string, VectorDocument>();
++  private chunkOwner = new Map<string, { doc: VectorDocument; chunk: StoredChunk }>();
+   private mode: SearchMode = { lexical: true, dense: false, reranked: false };
+   /** Recency changed on the read path and is waiting for the coalesced flush (see semanticSearch). */
+   private recencyDirty = false;
+@@ -269,7 +269,7 @@
+         cached = { content, stems: new Set(contentStems(content)) };
+         this.stemCache.set(doc, cached);
+       }
+-      for (const term of cached.stems) remaining.delete(term);
++      for (const term of remaining) if (cached.stems.has(term)) remaining.delete(term);
+     }
+     return [...remaining];
+   }
+@@ -300,12 +300,12 @@
+       try {
+         // A retrieval may have updated recency in memory while its coalesced disk flush is still
+         // pending. Reloading the file for the next search must not erase that newer timestamp.
++        const stat = await fs.stat(this.STORE_PATH, { bigint: true });
++        const identity = `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeNs}:${stat.ctimeNs}`;
++        if (identity === this.diskIdentity) return;
+         const pendingRecency = this.recencyDirty
+           ? new Map(this.store.map((doc) => [doc.id, doc.lastUsedAt ?? 0]))
+           : null;
+-        const stat = await fs.stat(this.STORE_PATH, { bigint: true });
+-        const identity = `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeNs}:${stat.ctimeNs}`;
+-        if (identity === this.diskIdentity) return;
+         const data = await fs.readFile(this.STORE_PATH, 'utf-8');
+         const parsed = JSON.parse(data);
+         if (!Array.isArray(parsed)) throw new Error('Invalid memory store');
+@@ -385,7 +385,8 @@
+     for (const doc of this.store) {
+       for (const chunk of doc.chunks ?? []) {
+         documents.push({ id: chunk.id, text: chunk.text });
+-        this.chunkOwner.set(chunk.id, doc);
++        // Preserve the original lookup's first chunk within the last owning document.
++        if (this.chunkOwner.get(chunk.id)?.doc !== doc) this.chunkOwner.set(chunk.id, { doc, chunk });
+       }
+     }
+     this.index.build(documents);
+@@ -548,7 +549,7 @@
+         if (options.where && !options.where(tags)) return false;
+         return true;
+       };
+-      const allowed = (chunkId: string): boolean => docAllowed(this.chunkOwner.get(chunkId));
++      const allowed = (chunkId: string): boolean => docAllowed(this.chunkOwner.get(chunkId)?.doc);
+ 
+       // Deeper than `limit` on purpose: fusion can only promote a candidate that appears in a list,
+       // and the reranker can only reorder what it is given. Truncating early throws away the
+@@ -556,39 +557,52 @@
+       // with corpus reality: 32 was tuned on a memory store of hundreds of chunks; a code index
+       // runs to thousands, where a 32-deep window is a sample, not a ranking.
+       const depth = Math.max(limit * 8, 64);
+-      const lexical = mode === 'dense'
+-        ? []
+-        : this.index.search(query).filter((h) => allowed(h.id)).slice(0, depth).map((h) => h.id);
++      const lexicalHits = mode === 'dense' ? [] : this.index.search(query).filter(h => allowed(h.id));
++      const lexical = lexicalHits.slice(0, depth).map(h => h.id);
++      // Keep the original chunk pool/ranks. A bounded document pool fills only otherwise empty
++      // result places, so a long note cannot monopolize all candidate slots.
++      const lexicalDocuments: string[] = [];
++      const seenDocuments = new Set<string>();
++      for (const hit of lexicalHits) {
++        const entry = this.chunkOwner.get(hit.id)!;
++        if (seenDocuments.has(entry.doc.id)) continue;
++        if (minScore > 0 && lexicalRelevance(query, entry.chunk.text) < minScore) continue;
++        seenDocuments.add(entry.doc.id);
++        lexicalDocuments.push(hit.id);
++        if (lexicalDocuments.length >= limit) break;
++      }
+ 
+       let dense: string[] = [];
++      let denseDocuments: string[] = [];
+       if (queryVector) {
+-        const scored = new BoundedTopK<{ id: string; score: number }>(depth, (a, b) =>
++        const compare = (a: { id: string; score: number }, b: { id: string; score: number }): number =>
+           b.score - a.score
+-          || (this.chunkOwner.get(b.id)?.lastUsedAt ?? 0) - (this.chunkOwner.get(a.id)?.lastUsedAt ?? 0)
+-          || a.id.localeCompare(b.id),
+-        );
++          || (this.chunkOwner.get(b.id)?.doc.lastUsedAt ?? 0) - (this.chunkOwner.get(a.id)?.doc.lastUsedAt ?? 0)
++          || a.id.localeCompare(b.id);
++        const scored = new BoundedTopK<{ id: string; score: number }>(depth, compare);
++        const documents = new BoundedTopK<{ id: string; score: number }>(limit, compare);
+         for (const doc of this.store) {
+           if (!docAllowed(doc)) continue;
++          let best: { id: string; score: number } | undefined;
+           for (const chunk of doc.chunks ?? []) {
+             if (!chunk.embedding || chunk.space !== this.embeddings?.id) continue;
+-            scored.add({ id: chunk.id, score: dot(queryVector, chunk.embedding) });
++            const candidate = { id: chunk.id, score: dot(queryVector, chunk.embedding) };
++            scored.add(candidate);
++            if (!best || compare(candidate, best) < 0) best = candidate;
+           }
++          if (best) documents.add(best);
+         }
++        denseDocuments = documents.sorted().map(s => s.id);
+         dense = scored.sorted().map((s) => s.id);
+       }
+ 
+       const fused = reciprocalRankFusion({ lexical: { ids: lexical }, dense: { ids: dense } });
+-      return {
+-        dense: dense.length > 0,
+-        // Chunk id → its text, for the reranker; and → its document, for the result.
+-        candidates: fused
+-          .map((hit) => {
+-            const doc = this.chunkOwner.get(hit.id);
+-            const chunk = doc?.chunks?.find((c) => c.id === hit.id);
+-            return doc && chunk ? { id: hit.id, text: chunk.text, doc, chunk, fromDense: hit.ranks.dense !== undefined } : null;
+-          })
+-          .filter((c): c is NonNullable<typeof c> => c !== null),
+-      };
++      const backfill = reciprocalRankFusion({ lexical: { ids: lexicalDocuments }, dense: { ids: denseDocuments } });
++      const candidates = (hits: typeof fused) => hits.map(hit => {
++        const entry = this.chunkOwner.get(hit.id);
++        return entry ? { id: hit.id, text: entry.chunk.text, doc: entry.doc, chunk: entry.chunk, fromDense: hit.ranks.dense !== undefined } : null;
++      }).filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== null);
++      return { dense: dense.length > 0, candidates: candidates(fused), backfill: candidates(backfill) };
+     });
+ 
+     if (!fusedCandidates) {
+@@ -643,6 +657,18 @@
+       results.push(candidate.doc);
+     }
+ 
++    // This pool is document-diverse, at most one champion per document from each retriever.
++    // It neither reorders the successful prefix nor adds another remote reranking request.
++    if (results.length < limit) {
++      for (const candidate of fusedCandidates.backfill) {
++        if (matched.has(candidate.doc.id)) continue;
++        if (!candidate.fromDense && minScore > 0 && lexicalRelevance(query, candidate.text) < minScore) continue;
++        matched.set(candidate.doc.id, [candidate.chunk]);
++        results.push(candidate.doc);
++        if (results.length >= limit) break;
++      }
++    }
++
+     // Retrieval is what "used" means for eviction. Writing the file on EVERY search was the
+     // obvious implementation and it was wrong twice: it puts a disk write on the read path of every
+     // query, and — because it cannot be awaited without making every search wait on I/O it does not
+--- starting/src/memory/recall.ts
++++ current/src/memory/recall.ts
+@@ -148,8 +148,12 @@
+   const ids: string[] = [];
+   const evidence: EvidenceSpan[] = [];
+   let budget = maxChars;
+-  for (const doc of documents) {
+-    const passage = passageOf(doc, budget, query);
++  for (const [index, doc] of documents.entries()) {
++    // Reserve a useful excerpt for later retrieved sources rather than spending the whole
++    // prompt allowance on the first long note. Small budgets still prioritize the best source.
++    const reservePerSource = MIN_EXCERPT_CHARS + LABEL_ALLOWANCE + 3;
++    const later = Math.min(documents.length - index - 1, Math.max(0, Math.floor((budget - reservePerSource) / reservePerSource)));
++    const passage = passageOf(doc, budget - later * reservePerSource, query);
+     const content = passage.text;
+     if (!content) continue;
+     // Truncate the last one that fits rather than dropping it: a partial memory is usually still
+--- starting/docs/product-reset/README.md
++++ current/docs/product-reset/README.md
+@@ -1,4 +1,8 @@
+ # Bimax product reset
++
++## RAG source coverage and retrieval work — 2026-10-14, record 95
++
++[Record 95](95_RAG_EVIDENCE_AND_RETRIEVAL_WORK.md) fills empty memory-retrieval document slots without changing the winning prefix or reranker request, reserves prompt room for later evidence, and removes repeated chunk/vocabulary/recency work. Generated crowding fixtures improve required-source coverage from 33.3% to 100% and prompt fact coverage from 66.7% to 100%; ordinary controls retain 100%. Paired warm local fixtures measure 21.8× complete recall and 35.7× long-chunk search, with small dense/heap costs retained. These are local memory-RAG measurements, not public-benchmark/model quality or whole-app claims. Installed/live/provider/heldout quality and release remain Target; CU/UI implementation is untouched.
+ 
+ ## Less context preparation work — 2026-10-13, record 94
+ 
+--- starting/docs/product-reset/competitive/05_GAP_REGISTER.md
++++ current/docs/product-reset/competitive/05_GAP_REGISTER.md
+@@ -1,4 +1,8 @@
+ # Bimax gap register
++
++## Memory RAG source coverage and warm work — 2026-10-14, record 95
++
++[Record 95](../95_RAG_EVIDENCE_AND_RETRIEVAL_WORK.md): **Implemented** bounded document backfill, prompt source reservation, direct chunk lookup, query-sized warm vocabulary probes and deferred unchanged-file recency copies. **Measured locally**: generated crowding Recall@3 33.3% → 100%, prompt fact coverage 66.7% → 100%; ordinary controls stay 100%. Two warm ABBA runs measure 21.8× complete recall and 39.6× negative vocabulary checks at 500 documents. Small dense search costs 4.7% more; a 10k-chunk retained-heap fixture costs 0.384 MiB more. Fourteen tests, twelve assertion-caught source faults and ten rejected bad grader observations qualify this slice. These are generated pipeline fixtures, not independent heldout/provider answer-quality evidence. Installed/RSS/energy, public benchmarks, full R02, Product-ready, release and Win remain **Target/unmeasured**. CU/UI remain outside scope; a pre-existing desktop pairing-IPC security-test failure keeps the complete offline gate open.
+ 
+ ## Context work and copying — 2026-10-13
+ 
+@@ -517,7 +521,7 @@
+ | Browser-first testing | OpenAI/Cursor/Hermes | Web tasks use structured browser before generic Mac clicks; artifacts attached |
+ | Context/prompt cache discipline | Hermes/Codex | Content-addressed fragments, diff updates, cache metrics, safe compaction |
+ | Semantic code search over the repo | Cursor (syntactic chunks + embeddings, Merkle sync); Cody (keyword ∥ embeddings, reranked); Claude Code / Codex (grep-class only, by design) | **Implemented; local regression journey verified 2026-08-17; not yet Measured**: symbol-shaped contextual chunks, local FTS5/BM25, optional int8 dense scan, RRF, optional reranking, graph expansion, project-scoped indexes, active-space migration, explicit dense abstention, and bounded incremental sync. First-launch/restart persistence, Bun statement iteration, refused-write manifest integrity, exact long-chunk identifiers, project switching, and model-space backfill are pinned by `R02_RETRIEVAL_TRUTH.md`. Local lexical indexing is default; remote source embeddings/reranking require explicit consent (`codeIndexRemoteEmbeddings` or `BIMAX_CODE_INDEX_REMOTE=1`). The 4,000-chunk RAM ledger and 28-query stand-in corpus are engineering fixtures only, not preserved live-provider or rival quality proof. **Target**: a passing immutable artifact from `scripts/live-retrieval-run.ts`, then a like-for-like rival head-to-head journey. |
+-| Long-term memory recall in the turn | Claude/Codex session-memory patterns | **Implemented; offline fixture results are not yet Measured under this pack's preserved-run definition**: one store, chunk → BM25 ∥ dense → reciprocal rank fusion → cross-encoder rerank, with per-stage null degradation reported by `lastSearchMode()` and recall guards against stale-block injection. The labelled fake-transport corpus currently reports lexical 0.80 recall@3 / 0.767 MRR, hybrid 1.00 / 0.844, and reranked 0.93 / 0.933; these are regression figures, not live quality claims. Persona recall, AgentLoop auto-recall, and subagent workers share the configured hybrid store; tag scopes prevent duplicate injection; writes deduplicate only with corroborated signals; multiple coalesced recency updates survive reload; model and dimension changes invalidate stale spaces. `/retrieval` probes the live memory space and backfills missing vectors. The first Desktop context bridge now gives a CU turn the read-only `MemoryQueryTool` and `CodeSearchTool` beside its required app-owned `mac_control`, while the schema/prompt allow-list excludes shell, writes, coding mutation and third-party CU; the required-tool gate still prevents retrieval-only narration from completing an operation. **Target**: preserve an assertion-based provider run, exercise a live memory-informed CU journey, and broaden the quality corpus before upgrading to Measured. |
++| Long-term memory recall in the turn | Claude/Codex session-memory patterns | **Implemented; offline fixture results are not yet Measured under this pack's preserved-run definition**: one store, chunk → BM25 ∥ dense → reciprocal rank fusion → cross-encoder rerank, with per-stage null degradation reported by `lastSearchMode()` and recall guards against stale-block injection. Historical labelled fake-transport figures were lexical 0.80 recall@3 / 0.767 MRR, hybrid 1.00 / 0.844, and reranked 0.93 / 0.933. Record 95 rechecks the current corpus against frozen starting and updated source: both report lexical 0.80 / 0.733, hybrid 1.00 / 0.844, and reranked 1.00 / 0.900; these remain simulated regression figures, not live quality claims. Persona recall, AgentLoop auto-recall, and subagent workers share the configured hybrid store; tag scopes prevent duplicate injection; writes deduplicate only with corroborated signals; multiple coalesced recency updates survive reload; model and dimension changes invalidate stale spaces. `/retrieval` probes the live memory space and backfills missing vectors. The first Desktop context bridge now gives a CU turn the read-only `MemoryQueryTool` and `CodeSearchTool` beside its required app-owned `mac_control`, while the schema/prompt allow-list excludes shell, writes, coding mutation and third-party CU; the required-tool gate still prevents retrieval-only narration from completing an operation. **Target**: preserve an assertion-based provider run, exercise a live memory-informed CU journey, and broaden the quality corpus before upgrading to Measured. |
+ | Programmatic bounded tool calls | Hermes/OpenAI model tooling | **Partly Implemented, 2026-09-10:** deferred read-only ToolWorkflowTool with dependency graphs, result bindings, nested guards, bounded previews and interruption draining ([record 41](../41_TOOL_WORKFLOW_RECORD.md)). Actual-byte/directory evidence, stale descendant invalidation and scoped selective refresh extend it in [record 42](../42_WORKFLOW_EVIDENCE_RECORD.md). Continuous watching, test/patch claim integration, arbitrary-code sandbox, durable resume, structured search outputs and live model-tier qualification remain Target |
+ | ACP support | Zed/Hermes/OpenCode ecosystem | Bimax Terminal usable as external agent without copying engine into the host |
+ | Always-allowed Mac apps | ChatGPT Computer Use documents a revocable always-allowed list | Named capability grants that survive a task, visible and revocable in Trust Center. Phase 5 deliberately shipped no UI for this because the capability does not exist |
+--- starting/docs/product-reset/competitive/07_BUILD_SEQUENCE.md
++++ current/docs/product-reset/competitive/07_BUILD_SEQUENCE.md
+@@ -1,4 +1,8 @@
+ # Competitive build sequence
++
++## Memory RAG qualification — 2026-10-14, record 95
++
++[Record 95](../95_RAG_EVIDENCE_AND_RETRIEVAL_WORK.md) preserves the successful retrieval prefix while recovering crowded-out sources and their prompt space. Next: independent heldout multi-source/no-answer/temporal/conflicting-source cases, identical reader/model routes against raw history and existing RAG, measured live embedding/reranker stages, then a pinned public memory benchmark. Keep latency, source coverage, downstream answer accuracy, cost and resource results separate. Learned/LLM-generated context, ANN and model changes require quality/resource evidence before adoption. The observed unrelated desktop pairing-IPC security-test failure requires its own owner follow-up; do not weaken the guard. CU/UI remain outside this pass.
+ 
+ ## Context preparation cost follow-through — 2026-10-13
+ 
+--- starting/docs/product-reset/competitive/08_SOURCE_LEDGER.md
++++ current/docs/product-reset/competitive/08_SOURCE_LEDGER.md
+@@ -1,4 +1,8 @@
+ # Competitive source ledger
++
++## Memory RAG completeness and warm work — 2026-10-14, record 95
++
++[Record 95](../95_RAG_EVIDENCE_AND_RETRIEVAL_WORK.md) uses inspected first-party source and frozen starting bytes. Newly checked primary references: [Elastic RRF](https://www.elastic.co/docs/reference/elasticsearch/rest-apis/reciprocal-rank-fusion) (retain ranks/window semantics); [Anthropic contextual retrieval](https://www.anthropic.com/engineering/contextual-retrieval) (contextual BM25/embeddings/reranking; vendor results are not Bimax gains); [Lost in the Middle](https://aclanthology.org/2024.tacl-1.9/) and [programmatic context management](https://arxiv.org/abs/2608.21690) (evidence placement/management research); official [LongMemEval-V2](https://github.com/xiaowu0162/LongMemEval-V2) and [MemoryAgentBench](https://github.com/HUST-AI-HYZ/MemoryAgentBench) (external evaluation candidates, not executed here). User attachments are hypotheses, not benchmark receipts. No upstream code/dependency/dataset/model import. Preserved local samples, grader controls, source faults and defer decisions are under `../evidence/2026-10-14-rag/`; public/independent heldout/live answer-quality results remain Target.
+ 
+ ## Exact context serialization and bounded continuation work — 2026-10-13, record 94
+ 
+--- starting/docs/product-reset/competitive/examples/R02_RETRIEVAL_TRUTH.md
++++ current/docs/product-reset/competitive/examples/R02_RETRIEVAL_TRUTH.md
+@@ -1,4 +1,8 @@
+ # R02 — Retrieval Truth Across Restart and Provider Boundaries
++
++## Memory document coverage and prompt evidence — 2026-10-14
++
++[Record 95](../../95_RAG_EVIDENCE_AND_RETRIEVAL_WORK.md) requires long documents not to consume every returned source slot, while preserving scope/floor, successful prefix and bounded reranker requests. Later sources receive useful prompt room; tiny budgets keep the best source. Replacement/external deletion must invalidate chunk lookup; vocabulary scopes and coalesced recency still hold. Run `src/__tests__/rag.sprint.test.ts`, `node --test scripts/rag-fixture-grader.test.cjs`, `scripts/prove-rag-work.py`, existing retrieval suites and the unchanged version-4 context benchmark. Generated Recall@3/prompt completeness and warm timings qualify local memory-RAG behavior only. Public benchmarks, independent heldout queries, real semantic stages, model answers and installed full R02 remain Target. The pre-existing desktop pairing-IPC security-test failure is recorded separately and must not be hidden by weakening its guard.
+ 
+ ## Context work equivalence — 2026-10-13
+ 

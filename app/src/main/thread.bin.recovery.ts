@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import type { SavedThread } from './thread.manager';
 import type { BinOps } from './thread.undo';
 import type { ThreadBinUndo } from '../shared/threads';
+import { readBoundedHistoryJson, readThreadSnapshot, THREAD_RECOVERY_MAX_BYTES, THREAD_SNAPSHOT_MAX_BYTES } from './thread.storage';
 
 /** A bounded private safety copy for Bimax Thread Bin undo, including the system API's unknown-trash-path fallback. */
 export const BIN_UNDO_MS = 5 * 60_000;
@@ -12,7 +13,7 @@ interface Recovery { value: SavedThread; archived: boolean; at: number }
 export class ThreadBinRecovery {
   private busy = new Set<string>();
   private dir: string;
-  constructor(private root: string, private bin: Pick<BinOps, 'moveToBin'>, private now = Date.now) {
+  constructor(private root: string, private bin: Pick<BinOps, 'moveToBin'>, private now = Date.now, private unreadable?: (id: string) => void) {
     this.dir = path.join(root, '.bin-recovery');
     fs.mkdirSync(this.dir, { recursive: true, mode: 0o700 });
     this.prune();
@@ -30,15 +31,15 @@ export class ThreadBinRecovery {
   private target(id: string, archived: boolean): string { this.id(id); return path.join(this.root, ...(archived ? ['archive'] : []), `${id}.json`); }
   private read(id: string): Recovery {
     const file = this.backup(id);
-    if (fs.statSync(file).size > 32 * 1024 * 1024) throw new Error('Recovery is too large.');
-    const r: Recovery = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const r = readBoundedHistoryJson(file, THREAD_RECOVERY_MAX_BYTES) as Recovery;
     if (r.value?.summary?.id !== id || !Array.isArray(r.value.state?.items) || typeof r.archived !== 'boolean' || !Number.isFinite(r.at)) throw new Error('Recovery cannot be read.');
+    if (Buffer.byteLength(JSON.stringify(r.value)) > THREAD_SNAPSHOT_MAX_BYTES) throw new Error('Recovery history exceeds the saved-history limit.');
     return r;
   }
   private records(): Recovery[] {
     return fs.readdirSync(this.dir).filter(n => /^[\w-]{1,80}\.json$/.test(n)).flatMap(n => {
       const id=n.slice(0,-5);
-      try { return [this.read(id)]; } catch { fs.rmSync(this.backup(id), { force: true }); return []; }
+      try { return [this.read(id)]; } catch { this.unreadable?.(id); return []; }
     }).sort((a,b)=>b.at-a.at);
   }
   prune(): void {
@@ -62,12 +63,13 @@ export class ThreadBinRecovery {
     this.busy.add(id);
     const target=this.target(id,archived);
     try {
-      if (fs.statSync(target).size > 32 * 1024 * 1024) throw new Error('Conversation is too large.');
-      const value: SavedThread=JSON.parse(fs.readFileSync(target,'utf8'));
+      const value = readThreadSnapshot(target, id);
       if (value.summary?.id !== id || !Array.isArray(value.state?.items)) throw new Error('Conversation cannot be read.');
       const r: Recovery={ value:{...value,state:{...value.state,request:null}},archived,at:this.now() };
       const temporary=`${this.backup(id)}.tmp`;
-      try { fs.writeFileSync(temporary,JSON.stringify(r),{mode:0o600}); fs.renameSync(temporary,this.backup(id)); }
+      const text = JSON.stringify(r);
+      if (Buffer.byteLength(text) > THREAD_RECOVERY_MAX_BYTES) throw new Error('Recovery history exceeds the saved-history limit.');
+      try { fs.writeFileSync(temporary,text,{mode:0o600}); fs.renameSync(temporary,this.backup(id)); }
       finally { fs.rmSync(temporary,{force:true}); }
       await this.bin.moveToBin(target);
       if (fs.existsSync(target)) throw new Error('The conversation did not move to the Bin.');

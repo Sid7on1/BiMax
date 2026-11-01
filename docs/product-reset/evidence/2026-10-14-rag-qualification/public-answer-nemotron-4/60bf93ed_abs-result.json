@@ -1,0 +1,275 @@
+{
+  "row": 129,
+  "id": "60bf93ed_abs",
+  "stratum": "abstention",
+  "dataset": "longmemeval",
+  "question": "How many days did it take for my iPad case to arrive after I bought it?",
+  "references": [
+    "The information provided is not enough. You did not mention buying an iPad case."
+  ],
+  "kind": "multi-session",
+  "abstention": true,
+  "date": "2023/01/24 (Tue) 23:58",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 710.6555840000001,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 71,
+        "maxInputChars": 71,
+        "requiredProviderTruncation": false,
+        "promptTokens": 19,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "1e91cdf0",
+        "36d5bbde_1",
+        "a95d014c_3"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 21) display case that fits your budget and needs. Here are some tips to help you find a decent display case at a thrift store or antique shop:\n\n**Thrift Stores:**\n\n1. **Look beyond the original purpose**: Don't dismiss a display case just because it was originally meant for something else, like a bookshelf or a curio cabinet. Think about how you can repurpose it to fit your records and cameras.\n2. **Check the condition**: Inspect the case carefully for any damage, scratches, or worn-out parts. Make sure it's sturdy and can hold the weight of your items.\n3. **Measure before you buy**: Bring a tape measure to ensure the case fits your space and can accommodate your records and cameras.\n4. **Negotiate the price**: Thrift stores often have flexible pricing, so don't be afraid to negotiate the price if you find a display case that needs some TLC.\n5. **Get creative with refinishing**: If you find a display case that's a bit rough around the edges, consider refinishing it yourself to give it a new life. You can find tutorials and inspiration online to help you with the process.\n\n**Antique Shops:**\n  (part 8 of 21, excerpt) counters**: These can be repurposed as display cases and often have a unique, industrial look.\n\n**Tips for refinishing or repurposing a found display case:**\n\n1. **Clean and disinfect**: Give the case a thorough cleaning and disinfecting before refinishing or repurposing it.\n- (part 12 of 13, excerpt) Let's update the calculation based on the new information. You mentioned you bought 12 packets of 2kg each, which is a total of:\n\n12 packets x 2kg/packet = 24kg of food\n- (part 4 of 17, excerpt) **6. Focus on how you feel**: Instead of focusing on the physical aspects of yoga, remember how it makes you feel. Yoga can help reduce stress, improve m",
+      "evidence": [
+        {
+          "sourceId": "memory:1e91cdf0",
+          "sourceVersion": "sha256:aeea1ce794553ea08d6d47a420fb57c1c27a13b0012d83a0d555c623d30cb9f2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "1e91cdf0",
+            "part": 5,
+            "parts": 21
+          },
+          "text": "display case that fits your budget and needs. Here are some tips to help you find a decent display case at a thrift store or antique shop:\n\n**Thrift Stores:**\n\n1. **Look beyond the original purpose**: Don't dismiss a display case just because it was originally meant for something else, like a bookshelf or a curio cabinet. Think about how you can repurpose it to fit your records and cameras.\n2. **Check the condition**: Inspect the case carefully for any damage, scratches, or worn-out parts. Make sure it's sturdy and can hold the weight of your items.\n3. **Measure before you buy**: Bring a tape measure to ensure the case fits your space and can accommodate your records and cameras.\n4. **Negotiate the price**: Thrift stores often have flexible pricing, so don't be afraid to negotiate the price if you find a display case that needs some TLC.\n5. **Get creative with refinishing**: If you find a display case that's a bit rough around the edges, consider refinishing it yourself to give it a new life. You can find tutorials and inspiration online to help you with the process.\n\n**Antique Shops:**",
+          "id": "ev_854edeb81a2ac350e3e65133",
+          "observedAt": "2026-10-14T05:20:14.490Z"
+        },
+        {
+          "sourceId": "memory:1e91cdf0",
+          "sourceVersion": "sha256:aeea1ce794553ea08d6d47a420fb57c1c27a13b0012d83a0d555c623d30cb9f2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "1e91cdf0",
+            "part": 8,
+            "parts": 21,
+            "partial": true
+          },
+          "text": "counters**: These can be repurposed as display cases and often have a unique, industrial look.\n\n**Tips for refinishing or repurposing a found display case:**\n\n1. **Clean and disinfect**: Give the case a thorough cleaning and disinfecting before refinishing or repurposing it.",
+          "id": "ev_4bd059c6a2a0d5ee1f01eac7",
+          "observedAt": "2026-10-14T05:20:14.492Z"
+        },
+        {
+          "sourceId": "memory:36d5bbde_1",
+          "sourceVersion": "sha256:9e862361eecce599f9b467d5f552614329989e891ba55108185f9acfe50f36ce",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "36d5bbde_1",
+            "part": 12,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "Let's update the calculation based on the new information. You mentioned you bought 12 packets of 2kg each, which is a total of:\n\n12 packets x 2kg/packet = 24kg of food",
+          "id": "ev_5b02213b4c5875644a37a2b3",
+          "observedAt": "2026-10-14T05:20:14.493Z"
+        },
+        {
+          "sourceId": "memory:a95d014c_3",
+          "sourceVersion": "sha256:18d2df919a0b8480d773d86a35d569f9bda25492a77a7a093932e733a8a53475",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "a95d014c_3",
+            "part": 4,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "**6. Focus on how you feel**: Instead of focusing on the physical aspects of yoga, remember how it makes you feel. Yoga can help reduce stress, improve m",
+          "id": "ev_482ea0998e9b11e80fa1f34b",
+          "observedAt": "2026-10-14T05:20:14.494Z"
+        }
+      ],
+      "sourceIds": [
+        "1e91cdf0",
+        "36d5bbde_1",
+        "a95d014c_3"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 33.29754200000025,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "1e91cdf0",
+        "36d5bbde_1",
+        "a95d014c_3"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 21) display case that fits your budget and needs. Here are some tips to help you find a decent display case at a thrift store or antique shop:\n\n**Thrift Stores:**\n\n1. **Look beyond the original purpose**: Don't dismiss a display case just because it was originally meant for something else, like a bookshelf or a curio cabinet. Think about how you can repurpose it to fit your records and cameras.\n2. **Check the condition**: Inspect the case carefully for any damage, scratches, or worn-out parts. Make sure it's sturdy and can hold the weight of your items.\n3. **Measure before you buy**: Bring a tape measure to ensure the case fits your space and can accommodate your records and cameras.\n4. **Negotiate the price**: Thrift stores often have flexible pricing, so don't be afraid to negotiate the price if you find a display case that needs some TLC.\n5. **Get creative with refinishing**: If you find a display case that's a bit rough around the edges, consider refinishing it yourself to give it a new life. You can find tutorials and inspiration online to help you with the process.\n\n**Antique Shops:**\n  (part 8 of 21, excerpt) counters**: These can be repurposed as display cases and often have a unique, industrial look.\n\n**Tips for refinishing or repurposing a found display case:**\n\n1. **Clean and disinfect**: Give the case a thorough cleaning and disinfecting before refinishing or repurposing it.\n- (part 12 of 13, excerpt) Let's update the calculation based on the new information. You mentioned you bought 12 packets of 2kg each, which is a total of:\n\n12 packets x 2kg/packet = 24kg of food\n- (part 4 of 17, excerpt) **6. Focus on how you feel**: Instead of focusing on the physical aspects of yoga, remember how it makes you feel. Yoga can help reduce stress, improve m",
+      "evidence": [
+        {
+          "sourceId": "memory:1e91cdf0",
+          "sourceVersion": "sha256:aeea1ce794553ea08d6d47a420fb57c1c27a13b0012d83a0d555c623d30cb9f2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "1e91cdf0",
+            "part": 5,
+            "parts": 21
+          },
+          "text": "display case that fits your budget and needs. Here are some tips to help you find a decent display case at a thrift store or antique shop:\n\n**Thrift Stores:**\n\n1. **Look beyond the original purpose**: Don't dismiss a display case just because it was originally meant for something else, like a bookshelf or a curio cabinet. Think about how you can repurpose it to fit your records and cameras.\n2. **Check the condition**: Inspect the case carefully for any damage, scratches, or worn-out parts. Make sure it's sturdy and can hold the weight of your items.\n3. **Measure before you buy**: Bring a tape measure to ensure the case fits your space and can accommodate your records and cameras.\n4. **Negotiate the price**: Thrift stores often have flexible pricing, so don't be afraid to negotiate the price if you find a display case that needs some TLC.\n5. **Get creative with refinishing**: If you find a display case that's a bit rough around the edges, consider refinishing it yourself to give it a new life. You can find tutorials and inspiration online to help you with the process.\n\n**Antique Shops:**",
+          "id": "ev_854edeb81a2ac350e3e65133",
+          "observedAt": "2026-10-14T05:20:14.509Z"
+        },
+        {
+          "sourceId": "memory:1e91cdf0",
+          "sourceVersion": "sha256:aeea1ce794553ea08d6d47a420fb57c1c27a13b0012d83a0d555c623d30cb9f2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "1e91cdf0",
+            "part": 8,
+            "parts": 21,
+            "partial": true
+          },
+          "text": "counters**: These can be repurposed as display cases and often have a unique, industrial look.\n\n**Tips for refinishing or repurposing a found display case:**\n\n1. **Clean and disinfect**: Give the case a thorough cleaning and disinfecting before refinishing or repurposing it.",
+          "id": "ev_4bd059c6a2a0d5ee1f01eac7",
+          "observedAt": "2026-10-14T05:20:14.509Z"
+        },
+        {
+          "sourceId": "memory:36d5bbde_1",
+          "sourceVersion": "sha256:9e862361eecce599f9b467d5f552614329989e891ba55108185f9acfe50f36ce",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "36d5bbde_1",
+            "part": 12,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "Let's update the calculation based on the new information. You mentioned you bought 12 packets of 2kg each, which is a total of:\n\n12 packets x 2kg/packet = 24kg of food",
+          "id": "ev_5b02213b4c5875644a37a2b3",
+          "observedAt": "2026-10-14T05:20:14.510Z"
+        },
+        {
+          "sourceId": "memory:a95d014c_3",
+          "sourceVersion": "sha256:18d2df919a0b8480d773d86a35d569f9bda25492a77a7a093932e733a8a53475",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "a95d014c_3",
+            "part": 4,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "**6. Focus on how you feel**: Instead of focusing on the physical aspects of yoga, remember how it makes you feel. Yoga can help reduce stress, improve m",
+          "id": "ev_482ea0998e9b11e80fa1f34b",
+          "observedAt": "2026-10-14T05:20:14.510Z"
+        }
+      ],
+      "sourceIds": [
+        "1e91cdf0",
+        "36d5bbde_1",
+        "a95d014c_3"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 16.462708000006387,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 0.0,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:41:47.174796+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "The retrieved history does not contain any information about an iPad case purchase or delivery time, so I don't know how many days it took for your iPad case to arrive.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 564,
+    "completion_tokens": 386,
+    "total_tokens": 950,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 348,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 280,
+    "completion_tokens": 877,
+    "total_tokens": 1157,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 874,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 14075.772166999968,
+  "judgeWallMs": 12984.213541000145,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.1951219512195122
+  },
+  "ended": "2026-10-14T07:42:15.587043+00:00"
+}

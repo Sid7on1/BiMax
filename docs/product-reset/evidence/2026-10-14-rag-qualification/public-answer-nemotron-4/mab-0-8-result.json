@@ -1,0 +1,237 @@
+{
+  "row": 0,
+  "query": 8,
+  "id": "mab-0-8",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "question": "What is the original meaning of the word Norman?",
+  "references": [
+    "Viking",
+    "Norseman, Viking",
+    "Norseman, Viking"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 6.537125000002561,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 48,
+        "maxInputChars": 48,
+        "requiredProviderTruncation": false,
+        "promptTokens": 12,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-117",
+        "context-227",
+        "context-237"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) it has been said that they became \"more Irish than the Irish themselves.\" The Normans settled mostly in an area in the east of Ireland, later known as the Pale, and also built many fine castles and settlements, including Trim Castle and Dublin Castle. Both cultures intermixed, borrowing from each other's language, culture and outlook. Norman descendants today can be recognised by their surnames. Names such as French, (De) Roche, Devereux, D'Arcy, Treacy and Lacy are particularly common in the southeast of Ireland, especially in the southern part of County Wexford where the first Norman settlements were established. Other Norman names such as Furlong predominate there. Another common Norman-Irish name was Morell (Murrell) derived from the French Norman name Morel. Other names beginning with Fitz (from the Norman for son) indicate Norman ancestry. These included Fitzgerald, FitzGibbons (Gibbons) dynasty, Fitzmaurice. Other families bearing such surnames as Barry (de Barra) and De B\u00farca (Burke) are also of Norman extraction.\n- (part 4 of 5, excerpt) Document 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:\n- (part 6 of 6, excerpt) The Norman dynasty had a major political, cultural and military impact on medieval Europe and even the Near East. The Normans were famed for their martial spirit and eventually for their Christian piety, becoming exponents of the Cathol",
+      "evidence": [
+        {
+          "sourceId": "memory:context-117",
+          "sourceVersion": "sha256:74cf70e800514e81453be8223ff8c7300f1c04a3d4ca10f17904815d0f096202",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-117",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "it has been said that they became \"more Irish than the Irish themselves.\" The Normans settled mostly in an area in the east of Ireland, later known as the Pale, and also built many fine castles and settlements, including Trim Castle and Dublin Castle. Both cultures intermixed, borrowing from each other's language, culture and outlook. Norman descendants today can be recognised by their surnames. Names such as French, (De) Roche, Devereux, D'Arcy, Treacy and Lacy are particularly common in the southeast of Ireland, especially in the southern part of County Wexford where the first Norman settlements were established. Other Norman names such as Furlong predominate there. Another common Norman-Irish name was Morell (Murrell) derived from the French Norman name Morel. Other names beginning with Fitz (from the Norman for son) indicate Norman ancestry. These included Fitzgerald, FitzGibbons (Gibbons) dynasty, Fitzmaurice. Other families bearing such surnames as Barry (de Barra) and De B\u00farca (Burke) are also of Norman extraction.",
+          "id": "ev_2f9e6e819aa4fa345e1e010a",
+          "observedAt": "2026-10-14T04:44:31.525Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:",
+          "id": "ev_294464bc5c9f271a280dae60",
+          "observedAt": "2026-10-14T04:44:31.525Z"
+        },
+        {
+          "sourceId": "memory:context-237",
+          "sourceVersion": "sha256:cb1f14545038559fc1e4a34b77074a367cce62ca04b8308a11acedf19763ae3e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-237",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "The Norman dynasty had a major political, cultural and military impact on medieval Europe and even the Near East. The Normans were famed for their martial spirit and eventually for their Christian piety, becoming exponents of the Cathol",
+          "id": "ev_b8978076941ffcbfe1a782ce",
+          "observedAt": "2026-10-14T04:44:31.525Z"
+        }
+      ],
+      "sourceIds": [
+        "context-117",
+        "context-227",
+        "context-237"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.4575000000040745,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-117",
+        "context-227",
+        "context-237"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) it has been said that they became \"more Irish than the Irish themselves.\" The Normans settled mostly in an area in the east of Ireland, later known as the Pale, and also built many fine castles and settlements, including Trim Castle and Dublin Castle. Both cultures intermixed, borrowing from each other's language, culture and outlook. Norman descendants today can be recognised by their surnames. Names such as French, (De) Roche, Devereux, D'Arcy, Treacy and Lacy are particularly common in the southeast of Ireland, especially in the southern part of County Wexford where the first Norman settlements were established. Other Norman names such as Furlong predominate there. Another common Norman-Irish name was Morell (Murrell) derived from the French Norman name Morel. Other names beginning with Fitz (from the Norman for son) indicate Norman ancestry. These included Fitzgerald, FitzGibbons (Gibbons) dynasty, Fitzmaurice. Other families bearing such surnames as Barry (de Barra) and De B\u00farca (Burke) are also of Norman extraction.\n- (part 4 of 5, excerpt) Document 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:\n- (part 6 of 6, excerpt) The Norman dynasty had a major political, cultural and military impact on medieval Europe and even the Near East. The Normans were famed for their martial spirit and eventually for their Christian piety, becoming exponents of the Cathol",
+      "evidence": [
+        {
+          "sourceId": "memory:context-117",
+          "sourceVersion": "sha256:74cf70e800514e81453be8223ff8c7300f1c04a3d4ca10f17904815d0f096202",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-117",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "it has been said that they became \"more Irish than the Irish themselves.\" The Normans settled mostly in an area in the east of Ireland, later known as the Pale, and also built many fine castles and settlements, including Trim Castle and Dublin Castle. Both cultures intermixed, borrowing from each other's language, culture and outlook. Norman descendants today can be recognised by their surnames. Names such as French, (De) Roche, Devereux, D'Arcy, Treacy and Lacy are particularly common in the southeast of Ireland, especially in the southern part of County Wexford where the first Norman settlements were established. Other Norman names such as Furlong predominate there. Another common Norman-Irish name was Morell (Murrell) derived from the French Norman name Morel. Other names beginning with Fitz (from the Norman for son) indicate Norman ancestry. These included Fitzgerald, FitzGibbons (Gibbons) dynasty, Fitzmaurice. Other families bearing such surnames as Barry (de Barra) and De B\u00farca (Burke) are also of Norman extraction.",
+          "id": "ev_2f9e6e819aa4fa345e1e010a",
+          "observedAt": "2026-10-14T04:44:31.526Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:",
+          "id": "ev_294464bc5c9f271a280dae60",
+          "observedAt": "2026-10-14T04:44:31.526Z"
+        },
+        {
+          "sourceId": "memory:context-237",
+          "sourceVersion": "sha256:cb1f14545038559fc1e4a34b77074a367cce62ca04b8308a11acedf19763ae3e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-237",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "The Norman dynasty had a major political, cultural and military impact on medieval Europe and even the Near East. The Normans were famed for their martial spirit and eventually for their Christian piety, becoming exponents of the Cathol",
+          "id": "ev_b8978076941ffcbfe1a782ce",
+          "observedAt": "2026-10-14T04:44:31.526Z"
+        }
+      ],
+      "sourceIds": [
+        "context-117",
+        "context-227",
+        "context-237"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.253167000002577,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:44:32.856414+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "The retrieved history does not contain the original meaning or etymology of the word \"Norman.\" It discusses the Normans as a historical people, their settlements in Ireland and Wales, and associated surnames, but provides no linguistic origin. Based on this material, I do not know.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 509,
+    "completion_tokens": 958,
+    "total_tokens": 1467,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 898,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 332,
+    "completion_tokens": 625,
+    "total_tokens": 957,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 622,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 8866.295416999947,
+  "judgeWallMs": 6859.307417000082,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:44:48.585038+00:00"
+}

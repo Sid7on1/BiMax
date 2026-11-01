@@ -1,0 +1,275 @@
+{
+  "row": 232,
+  "id": "09ba9854_abs",
+  "stratum": "abstention",
+  "dataset": "longmemeval",
+  "question": "How much will I save by taking the bus from the airport to my hotel instead of a taxi?",
+  "references": [
+    "The information provided is not enough. You did not mention how much will the bus take."
+  ],
+  "kind": "multi-session",
+  "abstention": true,
+  "date": "2023/05/30 (Tue) 22:56",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 588.1819159999941,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 86,
+        "maxInputChars": 86,
+        "requiredProviderTruncation": false,
+        "promptTokens": 22,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_96c743d0_abs_1",
+        "answer_96c743d0_abs_2",
+        "ultrachat_342361"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 14, excerpt) 3. **Bus**: The Airport Limousine Bus (approx. 30-60 minutes, \u00a51,000-2,000) takes you to various locations in Tokyo, including major hotels.\n4. **Taxi**: Taxis are available, but this is the most expensive option (approx. 30-60 minutes, \u00a56,000-10,000).\n  (part 10 of 14) if you're in a hurry, as this can save you time and money.\n\nThat being said, if you're on a budget, there are some alternative options you could consider:\n\n* The train: As I mentioned earlier, the train is a more affordable option, and you can use a luggage cart or porter service to help you with your bags.\n* A private car service: Some private car services, like Japan Car Service or Tokyo Private Car, offer fixed prices and can be more affordable than a taxi, especially if you're traveling in a group.\n* A shuttle bus: Some shuttle bus services, like the Airport Limousine Bus, offer fixed prices and can be a more affordable option than a taxi.\n\nI hope this helps you make an informed decision about how to get to Tokyo from the airport!\nuser: By the way, I was told that taking a taxi from the airport to my hotel would cost around $60, which is a bit pricey for me.\nassistant: $60 is actually a relatively reasonable price for a taxi ride from the airport to a hotel in Tokyo, considering the distance and traffic conditions.\n\nHowever, I understand that it might still be out of your budget. If you're looking for more affordable options, you could consider the following:\n- (part 5 of 12, excerpt) Considering your arrival time on a Friday afternoon, I would recommend taking the Narita Express (N'EX) Train or the Keisei Skyliner Train + S\n- (part 1 of 3, excerpt) assistant: Yes, there are several transportation options that are more affordable than taking a taxi from Mumbai Airport to",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_96c743d0_abs_1",
+          "sourceVersion": "sha256:38219e211eb61127a926cafa5b39ab51d1c3fa7fe86e7c553e1e8e1639f4f572",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_96c743d0_abs_1",
+            "part": 3,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "3. **Bus**: The Airport Limousine Bus (approx. 30-60 minutes, \u00a51,000-2,000) takes you to various locations in Tokyo, including major hotels.\n4. **Taxi**: Taxis are available, but this is the most expensive option (approx. 30-60 minutes, \u00a56,000-10,000).",
+          "id": "ev_085d6bf931f8badb0ec2f57e",
+          "observedAt": "2026-10-14T05:07:56.236Z"
+        },
+        {
+          "sourceId": "memory:answer_96c743d0_abs_1",
+          "sourceVersion": "sha256:38219e211eb61127a926cafa5b39ab51d1c3fa7fe86e7c553e1e8e1639f4f572",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_96c743d0_abs_1",
+            "part": 10,
+            "parts": 14
+          },
+          "text": "if you're in a hurry, as this can save you time and money.\n\nThat being said, if you're on a budget, there are some alternative options you could consider:\n\n* The train: As I mentioned earlier, the train is a more affordable option, and you can use a luggage cart or porter service to help you with your bags.\n* A private car service: Some private car services, like Japan Car Service or Tokyo Private Car, offer fixed prices and can be more affordable than a taxi, especially if you're traveling in a group.\n* A shuttle bus: Some shuttle bus services, like the Airport Limousine Bus, offer fixed prices and can be a more affordable option than a taxi.\n\nI hope this helps you make an informed decision about how to get to Tokyo from the airport!\nuser: By the way, I was told that taking a taxi from the airport to my hotel would cost around $60, which is a bit pricey for me.\nassistant: $60 is actually a relatively reasonable price for a taxi ride from the airport to a hotel in Tokyo, considering the distance and traffic conditions.\n\nHowever, I understand that it might still be out of your budget. If you're looking for more affordable options, you could consider the following:",
+          "id": "ev_9f474535207cb93b8ca4c4b1",
+          "observedAt": "2026-10-14T05:07:56.237Z"
+        },
+        {
+          "sourceId": "memory:answer_96c743d0_abs_2",
+          "sourceVersion": "sha256:3595f77f17da843f1b782397d2522799fd59dd719f07aac4b370ec8a1d22e719",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_96c743d0_abs_2",
+            "part": 5,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "Considering your arrival time on a Friday afternoon, I would recommend taking the Narita Express (N'EX) Train or the Keisei Skyliner Train + S",
+          "id": "ev_93904a64dbdcdd42437e1039",
+          "observedAt": "2026-10-14T05:07:56.238Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_342361",
+          "sourceVersion": "sha256:8ecb262be73747f8f2398c4310bd56a25c7e8b680b10980fb5de4a2bffcdd1ab",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_342361",
+            "part": 1,
+            "parts": 3,
+            "partial": true
+          },
+          "text": "assistant: Yes, there are several transportation options that are more affordable than taking a taxi from Mumbai Airport to",
+          "id": "ev_22c6e15e1c24e67b9052ba05",
+          "observedAt": "2026-10-14T05:07:56.239Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_96c743d0_abs_1",
+        "answer_96c743d0_abs_2",
+        "ultrachat_342361"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 37.22225000000617,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_96c743d0_abs_1",
+        "answer_96c743d0_abs_2",
+        "ultrachat_342361"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 14, excerpt) 3. **Bus**: The Airport Limousine Bus (approx. 30-60 minutes, \u00a51,000-2,000) takes you to various locations in Tokyo, including major hotels.\n4. **Taxi**: Taxis are available, but this is the most expensive option (approx. 30-60 minutes, \u00a56,000-10,000).\n  (part 10 of 14) if you're in a hurry, as this can save you time and money.\n\nThat being said, if you're on a budget, there are some alternative options you could consider:\n\n* The train: As I mentioned earlier, the train is a more affordable option, and you can use a luggage cart or porter service to help you with your bags.\n* A private car service: Some private car services, like Japan Car Service or Tokyo Private Car, offer fixed prices and can be more affordable than a taxi, especially if you're traveling in a group.\n* A shuttle bus: Some shuttle bus services, like the Airport Limousine Bus, offer fixed prices and can be a more affordable option than a taxi.\n\nI hope this helps you make an informed decision about how to get to Tokyo from the airport!\nuser: By the way, I was told that taking a taxi from the airport to my hotel would cost around $60, which is a bit pricey for me.\nassistant: $60 is actually a relatively reasonable price for a taxi ride from the airport to a hotel in Tokyo, considering the distance and traffic conditions.\n\nHowever, I understand that it might still be out of your budget. If you're looking for more affordable options, you could consider the following:\n- (part 5 of 12, excerpt) Considering your arrival time on a Friday afternoon, I would recommend taking the Narita Express (N'EX) Train or the Keisei Skyliner Train + S\n- (part 1 of 3, excerpt) assistant: Yes, there are several transportation options that are more affordable than taking a taxi from Mumbai Airport to",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_96c743d0_abs_1",
+          "sourceVersion": "sha256:38219e211eb61127a926cafa5b39ab51d1c3fa7fe86e7c553e1e8e1639f4f572",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_96c743d0_abs_1",
+            "part": 3,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "3. **Bus**: The Airport Limousine Bus (approx. 30-60 minutes, \u00a51,000-2,000) takes you to various locations in Tokyo, including major hotels.\n4. **Taxi**: Taxis are available, but this is the most expensive option (approx. 30-60 minutes, \u00a56,000-10,000).",
+          "id": "ev_085d6bf931f8badb0ec2f57e",
+          "observedAt": "2026-10-14T05:07:56.247Z"
+        },
+        {
+          "sourceId": "memory:answer_96c743d0_abs_1",
+          "sourceVersion": "sha256:38219e211eb61127a926cafa5b39ab51d1c3fa7fe86e7c553e1e8e1639f4f572",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_96c743d0_abs_1",
+            "part": 10,
+            "parts": 14
+          },
+          "text": "if you're in a hurry, as this can save you time and money.\n\nThat being said, if you're on a budget, there are some alternative options you could consider:\n\n* The train: As I mentioned earlier, the train is a more affordable option, and you can use a luggage cart or porter service to help you with your bags.\n* A private car service: Some private car services, like Japan Car Service or Tokyo Private Car, offer fixed prices and can be more affordable than a taxi, especially if you're traveling in a group.\n* A shuttle bus: Some shuttle bus services, like the Airport Limousine Bus, offer fixed prices and can be a more affordable option than a taxi.\n\nI hope this helps you make an informed decision about how to get to Tokyo from the airport!\nuser: By the way, I was told that taking a taxi from the airport to my hotel would cost around $60, which is a bit pricey for me.\nassistant: $60 is actually a relatively reasonable price for a taxi ride from the airport to a hotel in Tokyo, considering the distance and traffic conditions.\n\nHowever, I understand that it might still be out of your budget. If you're looking for more affordable options, you could consider the following:",
+          "id": "ev_9f474535207cb93b8ca4c4b1",
+          "observedAt": "2026-10-14T05:07:56.247Z"
+        },
+        {
+          "sourceId": "memory:answer_96c743d0_abs_2",
+          "sourceVersion": "sha256:3595f77f17da843f1b782397d2522799fd59dd719f07aac4b370ec8a1d22e719",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_96c743d0_abs_2",
+            "part": 5,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "Considering your arrival time on a Friday afternoon, I would recommend taking the Narita Express (N'EX) Train or the Keisei Skyliner Train + S",
+          "id": "ev_93904a64dbdcdd42437e1039",
+          "observedAt": "2026-10-14T05:07:56.247Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_342361",
+          "sourceVersion": "sha256:8ecb262be73747f8f2398c4310bd56a25c7e8b680b10980fb5de4a2bffcdd1ab",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_342361",
+            "part": 1,
+            "parts": 3,
+            "partial": true
+          },
+          "text": "assistant: Yes, there are several transportation options that are more affordable than taking a taxi from Mumbai Airport to",
+          "id": "ev_22c6e15e1c24e67b9052ba05",
+          "observedAt": "2026-10-14T05:07:56.247Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_96c743d0_abs_1",
+        "answer_96c743d0_abs_2",
+        "ultrachat_342361"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.145375000000058,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:43:27.424561+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Based on the retrieved information for Tokyo airport transportation:\n\n- **Bus (Airport Limousine Bus):** \u00a51,000\u20132,000  \n- **Taxi:** \u00a56,000\u201310,000  \n\n**Savings in yen:**  \n- Minimum savings: \u00a56,000 \u2013 \u00a52,000 = **\u00a54,000**  \n- Maximum savings: \u00a510,000 \u2013 \u00a51,000 = **\u00a59,000**  \n\n**Relating to your $60 taxi estimate:**  \nThe history lists the taxi range as \u00a56,000\u201310,000, and you mentioned a taxi would cost around $60. This suggests \u00a56,000\u201310,000 roughly aligns with that dollar amount. Using that equivalence:\n- Bus savings would be approximately **$12\u2013$45**, depending on the exact bus fare and taxi rate.\n\nIf you take the bus at the lower end (\u00a51,000) and the taxi at your stated ~$60, you'd save roughly **$50\u2013$55**. The exact amount varies, but you're looking at saving roughly **\u00a54,000\u20139,000** (or about **$12\u2013$45** based on the provided ranges).",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 582,
+    "completion_tokens": 1340,
+    "total_tokens": 1922,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 562,
+    "completion_tokens": 1026,
+    "total_tokens": 1588,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 13460.717292000027,
+  "judgeWallMs": 47953.344042000026,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.08
+  },
+  "ended": "2026-10-14T07:44:54.124667+00:00"
+}

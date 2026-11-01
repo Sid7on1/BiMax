@@ -1,0 +1,275 @@
+{
+  "row": 474,
+  "id": "d596882b",
+  "stratum": "single-session-assistant",
+  "dataset": "longmemeval",
+  "question": "I'm planning another trip to New York City and I was wondering if you could remind me of that vegan eatery you recommended last time, the one with multiple locations throughout the city?",
+  "references": [
+    "By Chloe"
+  ],
+  "kind": "single-session-assistant",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 19:29",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 379.7430420000019,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 186,
+        "maxInputChars": 186,
+        "requiredProviderTruncation": false,
+        "promptTokens": 41,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_ultrachat_252214",
+        "bef3abcd",
+        "73ba8380_3"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6, excerpt) 1. Check out By Chloe, a popular plant-based eatery with multiple locations throughout the city. They offer vegan burgers, salads, pastas, and baked goods.\n  (part 5 of 6) plant-based bowls, smoothies, and juices.\n\n5. Pop into Peacefood Cafe, a cozy spot offering a wide variety of vegan soups, sandwiches, salads, and desserts.\n\nThese are just a few of the many vegan and vegetarian options available in New York City. Be sure to do some research in advance and ask locals for recommendations, as there are a ton of hidden gems throughout the city!\nuser: Wow, these recommendations all have me drooling! I can't wait to indulge in some delicious eats. Do you have any suggestions for the best coffee shops in the city? I can't explore on an empty stomach!\nassistant: Of course! New York City has no shortage of excellent coffee shops. Here are a few recommendations:\n\n1. Blue Bottle Coffee - with multiple locations throughout the city, Blue Bottle is known for its high-quality, carefully crafted coffee.\n\n2. Toby's Estate Coffee - located in Brooklyn, with other locations throughout NYC, Toby's Estate offers a variety of specialty coffee drinks, including pour-overs and nitro cold brew.\n\n3. Joe Coffee - another popular spot with multiple locations throughout the city, Joe's focuses on single-origin specialty coffee and offers a sophisticated atmosphere.\n- (part 5 of 23, excerpt) 4. **NYC Pride** (Multiple locations): While not exclusively non-binary focused, NYC Pride offers events and programs throughout the year that celebrate and support the non-binary community.\n- (part 2 of 13, excerpt) To get started, could you give me a bit more information on what you're looking for? For example:\n\n1. How many guests will be attending your dinner party?",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_ultrachat_252214",
+          "sourceVersion": "sha256:7649e62ff62da04b2a5bcf48766cd2200421e011eae9a1b456ec99c621e3f220",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ultrachat_252214",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "1. Check out By Chloe, a popular plant-based eatery with multiple locations throughout the city. They offer vegan burgers, salads, pastas, and baked goods.",
+          "id": "ev_8a7a04b02c1ca1add4466dff",
+          "observedAt": "2026-10-14T05:06:57.600Z"
+        },
+        {
+          "sourceId": "memory:answer_ultrachat_252214",
+          "sourceVersion": "sha256:7649e62ff62da04b2a5bcf48766cd2200421e011eae9a1b456ec99c621e3f220",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ultrachat_252214",
+            "part": 5,
+            "parts": 6
+          },
+          "text": "plant-based bowls, smoothies, and juices.\n\n5. Pop into Peacefood Cafe, a cozy spot offering a wide variety of vegan soups, sandwiches, salads, and desserts.\n\nThese are just a few of the many vegan and vegetarian options available in New York City. Be sure to do some research in advance and ask locals for recommendations, as there are a ton of hidden gems throughout the city!\nuser: Wow, these recommendations all have me drooling! I can't wait to indulge in some delicious eats. Do you have any suggestions for the best coffee shops in the city? I can't explore on an empty stomach!\nassistant: Of course! New York City has no shortage of excellent coffee shops. Here are a few recommendations:\n\n1. Blue Bottle Coffee - with multiple locations throughout the city, Blue Bottle is known for its high-quality, carefully crafted coffee.\n\n2. Toby's Estate Coffee - located in Brooklyn, with other locations throughout NYC, Toby's Estate offers a variety of specialty coffee drinks, including pour-overs and nitro cold brew.\n\n3. Joe Coffee - another popular spot with multiple locations throughout the city, Joe's focuses on single-origin specialty coffee and offers a sophisticated atmosphere.",
+          "id": "ev_f57bd8265a2845c829f8ec2b",
+          "observedAt": "2026-10-14T05:06:57.602Z"
+        },
+        {
+          "sourceId": "memory:bef3abcd",
+          "sourceVersion": "sha256:ca6e6d438a52bbcbe9f0d7451567560692feb8e70859f74bcf2c0b2fbe78e430",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "bef3abcd",
+            "part": 5,
+            "parts": 23,
+            "partial": true
+          },
+          "text": "4. **NYC Pride** (Multiple locations): While not exclusively non-binary focused, NYC Pride offers events and programs throughout the year that celebrate and support the non-binary community.",
+          "id": "ev_b2a94942c1773950b01a0106",
+          "observedAt": "2026-10-14T05:06:57.602Z"
+        },
+        {
+          "sourceId": "memory:73ba8380_3",
+          "sourceVersion": "sha256:0741ef131e73c9bf186ed0686d28352bf9ea6e5c42b4f02bf07a27c305383d55",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "73ba8380_3",
+            "part": 2,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "To get started, could you give me a bit more information on what you're looking for? For example:\n\n1. How many guests will be attending your dinner party?",
+          "id": "ev_0fe2d4bb66911590c21ed5c5",
+          "observedAt": "2026-10-14T05:06:57.603Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_ultrachat_252214",
+        "bef3abcd",
+        "73ba8380_3"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 46.53199999999924,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_ultrachat_252214",
+        "bef3abcd",
+        "73ba8380_3"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6, excerpt) 1. Check out By Chloe, a popular plant-based eatery with multiple locations throughout the city. They offer vegan burgers, salads, pastas, and baked goods.\n  (part 5 of 6) plant-based bowls, smoothies, and juices.\n\n5. Pop into Peacefood Cafe, a cozy spot offering a wide variety of vegan soups, sandwiches, salads, and desserts.\n\nThese are just a few of the many vegan and vegetarian options available in New York City. Be sure to do some research in advance and ask locals for recommendations, as there are a ton of hidden gems throughout the city!\nuser: Wow, these recommendations all have me drooling! I can't wait to indulge in some delicious eats. Do you have any suggestions for the best coffee shops in the city? I can't explore on an empty stomach!\nassistant: Of course! New York City has no shortage of excellent coffee shops. Here are a few recommendations:\n\n1. Blue Bottle Coffee - with multiple locations throughout the city, Blue Bottle is known for its high-quality, carefully crafted coffee.\n\n2. Toby's Estate Coffee - located in Brooklyn, with other locations throughout NYC, Toby's Estate offers a variety of specialty coffee drinks, including pour-overs and nitro cold brew.\n\n3. Joe Coffee - another popular spot with multiple locations throughout the city, Joe's focuses on single-origin specialty coffee and offers a sophisticated atmosphere.\n- (part 5 of 23, excerpt) 4. **NYC Pride** (Multiple locations): While not exclusively non-binary focused, NYC Pride offers events and programs throughout the year that celebrate and support the non-binary community.\n- (part 2 of 13, excerpt) To get started, could you give me a bit more information on what you're looking for? For example:\n\n1. How many guests will be attending your dinner party?",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_ultrachat_252214",
+          "sourceVersion": "sha256:7649e62ff62da04b2a5bcf48766cd2200421e011eae9a1b456ec99c621e3f220",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ultrachat_252214",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "1. Check out By Chloe, a popular plant-based eatery with multiple locations throughout the city. They offer vegan burgers, salads, pastas, and baked goods.",
+          "id": "ev_8a7a04b02c1ca1add4466dff",
+          "observedAt": "2026-10-14T05:06:57.614Z"
+        },
+        {
+          "sourceId": "memory:answer_ultrachat_252214",
+          "sourceVersion": "sha256:7649e62ff62da04b2a5bcf48766cd2200421e011eae9a1b456ec99c621e3f220",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ultrachat_252214",
+            "part": 5,
+            "parts": 6
+          },
+          "text": "plant-based bowls, smoothies, and juices.\n\n5. Pop into Peacefood Cafe, a cozy spot offering a wide variety of vegan soups, sandwiches, salads, and desserts.\n\nThese are just a few of the many vegan and vegetarian options available in New York City. Be sure to do some research in advance and ask locals for recommendations, as there are a ton of hidden gems throughout the city!\nuser: Wow, these recommendations all have me drooling! I can't wait to indulge in some delicious eats. Do you have any suggestions for the best coffee shops in the city? I can't explore on an empty stomach!\nassistant: Of course! New York City has no shortage of excellent coffee shops. Here are a few recommendations:\n\n1. Blue Bottle Coffee - with multiple locations throughout the city, Blue Bottle is known for its high-quality, carefully crafted coffee.\n\n2. Toby's Estate Coffee - located in Brooklyn, with other locations throughout NYC, Toby's Estate offers a variety of specialty coffee drinks, including pour-overs and nitro cold brew.\n\n3. Joe Coffee - another popular spot with multiple locations throughout the city, Joe's focuses on single-origin specialty coffee and offers a sophisticated atmosphere.",
+          "id": "ev_f57bd8265a2845c829f8ec2b",
+          "observedAt": "2026-10-14T05:06:57.614Z"
+        },
+        {
+          "sourceId": "memory:bef3abcd",
+          "sourceVersion": "sha256:ca6e6d438a52bbcbe9f0d7451567560692feb8e70859f74bcf2c0b2fbe78e430",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "bef3abcd",
+            "part": 5,
+            "parts": 23,
+            "partial": true
+          },
+          "text": "4. **NYC Pride** (Multiple locations): While not exclusively non-binary focused, NYC Pride offers events and programs throughout the year that celebrate and support the non-binary community.",
+          "id": "ev_b2a94942c1773950b01a0106",
+          "observedAt": "2026-10-14T05:06:57.614Z"
+        },
+        {
+          "sourceId": "memory:73ba8380_3",
+          "sourceVersion": "sha256:0741ef131e73c9bf186ed0686d28352bf9ea6e5c42b4f02bf07a27c305383d55",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "73ba8380_3",
+            "part": 2,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "To get started, could you give me a bit more information on what you're looking for? For example:\n\n1. How many guests will be attending your dinner party?",
+          "id": "ev_0fe2d4bb66911590c21ed5c5",
+          "observedAt": "2026-10-14T05:06:57.615Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_ultrachat_252214",
+        "bef3abcd",
+        "73ba8380_3"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 11.228541999997105,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:55:20.236348+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Based on the earlier recommendation, the vegan eatery with multiple locations throughout New York City is **By Chloe**. It's described as a popular plant-based spot offering vegan burgers, salads, pastas, and baked goods.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 560,
+    "completion_tokens": 623,
+    "total_tokens": 1183,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 572,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 317,
+    "completion_tokens": 458,
+    "total_tokens": 775,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 455,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 18280.78270800006,
+  "judgeWallMs": 9206.774917000075,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.125
+  },
+  "ended": "2026-10-14T07:55:48.753098+00:00"
+}

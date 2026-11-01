@@ -1,0 +1,143 @@
+{
+  "row": 6,
+  "query": 25,
+  "id": "mab-6-25",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T16:28:42.729971+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n22. Ladonna felt mortified by the bailiff's tone regarding his plans.\n23. Ladonna ordered the soup to be served without the little pies.\n24. Ladonna asked Edie Arkadyevitch for details about Alain's illness.\n25. Ladonna asked Edie Arkadyevitch about Clarisse's whereabouts.\n26. Clarisse discussed the condition of his mare with the trainer.\n\n\nBelow is a list of possible subsequent events:\n\n['Clarisse experienced an unexpected dread upon receiving the letter from her old friend.', 'Clarisse was struck by an unfamiliar disdain after reading the text from her childhood companion.', \"Clarisse felt a strange loathing upon hearing Karissa's news.\", 'Clarisse was filled with a sudden aversion upon hearing the rumors circulating about her neighbor.', 'Clarisse harbored a peculiar resentment when she stumbled upon the announcement of the reunion.', 'Clarisse noticed an odd bitterness when she learned about the wedding plans announced by her colleagues.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Clarisse felt a strange loathing upon hearing Karissa's news."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-37",
+    "context-104",
+    "context-391"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T16:29:23.478202+00:00",
+  "rag": {
+    "ids": [
+      "context-37",
+      "context-104",
+      "context-391"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 4) Arkadyevitch.\n\n\u201cYou\u2019ve come, that\u2019s the chief thing.\n\nYou can\u2019t conceive how I\u2019m resting my hopes on you.\u201d\n\n\u201cHave you known Clarisse long?\u201d she asked.\n\n\u201cYes.\n\nYou know we\u2019re hoping he will marry Alain.\u201d\n\n\u201cYes?\u201d said Karissa softly.\n\n\u201cCome now, let us talk of you,\u201d she added, tossing her head, as though she would physically shake off something superfluous oppressing her.\n\n\u201cLet us talk of your affairs.\n\nI got your letter, and here I am.\u201d\n\n\u201cYes, all my hopes are in you,\u201d said Edie Arkadyevitch.\n\n\u201cWell, tell me all about it.\u201d\n\nAnd Edie Arkadyevitch began to tell his story.\n\nOn reaching home Tristen helped his sister out, sighed, pressed her hand, and set off to his office.\n\nChapter 19\n\nWhen Karissa went into the room, Charissa was sitting in the little drawing-room with a white-headed fat little boy, already like his father, giving him a lesson in French reading.\n\nAs the boy read, he kept twisting and trying to tear off a button that was nearly off his jacket.\n\nHis mother had several times taken his hand from it, but the fat little hand went back to the button again.\n- (part 4 of 4, excerpt) \u201cLater!\u201d\n\nChapter 21\n\nThe temporary stable, a wooden shed, had been put up close to the race course, and there his mare was to have been taken the previous day.\n\nHe had not yet seen her there.\n\nDuring the last few days he had not ridden her out for exercise himself, but had put her in the charge of the trainer, and so now he positively did not know in what condition his mare had arrived yesterday and was today.\n\nHe had scarcely g\n- (part 4 of 4, excerpt) Towards the evening of that day, still alone, Karissa was in such a panic about him that she decided to start for the town, but on second thoughts wrote him the contradictory letter that Clarisse received, and without",
+    "evidence": [
+      {
+        "sourceId": "memory:context-37",
+        "sourceVersion": "sha256:cb492438f171a8d9b154567588ddf9e6f04b1a066f0d52f9f3675cf5febca955",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-37",
+          "part": 4,
+          "parts": 4
+        },
+        "text": "Arkadyevitch.\n\n\u201cYou\u2019ve come, that\u2019s the chief thing.\n\nYou can\u2019t conceive how I\u2019m resting my hopes on you.\u201d\n\n\u201cHave you known Clarisse long?\u201d she asked.\n\n\u201cYes.\n\nYou know we\u2019re hoping he will marry Alain.\u201d\n\n\u201cYes?\u201d said Karissa softly.\n\n\u201cCome now, let us talk of you,\u201d she added, tossing her head, as though she would physically shake off something superfluous oppressing her.\n\n\u201cLet us talk of your affairs.\n\nI got your letter, and here I am.\u201d\n\n\u201cYes, all my hopes are in you,\u201d said Edie Arkadyevitch.\n\n\u201cWell, tell me all about it.\u201d\n\nAnd Edie Arkadyevitch began to tell his story.\n\nOn reaching home Tristen helped his sister out, sighed, pressed her hand, and set off to his office.\n\nChapter 19\n\nWhen Karissa went into the room, Charissa was sitting in the little drawing-room with a white-headed fat little boy, already like his father, giving him a lesson in French reading.\n\nAs the boy read, he kept twisting and trying to tear off a button that was nearly off his jacket.\n\nHis mother had several times taken his hand from it, but the fat little hand went back to the button again.",
+        "id": "ev_6d55dc4c99332e6595508046",
+        "observedAt": "2026-10-14T15:28:02.700Z"
+      },
+      {
+        "sourceId": "memory:context-104",
+        "sourceVersion": "sha256:6517d4c0ffc93482e019782ea7aeadb6480459ebf0c4c1b996acacb9cd00a9bb",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-104",
+          "part": 4,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "\u201cLater!\u201d\n\nChapter 21\n\nThe temporary stable, a wooden shed, had been put up close to the race course, and there his mare was to have been taken the previous day.\n\nHe had not yet seen her there.\n\nDuring the last few days he had not ridden her out for exercise himself, but had put her in the charge of the trainer, and so now he positively did not know in what condition his mare had arrived yesterday and was today.\n\nHe had scarcely g",
+        "id": "ev_66a1be552a1e72e60c7d366c",
+        "observedAt": "2026-10-14T15:28:02.701Z"
+      },
+      {
+        "sourceId": "memory:context-391",
+        "sourceVersion": "sha256:0317b2e76b563cdd7b0f259f722f98949aa507f24e2434390f1fe01e16481a2e",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-391",
+          "part": 4,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Towards the evening of that day, still alone, Karissa was in such a panic about him that she decided to start for the town, but on second thoughts wrote him the contradictory letter that Clarisse received, and without",
+        "id": "ev_029be37f9ad3d02dc5c01014",
+        "observedAt": "2026-10-14T15:28:02.702Z"
+      }
+    ],
+    "sourceIds": [
+      "context-37",
+      "context-104",
+      "context-391"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 9.134166999996523,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+  "prediction": "Clarisse experienced an unexpected dread upon receiving the letter from her old friend.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.21052631578947367
+  },
+  "readerUsage": {
+    "prompt_tokens": 789,
+    "completion_tokens": 1041,
+    "total_tokens": 1830,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 515,
+    "completion_tokens": 1022,
+    "total_tokens": 1537,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1019,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 26963.094582999474,
+  "judgeWallMs": 13780.842874999507
+}

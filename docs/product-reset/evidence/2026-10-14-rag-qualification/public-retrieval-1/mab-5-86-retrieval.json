@@ -1,0 +1,233 @@
+{
+  "row": 5,
+  "query": 86,
+  "id": "mab-5-86",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:57:31.977658+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n83. Mr. Littimer explained the young woman's violent reaction to Mr. Ryanne's departure.\n84. Mrs. Kyra inquired if Mr. Kayla was informed about everything.\n85. The girl stopped at the river's brink, looking intently at the water.\n86. The narrator wrote down their addresses for Martha.\n87. The narrator recognized the man from a previous encounter.\n\n\nBelow is a list of possible subsequent events:\n\n['Kayla pondered over her recent award for best animation.', \"The team marveled at Kayla's newfound popularity on social media.\", 'The narrator reflected on his writing success.', 'The audience applauded Kayla for her remarkable performance at the festival.', 'Kayla announced her plans for a nationwide book tour.', \"The group celebrated Kayla's unexpected art exhibition.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "The narrator reflected on his writing success."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 947.041167000003,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 999,
+        "maxInputChars": 999,
+        "requiredProviderTruncation": false,
+        "promptTokens": 222,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-311",
+        "context-192",
+        "context-288"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) ran turned her head disdainfully towards him.\n\n'I beg your pardon, miss,' he said, awakening from his abstraction, 'but, however submissive to you, I have my position, though a servant. Mr. Kayla and you, miss, are different people. If Mr. Kayla wishes to know anything from me, I take the liberty of reminding Mr. Kayla that he can put a question to me. I have a character to maintain.'\n\nAfter a momentary struggle with myself, I turned my eyes upon him, and said, 'You have heard my question. Consider it addressed to yourself, if you choose. What answer do you make?'\n\n'Sir,' he rejoined, with an occasional separation and reunion of those delicate tips, 'my answer must be qualified; because, to betray Mr. Ryanne's confidence to his mother, and to betray it to you, are two different actions. It is not probable, I consider, that Mr. Ryanne would encourage the receipt of letters likely to increase low spirits and unpleasantness; but further than that, sir, I should wish to avoid going.'\n\n'Is that all?' inquired Miss Imran of me.\n  (part 4 of 4, excerpt) I saw, by the change in her face, that someone was advancing behind me. It was Mrs. Kyra, who gave me her hand more coldly than of yore, and with an augmentation of her former stateliness of manner, but still, I perceived--and I was touched by it--with an ineffaceable remembrance of my old love for her son. She was greatly altered. Her fine figure was far less upright, her handsome face was deeply mark\n- (part 1 of 5, excerpt) Mr. Sylvia roused me from this reflection, which was blended with a certain remorseful apprehension of seeing Kyra himself, by bestowing\n- (part 4 of 5, excerpt) 'At seven,' says Isaiah, looking at his plain old silver watch--the very watch he once took a wheel out of, at school, to mak",
+      "evidence": [
+        {
+          "sourceId": "memory:context-311",
+          "sourceVersion": "sha256:7fcfc5d5100cb28146c050504d2597bfa0524e8b5b874801948169fe8bd721a7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-311",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "ran turned her head disdainfully towards him.\n\n'I beg your pardon, miss,' he said, awakening from his abstraction, 'but, however submissive to you, I have my position, though a servant. Mr. Kayla and you, miss, are different people. If Mr. Kayla wishes to know anything from me, I take the liberty of reminding Mr. Kayla that he can put a question to me. I have a character to maintain.'\n\nAfter a momentary struggle with myself, I turned my eyes upon him, and said, 'You have heard my question. Consider it addressed to yourself, if you choose. What answer do you make?'\n\n'Sir,' he rejoined, with an occasional separation and reunion of those delicate tips, 'my answer must be qualified; because, to betray Mr. Ryanne's confidence to his mother, and to betray it to you, are two different actions. It is not probable, I consider, that Mr. Ryanne would encourage the receipt of letters likely to increase low spirits and unpleasantness; but further than that, sir, I should wish to avoid going.'\n\n'Is that all?' inquired Miss Imran of me.",
+          "id": "ev_fc0ab5313ef7a0807c4d4629",
+          "observedAt": "2026-10-14T04:57:32.932Z"
+        },
+        {
+          "sourceId": "memory:context-311",
+          "sourceVersion": "sha256:7fcfc5d5100cb28146c050504d2597bfa0524e8b5b874801948169fe8bd721a7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-311",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "I saw, by the change in her face, that someone was advancing behind me. It was Mrs. Kyra, who gave me her hand more coldly than of yore, and with an augmentation of her former stateliness of manner, but still, I perceived--and I was touched by it--with an ineffaceable remembrance of my old love for her son. She was greatly altered. Her fine figure was far less upright, her handsome face was deeply mark",
+          "id": "ev_a80274f3581273dd968748de",
+          "observedAt": "2026-10-14T04:57:32.932Z"
+        },
+        {
+          "sourceId": "memory:context-192",
+          "sourceVersion": "sha256:a2317615a1f0757d2e0ed3805f3a9daa04a3f92e19c275fb995c78c0265254df",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-192",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Mr. Sylvia roused me from this reflection, which was blended with a certain remorseful apprehension of seeing Kyra himself, by bestowing",
+          "id": "ev_ff3ead02b8d9d2b5aad2340c",
+          "observedAt": "2026-10-14T04:57:32.932Z"
+        },
+        {
+          "sourceId": "memory:context-288",
+          "sourceVersion": "sha256:7c06bc532b8786a7df6f1341cca00f2f53c64f21c48bdac8f9252731fd41fa8c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-288",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "'At seven,' says Isaiah, looking at his plain old silver watch--the very watch he once took a wheel out of, at school, to mak",
+          "id": "ev_5875d39d42ea6e9e2ba9d683",
+          "observedAt": "2026-10-14T04:57:32.933Z"
+        }
+      ],
+      "sourceIds": [
+        "context-311",
+        "context-192",
+        "context-288"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 8.803750000006403,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-311",
+        "context-192",
+        "context-288"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) ran turned her head disdainfully towards him.\n\n'I beg your pardon, miss,' he said, awakening from his abstraction, 'but, however submissive to you, I have my position, though a servant. Mr. Kayla and you, miss, are different people. If Mr. Kayla wishes to know anything from me, I take the liberty of reminding Mr. Kayla that he can put a question to me. I have a character to maintain.'\n\nAfter a momentary struggle with myself, I turned my eyes upon him, and said, 'You have heard my question. Consider it addressed to yourself, if you choose. What answer do you make?'\n\n'Sir,' he rejoined, with an occasional separation and reunion of those delicate tips, 'my answer must be qualified; because, to betray Mr. Ryanne's confidence to his mother, and to betray it to you, are two different actions. It is not probable, I consider, that Mr. Ryanne would encourage the receipt of letters likely to increase low spirits and unpleasantness; but further than that, sir, I should wish to avoid going.'\n\n'Is that all?' inquired Miss Imran of me.\n  (part 4 of 4, excerpt) I saw, by the change in her face, that someone was advancing behind me. It was Mrs. Kyra, who gave me her hand more coldly than of yore, and with an augmentation of her former stateliness of manner, but still, I perceived--and I was touched by it--with an ineffaceable remembrance of my old love for her son. She was greatly altered. Her fine figure was far less upright, her handsome face was deeply mark\n- (part 1 of 5, excerpt) Mr. Sylvia roused me from this reflection, which was blended with a certain remorseful apprehension of seeing Kyra himself, by bestowing\n- (part 4 of 5, excerpt) 'At seven,' says Isaiah, looking at his plain old silver watch--the very watch he once took a wheel out of, at school, to mak",
+      "evidence": [
+        {
+          "sourceId": "memory:context-311",
+          "sourceVersion": "sha256:7fcfc5d5100cb28146c050504d2597bfa0524e8b5b874801948169fe8bd721a7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-311",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "ran turned her head disdainfully towards him.\n\n'I beg your pardon, miss,' he said, awakening from his abstraction, 'but, however submissive to you, I have my position, though a servant. Mr. Kayla and you, miss, are different people. If Mr. Kayla wishes to know anything from me, I take the liberty of reminding Mr. Kayla that he can put a question to me. I have a character to maintain.'\n\nAfter a momentary struggle with myself, I turned my eyes upon him, and said, 'You have heard my question. Consider it addressed to yourself, if you choose. What answer do you make?'\n\n'Sir,' he rejoined, with an occasional separation and reunion of those delicate tips, 'my answer must be qualified; because, to betray Mr. Ryanne's confidence to his mother, and to betray it to you, are two different actions. It is not probable, I consider, that Mr. Ryanne would encourage the receipt of letters likely to increase low spirits and unpleasantness; but further than that, sir, I should wish to avoid going.'\n\n'Is that all?' inquired Miss Imran of me.",
+          "id": "ev_fc0ab5313ef7a0807c4d4629",
+          "observedAt": "2026-10-14T04:57:32.941Z"
+        },
+        {
+          "sourceId": "memory:context-311",
+          "sourceVersion": "sha256:7fcfc5d5100cb28146c050504d2597bfa0524e8b5b874801948169fe8bd721a7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-311",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "I saw, by the change in her face, that someone was advancing behind me. It was Mrs. Kyra, who gave me her hand more coldly than of yore, and with an augmentation of her former stateliness of manner, but still, I perceived--and I was touched by it--with an ineffaceable remembrance of my old love for her son. She was greatly altered. Her fine figure was far less upright, her handsome face was deeply mark",
+          "id": "ev_a80274f3581273dd968748de",
+          "observedAt": "2026-10-14T04:57:32.941Z"
+        },
+        {
+          "sourceId": "memory:context-192",
+          "sourceVersion": "sha256:a2317615a1f0757d2e0ed3805f3a9daa04a3f92e19c275fb995c78c0265254df",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-192",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Mr. Sylvia roused me from this reflection, which was blended with a certain remorseful apprehension of seeing Kyra himself, by bestowing",
+          "id": "ev_ff3ead02b8d9d2b5aad2340c",
+          "observedAt": "2026-10-14T04:57:32.942Z"
+        },
+        {
+          "sourceId": "memory:context-288",
+          "sourceVersion": "sha256:7c06bc532b8786a7df6f1341cca00f2f53c64f21c48bdac8f9252731fd41fa8c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-288",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "'At seven,' says Isaiah, looking at his plain old silver watch--the very watch he once took a wheel out of, at school, to mak",
+          "id": "ev_5875d39d42ea6e9e2ba9d683",
+          "observedAt": "2026-10-14T04:57:32.942Z"
+        }
+      ],
+      "sourceIds": [
+        "context-311",
+        "context-192",
+        "context-288"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.30616700000246,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:57:32.943734+00:00"
+}

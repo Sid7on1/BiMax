@@ -1,3 +1,4 @@
+import { presentationParts, type EngineNotice } from '../../../../src/protocol/protocol';
 import {
   Outbound, RequestMsg, CompletionItem, MessageEntry, ToolCallEntry, UiSnapshot, SubAgentClaim,
   ReviewSnapshot,
@@ -64,6 +65,7 @@ export interface EngineUiState {
   streamedChars: number;
   project: string;
   diagnostics: DiagnosticEntry[];
+  notices?: Record<string, EngineNotice>;
   capabilities: Record<string, CapabilityNotice>;
   review: ReviewSnapshot | null;   // the engine's per-thread review state (review_update)
   /**
@@ -101,6 +103,7 @@ export const initialEngineState: EngineUiState = {
   streamedChars: 0,
   project: '',
   diagnostics: [],
+  notices: {},
   capabilities: {},
   review: null,
   awaitingNewTurn: false,
@@ -113,16 +116,16 @@ type Action =
   | { type: 'restoreThread'; state: EngineUiState }
   | { type: 'localUser'; text: string }
   | { type: 'turnStarted' }
-  | { type: 'closeRequest' }
+  | { type: 'closeRequest'; threadId?: string; id?: number; approvalToken?: string }
   | { type: 'statusClear' }
   | { type: 'menuChosen'; id: string; value: string }
   | { type: 'clearCompletions' };
 
 function upsertTool(items: TranscriptItem[], call: ToolCallEntry): TranscriptItem[] {
   const idx = items.findIndex((it) => it.kind === 'tool' && it.call.id === call.id);
-  if (idx === -1) return [...items, { kind: 'tool', call }];
+  if (idx === -1) return [...items, { kind: 'tool', call: { ...call, parts: presentationParts(call.parts) } }];
   const next = items.slice();
-  next[idx] = { kind: 'tool', call };
+  next[idx] = { kind: 'tool', call: { ...call, parts: presentationParts(call.parts) } };
   return next;
 }
 
@@ -212,6 +215,11 @@ function onEvent(state: EngineUiState, name: string, args: any[]): EngineUiState
       return { ...state, thinking: '' };
     case 'spinner_state':
       return { ...state, spinner: { state: String(args[0] ?? 'idle'), message: String(args[1] ?? '') } };
+    case 'engine_notice': {
+      const notice = args[0] as unknown as EngineNotice;
+      if (!notice || typeof notice.id !== 'string' || notice.id.length > 200 || typeof notice.text !== 'string' || notice.text.length > 2000 || !['pricing', 'configuration'].includes(notice.category)) return state;
+      return { ...state, notices: { ...state.notices, [notice.id]: notice } };
+    }
     case 'status':
       return { ...state, status: String(args[0] ?? '') };
     case 'clear':
@@ -360,6 +368,9 @@ export function engineReducer(state: EngineUiState, action: Action): EngineUiSta
     case 'turnStarted':
       return state.awaitingNewTurn ? { ...state, awaitingNewTurn: false } : state;
     case 'closeRequest':
+      if (action.threadId !== undefined && action.threadId !== state.threadId) return state;
+      if (action.id !== undefined && action.id !== state.request?.id) return state;
+      if (action.approvalToken !== undefined && action.approvalToken !== (state.request as (RequestMsg & { approvalToken?: string }) | null)?.approvalToken) return state;
       return { ...state, request: null };
     case 'statusClear':
       return { ...state, status: '' };

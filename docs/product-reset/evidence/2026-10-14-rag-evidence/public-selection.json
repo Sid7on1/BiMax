@@ -1,0 +1,1133 @@
+{
+  "selectionVersion": "bimax-rag-evidence-heldout-2026-10-14-v1",
+  "scope": "New query-heldout balanced 100 classic LongMemEval_S +100 MemoryAgentBench Accurate_Retrieval; no prior selected IDs or normalized questions. Shared public corpora, not corpus-heldout or official leaderboard.",
+  "datasets": [
+    {
+      "name": "LongMemEval_S cleaned",
+      "revision": "98d7416c24c778c2fee6e6f3006e7a073259d48f",
+      "url": "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/resolve/98d7416c24c778c2fee6e6f3006e7a073259d48f/longmemeval_s_cleaned.json?download=true",
+      "sha256": "d6f21ea9d60a0d56f34a05b609c79c88a451d2ae03597821ea3d5a9678c3a442",
+      "bytes": 277383467,
+      "license": "MIT",
+      "totalQuestions": 500
+    },
+    {
+      "name": "MemoryAgentBench Accurate_Retrieval",
+      "revision": "7ea066982b140a19337e17e60d45d4076e042faf",
+      "sha256": "56c3cd80fb6731a3e53cd1a6be3148f54df60ff2d290ee50e28f8acebf9655c1",
+      "bytes": 20024386,
+      "license": "MIT",
+      "totalQuestions": 2000
+    }
+  ],
+  "selection": {
+    "longmemeval": [
+      {
+        "row": 69,
+        "id": "f4f1d8a4_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 393,
+        "id": "c4ea545c",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 207,
+        "id": "73d42213",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 471,
+        "id": "1568498a",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 159,
+        "id": "07b6f563",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 9,
+        "id": "f8c5f88b",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 333,
+        "id": "dcfa8644",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 65,
+        "id": "15745da0_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 397,
+        "id": "18bc8abd",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 80,
+        "id": "c4a1ceb8",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 494,
+        "id": "eaca4986",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 142,
+        "id": "06f04340",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 26,
+        "id": "0862e8bf",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 344,
+        "id": "gpt4_cd90e484",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 64,
+        "id": "0862e8bf_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 432,
+        "id": "5c40ec5b",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 118,
+        "id": "e3038f8c",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 499,
+        "id": "778164c6",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 144,
+        "id": "1a1907b4",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 51,
+        "id": "86f00804",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 359,
+        "id": "8c18457d",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 67,
+        "id": "19b5f2b3_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 369,
+        "id": "852ce960",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 74,
+        "id": "e831120c",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 457,
+        "id": "dc439ea3",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 150,
+        "id": "505af2f5",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 7,
+        "id": "6f9b354f",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 266,
+        "id": "gpt4_ec93e27f",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 131,
+        "id": "gpt4_372c3eed_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 408,
+        "id": "7e974930",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 125,
+        "id": "81507db6",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 472,
+        "id": "6222b6eb",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 138,
+        "id": "195a1a1b",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 3,
+        "id": "58bf7951",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 243,
+        "id": "gpt4_1d4ab0c9",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 439,
+        "id": "2133c1b5_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 421,
+        "id": "7401057b",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 166,
+        "id": "4f54b7c9",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 478,
+        "id": "e982271f",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 155,
+        "id": "b6025781",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 11,
+        "id": "7527f7e2",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 251,
+        "id": "gpt4_a1b77f9c",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 66,
+        "id": "bc8a6e93_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 415,
+        "id": "e66b632c",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 213,
+        "id": "c18a7dc8",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 473,
+        "id": "e8a79c70",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 143,
+        "id": "6b7dfb22",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 41,
+        "id": "e01b8e2f",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 236,
+        "id": "b46e15ed",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 363,
+        "id": "c8090214_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 373,
+        "id": "89941a93",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 178,
+        "id": "60036106",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 450,
+        "id": "7e00a6cb",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 151,
+        "id": "75f70248",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 27,
+        "id": "853b0a1d",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 307,
+        "id": "gpt4_2487a7cb",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 361,
+        "id": "gpt4_93159ced_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 405,
+        "id": "22d2cb42",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 96,
+        "id": "gpt4_2ba83207",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 469,
+        "id": "3249768e",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 148,
+        "id": "57f827a0",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 42,
+        "id": "bc8a6e93",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 287,
+        "id": "gpt4_e061b84g",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 128,
+        "id": "eeda8a6d_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 423,
+        "id": "a2f3aa27",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 105,
+        "id": "60bf93ed",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 460,
+        "id": "58470ed2",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 153,
+        "id": "1da05512",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 57,
+        "id": "1faac195",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 281,
+        "id": "gpt4_b0863698",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 437,
+        "id": "031748ae_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 371,
+        "id": "d7c942c3",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 200,
+        "id": "0ea62687",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 466,
+        "id": "2bf43736",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 133,
+        "id": "06878be2",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 56,
+        "id": "29f2956b",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 254,
+        "id": "gpt4_468eb063",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 230,
+        "id": "a96c20ee_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 399,
+        "id": "7a87bd0c",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 186,
+        "id": "9ee3ecd6",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 490,
+        "id": "ac031881",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 156,
+        "id": "a89d7624",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 16,
+        "id": "66f24dbb",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 245,
+        "id": "0db4c65d",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 438,
+        "id": "2698e78f_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 422,
+        "id": "cf22b7bf",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 85,
+        "id": "28dc39ac",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 491,
+        "id": "28bcfaac",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 141,
+        "id": "54026fce",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 13,
+        "id": "3b6f954b",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 280,
+        "id": "gpt4_85da3956",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 227,
+        "id": "2311e44b_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 395,
+        "id": "6a27ffc2",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 176,
+        "id": "a4996e51",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 485,
+        "id": "41275add",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 132,
+        "id": "8a2466db",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 33,
+        "id": "caf9ead2",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 331,
+        "id": "c9f37c46",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 126,
+        "id": "88432d0a_abs",
+        "stratum": "abstention"
+      },
+      {
+        "row": 433,
+        "id": "c6853660",
+        "stratum": "knowledge-update"
+      }
+    ],
+    "memoryagentbench": [
+      {
+        "row": 13,
+        "query": 18,
+        "id": "mab-13-18",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 8,
+        "query": 63,
+        "id": "mab-8-63",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 5,
+        "query": 43,
+        "id": "mab-5-43",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 18,
+        "query": 22,
+        "id": "mab-18-22",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 69,
+        "id": "mab-0-69",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 95,
+        "id": "mab-1-95",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 12,
+        "query": 58,
+        "id": "mab-12-58",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 11,
+        "query": 56,
+        "id": "mab-11-56",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 3,
+        "query": 15,
+        "id": "mab-3-15",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 20,
+        "query": 55,
+        "id": "mab-20-55",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 0,
+        "id": "mab-0-0",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 18,
+        "id": "mab-1-18",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 13,
+        "query": 53,
+        "id": "mab-13-53",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 10,
+        "query": 27,
+        "id": "mab-10-27",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 4,
+        "query": 35,
+        "id": "mab-4-35",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 17,
+        "query": 20,
+        "id": "mab-17-20",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 3,
+        "id": "mab-0-3",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 37,
+        "id": "mab-1-37",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 13,
+        "query": 84,
+        "id": "mab-13-84",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 11,
+        "query": 15,
+        "id": "mab-11-15",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 5,
+        "query": 54,
+        "id": "mab-5-54",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 18,
+        "query": 14,
+        "id": "mab-18-14",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 24,
+        "id": "mab-0-24",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 23,
+        "id": "mab-1-23",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 14,
+        "query": 71,
+        "id": "mab-14-71",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 10,
+        "query": 98,
+        "id": "mab-10-98",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 3,
+        "query": 18,
+        "id": "mab-3-18",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 20,
+        "query": 1,
+        "id": "mab-20-1",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 47,
+        "id": "mab-0-47",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 77,
+        "id": "mab-1-77",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 15,
+        "query": 90,
+        "id": "mab-15-90",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 7,
+        "query": 59,
+        "id": "mab-7-59",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 3,
+        "query": 17,
+        "id": "mab-3-17",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 21,
+        "query": 6,
+        "id": "mab-21-6",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 74,
+        "id": "mab-0-74",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 8,
+        "id": "mab-1-8",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 12,
+        "query": 7,
+        "id": "mab-12-7",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 7,
+        "query": 75,
+        "id": "mab-7-75",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 3,
+        "query": 87,
+        "id": "mab-3-87",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 18,
+        "query": 20,
+        "id": "mab-18-20",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 60,
+        "id": "mab-0-60",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 38,
+        "id": "mab-1-38",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 14,
+        "query": 66,
+        "id": "mab-14-66",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 10,
+        "query": 67,
+        "id": "mab-10-67",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 2,
+        "query": 63,
+        "id": "mab-2-63",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 19,
+        "query": 8,
+        "id": "mab-19-8",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 44,
+        "id": "mab-0-44",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 72,
+        "id": "mab-1-72",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 13,
+        "query": 69,
+        "id": "mab-13-69",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 8,
+        "query": 70,
+        "id": "mab-8-70",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 4,
+        "query": 79,
+        "id": "mab-4-79",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 18,
+        "query": 24,
+        "id": "mab-18-24",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 25,
+        "id": "mab-0-25",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 80,
+        "id": "mab-1-80",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 15,
+        "query": 53,
+        "id": "mab-15-53",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 8,
+        "query": 72,
+        "id": "mab-8-72",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 5,
+        "query": 83,
+        "id": "mab-5-83",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 17,
+        "query": 18,
+        "id": "mab-17-18",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 84,
+        "id": "mab-0-84",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 85,
+        "id": "mab-1-85",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 15,
+        "query": 45,
+        "id": "mab-15-45",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 7,
+        "query": 8,
+        "id": "mab-7-8",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 2,
+        "query": 47,
+        "id": "mab-2-47",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 21,
+        "query": 36,
+        "id": "mab-21-36",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 83,
+        "id": "mab-0-83",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 82,
+        "id": "mab-1-82",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 16,
+        "query": 26,
+        "id": "mab-16-26",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 7,
+        "query": 25,
+        "id": "mab-7-25",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 3,
+        "query": 47,
+        "id": "mab-3-47",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 20,
+        "query": 2,
+        "id": "mab-20-2",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 52,
+        "id": "mab-0-52",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 47,
+        "id": "mab-1-47",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 15,
+        "query": 39,
+        "id": "mab-15-39",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 9,
+        "query": 42,
+        "id": "mab-9-42",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 4,
+        "query": 19,
+        "id": "mab-4-19",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 18,
+        "query": 28,
+        "id": "mab-18-28",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 6,
+        "id": "mab-0-6",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 29,
+        "id": "mab-1-29",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 13,
+        "query": 11,
+        "id": "mab-13-11",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 8,
+        "query": 34,
+        "id": "mab-8-34",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 2,
+        "query": 50,
+        "id": "mab-2-50",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 21,
+        "query": 48,
+        "id": "mab-21-48",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 92,
+        "id": "mab-0-92",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 68,
+        "id": "mab-1-68",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 13,
+        "query": 87,
+        "id": "mab-13-87",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 8,
+        "query": 88,
+        "id": "mab-8-88",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 4,
+        "query": 14,
+        "id": "mab-4-14",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 21,
+        "query": 44,
+        "id": "mab-21-44",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 58,
+        "id": "mab-0-58",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 16,
+        "id": "mab-1-16",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 16,
+        "query": 89,
+        "id": "mab-16-89",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 10,
+        "query": 83,
+        "id": "mab-10-83",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 3,
+        "query": 91,
+        "id": "mab-3-91",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 17,
+        "query": 49,
+        "id": "mab-17-49",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 9,
+        "id": "mab-0-9",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 25,
+        "id": "mab-1-25",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 12,
+        "query": 73,
+        "id": "mab-12-73",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 10,
+        "query": 51,
+        "id": "mab-10-51",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 5,
+        "query": 19,
+        "id": "mab-5-19",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 20,
+        "query": 40,
+        "id": "mab-20-40",
+        "stratum": "longmemeval_s*"
+      }
+    ]
+  },
+  "cache": "/tmp/bimax-rag-evidence-20261014",
+  "oldQuestionsExcluded": 200,
+  "oldIdsExcluded": 200,
+  "rule": "Metadata/hash-only selection before inference; answers and retrieval outputs never select cases."
+}

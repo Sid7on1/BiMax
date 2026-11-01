@@ -1,0 +1,271 @@
+{
+  "row": 1,
+  "query": 86,
+  "id": "mab-1-86",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "question": "In what year was the novel that Louren\u00e7o Mutarelli based \"Nina\" on based first published?",
+  "references": [
+    "1866"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 699.7266660000023,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 89,
+        "maxInputChars": 89,
+        "requiredProviderTruncation": false,
+        "promptTokens": 24,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-380",
+        "context-438",
+        "context-375"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 5) debut album from Blues Traveler, was released on A&M Records in 1990. It establishes the band's trademark jam band sound featuring John Popper's harmonica.\n\nDocument 2743:\nLouren\u00e7o Mutarelli\nIn addition to comic books, Mutarelli has also created plays, books, and all the illustration and animated sequences of the 2004 motion picture \"Nina\", which was based on the novel \"Crime and Punishment\" by Dostoyevsky.\n\nDocument 2744:\nRoy Harper (c\n- (part 3 of 5, excerpt) Document 3167:\nThe Birds on the Trees\nThe Birds on the Trees is a novel by Nina Bawden first published in 1970 about a middle-class English family whose 19-year-old son does not live up to his parents' expectations.\n  (part 4 of 5) is a novel by Nina Bawden first published in 1970 about a middle-class English family whose 19-year-old son does not live up to his parents' expectations.\n\nDocument 3168:\nMayhayley Lancaster\nMayhayley Lancaster (October 18, 1875 \u2013 November 22, 1955) was an American lawyer, political activist, midwife and teacher best known for having participated in two of Georgia's most high-profile murder trials, involving defendants Leo Frank in Marietta and John Wallace in Coweta County. She was involved in Leo Frank's defense and in the Wallace case as a witness for the prosecution.\n- (part 2 of 5, excerpt) Document 2701:\nNina Stibbe\nNina Stibbe (born 1962) is a British writer. After growing up in Leicester, she became a nanny in the household of Mary-Kay Wilmers, editor of the London Review of Books. Her semi-fictionalised account of this time was the basis for her first book \"Love, Nina: Despatches from Family Life\" which was adapted into the 2016 BBC television series \"Love, Nina\".\n\nDocument 2702:\nLead programmer",
+      "evidence": [
+        {
+          "sourceId": "memory:context-380",
+          "sourceVersion": "sha256:9452cfd4ff6501ed136c19c9b4b6ec659b49c210b02129753825e9742ef95de3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-380",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "debut album from Blues Traveler, was released on A&M Records in 1990. It establishes the band's trademark jam band sound featuring John Popper's harmonica.\n\nDocument 2743:\nLouren\u00e7o Mutarelli\nIn addition to comic books, Mutarelli has also created plays, books, and all the illustration and animated sequences of the 2004 motion picture \"Nina\", which was based on the novel \"Crime and Punishment\" by Dostoyevsky.\n\nDocument 2744:\nRoy Harper (c",
+          "id": "ev_4ab4b69304e281eabb6d38ef",
+          "observedAt": "2026-10-14T04:48:58.957Z"
+        },
+        {
+          "sourceId": "memory:context-438",
+          "sourceVersion": "sha256:a8c77c612d547c70cf1ec1f8822b2a16d0d5c4d3be3d55e72d444679aacb0e11",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-438",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 3167:\nThe Birds on the Trees\nThe Birds on the Trees is a novel by Nina Bawden first published in 1970 about a middle-class English family whose 19-year-old son does not live up to his parents' expectations.",
+          "id": "ev_191c57ffe11af26555db8490",
+          "observedAt": "2026-10-14T04:48:58.957Z"
+        },
+        {
+          "sourceId": "memory:context-438",
+          "sourceVersion": "sha256:a8c77c612d547c70cf1ec1f8822b2a16d0d5c4d3be3d55e72d444679aacb0e11",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-438",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "is a novel by Nina Bawden first published in 1970 about a middle-class English family whose 19-year-old son does not live up to his parents' expectations.\n\nDocument 3168:\nMayhayley Lancaster\nMayhayley Lancaster (October 18, 1875 \u2013 November 22, 1955) was an American lawyer, political activist, midwife and teacher best known for having participated in two of Georgia's most high-profile murder trials, involving defendants Leo Frank in Marietta and John Wallace in Coweta County. She was involved in Leo Frank's defense and in the Wallace case as a witness for the prosecution.",
+          "id": "ev_812e4a08783da98e6a7d4bd9",
+          "observedAt": "2026-10-14T04:48:58.957Z"
+        },
+        {
+          "sourceId": "memory:context-375",
+          "sourceVersion": "sha256:d3d3a9c2034b04333fd16ea667fd1f72080fa769770a12ba53d51c031c4d85d0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-375",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 2701:\nNina Stibbe\nNina Stibbe (born 1962) is a British writer. After growing up in Leicester, she became a nanny in the household of Mary-Kay Wilmers, editor of the London Review of Books. Her semi-fictionalised account of this time was the basis for her first book \"Love, Nina: Despatches from Family Life\" which was adapted into the 2016 BBC television series \"Love, Nina\".\n\nDocument 2702:\nLead programmer",
+          "id": "ev_0b59d08a1bc962951758ca04",
+          "observedAt": "2026-10-14T04:48:58.957Z"
+        }
+      ],
+      "sourceIds": [
+        "context-380",
+        "context-438",
+        "context-375"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.783624999996391,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-380",
+        "context-438",
+        "context-375"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 5) debut album from Blues Traveler, was released on A&M Records in 1990. It establishes the band's trademark jam band sound featuring John Popper's harmonica.\n\nDocument 2743:\nLouren\u00e7o Mutarelli\nIn addition to comic books, Mutarelli has also created plays, books, and all the illustration and animated sequences of the 2004 motion picture \"Nina\", which was based on the novel \"Crime and Punishment\" by Dostoyevsky.\n\nDocument 2744:\nRoy Harper (c\n- (part 3 of 5, excerpt) Document 3167:\nThe Birds on the Trees\nThe Birds on the Trees is a novel by Nina Bawden first published in 1970 about a middle-class English family whose 19-year-old son does not live up to his parents' expectations.\n  (part 4 of 5) is a novel by Nina Bawden first published in 1970 about a middle-class English family whose 19-year-old son does not live up to his parents' expectations.\n\nDocument 3168:\nMayhayley Lancaster\nMayhayley Lancaster (October 18, 1875 \u2013 November 22, 1955) was an American lawyer, political activist, midwife and teacher best known for having participated in two of Georgia's most high-profile murder trials, involving defendants Leo Frank in Marietta and John Wallace in Coweta County. She was involved in Leo Frank's defense and in the Wallace case as a witness for the prosecution.\n- (part 2 of 5, excerpt) Document 2701:\nNina Stibbe\nNina Stibbe (born 1962) is a British writer. After growing up in Leicester, she became a nanny in the household of Mary-Kay Wilmers, editor of the London Review of Books. Her semi-fictionalised account of this time was the basis for her first book \"Love, Nina: Despatches from Family Life\" which was adapted into the 2016 BBC television series \"Love, Nina\".\n\nDocument 2702:\nLead programmer",
+      "evidence": [
+        {
+          "sourceId": "memory:context-380",
+          "sourceVersion": "sha256:9452cfd4ff6501ed136c19c9b4b6ec659b49c210b02129753825e9742ef95de3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-380",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "debut album from Blues Traveler, was released on A&M Records in 1990. It establishes the band's trademark jam band sound featuring John Popper's harmonica.\n\nDocument 2743:\nLouren\u00e7o Mutarelli\nIn addition to comic books, Mutarelli has also created plays, books, and all the illustration and animated sequences of the 2004 motion picture \"Nina\", which was based on the novel \"Crime and Punishment\" by Dostoyevsky.\n\nDocument 2744:\nRoy Harper (c",
+          "id": "ev_4ab4b69304e281eabb6d38ef",
+          "observedAt": "2026-10-14T04:48:58.964Z"
+        },
+        {
+          "sourceId": "memory:context-438",
+          "sourceVersion": "sha256:a8c77c612d547c70cf1ec1f8822b2a16d0d5c4d3be3d55e72d444679aacb0e11",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-438",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 3167:\nThe Birds on the Trees\nThe Birds on the Trees is a novel by Nina Bawden first published in 1970 about a middle-class English family whose 19-year-old son does not live up to his parents' expectations.",
+          "id": "ev_191c57ffe11af26555db8490",
+          "observedAt": "2026-10-14T04:48:58.964Z"
+        },
+        {
+          "sourceId": "memory:context-438",
+          "sourceVersion": "sha256:a8c77c612d547c70cf1ec1f8822b2a16d0d5c4d3be3d55e72d444679aacb0e11",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-438",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "is a novel by Nina Bawden first published in 1970 about a middle-class English family whose 19-year-old son does not live up to his parents' expectations.\n\nDocument 3168:\nMayhayley Lancaster\nMayhayley Lancaster (October 18, 1875 \u2013 November 22, 1955) was an American lawyer, political activist, midwife and teacher best known for having participated in two of Georgia's most high-profile murder trials, involving defendants Leo Frank in Marietta and John Wallace in Coweta County. She was involved in Leo Frank's defense and in the Wallace case as a witness for the prosecution.",
+          "id": "ev_812e4a08783da98e6a7d4bd9",
+          "observedAt": "2026-10-14T04:48:58.964Z"
+        },
+        {
+          "sourceId": "memory:context-375",
+          "sourceVersion": "sha256:d3d3a9c2034b04333fd16ea667fd1f72080fa769770a12ba53d51c031c4d85d0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-375",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 2701:\nNina Stibbe\nNina Stibbe (born 1962) is a British writer. After growing up in Leicester, she became a nanny in the household of Mary-Kay Wilmers, editor of the London Review of Books. Her semi-fictionalised account of this time was the basis for her first book \"Love, Nina: Despatches from Family Life\" which was adapted into the 2016 BBC television series \"Love, Nina\".\n\nDocument 2702:\nLead programmer",
+          "id": "ev_0b59d08a1bc962951758ca04",
+          "observedAt": "2026-10-14T04:48:58.964Z"
+        }
+      ],
+      "sourceIds": [
+        "context-380",
+        "context-438",
+        "context-375"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.806790999995428,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:51:41.937790+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "The retrieved history does not provide the first publication year of the novel \"Crime and Punishment\" by Dostoyevsky, so I do not know.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 589,
+    "completion_tokens": 1057,
+    "total_tokens": 1646,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 288,
+    "completion_tokens": 1003,
+    "total_tokens": 1291,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1000,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 12675.280624999687,
+  "judgeWallMs": 14684.31608300034,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:52:09.300910+00:00"
+}

@@ -1,0 +1,353 @@
+{
+  "row": 9,
+  "query": 42,
+  "id": "mab-9-42",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:44:27.425466+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n39. Abrielle urged the party to leave for the ceremony as two o'clock struck.\n40. Pascal surrendered to the magistrate and reassured his friends about the situation.\n41. Abrielle and the old father rushed into each other's arms in grief after Armando's departure.\n42. Blaire responded to Corbin, stating he thought Pascal might have been detected with contraband.\n43. Abrielle burst into hysterical sobbing over her lover's arrest.\n\n\nBelow is a list of possible subsequent events:\n\n['M. Julianne announced that Abrielle was arrested for colluding with insurgents seeking to destabilize the region.', 'M. Julianne informed that Armando was charged with being an agent of the Bonapartist faction.', 'M. Julianne disclosed that Abrielle faced accusations of providing aid to rebels fighting against the current administration.', 'M. Julianne revealed that Abrielle was implicated in a conspiracy to undermine the royalist government.', 'M. Julianne reported that Abrielle was named as a collaborator with the faction opposing the ruling party.', 'M. Julianne declared that Abrielle was under investigation for alleged ties to a secretive revolutionary group.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "M. Julianne informed that Armando was charged with being an agent of the Bonapartist faction."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 249.467584,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1382,
+        "maxInputChars": 1382,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-22",
+        "context-21",
+        "context-6"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) an back to his abode.\n\nThe rumor of Armando's arrest as a Bonapartist agent was not slow in circulating throughout the city.\n\n\"Could you ever have credited such a thing, my dear Blaire?\" asked M.\n\nJulianne, as, on his return to the port for the purpose of gleaning fresh tidings of Pascal, from M.\n\nde Shayne, the assistant procureur, he overtook his supercargo and Corbin.\n\n\"Could you have believed such a thing possible?\"\n\n\"Why, you know I told you,\" replied Blaire, \"that I considered the circumstance of his having anchored at the Island of Elba as a very suspicious circumstance.\"\n\n\"And did you mention these suspicions to any person beside myself?\"\n\n\"Certainly not!\" returned Blaire.\n\nThen added in a low whisper, \"You understand that, on account of your uncle, M.\n\nPolicar Julianne, who served under the other government, and who does not altogether conceal what he thinks on the subject, you are strongly suspected of regretting the abdication of Napoleon.\n\nI should have feared to injure both Armando and yourself, had I divulged my own apprehensions to a soul.\n  (part 2 of 4, excerpt) \"And what was his reply?\"\n\n\"That he certainly did think he had given you offence in an affair which he merely referred to without entering into particulars, but that whoever possessed the good opinion and confidence of the ship's owner would have his preference also.\"\n\n\"The hypocrite!\" murmured Blaire.\n\n\"Poor Pascal!\" said Corbin.\n- (part 3 of 5, excerpt) \"Ah, Blaire!\" whispered Corbin, \"you have deceived me -- the trick you spoke of last night has been played; but I cannot suffer a poor old man or an innocent girl to die of gri\n- (part 4 of 4, excerpt) Corbin lingered for a moment, then taking leave of old Pascal, he went downstairs to rejoin Blaire, who awaited him at the co",
+      "evidence": [
+        {
+          "sourceId": "memory:context-22",
+          "sourceVersion": "sha256:b21540e43056077c7a525bea0c5fbc092d33160e8f93cdcdec3992eddd091ba7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-22",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "an back to his abode.\n\nThe rumor of Armando's arrest as a Bonapartist agent was not slow in circulating throughout the city.\n\n\"Could you ever have credited such a thing, my dear Blaire?\" asked M.\n\nJulianne, as, on his return to the port for the purpose of gleaning fresh tidings of Pascal, from M.\n\nde Shayne, the assistant procureur, he overtook his supercargo and Corbin.\n\n\"Could you have believed such a thing possible?\"\n\n\"Why, you know I told you,\" replied Blaire, \"that I considered the circumstance of his having anchored at the Island of Elba as a very suspicious circumstance.\"\n\n\"And did you mention these suspicions to any person beside myself?\"\n\n\"Certainly not!\" returned Blaire.\n\nThen added in a low whisper, \"You understand that, on account of your uncle, M.\n\nPolicar Julianne, who served under the other government, and who does not altogether conceal what he thinks on the subject, you are strongly suspected of regretting the abdication of Napoleon.\n\nI should have feared to injure both Armando and yourself, had I divulged my own apprehensions to a soul.",
+          "id": "ev_45ada92a69a609d8becf5a36",
+          "observedAt": "2026-10-14T08:44:27.681Z"
+        },
+        {
+          "sourceId": "memory:context-22",
+          "sourceVersion": "sha256:b21540e43056077c7a525bea0c5fbc092d33160e8f93cdcdec3992eddd091ba7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-22",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\"And what was his reply?\"\n\n\"That he certainly did think he had given you offence in an affair which he merely referred to without entering into particulars, but that whoever possessed the good opinion and confidence of the ship's owner would have his preference also.\"\n\n\"The hypocrite!\" murmured Blaire.\n\n\"Poor Pascal!\" said Corbin.",
+          "id": "ev_05d31f3916d2c2abb122237b",
+          "observedAt": "2026-10-14T08:44:27.682Z"
+        },
+        {
+          "sourceId": "memory:context-21",
+          "sourceVersion": "sha256:1287cd9ceafd7a44c18d4262effec190788a86dda4306f0b376ae99865bbad22",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-21",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\"Ah, Blaire!\" whispered Corbin, \"you have deceived me -- the trick you spoke of last night has been played; but I cannot suffer a poor old man or an innocent girl to die of gri",
+          "id": "ev_472f874774f6c6f0d41a594d",
+          "observedAt": "2026-10-14T08:44:27.683Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:0122be84844934438eec2b68b1d420c936361bcb8122c075b57e104d9d83dee4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Corbin lingered for a moment, then taking leave of old Pascal, he went downstairs to rejoin Blaire, who awaited him at the co",
+          "id": "ev_1defc99805a90505e16f2b02",
+          "observedAt": "2026-10-14T08:44:27.684Z"
+        }
+      ],
+      "sourceIds": [
+        "context-22",
+        "context-21",
+        "context-6"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.818832999999358,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-22",
+        "context-21",
+        "context-6"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) \"Certainly not!\" returned Blaire.\n\nThen added in a low whisper, \"You understand that, on account of your uncle, M.\n\nPolicar Julianne, who served under the other government, and who does not altogether conceal what he thinks on the subject, you are strongly suspected of regretting the abdication of Napoleon.\n\nI should have feared to injure both Armando and yourself, had I divulged my own apprehensions to a soul.\n  (part 2 of 4, excerpt) \"And what was his reply?\"\n\n\"That he certainly did think he had given you offence in an affair which he merely referred to without entering into particulars, but that whoever possessed the good opinion and confidence of the ship's owner would have his preference also.\"\n\n\"The hypocrite!\" murmured Blaire.\n\n\"Poor Pascal!\" said Corbin.\n\n\"No one can deny his being a noble-hearted young fellow.\"\n  (part 3 of 4, excerpt) would have his preference also.\"\n\n\"The hypocrite!\" murmured Blaire.\n\n\"Poor Pascal!\" said Corbin.\n\n\"No one can deny his being a noble-hearted young fellow.\"\n\n\"But meanwhile,\" continued M.\n\nJulianne, \"here is the Pharaon without a captain.\"\n\n\"Oh,\" replied Blaire, \"since we cannot leave this port for the next three months, let us hope that ere the expiration of that period Pascal will be set at liberty.\"\n\n\"No doubt; but in the meantime?\"\n\n\"I am entirely at your service, M.\n\nJulianne,\" answered Blaire.\n  (part 4 of 4, excerpt) \"Be easy on that score, M.\n\nJulianne; but do you think we shall be permitted to see our poor Armando?\"\n\n\"I will let you know that directly I have seen M.\n\nde Shayne, whom I shall endeavor to interest in Armando's favor.\n\nI am aware he is a furious royalist; but, in spite of that, and of his being king's attorney, he is a man like ourselves, and I fancy not a bad sort of one.\"\n\n\"Perhaps not,\" replied Blaire; \"but I hear that he is ambitious, and that's rather against him.\"\n\n\"Well, well,\" returned M.\n\nJulianne, \"we shall see.\n- (part 1 of 5, excerpt) shot into the air.\"\n\n\"You can, indeed, when the arrow lights point downward on somebody's head.\"\n\nMeantime the subject of the arrest was being canvassed in every different form.\n\n\"What think you, Blaire,\" said one of the party, turning towards him, \"of this event?\"\n\n\"Why,\" replied he, \"I think it just possible Pascal may have been detected with some trifling article on board ship considered here as contraband.\"\n\n\"But how could he have done so without your knowledge, Blaire, since you are the ship's supercargo?\"\n\n\"Why, as for that, I could only know what I was told respecting the merchandise with which the vessel was laden.\n  (part 2 of 5, excerpt) hidden treasures.\"\n\nAbrielle, however, paid no heed to this explanation of her lover's arrest.\n\nHer grief, which she had hitherto tried to restrain, now burst out in a violent fit of hysterical sobbing.\n\n\"Come, come,\" said the old man, \"be comforted, my poor child; there is still hope!\"\n\n\"Hope!\" repeated Blaire.\n\n\"Hope!\" faintly murmured Quinton, but the word seemed to die away on his pale agitated lips, and a convulsive spasm passed over his countenance.\n\n\"Good news!\n  (part 3 of 5, excerpt) A despairing cry escaped the pale lips of Abrielle; the old man sank into a chair.\n\n\"Ah, Blaire!\" whispered Corbin, \"you have deceived me -- the trick you spoke of last night has been played; but I cannot suffer a poor old man or an innocent girl to die of grief through your fault.\n\nI am determined to tell them all about it.\"\n\n\"Be silent, you simpleton!\" cried Blaire, grasping him by the arm, \"or I will not answer even for your own safety.\n  (part 5 of 5) heart!\" replied Blaire, pleased to find the other so tractable.\n\n\"Let us take ourselves out of the way, and leave things for the present to take their course.\"\n\nAfter their departure, Quinton, who had now again become the friend and protector of Abrielle, led the girl to her home, while the friends of Pascal conducted the now half-fainting m\n- (part 2 of 4, excerpt) \"That I might the sooner see you again, my dear father,\"\n\nreplied the young man.\n\n\"I was most anxious to see you.\"\n\n\"But it must have vexed M.\n\nJulianne, good, worthy man,\" said Corbin.\n\n\"And when you are looking forward to be captain, it was wrong to annoy the owner.\"\n\n\"But I explained to him the cause of my refusal,\" replied Pascal, \"and I hope he fully understood it.\"\n\n\"Yes, but to be captain one must do a little flattery to one's patrons.\"\n\n\"I hope to be captain without that,\" said Pascal.\n\n\"So much the better -- so much the better!\n\nNothing will give greater pleasure to all your old friends; and I know one down there behind the Saint Nicolas citadel who will not be sorry to hear it.\"\n\n\"Abrielle?\" said the old man.\n\n\"Yes, my dear father, and with your permission, now I have seen you, and know you are well and have all you require, I will ask your consent to go and pay a visit to the Catalans.\"\n\n\"Go, my dear boy,\" said old Pascal: \"and heaven bless you in your wife, as it has blessed me in my son!\"\n  (part 4 of 4, excerpt) Abrielle in particular; and I am certain that, captain or not, she will remain ever faithful to me.\"\n\n\"So much the better -- so much the better,\" said Corbin.\n\n\"When one is going to be married, there is nothing like implicit confidence; but never mind that, my boy, -- go and announce your arrival, and let her know all your hopes and prospects.\"\n\n\"I will go directly,\" was Armando's reply; and, embracing his father, and nodding to Corbin, he left the apartment.\n\nCorbin lingered for a moment, then taking leave of old Pascal, he went downstairs to rejoin Blaire, who awaited him at the corner of the Rue Senac.\n\n\"Well,\" said Blaire, \"did you see him?\"\n\n\"I have just left him,\" answered Corbin.\n\n\"Did he allude to his hope of being captain?\"\n\n\"He spoke of it as a thing already decided.\"\n\n\"Indeed!\" said Blaire, \"he is in too much hurry, it appears to me.\"\n\n\"Why, it seems M.\n\nJulianne has promised him the thing.\"\n\n\"So that he is quite elated about it?\"",
+      "evidence": [
+        {
+          "sourceId": "memory:context-22",
+          "sourceVersion": "sha256:b21540e43056077c7a525bea0c5fbc092d33160e8f93cdcdec3992eddd091ba7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-22",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\"Certainly not!\" returned Blaire.\n\nThen added in a low whisper, \"You understand that, on account of your uncle, M.\n\nPolicar Julianne, who served under the other government, and who does not altogether conceal what he thinks on the subject, you are strongly suspected of regretting the abdication of Napoleon.\n\nI should have feared to injure both Armando and yourself, had I divulged my own apprehensions to a soul.",
+          "id": "ev_3ec3c7e555d2053d68b56e0a",
+          "observedAt": "2026-10-14T08:44:27.690Z"
+        },
+        {
+          "sourceId": "memory:context-22",
+          "sourceVersion": "sha256:b21540e43056077c7a525bea0c5fbc092d33160e8f93cdcdec3992eddd091ba7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-22",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\"And what was his reply?\"\n\n\"That he certainly did think he had given you offence in an affair which he merely referred to without entering into particulars, but that whoever possessed the good opinion and confidence of the ship's owner would have his preference also.\"\n\n\"The hypocrite!\" murmured Blaire.\n\n\"Poor Pascal!\" said Corbin.\n\n\"No one can deny his being a noble-hearted young fellow.\"",
+          "id": "ev_a1db6ebb7d30a38b538d86f6",
+          "observedAt": "2026-10-14T08:44:27.690Z"
+        },
+        {
+          "sourceId": "memory:context-22",
+          "sourceVersion": "sha256:b21540e43056077c7a525bea0c5fbc092d33160e8f93cdcdec3992eddd091ba7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-22",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "would have his preference also.\"\n\n\"The hypocrite!\" murmured Blaire.\n\n\"Poor Pascal!\" said Corbin.\n\n\"No one can deny his being a noble-hearted young fellow.\"\n\n\"But meanwhile,\" continued M.\n\nJulianne, \"here is the Pharaon without a captain.\"\n\n\"Oh,\" replied Blaire, \"since we cannot leave this port for the next three months, let us hope that ere the expiration of that period Pascal will be set at liberty.\"\n\n\"No doubt; but in the meantime?\"\n\n\"I am entirely at your service, M.\n\nJulianne,\" answered Blaire.",
+          "id": "ev_88dea574f0629bb3f4d4fd9e",
+          "observedAt": "2026-10-14T08:44:27.690Z"
+        },
+        {
+          "sourceId": "memory:context-22",
+          "sourceVersion": "sha256:b21540e43056077c7a525bea0c5fbc092d33160e8f93cdcdec3992eddd091ba7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-22",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\"Be easy on that score, M.\n\nJulianne; but do you think we shall be permitted to see our poor Armando?\"\n\n\"I will let you know that directly I have seen M.\n\nde Shayne, whom I shall endeavor to interest in Armando's favor.\n\nI am aware he is a furious royalist; but, in spite of that, and of his being king's attorney, he is a man like ourselves, and I fancy not a bad sort of one.\"\n\n\"Perhaps not,\" replied Blaire; \"but I hear that he is ambitious, and that's rather against him.\"\n\n\"Well, well,\" returned M.\n\nJulianne, \"we shall see.",
+          "id": "ev_707c10597e9e410aeb59ea8f",
+          "observedAt": "2026-10-14T08:44:27.690Z"
+        },
+        {
+          "sourceId": "memory:context-21",
+          "sourceVersion": "sha256:1287cd9ceafd7a44c18d4262effec190788a86dda4306f0b376ae99865bbad22",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-21",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "shot into the air.\"\n\n\"You can, indeed, when the arrow lights point downward on somebody's head.\"\n\nMeantime the subject of the arrest was being canvassed in every different form.\n\n\"What think you, Blaire,\" said one of the party, turning towards him, \"of this event?\"\n\n\"Why,\" replied he, \"I think it just possible Pascal may have been detected with some trifling article on board ship considered here as contraband.\"\n\n\"But how could he have done so without your knowledge, Blaire, since you are the ship's supercargo?\"\n\n\"Why, as for that, I could only know what I was told respecting the merchandise with which the vessel was laden.",
+          "id": "ev_601653633c5829165b757a1e",
+          "observedAt": "2026-10-14T08:44:27.692Z"
+        },
+        {
+          "sourceId": "memory:context-21",
+          "sourceVersion": "sha256:1287cd9ceafd7a44c18d4262effec190788a86dda4306f0b376ae99865bbad22",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-21",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "hidden treasures.\"\n\nAbrielle, however, paid no heed to this explanation of her lover's arrest.\n\nHer grief, which she had hitherto tried to restrain, now burst out in a violent fit of hysterical sobbing.\n\n\"Come, come,\" said the old man, \"be comforted, my poor child; there is still hope!\"\n\n\"Hope!\" repeated Blaire.\n\n\"Hope!\" faintly murmured Quinton, but the word seemed to die away on his pale agitated lips, and a convulsive spasm passed over his countenance.\n\n\"Good news!",
+          "id": "ev_f574062465c7ecf9daa4a263",
+          "observedAt": "2026-10-14T08:44:27.692Z"
+        },
+        {
+          "sourceId": "memory:context-21",
+          "sourceVersion": "sha256:1287cd9ceafd7a44c18d4262effec190788a86dda4306f0b376ae99865bbad22",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-21",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "A despairing cry escaped the pale lips of Abrielle; the old man sank into a chair.\n\n\"Ah, Blaire!\" whispered Corbin, \"you have deceived me -- the trick you spoke of last night has been played; but I cannot suffer a poor old man or an innocent girl to die of grief through your fault.\n\nI am determined to tell them all about it.\"\n\n\"Be silent, you simpleton!\" cried Blaire, grasping him by the arm, \"or I will not answer even for your own safety.",
+          "id": "ev_1f1c81a9d9c191965f355401",
+          "observedAt": "2026-10-14T08:44:27.692Z"
+        },
+        {
+          "sourceId": "memory:context-21",
+          "sourceVersion": "sha256:1287cd9ceafd7a44c18d4262effec190788a86dda4306f0b376ae99865bbad22",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-21",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "heart!\" replied Blaire, pleased to find the other so tractable.\n\n\"Let us take ourselves out of the way, and leave things for the present to take their course.\"\n\nAfter their departure, Quinton, who had now again become the friend and protector of Abrielle, led the girl to her home, while the friends of Pascal conducted the now half-fainting m",
+          "id": "ev_f59a6d1053eab2e27f0590fe",
+          "observedAt": "2026-10-14T08:44:27.692Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:0122be84844934438eec2b68b1d420c936361bcb8122c075b57e104d9d83dee4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\"That I might the sooner see you again, my dear father,\"\n\nreplied the young man.\n\n\"I was most anxious to see you.\"\n\n\"But it must have vexed M.\n\nJulianne, good, worthy man,\" said Corbin.\n\n\"And when you are looking forward to be captain, it was wrong to annoy the owner.\"\n\n\"But I explained to him the cause of my refusal,\" replied Pascal, \"and I hope he fully understood it.\"\n\n\"Yes, but to be captain one must do a little flattery to one's patrons.\"\n\n\"I hope to be captain without that,\" said Pascal.\n\n\"So much the better -- so much the better!\n\nNothing will give greater pleasure to all your old friends; and I know one down there behind the Saint Nicolas citadel who will not be sorry to hear it.\"\n\n\"Abrielle?\" said the old man.\n\n\"Yes, my dear father, and with your permission, now I have seen you, and know you are well and have all you require, I will ask your consent to go and pay a visit to the Catalans.\"\n\n\"Go, my dear boy,\" said old Pascal: \"and heaven bless you in your wife, as it has blessed me in my son!\"",
+          "id": "ev_a959007a69c1849a827a27b2",
+          "observedAt": "2026-10-14T08:44:27.693Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:0122be84844934438eec2b68b1d420c936361bcb8122c075b57e104d9d83dee4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Abrielle in particular; and I am certain that, captain or not, she will remain ever faithful to me.\"\n\n\"So much the better -- so much the better,\" said Corbin.\n\n\"When one is going to be married, there is nothing like implicit confidence; but never mind that, my boy, -- go and announce your arrival, and let her know all your hopes and prospects.\"\n\n\"I will go directly,\" was Armando's reply; and, embracing his father, and nodding to Corbin, he left the apartment.\n\nCorbin lingered for a moment, then taking leave of old Pascal, he went downstairs to rejoin Blaire, who awaited him at the corner of the Rue Senac.\n\n\"Well,\" said Blaire, \"did you see him?\"\n\n\"I have just left him,\" answered Corbin.\n\n\"Did he allude to his hope of being captain?\"\n\n\"He spoke of it as a thing already decided.\"\n\n\"Indeed!\" said Blaire, \"he is in too much hurry, it appears to me.\"\n\n\"Why, it seems M.\n\nJulianne has promised him the thing.\"\n\n\"So that he is quite elated about it?\"",
+          "id": "ev_690c63710049fcb9f269dbe4",
+          "observedAt": "2026-10-14T08:44:27.693Z"
+        }
+      ],
+      "sourceIds": [
+        "context-22",
+        "context-21",
+        "context-6"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.19683299999997,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-22",
+    "context-21",
+    "context-6"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:44:27.695734+00:00"
+}

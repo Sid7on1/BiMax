@@ -111,6 +111,7 @@ function compare(op: Comparison, left: number, right: number): boolean {
     case 'gte': return left >= right;
     case 'eq': return left === right;
     case 'ne': return left !== right;
+    default: { const exhaustive: never = op; throw new Error(`Unsupported comparison: ${exhaustive}`); }
   }
 }
 

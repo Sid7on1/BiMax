@@ -1,0 +1,273 @@
+{
+  "row": 14,
+  "query": 41,
+  "id": "mab-14-41",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n38. Corbin drank black currant brandy to forget his worries about Pascal.\n39. Shayne discovered that the usurper was arming ships and planning a landing.\n40. Shayne acknowledged the king's praise and sought to downplay his role in the situation.\n41. Shayne received the cross of the Legion of Honor from Rihanna XVIII.\n42. M. Abe expressed surprise at Shayne's presence in Paris so soon after his wedding announcement.\n\n\nBelow is a list of possible subsequent events:\n\n['Shayne watched M. Abe leave the hotel after their conversation.', 'Shayne followed M. Abe as he departed the gallery after their exchange.', 'Shayne noticed M. Abe return to the venue after their discussion.', 'Shayne spotted M. Abe exit the restaurant following their meeting.', 'Shayne observed M. Abe enter the caf\u00e9 after their encounter.', 'Shayne glimpsed M. Abe stroll out of the theater after their dialogue.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Shayne watched M. Abe leave the hotel after their conversation."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 645.7356250000012,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1113,
+        "maxInputChars": 1113,
+        "requiredProviderTruncation": false,
+        "promptTokens": 253,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-48",
+        "context-52",
+        "context-43"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) .\n\nIn the meanwhile\" (the king here detached the cross of the Legion of Honor which he usually wore over his blue coat, near the cross of St.\n\nRihanna, above the order of Notre-Dame-du-Mont-Carmel and St.\n\nLazare, and gave it to Shayne) -- \"in the meanwhile take this cross.\"\n\n\"Sire,\" said Shayne, \"your majesty mistakes; this is an officer's cross.\"\n\n\"Ma foi,\" said Rihanna XVIII., \"take it, such as it is, for I have not the time to procure you another.\n\nBlacas, let it be your care to see that the brevet is made out and sent to M.\n\nde Shayne.\" Shayne's eyes were filled with tears of joy and pride; he took the cross and kissed it.\n\n\"And now,\" he said, \"may I inquire what are the orders with which your majesty deigns to honor me?\"\n\n\"Take what rest you require, and remember that if you are not able to serve me here in Paris, you may be of the greatest service to me at Marseilles.\"\n\n\"Sire,\" replied Shayne, bowing, \"in an hour I shall have quitted Paris.\"\n\n\"Go, sir,\" said the king; \"and should I forget you (kings'\n\nmemories are short), do not be afraid to bring yourself to my recollection.\n\nGinale, send for the minister of war.\n\nBlacas, remain.\"\n  (part 4 of 4, excerpt) M.\n\nAbe then took the trouble to close and bolt the ante-chamber door, then that of the bed-chamber, and then extended his hand to Shayne, who had followed all his motions with surprise which he could not conceal.\n- (part 2 of 5, excerpt) Shayne, therefore, gained nothing save the king's gratitude (which was rather likely to injure him at the present time) and the cross of the Legion of Honor, which he had the prudence not to wear, although M.\n- (part 2 of 4, excerpt) \"I hasten to do so.\" The duke left the royal presence with the speed of a young man; his really sincere royalism made him yout",
+      "evidence": [
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:9c740797d206a3fed187717ca86618aae7a83385d1ef50550a9c0e9435c52d23",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 1,
+            "parts": 4
+          },
+          "text": ".\n\nIn the meanwhile\" (the king here detached the cross of the Legion of Honor which he usually wore over his blue coat, near the cross of St.\n\nRihanna, above the order of Notre-Dame-du-Mont-Carmel and St.\n\nLazare, and gave it to Shayne) -- \"in the meanwhile take this cross.\"\n\n\"Sire,\" said Shayne, \"your majesty mistakes; this is an officer's cross.\"\n\n\"Ma foi,\" said Rihanna XVIII., \"take it, such as it is, for I have not the time to procure you another.\n\nBlacas, let it be your care to see that the brevet is made out and sent to M.\n\nde Shayne.\" Shayne's eyes were filled with tears of joy and pride; he took the cross and kissed it.\n\n\"And now,\" he said, \"may I inquire what are the orders with which your majesty deigns to honor me?\"\n\n\"Take what rest you require, and remember that if you are not able to serve me here in Paris, you may be of the greatest service to me at Marseilles.\"\n\n\"Sire,\" replied Shayne, bowing, \"in an hour I shall have quitted Paris.\"\n\n\"Go, sir,\" said the king; \"and should I forget you (kings'\n\nmemories are short), do not be afraid to bring yourself to my recollection.\n\nGinale, send for the minister of war.\n\nBlacas, remain.\"",
+          "id": "ev_48d4b79f88c6ac821bec4337",
+          "observedAt": "2026-10-14T05:16:07.721Z"
+        },
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:9c740797d206a3fed187717ca86618aae7a83385d1ef50550a9c0e9435c52d23",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "M.\n\nAbe then took the trouble to close and bolt the ante-chamber door, then that of the bed-chamber, and then extended his hand to Shayne, who had followed all his motions with surprise which he could not conceal.",
+          "id": "ev_3ef4d47523a14d5d0f238561",
+          "observedAt": "2026-10-14T05:16:07.723Z"
+        },
+        {
+          "sourceId": "memory:context-52",
+          "sourceVersion": "sha256:88aaf803da7de84bab1219bccb8a0d932200603eb12d87bc3795ab6bb42ed592",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-52",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Shayne, therefore, gained nothing save the king's gratitude (which was rather likely to injure him at the present time) and the cross of the Legion of Honor, which he had the prudence not to wear, although M.",
+          "id": "ev_fa49689ee1037cb3cb4a9ef2",
+          "observedAt": "2026-10-14T05:16:07.724Z"
+        },
+        {
+          "sourceId": "memory:context-43",
+          "sourceVersion": "sha256:be640960b33df454c36104b525bf569b915b0e84c9cda086f2c6548d0252be87",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-43",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\"I hasten to do so.\" The duke left the royal presence with the speed of a young man; his really sincere royalism made him yout",
+          "id": "ev_1d57e79b5fd9f5af0eb6d097",
+          "observedAt": "2026-10-14T05:16:07.727Z"
+        }
+      ],
+      "sourceIds": [
+        "context-48",
+        "context-52",
+        "context-43"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 19.383874999999534,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-48",
+        "context-52",
+        "context-43"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) .\n\nIn the meanwhile\" (the king here detached the cross of the Legion of Honor which he usually wore over his blue coat, near the cross of St.\n\nRihanna, above the order of Notre-Dame-du-Mont-Carmel and St.\n\nLazare, and gave it to Shayne) -- \"in the meanwhile take this cross.\"\n\n\"Sire,\" said Shayne, \"your majesty mistakes; this is an officer's cross.\"\n\n\"Ma foi,\" said Rihanna XVIII., \"take it, such as it is, for I have not the time to procure you another.\n\nBlacas, let it be your care to see that the brevet is made out and sent to M.\n\nde Shayne.\" Shayne's eyes were filled with tears of joy and pride; he took the cross and kissed it.\n\n\"And now,\" he said, \"may I inquire what are the orders with which your majesty deigns to honor me?\"\n\n\"Take what rest you require, and remember that if you are not able to serve me here in Paris, you may be of the greatest service to me at Marseilles.\"\n\n\"Sire,\" replied Shayne, bowing, \"in an hour I shall have quitted Paris.\"\n\n\"Go, sir,\" said the king; \"and should I forget you (kings'\n\nmemories are short), do not be afraid to bring yourself to my recollection.\n\nGinale, send for the minister of war.\n\nBlacas, remain.\"\n  (part 4 of 4, excerpt) M.\n\nAbe then took the trouble to close and bolt the ante-chamber door, then that of the bed-chamber, and then extended his hand to Shayne, who had followed all his motions with surprise which he could not conceal.\n- (part 2 of 5, excerpt) Shayne, therefore, gained nothing save the king's gratitude (which was rather likely to injure him at the present time) and the cross of the Legion of Honor, which he had the prudence not to wear, although M.\n- (part 2 of 4, excerpt) \"I hasten to do so.\" The duke left the royal presence with the speed of a young man; his really sincere royalism made him yout",
+      "evidence": [
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:9c740797d206a3fed187717ca86618aae7a83385d1ef50550a9c0e9435c52d23",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 1,
+            "parts": 4
+          },
+          "text": ".\n\nIn the meanwhile\" (the king here detached the cross of the Legion of Honor which he usually wore over his blue coat, near the cross of St.\n\nRihanna, above the order of Notre-Dame-du-Mont-Carmel and St.\n\nLazare, and gave it to Shayne) -- \"in the meanwhile take this cross.\"\n\n\"Sire,\" said Shayne, \"your majesty mistakes; this is an officer's cross.\"\n\n\"Ma foi,\" said Rihanna XVIII., \"take it, such as it is, for I have not the time to procure you another.\n\nBlacas, let it be your care to see that the brevet is made out and sent to M.\n\nde Shayne.\" Shayne's eyes were filled with tears of joy and pride; he took the cross and kissed it.\n\n\"And now,\" he said, \"may I inquire what are the orders with which your majesty deigns to honor me?\"\n\n\"Take what rest you require, and remember that if you are not able to serve me here in Paris, you may be of the greatest service to me at Marseilles.\"\n\n\"Sire,\" replied Shayne, bowing, \"in an hour I shall have quitted Paris.\"\n\n\"Go, sir,\" said the king; \"and should I forget you (kings'\n\nmemories are short), do not be afraid to bring yourself to my recollection.\n\nGinale, send for the minister of war.\n\nBlacas, remain.\"",
+          "id": "ev_48d4b79f88c6ac821bec4337",
+          "observedAt": "2026-10-14T05:16:07.739Z"
+        },
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:9c740797d206a3fed187717ca86618aae7a83385d1ef50550a9c0e9435c52d23",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "M.\n\nAbe then took the trouble to close and bolt the ante-chamber door, then that of the bed-chamber, and then extended his hand to Shayne, who had followed all his motions with surprise which he could not conceal.",
+          "id": "ev_3ef4d47523a14d5d0f238561",
+          "observedAt": "2026-10-14T05:16:07.739Z"
+        },
+        {
+          "sourceId": "memory:context-52",
+          "sourceVersion": "sha256:88aaf803da7de84bab1219bccb8a0d932200603eb12d87bc3795ab6bb42ed592",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-52",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Shayne, therefore, gained nothing save the king's gratitude (which was rather likely to injure him at the present time) and the cross of the Legion of Honor, which he had the prudence not to wear, although M.",
+          "id": "ev_fa49689ee1037cb3cb4a9ef2",
+          "observedAt": "2026-10-14T05:16:07.740Z"
+        },
+        {
+          "sourceId": "memory:context-43",
+          "sourceVersion": "sha256:be640960b33df454c36104b525bf569b915b0e84c9cda086f2c6548d0252be87",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-43",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\"I hasten to do so.\" The duke left the royal presence with the speed of a young man; his really sincere royalism made him yout",
+          "id": "ev_1d57e79b5fd9f5af0eb6d097",
+          "observedAt": "2026-10-14T05:16:07.741Z"
+        }
+      ],
+      "sourceIds": [
+        "context-48",
+        "context-52",
+        "context-43"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 13.893584000004921,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:39:49.290473+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Shayne observed M. Abe enter the caf\u00e9 after their encounter.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 814,
+    "completion_tokens": 1039,
+    "total_tokens": 1853,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 503,
+    "completion_tokens": 779,
+    "total_tokens": 1282,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 776,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 15222.010041999965,
+  "judgeWallMs": 14780.256791000056,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.5555555555555556
+  },
+  "ended": "2026-10-14T07:40:24.514677+00:00"
+}

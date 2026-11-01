@@ -1,0 +1,142 @@
+{
+  "date": "2026-10-07",
+  "timezone": "Asia/Calcutta",
+  "completed_at_utc": "2026-10-07T02:52:46.670656+00:00",
+  "task": "Owner-authorized complete arc-cua source import and archived Bimax CU source return",
+  "arc": {
+    "url": "https://github.com/shhivv/arc-cua",
+    "commit": "74ffae1108b1cb4b1f6b161084af12646f544ba5",
+    "version": "0.1.1",
+    "license": "MIT",
+    "manifest": "third_party/arc-cua.BIMAX_IMPORT.json",
+    "manifest_sha256": "3a922888ebd15a3f8a94cdb5bedbfc69c55bf92135928d5a784e8af00167e06e"
+  },
+  "bimax_archive": {
+    "source": "/Users/vishsiddharth/Developer/bimax-archive/computer-use/2026-10-04-retired-cua-driver",
+    "base_commit": "58c5ed72ee2137a8638005597de1e31bd963660f",
+    "original_source_files_verified": 55,
+    "manifest": "archive/computer-use/2026-10-04-retired-cua-driver.BIMAX_IMPORT.json",
+    "manifest_sha256": "5cb06c8f97fd6cebab1c9295d61d72d6cfd7257db1dde1b9292b28cacf0c9a50",
+    "preserved_external_source": true
+  },
+  "copied": {
+    "arc": {
+      "files": 100,
+      "bytes": 1098366
+    },
+    "bimax_archive": {
+      "files": 64,
+      "bytes": 1362566
+    },
+    "runtime_baseline_files": 1680
+  },
+  "integrity": [
+    {
+      "manifest": "third_party/arc-cua.BIMAX_IMPORT.json",
+      "files": 100,
+      "bytes": 1098366,
+      "hashes": "all match",
+      "modes": "all match",
+      "Git_visibility": "all files trackable",
+      "python_files_parsed": 74,
+      "mode_counts": {
+        "100644": 100
+      }
+    },
+    {
+      "manifest": "archive/computer-use/2026-10-04-retired-cua-driver.BIMAX_IMPORT.json",
+      "files": 64,
+      "bytes": 1362566,
+      "hashes": "all match",
+      "modes": "all match",
+      "Git_visibility": "all files trackable",
+      "python_files_parsed": 0,
+      "mode_counts": {
+        "644": 63,
+        "755": 1
+      }
+    }
+  ],
+  "preservation": {
+    "prior_dirty_files": 53,
+    "prior_dirty_files_byte_identical": 48,
+    "prior_documents_extended_only": [
+      "docs/product-reset/08_ACCEPTANCE_GATES.md",
+      "docs/product-reset/README.md",
+      "docs/product-reset/competitive/05_GAP_REGISTER.md",
+      "docs/product-reset/competitive/07_BUILD_SEQUENCE.md",
+      "docs/product-reset/competitive/08_SOURCE_LEDGER.md"
+    ],
+    "original_document_content_hashes_match": true,
+    "active_source_and_config_baseline_files": 1680,
+    "active_source_and_config_changes": [
+      "package.json"
+    ],
+    "package_change": "same 14 Bun paths with ./ prefixes only; dependencies and all other fields identical",
+    "configured_Jest_suites_discovered": 429,
+    "imported_Jest_suites_discovered": 0,
+    "private_state_native_binaries_nested_git_and_caches_imported": false,
+    "new_wrapper_and_record_local_links": "pass (receipt link checked at finalization)",
+    "diff_check": "pass"
+  },
+  "commands": [
+    {
+      "command": "./node_modules/.bin/jest --runInBand --coverage=false --runTestsByPath src/__tests__/computer.retirement.test.ts app/src/__tests__/computer.retirement.test.ts src/__tests__/gui.automation.guard.test.ts --json --outputFile docs/product-reset/evidence/2026-10-07-cu-source-import/retirement-tests.json",
+      "exit": 0,
+      "tests_passed": 26,
+      "suites_passed": 3,
+      "tests_failed": 0,
+      "receipt_sha256": "82ba93cacd4b8f8c2e60b53e441e28fefbb37efe0a5371e34d4809a42cafe954"
+    },
+    {
+      "command": "npm run test:bun",
+      "exit": 0,
+      "tests_passed": 132,
+      "files": 14,
+      "tests_failed": 0,
+      "raw_log_sha256": "da10ad9e0bd69f90158ce02137b2808cb0996d6102e6b086c3002b6a33b4c669"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 docs/product-reset/evidence/2026-10-06-arc-cua-comparison/probe-runtime.py /Users/vishsiddharth/Bimax/third_party/arc-cua",
+      "exit": 0,
+      "controlled_assertions_passed": 6,
+      "receipt_sha256": "b888d9570ab8003a21f51ddba6b1df073521a64eaee46e8adb81db62dfb93c37"
+    },
+    {
+      "command": "./node_modules/.bin/jest --listTests --json --runInBand",
+      "exit": 0,
+      "suites_discovered": 429,
+      "imported_suites_discovered": 0,
+      "receipt_sha256": "2162d0f6ee237f6c36459cefd4db08a4c7a2a3ceaea7755bab8a29722f6922df"
+    }
+  ],
+  "initial_failures": [
+    {
+      "command": "bun test src/__tests__/tool.registry.contract.test.ts",
+      "exit": 1,
+      "active_tests_passed": 6,
+      "failure": "Bare path filter also discovered archived registry test; archived container cannot resolve ../utils/state.dir",
+      "repair": "Prefix same fourteen configured Bun paths with ./; imported code unchanged; full suite then passed",
+      "raw_log_sha256": "5cc452ca688d0965f5150b6730b7ac41f418fd8cbd88dd0fcce221bbd54b3372"
+    },
+    {
+      "check": "git check-ignore on copied files",
+      "failure": "Archived @ubjs/core/dist/cjs/package.json matched the root dist/ exclusion",
+      "repair": "Narrow package-metadata exception; all 164 copied files subsequently trackable"
+    }
+  ],
+  "qualification": {
+    "runtime_integration_implemented": false,
+    "native_actions": false,
+    "live_provider": false,
+    "upstream_full_suite": false,
+    "benchmark": false,
+    "app_installation": false,
+    "dependency_installation": false,
+    "commit_or_push": false,
+    "M02_X01_product_ready_or_win": false,
+    "missing_guidance": [
+      "competitive/03_CAPABILITY_MATRIX.md"
+    ]
+  }
+}

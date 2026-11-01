@@ -1,0 +1,193 @@
+{
+  "row": 1,
+  "query": 10,
+  "id": "mab-1-10",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:49:03.761560+00:00",
+  "valid": true,
+  "question": "What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?",
+  "references": [
+    "Kansas Song"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 10.408708999995724,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 161,
+        "maxInputChars": 161,
+        "requiredProviderTruncation": false,
+        "promptTokens": 33,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-260",
+        "context-196",
+        "context-216"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 5) the Oregon State Fair chose not to book national acts on the amphitheatre stage. Since 2013 major national acts have returned to the L. B. Day Amphitheatre.\n\nDocument 1868:\nUniversity of Kansas\nThe University of Kansas, often referred to as KU or Kansas, is a public research university in the U.S. state of Kansas. The main campus in Lawrence, one of the largest college towns in Kansas, is on Mount Oread, the highest elevation in Lawrence. Two branch campuses are in the Kansas City metropolitan area: the Edwards Campus in Overland Park, and the university's medical school and ho\n- (part 4 of 6) and suburban, with about 8 million in the capital city of London, the population density of which is just over 5,200 per square kilometre (13,468 per sq mi).\n\nDocument 1394:\nRed vs. Blue: Recreation\nRed vs. Blue: Recreation is the seventh season of the action comedy science fiction machinima web series Red vs. Blue created by Rooster Teeth Productions that premiered on June 9, 2009, and concluded on October 26, 2009. Set three days after the \"\" mini-series, the Red team are back plotting against the Blue team, which currently consists of only one person, Caboose. New episodes were released every Monday at 9:00 CST.\n\nDocument 1395:\n\nUniversity of Missouri\u2013Kansas City\n\nThe University of Missouri\u2013Kansas City (UMKC) is a public research university serving the greater Kansas City metropolitan area.\n\nLocated in Kansas City, Missouri, UMKC is one of four system campuses that collectively constitute the University of Missouri.\n- (part 1 of 5, excerpt) 0:\nKansas Song\nKansas Song (We\u2019re From Kansas) is a fight song of the University of Kansas.\n\nDocument 1531:\nBankUnited",
+      "evidence": [
+        {
+          "sourceId": "memory:context-260",
+          "sourceVersion": "sha256:10e0564e718a0ba1f528b6b2e500e7f5a8943f655a3c72d43b1fed366bb4e958",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-260",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "the Oregon State Fair chose not to book national acts on the amphitheatre stage. Since 2013 major national acts have returned to the L. B. Day Amphitheatre.\n\nDocument 1868:\nUniversity of Kansas\nThe University of Kansas, often referred to as KU or Kansas, is a public research university in the U.S. state of Kansas. The main campus in Lawrence, one of the largest college towns in Kansas, is on Mount Oread, the highest elevation in Lawrence. Two branch campuses are in the Kansas City metropolitan area: the Edwards Campus in Overland Park, and the university's medical school and ho",
+          "id": "ev_8f14163809a90967838f2889",
+          "observedAt": "2026-10-14T04:49:03.775Z"
+        },
+        {
+          "sourceId": "memory:context-196",
+          "sourceVersion": "sha256:2d497fefbde50e913addd57522f298fb840f0fc6e2fc77faeeb153930da74ef7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-196",
+            "part": 4,
+            "parts": 6
+          },
+          "text": "and suburban, with about 8 million in the capital city of London, the population density of which is just over 5,200 per square kilometre (13,468 per sq mi).\n\nDocument 1394:\nRed vs. Blue: Recreation\nRed vs. Blue: Recreation is the seventh season of the action comedy science fiction machinima web series Red vs. Blue created by Rooster Teeth Productions that premiered on June 9, 2009, and concluded on October 26, 2009. Set three days after the \"\" mini-series, the Red team are back plotting against the Blue team, which currently consists of only one person, Caboose. New episodes were released every Monday at 9:00 CST.\n\nDocument 1395:\n\nUniversity of Missouri\u2013Kansas City\n\nThe University of Missouri\u2013Kansas City (UMKC) is a public research university serving the greater Kansas City metropolitan area.\n\nLocated in Kansas City, Missouri, UMKC is one of four system campuses that collectively constitute the University of Missouri.",
+          "id": "ev_343b65e8b187c4aa6c700dc4",
+          "observedAt": "2026-10-14T04:49:03.775Z"
+        },
+        {
+          "sourceId": "memory:context-216",
+          "sourceVersion": "sha256:d9c2f6fe553f9fd24f3bacf879bcb24ae8060e7b80a198318516d13cade627a4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-216",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "0:\nKansas Song\nKansas Song (We\u2019re From Kansas) is a fight song of the University of Kansas.\n\nDocument 1531:\nBankUnited",
+          "id": "ev_76e23fd67922d5ed68bba685",
+          "observedAt": "2026-10-14T04:49:03.775Z"
+        }
+      ],
+      "sourceIds": [
+        "context-260",
+        "context-196",
+        "context-216"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.064332999987528,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-260",
+        "context-196",
+        "context-216"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 5) the Oregon State Fair chose not to book national acts on the amphitheatre stage. Since 2013 major national acts have returned to the L. B. Day Amphitheatre.\n\nDocument 1868:\nUniversity of Kansas\nThe University of Kansas, often referred to as KU or Kansas, is a public research university in the U.S. state of Kansas. The main campus in Lawrence, one of the largest college towns in Kansas, is on Mount Oread, the highest elevation in Lawrence. Two branch campuses are in the Kansas City metropolitan area: the Edwards Campus in Overland Park, and the university's medical school and ho\n- (part 4 of 6) and suburban, with about 8 million in the capital city of London, the population density of which is just over 5,200 per square kilometre (13,468 per sq mi).\n\nDocument 1394:\nRed vs. Blue: Recreation\nRed vs. Blue: Recreation is the seventh season of the action comedy science fiction machinima web series Red vs. Blue created by Rooster Teeth Productions that premiered on June 9, 2009, and concluded on October 26, 2009. Set three days after the \"\" mini-series, the Red team are back plotting against the Blue team, which currently consists of only one person, Caboose. New episodes were released every Monday at 9:00 CST.\n\nDocument 1395:\n\nUniversity of Missouri\u2013Kansas City\n\nThe University of Missouri\u2013Kansas City (UMKC) is a public research university serving the greater Kansas City metropolitan area.\n\nLocated in Kansas City, Missouri, UMKC is one of four system campuses that collectively constitute the University of Missouri.\n- (part 1 of 5, excerpt) 0:\nKansas Song\nKansas Song (We\u2019re From Kansas) is a fight song of the University of Kansas.\n\nDocument 1531:\nBankUnited",
+      "evidence": [
+        {
+          "sourceId": "memory:context-260",
+          "sourceVersion": "sha256:10e0564e718a0ba1f528b6b2e500e7f5a8943f655a3c72d43b1fed366bb4e958",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-260",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "the Oregon State Fair chose not to book national acts on the amphitheatre stage. Since 2013 major national acts have returned to the L. B. Day Amphitheatre.\n\nDocument 1868:\nUniversity of Kansas\nThe University of Kansas, often referred to as KU or Kansas, is a public research university in the U.S. state of Kansas. The main campus in Lawrence, one of the largest college towns in Kansas, is on Mount Oread, the highest elevation in Lawrence. Two branch campuses are in the Kansas City metropolitan area: the Edwards Campus in Overland Park, and the university's medical school and ho",
+          "id": "ev_8f14163809a90967838f2889",
+          "observedAt": "2026-10-14T04:49:03.779Z"
+        },
+        {
+          "sourceId": "memory:context-196",
+          "sourceVersion": "sha256:2d497fefbde50e913addd57522f298fb840f0fc6e2fc77faeeb153930da74ef7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-196",
+            "part": 4,
+            "parts": 6
+          },
+          "text": "and suburban, with about 8 million in the capital city of London, the population density of which is just over 5,200 per square kilometre (13,468 per sq mi).\n\nDocument 1394:\nRed vs. Blue: Recreation\nRed vs. Blue: Recreation is the seventh season of the action comedy science fiction machinima web series Red vs. Blue created by Rooster Teeth Productions that premiered on June 9, 2009, and concluded on October 26, 2009. Set three days after the \"\" mini-series, the Red team are back plotting against the Blue team, which currently consists of only one person, Caboose. New episodes were released every Monday at 9:00 CST.\n\nDocument 1395:\n\nUniversity of Missouri\u2013Kansas City\n\nThe University of Missouri\u2013Kansas City (UMKC) is a public research university serving the greater Kansas City metropolitan area.\n\nLocated in Kansas City, Missouri, UMKC is one of four system campuses that collectively constitute the University of Missouri.",
+          "id": "ev_343b65e8b187c4aa6c700dc4",
+          "observedAt": "2026-10-14T04:49:03.779Z"
+        },
+        {
+          "sourceId": "memory:context-216",
+          "sourceVersion": "sha256:d9c2f6fe553f9fd24f3bacf879bcb24ae8060e7b80a198318516d13cade627a4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-216",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "0:\nKansas Song\nKansas Song (We\u2019re From Kansas) is a fight song of the University of Kansas.\n\nDocument 1531:\nBankUnited",
+          "id": "ev_76e23fd67922d5ed68bba685",
+          "observedAt": "2026-10-14T04:49:03.779Z"
+        }
+      ],
+      "sourceIds": [
+        "context-260",
+        "context-196",
+        "context-216"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.532833000004757,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T04:49:03.780157+00:00"
+}

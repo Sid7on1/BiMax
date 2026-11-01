@@ -1,0 +1,391 @@
+{
+  "row": 200,
+  "id": "0ea62687",
+  "stratum": "multi-session",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T09:02:27.627956+00:00",
+  "valid": true,
+  "question": "How much more miles per gallon was my car getting a few months ago compared to now?",
+  "references": [
+    "2"
+  ],
+  "kind": "multi-session",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 23:51",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 473.458292000003,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 83,
+        "maxInputChars": 83,
+        "requiredProviderTruncation": false,
+        "promptTokens": 20,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_dc5e537d_1",
+        "answer_dc5e537d_2",
+        "ultrachat_108112"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 16) Session date: 2023/05/20 (Sat) 01:33\nuser: I'm thinking of getting a tune-up for my car soon. Can you give me some tips on what I should check or replace to improve my car's fuel efficiency? My car was getting 30 miles per gallon in the city a few months ago, so I'm hoping to get back to that.\nassistant: A tune-up is a great way to get your car running efficiently again. Improving fuel efficiency not only saves you money on gas but also reduces your carbon footprint. Here are some tips on what to check and replace to help you get back to 30 miles per gallon in the city:\n\n**Air Filter:**\nA dirty air filter can decrease fuel efficiency by up to 20%. Check and replace your air filter if it's dirty or clogged. A new air filter can improve your gas mileage by up to 10%.\n\n**Spark Plugs:**\nWorn out spark plugs can decrease fuel efficiency and engine performance. If your spark plugs are old or fouled, consider replacing them with new ones. Spark plug replacement can improve fuel efficiency by up to 4%.\n\n**Fuel Filter:**\nA clogged fuel filter can restrict fuel flow, leading to decreased fuel efficiency. Check and replace your fuel filter if it's dirty or clogged.\n  (part 4 of 16, excerpt) By following these tips, you should be able to improve your car's fuel efficiency and get back to 30 miles per gallon in the city. Remember to always refer to your owner's manual for specific recommendations and guidelines for your vehicle.\n- (part 1 of 18, excerpt) user: I'm thinking of getting a new air filter for my car. Can you recommend any good ones? I've been getting around 28 miles per gallon in the city lately, so I wa\n- (part 7 of 7, excerpt) 1. Website traffic: Measuring the number of visitors to a website can help businesses understand if their digital marketing",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_dc5e537d_1",
+          "sourceVersion": "sha256:3a80f86f4165d7d0de0059eb3a4f55332ccbd254fbc302f1737834710e696dc1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_dc5e537d_1",
+            "part": 1,
+            "parts": 16
+          },
+          "text": "Session date: 2023/05/20 (Sat) 01:33\nuser: I'm thinking of getting a tune-up for my car soon. Can you give me some tips on what I should check or replace to improve my car's fuel efficiency? My car was getting 30 miles per gallon in the city a few months ago, so I'm hoping to get back to that.\nassistant: A tune-up is a great way to get your car running efficiently again. Improving fuel efficiency not only saves you money on gas but also reduces your carbon footprint. Here are some tips on what to check and replace to help you get back to 30 miles per gallon in the city:\n\n**Air Filter:**\nA dirty air filter can decrease fuel efficiency by up to 20%. Check and replace your air filter if it's dirty or clogged. A new air filter can improve your gas mileage by up to 10%.\n\n**Spark Plugs:**\nWorn out spark plugs can decrease fuel efficiency and engine performance. If your spark plugs are old or fouled, consider replacing them with new ones. Spark plug replacement can improve fuel efficiency by up to 4%.\n\n**Fuel Filter:**\nA clogged fuel filter can restrict fuel flow, leading to decreased fuel efficiency. Check and replace your fuel filter if it's dirty or clogged.",
+          "id": "ev_b6d0909c9280f6b7a40542c2",
+          "observedAt": "2026-10-14T09:02:28.119Z"
+        },
+        {
+          "sourceId": "memory:answer_dc5e537d_1",
+          "sourceVersion": "sha256:3a80f86f4165d7d0de0059eb3a4f55332ccbd254fbc302f1737834710e696dc1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_dc5e537d_1",
+            "part": 4,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "By following these tips, you should be able to improve your car's fuel efficiency and get back to 30 miles per gallon in the city. Remember to always refer to your owner's manual for specific recommendations and guidelines for your vehicle.",
+          "id": "ev_cb5401c06b53e9957443ecb0",
+          "observedAt": "2026-10-14T09:02:28.120Z"
+        },
+        {
+          "sourceId": "memory:answer_dc5e537d_2",
+          "sourceVersion": "sha256:3f19a546962cdba69a5dabfa019c24fa5f4340fdf5a11494bbe4953853a7ee89",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_dc5e537d_2",
+            "part": 1,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I'm thinking of getting a new air filter for my car. Can you recommend any good ones? I've been getting around 28 miles per gallon in the city lately, so I wa",
+          "id": "ev_8fb3074caa76361e4b71253c",
+          "observedAt": "2026-10-14T09:02:28.120Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_108112",
+          "sourceVersion": "sha256:0045cc3a9ad5499ca75e851294e1996316f8e47ba79fde8f69f4d21acc811bbf",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_108112",
+            "part": 7,
+            "parts": 7,
+            "partial": true
+          },
+          "text": "1. Website traffic: Measuring the number of visitors to a website can help businesses understand if their digital marketing",
+          "id": "ev_89105af076934b07db724ddb",
+          "observedAt": "2026-10-14T09:02:28.121Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_dc5e537d_1",
+        "answer_dc5e537d_2",
+        "ultrachat_108112"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 20.486500000006345,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_dc5e537d_1",
+        "answer_dc5e537d_2",
+        "ultrachat_108112"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 16, excerpt) Session date: 2023/05/20 (Sat) 01:33\nuser: I'm thinking of getting a tune-up for my car soon. Can you give me some tips on what I should check or replace to improve my car's fuel efficiency? My car was getting 30 miles per gallon in the city a few months ago, so I'm hoping to get back to that.\n  (part 4 of 16, excerpt) By following these tips, you should be able to improve your car's fuel efficiency and get back to 30 miles per gallon in the city. Remember to always refer to your owner's manual for specific recommendations and guidelines for your vehicle.\nuser: I'll definitely check the air filter, spark plugs, and tire pressure. I've been meaning to get my oil changed too, which is overdue by about 1000 miles. Do you think that could be a contributing factor to the decrease in fuel efficiency?\n  (part 6 of 16, excerpt) After you've completed these tasks, take your car for a spin and see if you notice any improvements in fuel efficiency. Remember to also check your tire pressure regularly, as it can fluctuate over time.\nuser: I'll get my oil changed and check the other things you mentioned. I'm also thinking of getting a dash cam, have you got any recommendations?\nassistant: A dash cam can be a great investment for several reasons:\n  (part 12 of 16, excerpt) If you're satisfied with the dash cam's features and performance, it seems like a good choice for the price.\nuser: I think I'll go with the dash cam that costs around $150. It seems like a good value for the features it offers. Do you think I should also consider getting a car phone mount to go along with it?\nassistant: A car phone mount can be a useful accessory to complement your dash cam and dash cam experience. Here are some benefits of getting a car phone mount:\n\n**Benefits of a car phone mount:**\n- (part 1 of 18, excerpt) Session date: 2023/05/24 (Wed) 23:28\nuser: I'm thinking of getting a new air filter for my car. Can you recommend any good ones? I've been getting around 28 miles per gallon in the city lately, so I want to make sure the new filter helps with fuel efficiency.\nassistant: A new air filter can definitely help improve your car's performance and fuel efficiency. I'd be happy to recommend some good options.\n  (part 6 of 18, excerpt) **Additional Tips:**\n\n* Make sure to handle the new air filter by the edges to avoid touching the filter media, which can reduce its effectiveness.\n* Inspect your air filter every 15,000 to 30,000 miles, depending on your driving conditions, and replace it as needed.\n* Consider resetting your car's computer (if equipped) after replacing the air filter to ensure the engine management system adjusts to the new filter.\n\nIf you're not comfortable with the installation process, you can always consult your owner's manual or visit a trusted mechanic or Honda dealership for assistance.\n  (part 8 of 18, excerpt) **Exterior Maintenance:**\n\n1. **Regular Washing:** Wash your car every 1-2 weeks, or more often if you live in an area with high humidity, salt, or pollution. Use a mild car wash soap and avoid using household cleaners, which can damage the paint.\n2. **Waxing:** Wax your car every 2-3 months to protect the paint and clear coat from UV rays, water spots, and minor scratches. Use a good-quality car wax and follow the manufacturer's instructions.\n  (part 15 of 18, excerpt) user: I'm glad you're considering a dash cam. I think it's a good idea to get one, especially with all the crazy drivers out there. I've been keeping track of my car's maintenance, and I think a dash cam would be a great addition to my safety features. By the way, have you thought about checking your tire pressure recently? I've been meaning to do that too, as it can affect my car's fuel efficiency, which is currently at 28 miles per gallon in the city.\n- Session date: 2023/05/29 (Mon) 02:37\n  (part 5 of 7, excerpt) conduct research on their target audience, competitors, and industry trends. This can help them identify new opportunities and stay ahead of emerging trends.\n\n4. Monitor analytics and performance: Analyzing website traffic, social media engagement, and other metrics can help businesses keep track of the effectiveness of their digital marketing efforts and identify areas for improvement.\n\nBy staying informed and leveraging these strategies, businesses can stay up-to-date with the latest digital marketing trends and technologies and remain competitive in their markets.\nuser: Can businesses rely solely on digital marketing or should they also invest in traditional marketing methods?\nassistant: As an AI language model, I cannot provide a definitive answer as it depends on various fa\n  (part 6 of 7, excerpt) Ultimately, the right mix of digital and traditional marketing strategies will depend on the business's unique needs and goals, as well as its target audience's preferences and behavior. By understanding the strengths and weaknesses of both approaches, businesses can create a comprehensive marketing plan that maximizes their reach, engages their target audience, and achieves their marketing objectives.\nuser: Do you have any advice on how businesses can measure the success of their digital marketing efforts?\nassistant: Sure, here are some key metrics that businesses can track to measure the success of their digital marketing efforts:\n  (part 7 of 7, excerpt) Cost-per-click (CPC): This metric measures the cost of each click on a paid digital marketing ad, such as a Facebook ad or Google ad. 5. Return on investment (ROI): This metric measures the amount of revenue generated by digital marketing efforts, compared to the cost of implementing these efforts. By tracking these metrics, businesses can determine how effective their digital marketing strategies are and make data-driven decisions about how to optimize and improve their efforts.",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_dc5e537d_1",
+          "sourceVersion": "sha256:3a80f86f4165d7d0de0059eb3a4f55332ccbd254fbc302f1737834710e696dc1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_dc5e537d_1",
+            "part": 1,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "Session date: 2023/05/20 (Sat) 01:33\nuser: I'm thinking of getting a tune-up for my car soon. Can you give me some tips on what I should check or replace to improve my car's fuel efficiency? My car was getting 30 miles per gallon in the city a few months ago, so I'm hoping to get back to that.",
+          "id": "ev_e673822223dd5bf6aefff712",
+          "observedAt": "2026-10-14T09:02:28.127Z"
+        },
+        {
+          "sourceId": "memory:answer_dc5e537d_1",
+          "sourceVersion": "sha256:3a80f86f4165d7d0de0059eb3a4f55332ccbd254fbc302f1737834710e696dc1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_dc5e537d_1",
+            "part": 4,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "By following these tips, you should be able to improve your car's fuel efficiency and get back to 30 miles per gallon in the city. Remember to always refer to your owner's manual for specific recommendations and guidelines for your vehicle.\nuser: I'll definitely check the air filter, spark plugs, and tire pressure. I've been meaning to get my oil changed too, which is overdue by about 1000 miles. Do you think that could be a contributing factor to the decrease in fuel efficiency?",
+          "id": "ev_060349b86bcd5f685fb31a62",
+          "observedAt": "2026-10-14T09:02:28.127Z"
+        },
+        {
+          "sourceId": "memory:answer_dc5e537d_1",
+          "sourceVersion": "sha256:3a80f86f4165d7d0de0059eb3a4f55332ccbd254fbc302f1737834710e696dc1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_dc5e537d_1",
+            "part": 6,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "After you've completed these tasks, take your car for a spin and see if you notice any improvements in fuel efficiency. Remember to also check your tire pressure regularly, as it can fluctuate over time.\nuser: I'll get my oil changed and check the other things you mentioned. I'm also thinking of getting a dash cam, have you got any recommendations?\nassistant: A dash cam can be a great investment for several reasons:",
+          "id": "ev_44a32b30ebb43e1476ec6c26",
+          "observedAt": "2026-10-14T09:02:28.127Z"
+        },
+        {
+          "sourceId": "memory:answer_dc5e537d_1",
+          "sourceVersion": "sha256:3a80f86f4165d7d0de0059eb3a4f55332ccbd254fbc302f1737834710e696dc1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_dc5e537d_1",
+            "part": 12,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "If you're satisfied with the dash cam's features and performance, it seems like a good choice for the price.\nuser: I think I'll go with the dash cam that costs around $150. It seems like a good value for the features it offers. Do you think I should also consider getting a car phone mount to go along with it?\nassistant: A car phone mount can be a useful accessory to complement your dash cam and dash cam experience. Here are some benefits of getting a car phone mount:\n\n**Benefits of a car phone mount:**",
+          "id": "ev_3bc11e60c3cb7824308ca387",
+          "observedAt": "2026-10-14T09:02:28.127Z"
+        },
+        {
+          "sourceId": "memory:answer_dc5e537d_2",
+          "sourceVersion": "sha256:3f19a546962cdba69a5dabfa019c24fa5f4340fdf5a11494bbe4953853a7ee89",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_dc5e537d_2",
+            "part": 1,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "Session date: 2023/05/24 (Wed) 23:28\nuser: I'm thinking of getting a new air filter for my car. Can you recommend any good ones? I've been getting around 28 miles per gallon in the city lately, so I want to make sure the new filter helps with fuel efficiency.\nassistant: A new air filter can definitely help improve your car's performance and fuel efficiency. I'd be happy to recommend some good options.",
+          "id": "ev_f2e885385aa8243f7b8d75d1",
+          "observedAt": "2026-10-14T09:02:28.128Z"
+        },
+        {
+          "sourceId": "memory:answer_dc5e537d_2",
+          "sourceVersion": "sha256:3f19a546962cdba69a5dabfa019c24fa5f4340fdf5a11494bbe4953853a7ee89",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_dc5e537d_2",
+            "part": 6,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "**Additional Tips:**\n\n* Make sure to handle the new air filter by the edges to avoid touching the filter media, which can reduce its effectiveness.\n* Inspect your air filter every 15,000 to 30,000 miles, depending on your driving conditions, and replace it as needed.\n* Consider resetting your car's computer (if equipped) after replacing the air filter to ensure the engine management system adjusts to the new filter.\n\nIf you're not comfortable with the installation process, you can always consult your owner's manual or visit a trusted mechanic or Honda dealership for assistance.",
+          "id": "ev_0dcad8eb34e9fd6a141bb743",
+          "observedAt": "2026-10-14T09:02:28.128Z"
+        },
+        {
+          "sourceId": "memory:answer_dc5e537d_2",
+          "sourceVersion": "sha256:3f19a546962cdba69a5dabfa019c24fa5f4340fdf5a11494bbe4953853a7ee89",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_dc5e537d_2",
+            "part": 8,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "**Exterior Maintenance:**\n\n1. **Regular Washing:** Wash your car every 1-2 weeks, or more often if you live in an area with high humidity, salt, or pollution. Use a mild car wash soap and avoid using household cleaners, which can damage the paint.\n2. **Waxing:** Wax your car every 2-3 months to protect the paint and clear coat from UV rays, water spots, and minor scratches. Use a good-quality car wax and follow the manufacturer's instructions.",
+          "id": "ev_fc54ac37f0446006e5fae42b",
+          "observedAt": "2026-10-14T09:02:28.128Z"
+        },
+        {
+          "sourceId": "memory:answer_dc5e537d_2",
+          "sourceVersion": "sha256:3f19a546962cdba69a5dabfa019c24fa5f4340fdf5a11494bbe4953853a7ee89",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_dc5e537d_2",
+            "part": 15,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I'm glad you're considering a dash cam. I think it's a good idea to get one, especially with all the crazy drivers out there. I've been keeping track of my car's maintenance, and I think a dash cam would be a great addition to my safety features. By the way, have you thought about checking your tire pressure recently? I've been meaning to do that too, as it can affect my car's fuel efficiency, which is currently at 28 miles per gallon in the city.",
+          "id": "ev_6786aeb7cdb8c0db676fe39d",
+          "observedAt": "2026-10-14T09:02:28.128Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_108112",
+          "sourceVersion": "sha256:0045cc3a9ad5499ca75e851294e1996316f8e47ba79fde8f69f4d21acc811bbf",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_108112"
+          },
+          "text": "Session date: 2023/05/29 (Mon) 02:37",
+          "id": "ev_39642e5d0979e6d10e6cff56",
+          "observedAt": "2026-10-14T09:02:28.129Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_108112",
+          "sourceVersion": "sha256:0045cc3a9ad5499ca75e851294e1996316f8e47ba79fde8f69f4d21acc811bbf",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_108112",
+            "part": 5,
+            "parts": 7,
+            "partial": true
+          },
+          "text": "conduct research on their target audience, competitors, and industry trends. This can help them identify new opportunities and stay ahead of emerging trends.\n\n4. Monitor analytics and performance: Analyzing website traffic, social media engagement, and other metrics can help businesses keep track of the effectiveness of their digital marketing efforts and identify areas for improvement.\n\nBy staying informed and leveraging these strategies, businesses can stay up-to-date with the latest digital marketing trends and technologies and remain competitive in their markets.\nuser: Can businesses rely solely on digital marketing or should they also invest in traditional marketing methods?\nassistant: As an AI language model, I cannot provide a definitive answer as it depends on various fa",
+          "id": "ev_fa7f26885b4e6c18cf698326",
+          "observedAt": "2026-10-14T09:02:28.129Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_108112",
+          "sourceVersion": "sha256:0045cc3a9ad5499ca75e851294e1996316f8e47ba79fde8f69f4d21acc811bbf",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_108112",
+            "part": 6,
+            "parts": 7,
+            "partial": true
+          },
+          "text": "Ultimately, the right mix of digital and traditional marketing strategies will depend on the business's unique needs and goals, as well as its target audience's preferences and behavior. By understanding the strengths and weaknesses of both approaches, businesses can create a comprehensive marketing plan that maximizes their reach, engages their target audience, and achieves their marketing objectives.\nuser: Do you have any advice on how businesses can measure the success of their digital marketing efforts?\nassistant: Sure, here are some key metrics that businesses can track to measure the success of their digital marketing efforts:",
+          "id": "ev_774cc8f6255cbd8f358b87da",
+          "observedAt": "2026-10-14T09:02:28.129Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_108112",
+          "sourceVersion": "sha256:0045cc3a9ad5499ca75e851294e1996316f8e47ba79fde8f69f4d21acc811bbf",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_108112",
+            "part": 7,
+            "parts": 7,
+            "partial": true
+          },
+          "text": "Cost-per-click (CPC): This metric measures the cost of each click on a paid digital marketing ad, such as a Facebook ad or Google ad. 5. Return on investment (ROI): This metric measures the amount of revenue generated by digital marketing efforts, compared to the cost of implementing these efforts. By tracking these metrics, businesses can determine how effective their digital marketing strategies are and make data-driven decisions about how to optimize and improve their efforts.",
+          "id": "ev_ee21ba3fc7d7eea182d4f180",
+          "observedAt": "2026-10-14T09:02:28.129Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_dc5e537d_1",
+        "answer_dc5e537d_2",
+        "ultrachat_108112"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.688249999999243,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "answer_dc5e537d_1",
+    "answer_dc5e537d_2",
+    "ultrachat_108112"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T09:02:28.133872+00:00"
+}

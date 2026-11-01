@@ -1,0 +1,44 @@
+{
+  "projectId": "udnlmfluydavkavqjbto",
+  "projectName": "bimax",
+  "existingPlan": "free",
+  "beforeStatus": "INACTIVE",
+  "restoreResponse": {
+    "success": true
+  },
+  "afterStatus": "ACTIVE_HEALTHY",
+  "projectUrlUnchanged": true,
+  "credentialsChanged": false,
+  "newProjectCreated": false,
+  "schemaChanged": false,
+  "otherProjectsChanged": false,
+  "readOnlyDatabaseProbe": {
+    "query": "select 1 as restored_connection",
+    "result": 1
+  },
+  "securityAdvisories": [
+    {
+      "name": "auth_leaked_password_protection",
+      "title": "Leaked Password Protection Disabled",
+      "level": "WARN",
+      "facing": "EXTERNAL",
+      "categories": [
+        "SECURITY"
+      ],
+      "description": "Leaked password protection is currently disabled.",
+      "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection",
+      "count": 1,
+      "findings": [
+        {
+          "detail": "Supabase Auth prevents the use of compromised passwords by checking against HaveIBeenPwned.org. Enable this feature to enhance security.",
+          "metadata": {
+            "type": "auth",
+            "entity": "Auth"
+          }
+        }
+      ]
+    }
+  ],
+  "performanceAdvisories": [],
+  "physicalLoginConfirmed": false
+}

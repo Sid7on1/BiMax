@@ -1,0 +1,197 @@
+{
+  "row": 0,
+  "query": 15,
+  "id": "mab-0-15",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:44:31.465389+00:00",
+  "valid": true,
+  "question": "What part of France were the Normans located?",
+  "references": [
+    "north",
+    "the north",
+    "north"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 6.355041999995592,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 45,
+        "maxInputChars": 45,
+        "requiredProviderTruncation": false,
+        "promptTokens": 12,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-112",
+        "context-51",
+        "context-219"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) at the StubHub Center and were local rivals. However, Chivas were suspended following the 2014 MLS season, with a second MLS team scheduled to return in 2018.\n\nDocument 568:\nThe Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Francia. The distinct cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.\n- (part 3 of 5, excerpt) organisation by the United Nations, the European Union and member states, the United States, India, Indonesia, Turkey, Saudi Arabia, Syria and other countries.\n\nDocument 261:\nThe English name \"Normans\" comes from the French words Normans/Normanz, plural of Normant, modern French normand, which is itself borrowed from Old Low Franconian Nortmann \"Northman\" or directly from Old Norse Nor\u00f0ma\u00f0r, Latinized variously as Nortmannus, Normannus, or Nordmannus (recorded in Medieval Latin, 9th century) to mean \"Norseman, Viking\".\n\nDocument 262:\n- (part 4 of 6, excerpt) In 1066, Duke William II of Normandy conquered England killing King Harold II at the Battle of Hastings. The invading Normans and their descendants replaced the Anglo-Saxons as the ruling class of England. The nobility of England were part of a single Normans culture and ma",
+      "evidence": [
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:9fe9625a5a6bc47e5f39651d02c26d51137bab1df75360a70aac3596b7a3ffee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "at the StubHub Center and were local rivals. However, Chivas were suspended following the 2014 MLS season, with a second MLS team scheduled to return in 2018.\n\nDocument 568:\nThe Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Francia. The distinct cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.",
+          "id": "ev_e99db2cce3b5dfbde4549790",
+          "observedAt": "2026-10-14T04:44:31.474Z"
+        },
+        {
+          "sourceId": "memory:context-51",
+          "sourceVersion": "sha256:b3f2a9a876b4a1863d22e38c469de290c9ffb48560b391a1bb178a05d1fa3f55",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-51",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "organisation by the United Nations, the European Union and member states, the United States, India, Indonesia, Turkey, Saudi Arabia, Syria and other countries.\n\nDocument 261:\nThe English name \"Normans\" comes from the French words Normans/Normanz, plural of Normant, modern French normand, which is itself borrowed from Old Low Franconian Nortmann \"Northman\" or directly from Old Norse Nor\u00f0ma\u00f0r, Latinized variously as Nortmannus, Normannus, or Nordmannus (recorded in Medieval Latin, 9th century) to mean \"Norseman, Viking\".\n\nDocument 262:",
+          "id": "ev_8b54922a1e3e021dc34b1b04",
+          "observedAt": "2026-10-14T04:44:31.474Z"
+        },
+        {
+          "sourceId": "memory:context-219",
+          "sourceVersion": "sha256:3b0ef2f3aa63c90f36b8995231e8f8b0ba784a2397bca91f08d261f3a0d9bb7c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-219",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "In 1066, Duke William II of Normandy conquered England killing King Harold II at the Battle of Hastings. The invading Normans and their descendants replaced the Anglo-Saxons as the ruling class of England. The nobility of England were part of a single Normans culture and ma",
+          "id": "ev_d0f151a5adcf4f9fdb7fe254",
+          "observedAt": "2026-10-14T04:44:31.474Z"
+        }
+      ],
+      "sourceIds": [
+        "context-112",
+        "context-51",
+        "context-219"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.751333000000159,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-112",
+        "context-51",
+        "context-219"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) at the StubHub Center and were local rivals. However, Chivas were suspended following the 2014 MLS season, with a second MLS team scheduled to return in 2018.\n\nDocument 568:\nThe Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Francia. The distinct cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.\n- (part 3 of 5, excerpt) organisation by the United Nations, the European Union and member states, the United States, India, Indonesia, Turkey, Saudi Arabia, Syria and other countries.\n\nDocument 261:\nThe English name \"Normans\" comes from the French words Normans/Normanz, plural of Normant, modern French normand, which is itself borrowed from Old Low Franconian Nortmann \"Northman\" or directly from Old Norse Nor\u00f0ma\u00f0r, Latinized variously as Nortmannus, Normannus, or Nordmannus (recorded in Medieval Latin, 9th century) to mean \"Norseman, Viking\".\n\nDocument 262:\n- (part 4 of 6, excerpt) In 1066, Duke William II of Normandy conquered England killing King Harold II at the Battle of Hastings. The invading Normans and their descendants replaced the Anglo-Saxons as the ruling class of England. The nobility of England were part of a single Normans culture and ma",
+      "evidence": [
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:9fe9625a5a6bc47e5f39651d02c26d51137bab1df75360a70aac3596b7a3ffee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "at the StubHub Center and were local rivals. However, Chivas were suspended following the 2014 MLS season, with a second MLS team scheduled to return in 2018.\n\nDocument 568:\nThe Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Francia. The distinct cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.",
+          "id": "ev_e99db2cce3b5dfbde4549790",
+          "observedAt": "2026-10-14T04:44:31.477Z"
+        },
+        {
+          "sourceId": "memory:context-51",
+          "sourceVersion": "sha256:b3f2a9a876b4a1863d22e38c469de290c9ffb48560b391a1bb178a05d1fa3f55",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-51",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "organisation by the United Nations, the European Union and member states, the United States, India, Indonesia, Turkey, Saudi Arabia, Syria and other countries.\n\nDocument 261:\nThe English name \"Normans\" comes from the French words Normans/Normanz, plural of Normant, modern French normand, which is itself borrowed from Old Low Franconian Nortmann \"Northman\" or directly from Old Norse Nor\u00f0ma\u00f0r, Latinized variously as Nortmannus, Normannus, or Nordmannus (recorded in Medieval Latin, 9th century) to mean \"Norseman, Viking\".\n\nDocument 262:",
+          "id": "ev_8b54922a1e3e021dc34b1b04",
+          "observedAt": "2026-10-14T04:44:31.477Z"
+        },
+        {
+          "sourceId": "memory:context-219",
+          "sourceVersion": "sha256:3b0ef2f3aa63c90f36b8995231e8f8b0ba784a2397bca91f08d261f3a0d9bb7c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-219",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "In 1066, Duke William II of Normandy conquered England killing King Harold II at the Battle of Hastings. The invading Normans and their descendants replaced the Anglo-Saxons as the ruling class of England. The nobility of England were part of a single Normans culture and ma",
+          "id": "ev_d0f151a5adcf4f9fdb7fe254",
+          "observedAt": "2026-10-14T04:44:31.477Z"
+        }
+      ],
+      "sourceIds": [
+        "context-112",
+        "context-51",
+        "context-219"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.2892919999940204,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T04:44:31.478594+00:00"
+}

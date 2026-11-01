@@ -1,0 +1,197 @@
+{
+  "row": 0,
+  "query": 21,
+  "id": "mab-0-21",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:44:31.259402+00:00",
+  "valid": true,
+  "question": "What was the name of the Norman castle?",
+  "references": [
+    "Afranji",
+    "Afranji",
+    "Afranji"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 197.84879199999705,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 39,
+        "maxInputChars": 39,
+        "requiredProviderTruncation": false,
+        "promptTokens": 11,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-117",
+        "context-112",
+        "context-227"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) it has been said that they became \"more Irish than the Irish themselves.\" The Normans settled mostly in an area in the east of Ireland, later known as the Pale, and also built many fine castles and settlements, including Trim Castle and Dublin Castle. Both cultures intermixed, borrowing from each other's language, culture and outlook. Norman descendants today can be recognised by their surnames. Names such as French, (De) Roche, Devereux, D'Arcy, Treacy and Lacy are particularly common in the southeast of Ireland, especially in the southern part of County Wexford where the first Norman settlements were established. Other Norman names such as Furlong predominate there. Another common Norman-Irish name was Morell (Murrell) derived from the French Norman name Morel. Other names beginning with Fitz (from the Norman for son) indicate Norman ancestry. These included Fitzgerald, FitzGibbons (Gibbons) dynasty, Fitzmaurice. Other families bearing such surnames as Barry (de Barra) and De B\u00farca (Burke) are also of Norman extraction.\n- (part 3 of 5, excerpt) The Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Franc\n- (part 4 of 5, excerpt) Subsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons,",
+      "evidence": [
+        {
+          "sourceId": "memory:context-117",
+          "sourceVersion": "sha256:74cf70e800514e81453be8223ff8c7300f1c04a3d4ca10f17904815d0f096202",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-117",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "it has been said that they became \"more Irish than the Irish themselves.\" The Normans settled mostly in an area in the east of Ireland, later known as the Pale, and also built many fine castles and settlements, including Trim Castle and Dublin Castle. Both cultures intermixed, borrowing from each other's language, culture and outlook. Norman descendants today can be recognised by their surnames. Names such as French, (De) Roche, Devereux, D'Arcy, Treacy and Lacy are particularly common in the southeast of Ireland, especially in the southern part of County Wexford where the first Norman settlements were established. Other Norman names such as Furlong predominate there. Another common Norman-Irish name was Morell (Murrell) derived from the French Norman name Morel. Other names beginning with Fitz (from the Norman for son) indicate Norman ancestry. These included Fitzgerald, FitzGibbons (Gibbons) dynasty, Fitzmaurice. Other families bearing such surnames as Barry (de Barra) and De B\u00farca (Burke) are also of Norman extraction.",
+          "id": "ev_2f9e6e819aa4fa345e1e010a",
+          "observedAt": "2026-10-14T04:44:31.460Z"
+        },
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:9fe9625a5a6bc47e5f39651d02c26d51137bab1df75360a70aac3596b7a3ffee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Franc",
+          "id": "ev_79b7ac54f05235ebdda88ec1",
+          "observedAt": "2026-10-14T04:44:31.460Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Subsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons,",
+          "id": "ev_3abb53b918585a2356d4024f",
+          "observedAt": "2026-10-14T04:44:31.460Z"
+        }
+      ],
+      "sourceIds": [
+        "context-117",
+        "context-112",
+        "context-227"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.4174999999959255,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-117",
+        "context-112",
+        "context-227"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) it has been said that they became \"more Irish than the Irish themselves.\" The Normans settled mostly in an area in the east of Ireland, later known as the Pale, and also built many fine castles and settlements, including Trim Castle and Dublin Castle. Both cultures intermixed, borrowing from each other's language, culture and outlook. Norman descendants today can be recognised by their surnames. Names such as French, (De) Roche, Devereux, D'Arcy, Treacy and Lacy are particularly common in the southeast of Ireland, especially in the southern part of County Wexford where the first Norman settlements were established. Other Norman names such as Furlong predominate there. Another common Norman-Irish name was Morell (Murrell) derived from the French Norman name Morel. Other names beginning with Fitz (from the Norman for son) indicate Norman ancestry. These included Fitzgerald, FitzGibbons (Gibbons) dynasty, Fitzmaurice. Other families bearing such surnames as Barry (de Barra) and De B\u00farca (Burke) are also of Norman extraction.\n- (part 3 of 5, excerpt) The Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Franc\n- (part 4 of 5, excerpt) Subsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons,",
+      "evidence": [
+        {
+          "sourceId": "memory:context-117",
+          "sourceVersion": "sha256:74cf70e800514e81453be8223ff8c7300f1c04a3d4ca10f17904815d0f096202",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-117",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "it has been said that they became \"more Irish than the Irish themselves.\" The Normans settled mostly in an area in the east of Ireland, later known as the Pale, and also built many fine castles and settlements, including Trim Castle and Dublin Castle. Both cultures intermixed, borrowing from each other's language, culture and outlook. Norman descendants today can be recognised by their surnames. Names such as French, (De) Roche, Devereux, D'Arcy, Treacy and Lacy are particularly common in the southeast of Ireland, especially in the southern part of County Wexford where the first Norman settlements were established. Other Norman names such as Furlong predominate there. Another common Norman-Irish name was Morell (Murrell) derived from the French Norman name Morel. Other names beginning with Fitz (from the Norman for son) indicate Norman ancestry. These included Fitzgerald, FitzGibbons (Gibbons) dynasty, Fitzmaurice. Other families bearing such surnames as Barry (de Barra) and De B\u00farca (Burke) are also of Norman extraction.",
+          "id": "ev_2f9e6e819aa4fa345e1e010a",
+          "observedAt": "2026-10-14T04:44:31.463Z"
+        },
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:9fe9625a5a6bc47e5f39651d02c26d51137bab1df75360a70aac3596b7a3ffee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Franc",
+          "id": "ev_79b7ac54f05235ebdda88ec1",
+          "observedAt": "2026-10-14T04:44:31.463Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Subsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons,",
+          "id": "ev_3abb53b918585a2356d4024f",
+          "observedAt": "2026-10-14T04:44:31.463Z"
+        }
+      ],
+      "sourceIds": [
+        "context-117",
+        "context-112",
+        "context-227"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.8397920000061276,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:44:31.464295+00:00"
+}

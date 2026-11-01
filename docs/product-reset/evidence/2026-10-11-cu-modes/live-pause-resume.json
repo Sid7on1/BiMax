@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-10T19:07:01.380134+00:00",
+  "observedUI": "Teach \u00b7 Arc Fixture; paused 2 of 2; Resume Computer Use; Stop Computer Use; expected {role:StaticText,value:Saved}",
+  "fixture": {
+    "saves": 3,
+    "text": "bimax-cu-modes-20261011"
+  },
+  "scope": "Pause after two dispatched effects, while verification awaited correction. Does not prove pausing during approval on native run.",
+  "observedLaterControls": [
+    "verification \u2192 takeover \u2192 verification",
+    "correction \u2192 approval: Read this app for current Bimax Thread turn",
+    "Pause cancels visible read approval",
+    "Resume \u2192 fresh read approval",
+    "Allow once \u2192 complete; assisted verification label",
+    "Saved: CU modes verified fixture"
+  ],
+  "after": {
+    "saves": 3,
+    "text": "bimax-cu-modes-20261011"
+  }
+}

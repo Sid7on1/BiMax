@@ -1,0 +1,69 @@
+[
+  {
+    "name": "focused",
+    "command": [
+      "node",
+      "node_modules/jest/bin/jest.js",
+      "--coverage=false",
+      "--runInBand",
+      "src/__tests__/compiler.lifetime.sprint.test.ts",
+      "src/__tests__/graph.freshness.sprint.test.ts",
+      "src/__tests__/performance.sprint.test.ts"
+    ],
+    "started": "2026-10-13T13:20:05.585173+00:00",
+    "seconds": 12.283797915999457,
+    "exit": 0,
+    "log": "focused.log"
+  },
+  {
+    "name": "build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "started": "2026-10-13T13:20:17.876644+00:00",
+    "seconds": 3.673996041999999,
+    "exit": 0,
+    "log": "build.log"
+  },
+  {
+    "name": "app-typecheck",
+    "command": [
+      "npm",
+      "--prefix",
+      "app",
+      "run",
+      "typecheck"
+    ],
+    "started": "2026-10-13T13:20:21.552279+00:00",
+    "seconds": 3.926329208000425,
+    "exit": 0,
+    "log": "app-typecheck.log"
+  },
+  {
+    "name": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "started": "2026-10-13T13:20:25.479021+00:00",
+    "seconds": 5.353741583999181,
+    "exit": 0,
+    "log": "lint.log"
+  },
+  {
+    "name": "full-jest",
+    "command": [
+      "node",
+      "node_modules/jest/bin/jest.js",
+      "--coverage=false",
+      "--maxWorkers=2"
+    ],
+    "started": "2026-10-13T13:20:30.833412+00:00",
+    "seconds": 60.859766458000195,
+    "exit": 1,
+    "log": "full-jest.log"
+  }
+]

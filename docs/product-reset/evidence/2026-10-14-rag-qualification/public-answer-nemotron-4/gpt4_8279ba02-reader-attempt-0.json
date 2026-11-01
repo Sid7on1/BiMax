@@ -1,0 +1,64 @@
+{
+  "started": "2026-10-14T07:53:21.737373+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 0,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/03/25 (Sat) 02:46\nQuestion: How many days ago did I buy a smoker?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 8 of 18, excerpt) or pork shoulders.\n* They burn slower than wood chips, producing a more consistent smoke flavor over a longer period.\n\n**How to Use Wood Chips and Chunks:**\n\n* Soak the wood chips or chunks in water for at least 30 minutes before using them. This helps them burn more slowly and produce a cleaner smoke flavor.\n* Add the wood chips or chunks to your smoker, either directly on the coals or in a smoker box.\n* For wood chips, you can add them in small handfuls every 30 minutes to 1 hour to maintain a consistent smoke flavor.\n  (part 12 of 18) (about 1 cup) and adjust as needed to achieve the desired smoke flavor.\n* Mix and match different types of wood pellets to create a unique flavor profile.\n\nOverall, wood pellets offer a convenient, efficient, and cost-effective way to add smoke flavor to your meats. They're a great option for those who want a hassle-free smoking experience with consistent results.\nuser: I've been considering trying out wood pellets for my smoker, especially since I've heard they're more efficient and produce a consistent smoke flavor. Can you recommend some good brands or types of wood pellets that are suitable for smoking meats?\nassistant: Wood pellets are a fantastic option for smoking meats, and there are many great brands and types to choose from. Here are some popular and highly-recommended wood pellet brands and types for smoking:\n\n**Top Brands:**\n- (part 3 of 5, excerpt) To make it more specific, can you tell me:\n\n1. Which month was it approximately 3 months ago? (e.g., March, April, or May)\n2. Was it a specific weekend, like a holiday weekend or a random one?\n- (part 13 of 19, excerpt) user: I'd like to know more about the Ferry Building's history. What's the story behind this iconic landmark, and how did it become a f"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 200,
+  "response": {
+    "id": "chatcmpl-72a521f6-3a2b-4c9a-8816-3ba5459ad071",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "content": "I do not know. The retrieved history contains no information about when you bought a smoker.",
+          "role": "assistant",
+          "reasoning_content": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - User asks: \"How many days ago did I buy a smoker?\"\n   - Date context: 2023/03/25 (Sat) 02:46\n   - I need to retrieve history to answer this.\n\n2.  **Examine Retrieved History:**\n   - The retrieved history shows excerpts about wood chips, chunks, pellets, smoking meats, etc.\n   - There's no mention of when the user bought a smoker.\n   - The history appears to be about smoking techniques, wood types, brands, etc., but no personal purchase date data.\n   - There's a fragment: \"(part 8 of 18, excerpt) or pork shoulders.\" and other technical details about wood chips/pellets.\n   - Another fragment: \"(part 12 of 18) (about 1 cup) and adjust as needed to achieve the desired smoke flavor.\"\n   - Another: \"(part 3 of 5, excerpt) To make it more specific, can you tell me: 1. Which month was it approximately 3 months ago? (e.g., March, April, or May) ... (part 13 of 19, excerpt) user: I'd like to know more about the Ferry Building's history...\"\n   - There's no record of a smoker purchase date.\n\n3.  **Check for Missing Information:**\n   - The user is asking about a personal purchase (\"I buy a smoker\"), but the retrieved history contains no such information.\n   - The history is about general smoking/grilling advice, wood pellets, brands, etc.\n   - There's no timestamp or record of when the user bought anything.\n\n4.  **Formulate Response:**\n   - According to the system prompt: \"Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer.\"\n   - The retrieved history does not contain any information about when the user bought a smoker.\n   - Therefore, I must state that I do not know based on the retrieved history.\n\n5.  **Final Output Generation:**\n   - Concise, complete, stating insufficiency.\n   - \"I do not know\" or similar, based on the prompt's rule.\n   - I'll output exactly that.\u2705"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "created": 1791964401,
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "service_tier": null,
+    "system_fingerprint": null,
+    "object": "chat.completion",
+    "usage": {
+      "prompt_tokens": 544,
+      "completion_tokens": 526,
+      "total_tokens": 1070,
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 505,
+        "rejected_prediction_tokens": null
+      }
+    }
+  },
+  "valid": true,
+  "wallMs": 6255.924208000124
+}

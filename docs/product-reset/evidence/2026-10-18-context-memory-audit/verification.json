@@ -1,0 +1,93 @@
+{
+  "generatedAt": "2026-10-18T17:02:37.492632+00:00",
+  "head": "7d1346dd9f428ce780871a652ce2f3a27b5388f6",
+  "machine": {
+    "architecture": "arm64",
+    "os": "Darwin",
+    "node": "v22.13.1",
+    "bun": "1.3.14"
+  },
+  "commands": [
+    {
+      "command": "npm run test:context",
+      "exitCode": 0,
+      "passed": 63,
+      "failed": 0,
+      "artifact": "context-tests.log"
+    },
+    {
+      "command": "npx jest --coverage=false --runInBand src/__tests__/context.orchestration.sprint.test.ts src/__tests__/context.work.sprint.test.ts src/__tests__/memory.recall.test.ts src/__tests__/memory.wiring.test.ts src/__tests__/memory.store.features.test.ts src/__tests__/memory.vector.store.test.ts src/__tests__/memory.lexical.test.ts src/__tests__/rag.sprint.test.ts src/__tests__/rag.resources.test.ts",
+      "exitCode": 0,
+      "passed": 138,
+      "skipped": 1,
+      "suites": 9,
+      "artifact": "focused-jest.log"
+    },
+    {
+      "command": "npm run test:bun",
+      "exitCode": 0,
+      "passed": 133,
+      "failed": 0,
+      "artifact": "retrieval-bun.log"
+    },
+    {
+      "command": "npm run bench:context",
+      "exitCode": 0,
+      "valid": true,
+      "gradedPassed": 43,
+      "gradedTotal": 43,
+      "resourceMeasurements": 3,
+      "artifact": "context-benchmark.json"
+    },
+    {
+      "command": "BIMAX_STATE_DIR=/tmp/bimax-audit-probe-state-20261018 npx tsx docs/product-reset/evidence/2026-10-18-context-memory-audit/probe.ts",
+      "exitCode": 0,
+      "reproducedGaps": 5,
+      "artifact": "probe-results.json"
+    },
+    {
+      "command": "npx jest --coverage=false --runInBand src/__tests__/desktop.security.test.ts",
+      "exitCode": 1,
+      "valid": false,
+      "reason": "No tests found: incorrect filename. Not counted as a pass or product failure.",
+      "artifact": "invalid-security-invocation.log"
+    },
+    {
+      "command": "npx jest --coverage=false --runInBand app/src/__tests__/desktop.runtime.security.test.ts",
+      "exitCode": 0,
+      "passed": 47,
+      "failed": 0,
+      "artifact": "desktop-security.log"
+    }
+  ],
+  "sourceHashes": {
+    "src/memory/vector.store.ts": "0e660a1650d44e3745d08ad1df3e22425f584c8066a28ef449a8036e02587e9a",
+    "src/memory/recall.ts": "a849be001290b83ef3cc59945232634dd628001780120121d7d9759d9a6ff7ef",
+    "src/memory/context.manager.ts": "f07456dfc755e820e260faa671c03c44c7381693b01108a09f97a2879cf7975e",
+    "src/memory/embeddings.ts": "c8f1aa1a7e6d5de059a67e01af1aa4191f075ead126c3fda67cd6aec42a6c53e",
+    "src/memory/settings.ts": "e36b3d6dafffb122b53a971c40197a6b5f25e19ca5a3a842cb4a7fd18187c415",
+    "src/memory/chunking.ts": "ef1126114af4941ad8d05faea638b560c06c1a2830950c1792567d4e66c6d80a",
+    "src/memory/project.memory.ts": "6e59a7b6fb890245ec59428dffc0ad8f700836fe2139c390ee7e54da7b46220c",
+    "src/memory/code.index.ts": "4cb06f31d6e1ad53aa7c1d170763e55693d4107df317d60a3746a145351b7854",
+    "src/memory/sufficiency.ts": "28104a8cf2be9c5d9c716b53c003b5affaf2cfcfb521c894093a7ac31bf2fe99",
+    "src/context/continuation.ts": "c302f015ddc36c67252a6800294d2ebaffbea25fa6813e0e863ff27dfe0d4408",
+    "src/context/evidence.ts": "9cca929098fa9d10b7779b96ee90756be9e28fc5d1036d48ae51871ef84506ef",
+    "src/context/history.ts": "cd3597da9888a411946f1209a12475812b9595a67d210ff026eb0d80045379ca",
+    "src/context/output.archive.ts": "deeda653ca3dc4073dfaaa76fae66f827c1ee04da29db0bfc478b0e3b6116601",
+    "src/context/request.budget.ts": "d0ef9e824427635ae650d85e702624d23183c11664ecefe751451a29fd37f1c7",
+    "src/core/agent.loop.ts": "404ca585047522bdd5bc3e61f36bed18049595d866ae6e545e784995eed17e0a",
+    "src/core/container.ts": "82ef089e114f389602e322c214a27674f8a535132eb2eaab482d83ab318478ba",
+    "src/engine/worker.entry.ts": "86b7d1bbfe636c148fe946bd721676cd59e8c4ec0a1154413bf2a2b901ce4f61",
+    "src/utils/state.dir.ts": "99b8ec9f675e52bd6a8db11457937ab10a1ba5aa7297c7926995921f8fc01189",
+    "app/src/main/thread.undo.ts": "6f41325f450853305fff68ac0986ed17b688998ff3972ac1623774d88bfd06ab",
+    "app/src/main/thread.manager.ts": "b1ef814a05418c4142253a4111277a26f07e4b4d09dd20141f23db8169817b98"
+  },
+  "runtimeSourceEditedByAudit": false,
+  "hostedCallsOrAppInstallations": false,
+  "scopeLimits": [
+    "Not full offline/build/protocol gate",
+    "Not installed/live model qualification",
+    "Synthetic gap probes, not real failure frequencies",
+    "No production-source mutation checks in this audit"
+  ]
+}

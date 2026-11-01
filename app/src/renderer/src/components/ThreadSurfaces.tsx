@@ -16,6 +16,11 @@ import { approvalShortcut, denyOption } from '../approval.keys';
 import { PathLinkContext } from '../path.links';
 import { loadHistory, remember, stepHistory } from '../quick.history';
 import { shouldSubmitQuickPrompt } from '../quick.submit';
+import { subscribeQuickBootstrap } from '../quick.bootstrap';
+import { ComputerRunControls } from './ComputerRunControls';
+import { ComputerUseOptions } from './ComputerUseOptions';
+import { computerRequest, computerCompletion, type ComputerMode } from '../../../shared/computer';
+import { toolDisplayName, computerUseActivity } from '../tool.display';
 
 /**
  * The two floating surfaces of Bimax Threads: the ⌘2 bar and the approval popup.
@@ -59,6 +64,14 @@ export function ThreadQuickBar(): React.ReactElement {
   const [prompt, setPrompt] = useState('');
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
+  const [cuMode, setCuMode] = useState<ComputerMode>('do');
+  const cuRequest = computerRequest(prompt.trimStart());
+  const submitPending = useRef(false);
+  const quickOwner = useRef<string | null>(null);
+  const promptRef = useRef(prompt); promptRef.current = prompt;
+  quickOwner.current = thread?.id ?? null;
+  useEffect(() => { setCuMode('do'); }, [thread?.id, context.root]);
+  useEffect(() => { if (cuRequest === null) setCuMode('do'); }, [cuRequest === null]);
   // N10: a correction's offer to become one of the folder's rules, until saved or dismissed.
   const [teach, setTeach] = useState<{ root: string; rule: string; samples: string[] } | null>(null);
   // What the task gets as context: what was open when ⌘2 was pressed, plus anything dropped on the bar.
@@ -138,8 +151,14 @@ export function ThreadQuickBar(): React.ReactElement {
       dispatch({ type: 'restoreThread', state: value ? value.state : initialEngineState });
     };
     const offTeach = window.bimax.threads.onTeachOffer((offer) => setTeach(offer));
-    const offContext = window.bimax.threads.onContext((value: QuickContext) => { setContext(value); setAttachments(value.attachments ?? []); if (value.prompt) setPrompt(value.prompt); setError(value.error ?? ''); input.current?.focus(); });
-    const offThread = window.bimax.threads.onQuickThread(adopt);
+    const offBootstrap = subscribeQuickBootstrap(window.bimax.threads, {
+      thread: adopt,
+      context: (value, initial) => {
+        setContext(value); setAttachments(value.attachments ?? []);
+        if (!initial) { if (value.prompt) setPrompt(value.prompt); setError(value.error ?? ''); input.current?.focus(); }
+      },
+      error: setError,
+    });
     const offMsg = window.bimax.threads.onQuickMsg((msg: Outbound) => {
       noteOutputKind(msg);
       batcher.push(msg);
@@ -147,9 +166,7 @@ export function ThreadQuickBar(): React.ReactElement {
     const offActivity = window.bimax.threads.onQuickActivity((value: { queued: number; notice: string | null } | null) => {
       setActivity({ queued: value?.queued ?? 0, notice: value?.notice ?? null });
     });
-    void window.bimax.threads.context().then((value: QuickContext) => { setContext(value); setAttachments(value.attachments ?? []); });
-    void window.bimax.threads.quickCurrent().then(adopt);
-    return () => { offContext(); offTeach(); offThread(); offMsg(); offActivity(); batcher.dispose(); };
+    return () => { offBootstrap(); offTeach(); offMsg(); offActivity(); batcher.dispose(); };
   }, []);
 
   const busy = state.spinner.state !== 'idle' && state.spinner.state !== '';
@@ -244,30 +261,29 @@ export function ThreadQuickBar(): React.ReactElement {
   }, [state.items.length, state.streaming, state.thinking, request?.id, showActivity]);
 
   async function submit(): Promise<void> {
-    const text = prompt.trim();
-    if (!text || sending) return;
+    const submittedDraft = prompt;
+    const text = prompt.trim(), owner = thread?.id ?? null;
+    if (!text || submitPending.current) return;
+    if (cuRequest !== null && !cuRequest) { setError('Describe the task after @CU.'); return; }
     if (!thread && !context.root) { setError(context.error || 'Choose a folder for this task first.'); return; }
-    setSending(true); setError('');
-    history.current = remember(history.current, text);
-    historyCursor.current = null;
-    draft.current = '';
-    dispatch({ type: 'localUser', text });
-    setPrompt('');
+    submitPending.current = true; setSending(true); setError('');
+    const route = cuRequest !== null ? { kind: 'computer-use' as const, mode: cuMode } : undefined;
     try {
-      const result = await window.bimax.threads.quickSubmit(text, { attachments, root: thread ? undefined : context.root ?? undefined });
-      if (!result?.ok) setError(result?.error || 'Could not start the task.');
-      else setAttachments([]);
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setSending(false);
-    }
+      const result = await window.bimax.threads.quickSubmit(text, { attachments, root: thread ? undefined : context.root ?? undefined, threadId: thread?.id, route });
+      // A late send acknowledgement cannot erase a different conversation's draft.
+      if (quickOwner.current !== owner && quickOwner.current !== result?.id) return;
+      if (!result?.ok) { setError(result?.error || 'Could not start the task.'); return; }
+      if (promptRef.current !== submittedDraft) return;
+      history.current = remember(history.current, text); historyCursor.current = null; draft.current = '';
+      setPrompt(''); setAttachments([]); setCuMode('do');
+    } catch (e) { if (quickOwner.current === owner) setError((e as Error).message); }
+    finally { submitPending.current = false; setSending(false); }
   }
 
   async function reply(value: string): Promise<void> {
     if (!thread || !request?.approvalToken) return;
     const ok = await window.bimax.threads.reply(thread.id, request.id, value, request.approvalToken);
-    if (ok) dispatch({ type: 'closeRequest' });
+    if (ok) dispatch({ type: 'closeRequest', threadId: thread.id, id: request.id, approvalToken: request.approvalToken });
     else setError('That request has expired. Nothing was sent.');
   }
 
@@ -382,7 +398,11 @@ export function ThreadQuickBar(): React.ReactElement {
         if (e.key.toLowerCase() === 'n' && e.metaKey) { e.preventDefault(); window.bimax.threads.quickReset(); input.current?.focus(); }
       }}
     >
-      <div ref={header} className="quick-header quick-drag">
+      <div ref={header}>
+      {computerCompletion(prompt, input.current?.selectionStart ?? prompt.length) && cuRequest === null && <button type="button" className="computer-completion" onClick={() => { setPrompt('@CU '); input.current?.focus(); }}>@CU · Let Bimax use your computer</button>}
+      <ComputerRunControls threadId={thread?.id} onReuse={setPrompt} />
+      {cuRequest !== null && <ComputerUseOptions mode={cuMode} onMode={setCuMode} onRecipe={setPrompt} key={thread?.id ?? context.root ?? 'draft'} threadId={thread?.id} disabled={sending} onRemove={() => setPrompt(cuRequest)} />}
+      <div className="quick-header quick-drag">
         {talking ? (
           <span className="talk-orb quick-talk-orb" data-state={talk.view.state} style={{ '--talk-level': talk.view.level.toFixed(2) } as React.CSSProperties} aria-hidden />
         ) : (
@@ -400,6 +420,7 @@ export function ThreadQuickBar(): React.ReactElement {
           aria-label="Ask Bimax"
           placeholder={dictation.state !== 'idle' ? 'Listening…' : thread ? 'Follow up…' : 'Ask Bimax anything…'}
           value={prompt}
+          readOnly={sending}
           onChange={(e) => { historyCursor.current = null; setPrompt(e.target.value); }}
           onPaste={(e) => {
             const pictures = [...e.clipboardData.files].filter((file) => file.type.startsWith('image/'));
@@ -407,6 +428,7 @@ export function ThreadQuickBar(): React.ReactElement {
           }}
           onKeyDown={(e) => {
             // Enter while dictating stops listening (the last words settle); Enter again sends.
+            if ((e.key === 'Tab' || e.key === 'Enter') && computerCompletion(prompt, e.currentTarget.selectionStart) && cuRequest === null) { e.preventDefault(); setPrompt('@CU ' + prompt.slice(e.currentTarget.selectionStart)); return; }
             if (shouldSubmitQuickPrompt(e.nativeEvent)) { e.preventDefault(); if (dictation.state !== 'idle') dictation.stop(); else void submit(); }
             // ↑ at the start (or in an empty field) recalls earlier prompts; ↓ walks back to what was being typed.
             const field = e.currentTarget;
@@ -471,6 +493,7 @@ export function ThreadQuickBar(): React.ReactElement {
             <ArrowUp size={17} />
           </button>
         ) : null}
+      </div>
       </div>
 
       {attachments.length ? (
@@ -557,7 +580,7 @@ export function ThreadQuickBar(): React.ReactElement {
                 onDismiss={() => setTeach(null)}
               />
             ) : null}
-            {state.streaming ? <div className="quick-answer"><Markdown text={state.streaming} /></div> : null}
+            {state.streaming ? <div className="quick-answer"><Markdown text={state.streaming} streaming /></div> : null}
             {showActivity ? <ThinkingIndicator thinking={state.thinking} status={state.status} /> : null}
             {request ? <QuickRequest key={request.id} req={request} onReply={(value) => void reply(value)} /> : null}
           </div>
@@ -647,7 +670,7 @@ function QuickSteps({ calls }: { calls: ToolCallEntry[] }): React.ReactElement {
   const [open, setOpen] = useState(false);
   const running = calls.some((call) => call.status === 'running');
   const failed = calls.filter((call) => call.status === 'error').length;
-  const names = [...new Set(calls.map((call) => call.toolName.replace(/Tool$/, '')))].slice(0, 3).join(', ');
+  const names = [...new Set(calls.map((call) => toolDisplayName(call.toolName)))].slice(0, 3).join(', ');
   return (
     <div className="quick-steps">
       <button type="button" className="quick-steps-summary" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
@@ -659,8 +682,8 @@ function QuickSteps({ calls }: { calls: ToolCallEntry[] }): React.ReactElement {
           {calls.map((call) => (
             <li key={call.id} data-status={call.status}>
               {call.status === 'error' ? <X size={11} aria-hidden /> : call.status === 'success' ? <Check size={11} aria-hidden /> : <span className="quick-dot" aria-hidden />}
-              <span className="quick-step-name">{call.toolName.replace(/Tool$/, '')}</span>
-              <span className="quick-step-input" title={call.input}>{call.input.slice(0, 160)}</span>
+              <span className="quick-step-name">{toolDisplayName(call.toolName)}</span>
+              <span className="quick-step-input" title={call.toolName === 'BimaxCuTool' ? 'Computer Use' : call.input}>{call.toolName === 'BimaxCuTool' ? computerUseActivity(call.input) : call.input.slice(0, 160)}</span>
             </li>
           ))}
         </ul>

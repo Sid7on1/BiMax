@@ -1,0 +1,273 @@
+{
+  "row": 9,
+  "query": 21,
+  "id": "mab-9-21",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n18. Pascal asked his father's permission to visit Abrielle.\n19. Corbin and Blaire discussed Pascal's aspirations of becoming a captain.\n20. Abrielle expressed her refusal of Quinton's love for the hundredth time.\n21. Quinton acknowledged Abrielle's feelings, admitting his own despair.\n22. Armando Pascal arrived and called for Abrielle.\n\n\nBelow is a list of possible subsequent events:\n\n['Quinton expressed his anger and jealousy upon seeing Abrielle and Armando together.', \"Quinton's jealousy flared up after finding Abrielle and Armando deep in conversation at the bookstore.\", \"Quinton's heart sank when he noticed Abrielle and Armando dancing closely at the club.\", 'Quinton confronted Abrielle after witnessing her laughter with Armando at the caf\u00e9.', 'Quinton felt betrayed when he discovered Abrielle and Armando sharing secrets in the park.', \"Quinton's frustration grew as he caught Abrielle and Armando exchanging playful glances during the party.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Quinton expressed his anger and jealousy upon seeing Abrielle and Armando together."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 685.869584,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1186,
+        "maxInputChars": 1186,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-12",
+        "context-11",
+        "context-13"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) before he becomes her husband.\n\nSo call me Abrielle, if you please.\"\n\n\"We must excuse our worthy neighbor, Corbin,\" said Pascal, \"he is so easily mistaken.\"\n\n\"So, then, the wedding is to take place immediately, M.\n\nPascal,\" said Blaire, bowing to the young couple.\n\n\"As soon as possible, M.\n\nBlaire; to-day all preliminaries will be arranged at my father's, and to-morrow, or next day at latest, the wedding festival here at La Reserve.\n\nMy friends will be there, I hope; that is to say, you are invited, M.\n\nBlaire, and you, Corbin.\"\n\n\"And Quinton,\" said Corbin with a chuckle; \"Quinton, too, is invited!\"\n\n\"My wife's brother is my brother,\" said Armando; \"and we, Abrielle and I, should be very sorry if he were absent at such a time.\"\n\nQuinton opened his mouth to reply, but his voice died on his lips, and he could not utter a word.\n\n\"To-day the preliminaries, to-morrow or next day the ceremony!\n\nYou are in a hurry, captain!\"\n\n\"Blaire,\" said Armando, smiling, \"I will say to you as Abrielle said just now to Corbin, `Do not give me a title which does not belong to me'; that may bring me bad luck.\"\n  (part 4 of 5, excerpt) Chapter 4\n\nConspiracy.\n\nBlaire followed Armando and Abrielle with his eyes until the two lovers disappeared behind one of the angles of Fort Saint Nicolas, then turning round, he perceived Quinton, who had fallen, pale and trembling, into his chair, while Corbin stammered out the words of a drinking-song.\n- (part 2 of 4, excerpt) During this time Blaire fixed his piercing glance on the young man, on whose heart Corbin's words fell like molten lead.\n\n\"And when is the wedding to be?\" he asked.\n- (part 3 of 4, excerpt) \"Yes; but one gets out of prison,\" said Corbin, who, with what sense was left him, listened eagerly to the conversation, \"and whe",
+      "evidence": [
+        {
+          "sourceId": "memory:context-12",
+          "sourceVersion": "sha256:c92501ce11a19925cee50ed689764a3da0a2081fe54117ecf8e9d7b6a0e1512f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-12",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "before he becomes her husband.\n\nSo call me Abrielle, if you please.\"\n\n\"We must excuse our worthy neighbor, Corbin,\" said Pascal, \"he is so easily mistaken.\"\n\n\"So, then, the wedding is to take place immediately, M.\n\nPascal,\" said Blaire, bowing to the young couple.\n\n\"As soon as possible, M.\n\nBlaire; to-day all preliminaries will be arranged at my father's, and to-morrow, or next day at latest, the wedding festival here at La Reserve.\n\nMy friends will be there, I hope; that is to say, you are invited, M.\n\nBlaire, and you, Corbin.\"\n\n\"And Quinton,\" said Corbin with a chuckle; \"Quinton, too, is invited!\"\n\n\"My wife's brother is my brother,\" said Armando; \"and we, Abrielle and I, should be very sorry if he were absent at such a time.\"\n\nQuinton opened his mouth to reply, but his voice died on his lips, and he could not utter a word.\n\n\"To-day the preliminaries, to-morrow or next day the ceremony!\n\nYou are in a hurry, captain!\"\n\n\"Blaire,\" said Armando, smiling, \"I will say to you as Abrielle said just now to Corbin, `Do not give me a title which does not belong to me'; that may bring me bad luck.\"",
+          "id": "ev_37c999e76204524bbdee2775",
+          "observedAt": "2026-10-14T04:52:08.656Z"
+        },
+        {
+          "sourceId": "memory:context-12",
+          "sourceVersion": "sha256:c92501ce11a19925cee50ed689764a3da0a2081fe54117ecf8e9d7b6a0e1512f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-12",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Chapter 4\n\nConspiracy.\n\nBlaire followed Armando and Abrielle with his eyes until the two lovers disappeared behind one of the angles of Fort Saint Nicolas, then turning round, he perceived Quinton, who had fallen, pale and trembling, into his chair, while Corbin stammered out the words of a drinking-song.",
+          "id": "ev_bd1dbf6bf4604d03045f2798",
+          "observedAt": "2026-10-14T04:52:08.656Z"
+        },
+        {
+          "sourceId": "memory:context-11",
+          "sourceVersion": "sha256:898c47ccf3726517299940fd8fbbfd27c471aade5051babece625617fe439bdf",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-11",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "During this time Blaire fixed his piercing glance on the young man, on whose heart Corbin's words fell like molten lead.\n\n\"And when is the wedding to be?\" he asked.",
+          "id": "ev_0d27a9791fc427c7b7e81c06",
+          "observedAt": "2026-10-14T04:52:08.656Z"
+        },
+        {
+          "sourceId": "memory:context-13",
+          "sourceVersion": "sha256:de47065a80dd29328cb5a5ab2aeefffc150234c6c7abb8d21d8e884ecd801699",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-13",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\"Yes; but one gets out of prison,\" said Corbin, who, with what sense was left him, listened eagerly to the conversation, \"and whe",
+          "id": "ev_d901f0561fe8241686ea3778",
+          "observedAt": "2026-10-14T04:52:08.657Z"
+        }
+      ],
+      "sourceIds": [
+        "context-12",
+        "context-11",
+        "context-13"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.765292000000045,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-12",
+        "context-11",
+        "context-13"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) before he becomes her husband.\n\nSo call me Abrielle, if you please.\"\n\n\"We must excuse our worthy neighbor, Corbin,\" said Pascal, \"he is so easily mistaken.\"\n\n\"So, then, the wedding is to take place immediately, M.\n\nPascal,\" said Blaire, bowing to the young couple.\n\n\"As soon as possible, M.\n\nBlaire; to-day all preliminaries will be arranged at my father's, and to-morrow, or next day at latest, the wedding festival here at La Reserve.\n\nMy friends will be there, I hope; that is to say, you are invited, M.\n\nBlaire, and you, Corbin.\"\n\n\"And Quinton,\" said Corbin with a chuckle; \"Quinton, too, is invited!\"\n\n\"My wife's brother is my brother,\" said Armando; \"and we, Abrielle and I, should be very sorry if he were absent at such a time.\"\n\nQuinton opened his mouth to reply, but his voice died on his lips, and he could not utter a word.\n\n\"To-day the preliminaries, to-morrow or next day the ceremony!\n\nYou are in a hurry, captain!\"\n\n\"Blaire,\" said Armando, smiling, \"I will say to you as Abrielle said just now to Corbin, `Do not give me a title which does not belong to me'; that may bring me bad luck.\"\n  (part 4 of 5, excerpt) Chapter 4\n\nConspiracy.\n\nBlaire followed Armando and Abrielle with his eyes until the two lovers disappeared behind one of the angles of Fort Saint Nicolas, then turning round, he perceived Quinton, who had fallen, pale and trembling, into his chair, while Corbin stammered out the words of a drinking-song.\n- (part 2 of 4, excerpt) During this time Blaire fixed his piercing glance on the young man, on whose heart Corbin's words fell like molten lead.\n\n\"And when is the wedding to be?\" he asked.\n- (part 3 of 4, excerpt) \"Yes; but one gets out of prison,\" said Corbin, who, with what sense was left him, listened eagerly to the conversation, \"and whe",
+      "evidence": [
+        {
+          "sourceId": "memory:context-12",
+          "sourceVersion": "sha256:c92501ce11a19925cee50ed689764a3da0a2081fe54117ecf8e9d7b6a0e1512f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-12",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "before he becomes her husband.\n\nSo call me Abrielle, if you please.\"\n\n\"We must excuse our worthy neighbor, Corbin,\" said Pascal, \"he is so easily mistaken.\"\n\n\"So, then, the wedding is to take place immediately, M.\n\nPascal,\" said Blaire, bowing to the young couple.\n\n\"As soon as possible, M.\n\nBlaire; to-day all preliminaries will be arranged at my father's, and to-morrow, or next day at latest, the wedding festival here at La Reserve.\n\nMy friends will be there, I hope; that is to say, you are invited, M.\n\nBlaire, and you, Corbin.\"\n\n\"And Quinton,\" said Corbin with a chuckle; \"Quinton, too, is invited!\"\n\n\"My wife's brother is my brother,\" said Armando; \"and we, Abrielle and I, should be very sorry if he were absent at such a time.\"\n\nQuinton opened his mouth to reply, but his voice died on his lips, and he could not utter a word.\n\n\"To-day the preliminaries, to-morrow or next day the ceremony!\n\nYou are in a hurry, captain!\"\n\n\"Blaire,\" said Armando, smiling, \"I will say to you as Abrielle said just now to Corbin, `Do not give me a title which does not belong to me'; that may bring me bad luck.\"",
+          "id": "ev_37c999e76204524bbdee2775",
+          "observedAt": "2026-10-14T04:52:08.660Z"
+        },
+        {
+          "sourceId": "memory:context-12",
+          "sourceVersion": "sha256:c92501ce11a19925cee50ed689764a3da0a2081fe54117ecf8e9d7b6a0e1512f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-12",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Chapter 4\n\nConspiracy.\n\nBlaire followed Armando and Abrielle with his eyes until the two lovers disappeared behind one of the angles of Fort Saint Nicolas, then turning round, he perceived Quinton, who had fallen, pale and trembling, into his chair, while Corbin stammered out the words of a drinking-song.",
+          "id": "ev_bd1dbf6bf4604d03045f2798",
+          "observedAt": "2026-10-14T04:52:08.660Z"
+        },
+        {
+          "sourceId": "memory:context-11",
+          "sourceVersion": "sha256:898c47ccf3726517299940fd8fbbfd27c471aade5051babece625617fe439bdf",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-11",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "During this time Blaire fixed his piercing glance on the young man, on whose heart Corbin's words fell like molten lead.\n\n\"And when is the wedding to be?\" he asked.",
+          "id": "ev_0d27a9791fc427c7b7e81c06",
+          "observedAt": "2026-10-14T04:52:08.660Z"
+        },
+        {
+          "sourceId": "memory:context-13",
+          "sourceVersion": "sha256:de47065a80dd29328cb5a5ab2aeefffc150234c6c7abb8d21d8e884ecd801699",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-13",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\"Yes; but one gets out of prison,\" said Corbin, who, with what sense was left him, listened eagerly to the conversation, \"and whe",
+          "id": "ev_d901f0561fe8241686ea3778",
+          "observedAt": "2026-10-14T04:52:08.661Z"
+        }
+      ],
+      "sourceIds": [
+        "context-12",
+        "context-11",
+        "context-13"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.851082999999562,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:52:04.141743+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Quinton expressed his anger and jealousy upon seeing Abrielle and Armando together.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 819,
+    "completion_tokens": 1041,
+    "total_tokens": 1860,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 513,
+    "completion_tokens": 294,
+    "total_tokens": 807,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 291,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 12011.668957999973,
+  "judgeWallMs": 4212.79395800002,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "ended": "2026-10-14T07:52:20.368393+00:00"
+}

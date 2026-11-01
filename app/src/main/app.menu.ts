@@ -12,8 +12,7 @@ import type { MenuItemConstructorOptions } from 'electron';
  * keeps one handler per key and a menu click sends the same command the key runs. Settings (⌘,) is the
  * one the page does not handle, so the menu owns it.
  *
- * No Trust Center: that was the Computer Use permission journey, and the code-only product gate forbids
- * any frontend exposing it (docs/product-reset/08_ACCEPTANCE_GATES.md).
+ * Computer Use is an app-owned feature. Its entry opens a normal task; grants stay contextual.
  */
 export type MenuCommand =
   | 'new-thread' | 'open-project' | 'toggle-sidebar' | 'toggle-panel' | 'command-palette'
@@ -28,6 +27,7 @@ export interface AppMenuOptions {
   send: (command: MenuCommand) => void;
   /** Open the ⌘2 bar. Its shortcut is global and user-chosen, so it is not a menu accelerator. */
   openQuickBar: () => void;
+  computerUse: () => void;
   /** The ⌘2 bar's shortcut as shown to people, e.g. "⌘2". */
   quickShortcut: string;
 }
@@ -60,6 +60,7 @@ export function appMenuTemplate(options: AppMenuOptions): MenuItemConstructorOpt
     submenu: [
       shown('New Thread', 'CommandOrControl+N', 'new-thread'),
       { label: `New Task in a Folder (${quickShortcut})`, click: openQuickBar },
+      ...(isMac ? [{ label: 'Computer Use…', click: options.computerUse }] : []),
       { type: 'separator' },
       shown('Open Project…', 'CommandOrControl+O', 'open-project'),
       { type: 'separator' },

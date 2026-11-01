@@ -1,0 +1,48 @@
+{
+  "corpusSerial": 1,
+  "documents": 419,
+  "chunks": 1978,
+  "ingestionMs": 1474.5529999999999,
+  "embedding": "ollama:all-minilm:1b226e2802dbb772b5fc32a58f103ca1804ef7501331012de126ab22f67475ef:384",
+  "embeddingObservations": [
+    {
+      "role": "passage",
+      "cacheHit": true,
+      "inputs": 1976,
+      "potentiallyTruncatedInputs": 1976,
+      "requiredProviderTruncation": false,
+      "truncationAffectedInputsBound": [
+        0,
+        0
+      ]
+    }
+  ],
+  "stats": {
+    "documents": 419,
+    "chunks": 1978,
+    "embedded": 1978,
+    "pending": 0,
+    "maxVectors": 500,
+    "lastMode": {
+      "lexical": true,
+      "dense": false,
+      "reranked": false
+    }
+  },
+  "execution": {
+    "embeddingWorkerConcurrency": 1,
+    "batchSize": 16,
+    "num_gpu": 0,
+    "num_thread": 1,
+    "keep_alive": "30s",
+    "cacheTransaction": "one per fresh embedding batch",
+    "seedReadOnly": true
+  },
+  "inputSha256": "bd8fd8be49d5e347891ee63f0b5e0e60a07803c9f16badc9dcb948281c7a117a",
+  "rss": 420642816,
+  "embeddingCache": {
+    "hits": 1976,
+    "misses": 0,
+    "format": "exact normalized JSON vectors, model-digest/role/text-SHA keyed, batch truncation conservative flag"
+  }
+}

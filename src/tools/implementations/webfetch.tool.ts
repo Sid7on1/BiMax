@@ -1,37 +1,17 @@
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
 import { requireNetworkConsent } from '../../security/network.consent';
+import { fetchPublicText, publicUrl } from './public-request';
 
 const MAX_RESPONSE_CHARS = 100_000;
-const FETCH_TIMEOUT_MS = 30_000;
 
 /**
  * Reject URLs that point at loopback/link-local/private hosts so the agent
  * cannot be steered into probing internal services (basic SSRF guard).
  */
 export function validateFetchUrl(raw: string): { ok: true; url: URL } | { ok: false; reason: string } {
-  let url: URL;
-  try {
-    url = new URL(raw);
-  } catch {
-    return { ok: false, reason: `Invalid URL: ${raw}` };
-  }
-  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-    return { ok: false, reason: `Only http/https URLs are allowed (got ${url.protocol})` };
-  }
-  const host = url.hostname.toLowerCase();
-  const isPrivate =
-    host === 'localhost' || host === '0.0.0.0' || host === '[::1]' || host === '::1' ||
-    /^127\./.test(host) ||
-    /^10\./.test(host) ||
-    /^192\.168\./.test(host) ||
-    /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
-    /^169\.254\./.test(host) ||
-    host.endsWith('.local') || host.endsWith('.internal');
-  if (isPrivate) {
-    return { ok: false, reason: `Refusing to fetch private/internal host: ${host}` };
-  }
-  return { ok: true, url };
+  try { return { ok: true, url: publicUrl(raw) }; }
+  catch (error) { return { ok: false, reason: (error as Error).message }; }
 }
 
 /** Strip an HTML document down to readable text. */
@@ -70,50 +50,22 @@ export const createWebFetchTool = (governor: IGovernor) => buildTool({
     },
     required: ['url'],
   },
-  execute: async (args: { url: string }) => {
-    const check = validateFetchUrl(args.url);
-    if (!check.ok) return `Error: ${check.reason}`;
-
-    // Reaching the network is a decision the user owns. Asked once per host per session, so a
-    // research turn does not become a stream of prompts. See security/network.consent.ts.
-    const refusal = await requireNetworkConsent(governor, {
-      target: String(check.url), tool: 'WebFetchTool', purpose: 'read this page',
-    });
-    if (refusal) return refusal;
-
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  execute: async (args: { url: string }, context?: { signal?: AbortSignal }) => {
     try {
-      const res = await fetch(check.url, {
-        signal: controller.signal,
-        redirect: 'follow',
-        headers: { 'User-Agent': 'BiMax-Agent/1.0 (+https://bimax.ai)', Accept: 'text/html,application/json,text/plain,*/*' },
-      });
-      const contentType = res.headers.get('content-type') || '';
-      const body = await res.text();
-
-      let text: string;
-      if (contentType.includes('html')) {
-        text = htmlToText(body);
-      } else if (contentType.includes('json')) {
-        try {
-          text = JSON.stringify(JSON.parse(body), null, 2);
-        } catch {
-          text = body;
-        }
-      } else {
-        text = body;
+      const res = await fetchPublicText(args.url, async url => {
+        const refusal = await requireNetworkConsent(governor, { target: url.href, tool: 'WebFetchTool', purpose: 'read this page' });
+        if (refusal) throw new Error(refusal);
+      }, context?.signal);
+      let text = res.body;
+      if (res.contentType.includes('html')) text = htmlToText(text);
+      else if (res.contentType.includes('json')) {
+        try { text = JSON.stringify(JSON.parse(text), null, 2); } catch { /* bounded plain-text fallback */ }
       }
-
-      const truncated = text.length > MAX_RESPONSE_CHARS
-        ? text.slice(0, MAX_RESPONSE_CHARS) + `\n...[truncated, ${text.length.toLocaleString()} chars total]`
-        : text;
-      return `HTTP ${res.status} ${res.statusText} (${contentType.split(';')[0] || 'unknown type'})\n\n${truncated}`;
-    } catch (e: any) {
-      if (e.name === 'AbortError') return `Error: request timed out after ${FETCH_TIMEOUT_MS / 1000}s: ${args.url}`;
-      return `Error fetching ${args.url}: ${e.message}`;
-    } finally {
-      clearTimeout(timer);
+      if (text.length > MAX_RESPONSE_CHARS) text = text.slice(0, MAX_RESPONSE_CHARS) + '\n...[truncated]';
+      return `HTTP ${res.status} ${res.statusText} (${res.contentType.split(';')[0] || 'unknown type'})\n\n${text}`;
+    } catch (error) {
+      context?.signal?.throwIfAborted();
+      return `Error fetching page: ${(error as Error).message}`;
     }
   },
 }, governor);

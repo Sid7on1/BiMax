@@ -1,0 +1,275 @@
+{
+  "row": 0,
+  "query": 11,
+  "id": "mab-0-11",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "question": "Who did Rollo sign the treaty of Saint-Clair-sur-Epte with?",
+  "references": [
+    "King Charles III",
+    "King Charles III",
+    "King Charles III"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 8.352584000000206,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 59,
+        "maxInputChars": 59,
+        "requiredProviderTruncation": false,
+        "promptTokens": 20,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-202",
+        "context-158",
+        "context-208"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) Document 1007:\nIn September 1760, and before any hostilities erupted, Governor Vaudreuil negotiated from Montreal a capitulation with General Amherst. Amherst granted Vaudreuil's request that any French residents who chose to remain in the colony would be given freedom to continue worshiping in their Roman Catholic tradition, continued ownership of their property, and the right to remain undisturbed in their homes. The British provided medical treatment for the sick and wounded French soldiers and French regular troops were returned to France aboard British ships with an agreement that they were not to serve again in the present war.\n  (part 5 of 5) maintain their legitimacy. At the same time, their popularity is such that no government can call itself democratic that excludes mainstream Islamist groups.\n\nDocument 1011:\nIn the course of the 10th century, the initially destructive incursions of Norse war bands into the rivers of France evolved into more permanent encampments that included local women and personal property. The Duchy of Normandy, which began in 911 as a fiefdom, was established by the treaty of Saint-Clair-sur-Epte between King Charles III of West Francia and the famed Viking ruler Rollo, and was situated in the former Frankish kingdom of Neustria. The treaty offered Rollo and his men the French lands between the river Epte and the Atlantic coast in exchange for their pro\n- (part 2 of 5, excerpt) Before Rollo's arrival, its populations did not differ from Picardy or the \u00cele-de-France, which were considered \"Frankish\". Earlier Viking settlers had begun arriving in the 880s, but we\n- (part 4 of 5, excerpt) and Mississippi watersheds, did business with local tribes, and often married Indian women. Traders married daughters of chie",
+      "evidence": [
+        {
+          "sourceId": "memory:context-202",
+          "sourceVersion": "sha256:4fd23721be4626a705fa81c91811c5ce111e77aca3b7189dc52e5a4b23774031",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-202",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 1007:\nIn September 1760, and before any hostilities erupted, Governor Vaudreuil negotiated from Montreal a capitulation with General Amherst. Amherst granted Vaudreuil's request that any French residents who chose to remain in the colony would be given freedom to continue worshiping in their Roman Catholic tradition, continued ownership of their property, and the right to remain undisturbed in their homes. The British provided medical treatment for the sick and wounded French soldiers and French regular troops were returned to France aboard British ships with an agreement that they were not to serve again in the present war.",
+          "id": "ev_a7a3849727a8840d52b74ee4",
+          "observedAt": "2026-10-14T04:44:31.501Z"
+        },
+        {
+          "sourceId": "memory:context-202",
+          "sourceVersion": "sha256:4fd23721be4626a705fa81c91811c5ce111e77aca3b7189dc52e5a4b23774031",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-202",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "maintain their legitimacy. At the same time, their popularity is such that no government can call itself democratic that excludes mainstream Islamist groups.\n\nDocument 1011:\nIn the course of the 10th century, the initially destructive incursions of Norse war bands into the rivers of France evolved into more permanent encampments that included local women and personal property. The Duchy of Normandy, which began in 911 as a fiefdom, was established by the treaty of Saint-Clair-sur-Epte between King Charles III of West Francia and the famed Viking ruler Rollo, and was situated in the former Frankish kingdom of Neustria. The treaty offered Rollo and his men the French lands between the river Epte and the Atlantic coast in exchange for their pro",
+          "id": "ev_77ae4522e1ba04ac5240a5d2",
+          "observedAt": "2026-10-14T04:44:31.501Z"
+        },
+        {
+          "sourceId": "memory:context-158",
+          "sourceVersion": "sha256:ed213a5b081ef4fe97751ada2a53c7c8fe68c57cbd39a8bec309f441131a8dd3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-158",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Before Rollo's arrival, its populations did not differ from Picardy or the \u00cele-de-France, which were considered \"Frankish\". Earlier Viking settlers had begun arriving in the 880s, but we",
+          "id": "ev_536da4847c3f247fce72e384",
+          "observedAt": "2026-10-14T04:44:31.501Z"
+        },
+        {
+          "sourceId": "memory:context-208",
+          "sourceVersion": "sha256:bc06f4da4047e0a8c29706e4514943dd935bab17547bf10cf48f339cc31bc539",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-208",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "and Mississippi watersheds, did business with local tribes, and often married Indian women. Traders married daughters of chie",
+          "id": "ev_459f5459faec68e98ffc2dc7",
+          "observedAt": "2026-10-14T04:44:31.501Z"
+        }
+      ],
+      "sourceIds": [
+        "context-202",
+        "context-158",
+        "context-208"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.0034169999998994,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-202",
+        "context-158",
+        "context-208"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) Document 1007:\nIn September 1760, and before any hostilities erupted, Governor Vaudreuil negotiated from Montreal a capitulation with General Amherst. Amherst granted Vaudreuil's request that any French residents who chose to remain in the colony would be given freedom to continue worshiping in their Roman Catholic tradition, continued ownership of their property, and the right to remain undisturbed in their homes. The British provided medical treatment for the sick and wounded French soldiers and French regular troops were returned to France aboard British ships with an agreement that they were not to serve again in the present war.\n  (part 5 of 5) maintain their legitimacy. At the same time, their popularity is such that no government can call itself democratic that excludes mainstream Islamist groups.\n\nDocument 1011:\nIn the course of the 10th century, the initially destructive incursions of Norse war bands into the rivers of France evolved into more permanent encampments that included local women and personal property. The Duchy of Normandy, which began in 911 as a fiefdom, was established by the treaty of Saint-Clair-sur-Epte between King Charles III of West Francia and the famed Viking ruler Rollo, and was situated in the former Frankish kingdom of Neustria. The treaty offered Rollo and his men the French lands between the river Epte and the Atlantic coast in exchange for their pro\n- (part 2 of 5, excerpt) Before Rollo's arrival, its populations did not differ from Picardy or the \u00cele-de-France, which were considered \"Frankish\". Earlier Viking settlers had begun arriving in the 880s, but we\n- (part 4 of 5, excerpt) and Mississippi watersheds, did business with local tribes, and often married Indian women. Traders married daughters of chie",
+      "evidence": [
+        {
+          "sourceId": "memory:context-202",
+          "sourceVersion": "sha256:4fd23721be4626a705fa81c91811c5ce111e77aca3b7189dc52e5a4b23774031",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-202",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 1007:\nIn September 1760, and before any hostilities erupted, Governor Vaudreuil negotiated from Montreal a capitulation with General Amherst. Amherst granted Vaudreuil's request that any French residents who chose to remain in the colony would be given freedom to continue worshiping in their Roman Catholic tradition, continued ownership of their property, and the right to remain undisturbed in their homes. The British provided medical treatment for the sick and wounded French soldiers and French regular troops were returned to France aboard British ships with an agreement that they were not to serve again in the present war.",
+          "id": "ev_a7a3849727a8840d52b74ee4",
+          "observedAt": "2026-10-14T04:44:31.503Z"
+        },
+        {
+          "sourceId": "memory:context-202",
+          "sourceVersion": "sha256:4fd23721be4626a705fa81c91811c5ce111e77aca3b7189dc52e5a4b23774031",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-202",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "maintain their legitimacy. At the same time, their popularity is such that no government can call itself democratic that excludes mainstream Islamist groups.\n\nDocument 1011:\nIn the course of the 10th century, the initially destructive incursions of Norse war bands into the rivers of France evolved into more permanent encampments that included local women and personal property. The Duchy of Normandy, which began in 911 as a fiefdom, was established by the treaty of Saint-Clair-sur-Epte between King Charles III of West Francia and the famed Viking ruler Rollo, and was situated in the former Frankish kingdom of Neustria. The treaty offered Rollo and his men the French lands between the river Epte and the Atlantic coast in exchange for their pro",
+          "id": "ev_77ae4522e1ba04ac5240a5d2",
+          "observedAt": "2026-10-14T04:44:31.503Z"
+        },
+        {
+          "sourceId": "memory:context-158",
+          "sourceVersion": "sha256:ed213a5b081ef4fe97751ada2a53c7c8fe68c57cbd39a8bec309f441131a8dd3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-158",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Before Rollo's arrival, its populations did not differ from Picardy or the \u00cele-de-France, which were considered \"Frankish\". Earlier Viking settlers had begun arriving in the 880s, but we",
+          "id": "ev_536da4847c3f247fce72e384",
+          "observedAt": "2026-10-14T04:44:31.504Z"
+        },
+        {
+          "sourceId": "memory:context-208",
+          "sourceVersion": "sha256:bc06f4da4047e0a8c29706e4514943dd935bab17547bf10cf48f339cc31bc539",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-208",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "and Mississippi watersheds, did business with local tribes, and often married Indian women. Traders married daughters of chie",
+          "id": "ev_459f5459faec68e98ffc2dc7",
+          "observedAt": "2026-10-14T04:44:31.504Z"
+        }
+      ],
+      "sourceIds": [
+        "context-202",
+        "context-158",
+        "context-208"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.3041249999951106,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:40:16.593418+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Rollo signed the treaty of Saint-Clair-sur-Epte with King Charles III of West Francia.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 508,
+    "completion_tokens": 730,
+    "total_tokens": 1238,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 708,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 266,
+    "completion_tokens": 800,
+    "total_tokens": 1066,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 797,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 8349.102625000114,
+  "judgeWallMs": 7800.357000000076,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.4
+  },
+  "ended": "2026-10-14T07:40:33.852299+00:00"
+}

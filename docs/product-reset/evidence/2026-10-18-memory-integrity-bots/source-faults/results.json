@@ -1,0 +1,145 @@
+{
+  "faults": [
+    {
+      "fault": "no-shared-write-reservation",
+      "source": "src/memory/write.transaction.ts",
+      "exitCode": 1,
+      "assertionFailure": true,
+      "invalid": false,
+      "assertionCaught": true,
+      "copyRestoredExactly": true
+    },
+    {
+      "fault": "ignore-backfill-generation",
+      "source": "src/memory/vector.store.ts",
+      "exitCode": 1,
+      "assertionFailure": true,
+      "invalid": false,
+      "assertionCaught": true,
+      "copyRestoredExactly": true
+    },
+    {
+      "fault": "ignore-versionless-source",
+      "source": "src/memory/vector.store.ts",
+      "exitCode": 1,
+      "assertionFailure": true,
+      "invalid": false,
+      "assertionCaught": true,
+      "copyRestoredExactly": true
+    },
+    {
+      "fault": "skip-publication-reload",
+      "source": "src/memory/vector.store.ts",
+      "exitCode": 1,
+      "assertionFailure": true,
+      "invalid": false,
+      "assertionCaught": true,
+      "copyRestoredExactly": true
+    },
+    {
+      "fault": "retain-failed-write-cache",
+      "source": "src/memory/vector.store.ts",
+      "exitCode": 1,
+      "assertionFailure": true,
+      "invalid": false,
+      "assertionCaught": true,
+      "copyRestoredExactly": true
+    },
+    {
+      "fault": "ignore-configured-embedding-route",
+      "source": "src/memory/retrieval.factory.ts",
+      "exitCode": 1,
+      "assertionFailure": true,
+      "invalid": false,
+      "assertionCaught": true,
+      "copyRestoredExactly": true
+    },
+    {
+      "fault": "drop-local-reranker-composition",
+      "source": "src/memory/retrieval.factory.ts",
+      "exitCode": 1,
+      "assertionFailure": true,
+      "invalid": false,
+      "assertionCaught": true,
+      "copyRestoredExactly": true
+    },
+    {
+      "fault": "widen-bot-authority",
+      "source": "src/bots/worker.policy.ts",
+      "exitCode": 1,
+      "assertionFailure": true,
+      "invalid": false,
+      "assertionCaught": true,
+      "copyRestoredExactly": true
+    },
+    {
+      "fault": "keep-forbidden-executable-tools",
+      "source": "src/bots/worker.policy.ts",
+      "exitCode": 1,
+      "assertionFailure": true,
+      "invalid": false,
+      "assertionCaught": true,
+      "copyRestoredExactly": true
+    },
+    {
+      "fault": "ignore-handoff-budget",
+      "source": "src/bots/context.ts",
+      "exitCode": 1,
+      "assertionFailure": true,
+      "invalid": false,
+      "assertionCaught": true,
+      "copyRestoredExactly": true
+    },
+    {
+      "fault": "share-all-bot-memory",
+      "source": "src/bots/worker.policy.ts",
+      "exitCode": 1,
+      "assertionFailure": true,
+      "invalid": false,
+      "assertionCaught": true,
+      "copyRestoredExactly": true
+    },
+    {
+      "fault": "ignore-catalog-revision",
+      "source": "src/bots/catalog.ts",
+      "exitCode": 1,
+      "assertionFailure": true,
+      "invalid": false,
+      "assertionCaught": true,
+      "copyRestoredExactly": true
+    },
+    {
+      "fault": "replace-inherited-spend-budget",
+      "source": "src/bots/service.ts",
+      "exitCode": 1,
+      "assertionFailure": true,
+      "invalid": false,
+      "assertionCaught": true,
+      "copyRestoredExactly": true
+    }
+  ],
+  "currentBaseline": {
+    "exitCode": 0,
+    "assertionFailure": false,
+    "invalid": false
+  },
+  "restored": {
+    "exitCode": 0,
+    "assertionFailure": false,
+    "invalid": false
+  },
+  "frozenStartingStore": {
+    "exitCode": 1,
+    "assertionFailure": true,
+    "invalid": false
+  },
+  "workingTreeSourceUnchanged": {
+    "src/bots/context.ts": true,
+    "src/bots/catalog.ts": true,
+    "src/memory/write.transaction.ts": true,
+    "src/memory/retrieval.factory.ts": true,
+    "src/bots/service.ts": true,
+    "src/memory/vector.store.ts": true,
+    "src/bots/worker.policy.ts": true
+  }
+}

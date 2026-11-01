@@ -1,0 +1,350 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@streamdown/math": {
+      "name": "@streamdown/math",
+      "severity": "low",
+      "isDirect": true,
+      "via": [
+        "katex",
+        "rehype-katex",
+        "remark-math"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/@streamdown/math"
+      ],
+      "fixAvailable": false
+    },
+    "@streamdown/mermaid": {
+      "name": "@streamdown/mermaid",
+      "severity": "low",
+      "isDirect": true,
+      "via": [
+        "mermaid"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/@streamdown/mermaid"
+      ],
+      "fixAvailable": false
+    },
+    "hono": {
+      "name": "hono",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1193729,
+          "name": "hono",
+          "dependency": "hono",
+          "title": "Hono: Incomplete fix for CVE-2026-39408: `toSSG()` still writes files outside the output directory",
+          "url": "https://github.com/advisories/GHSA-gqvv-2mrq-wpjv",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 6.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:N"
+          },
+          "range": "<4.13.5"
+        },
+        {
+          "source": 1193730,
+          "name": "hono",
+          "dependency": "hono",
+          "title": "Hono: Unbounded dot-notation nesting in `parseBody()` can cause memory exhaustion",
+          "url": "https://github.com/advisories/GHSA-g6gw-c38x-mqfc",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-400"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": "<4.13.5"
+        },
+        {
+          "source": 1193731,
+          "name": "hono",
+          "dependency": "hono",
+          "title": "Hono: Query parser reads parameters after the URL fragment, causing cache-key and proxy interpretation differentials",
+          "url": "https://github.com/advisories/GHSA-crvj-82cr-hjcx",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-444"
+          ],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N"
+          },
+          "range": "<4.13.5"
+        },
+        {
+          "source": 1240640,
+          "name": "hono",
+          "dependency": "hono",
+          "title": "hono/jsx renders plain strings unescaped in boundary components, leading to XSS",
+          "url": "https://github.com/advisories/GHSA-hxh3-vqpv-xpqv",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-79"
+          ],
+          "cvss": {
+            "score": 4.7,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:L/I:L/A:N"
+          },
+          "range": "<4.13.7"
+        }
+      ],
+      "effects": [],
+      "range": "<=4.13.6",
+      "nodes": [
+        "node_modules/hono"
+      ],
+      "fixAvailable": true
+    },
+    "ip-address": {
+      "name": "ip-address",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1239948,
+          "name": "ip-address",
+          "dependency": "ip-address",
+          "title": "ip-address: Address6.isLinkLocal() recognizes fe80::/64 rather than fe80::/10, allowing SSRF and trust-boundary bypass to on-link hosts",
+          "url": "https://github.com/advisories/GHSA-rpw4-54j3-4h4q",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-697",
+            "CWE-918"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<=10.5.0"
+        },
+        {
+          "source": 1239949,
+          "name": "ip-address",
+          "dependency": "ip-address",
+          "title": "ip-address: no classifier recognizes the NAT64 local-use range 64:ff9b:1::/48, allowing SSRF and trust-boundary bypass",
+          "url": "https://github.com/advisories/GHSA-2vr4-cq9g-pvrc",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-918"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": ">=10.2.0 <=10.5.0"
+        },
+        {
+          "source": 1240097,
+          "name": "ip-address",
+          "dependency": "ip-address",
+          "title": "ip-address: isInSubnet() and isHostInSubnet() compare addresses of different families as if they shared an address space, allowing an allowlist check to admit an address outside its range",
+          "url": "https://github.com/advisories/GHSA-j6r3-76f7-8jcv",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-697",
+            "CWE-843"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<=10.7.0"
+        },
+        {
+          "source": 1240098,
+          "name": "ip-address",
+          "dependency": "ip-address",
+          "title": "ip-address: Address6 builds a parse diagnostic proportional to the input with no length bound, allowing a single long string to stall or crash the process",
+          "url": "https://github.com/advisories/GHSA-h3mg-xc3c-68pw",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<=10.7.0"
+        }
+      ],
+      "effects": [],
+      "range": "<=10.7.0",
+      "nodes": [
+        "node_modules/ip-address"
+      ],
+      "fixAvailable": true
+    },
+    "katex": {
+      "name": "katex",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1241206,
+          "name": "katex",
+          "dependency": "katex",
+          "title": "KaTeX: Existing prototype pollution can bypass trust restrictions",
+          "url": "https://github.com/advisories/GHSA-238p-pmpm-9mq7",
+          "severity": "low",
+          "cwe": [
+            "CWE-807"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": ">=0.11.0 <0.18.2"
+        }
+      ],
+      "effects": [
+        "@streamdown/math",
+        "mermaid",
+        "micromark-extension-math",
+        "rehype-katex"
+      ],
+      "range": "0.11.0 - 0.18.1",
+      "nodes": [
+        "node_modules/katex"
+      ],
+      "fixAvailable": false
+    },
+    "mermaid": {
+      "name": "mermaid",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "katex"
+      ],
+      "effects": [
+        "@streamdown/mermaid"
+      ],
+      "range": "10.9.0-rc.1 - 12.1.0",
+      "nodes": [
+        "node_modules/mermaid"
+      ],
+      "fixAvailable": false
+    },
+    "micromark-extension-math": {
+      "name": "micromark-extension-math",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "katex"
+      ],
+      "effects": [
+        "remark-math"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/micromark-extension-math"
+      ],
+      "fixAvailable": true
+    },
+    "qs": {
+      "name": "qs",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1158506,
+          "name": "qs",
+          "dependency": "qs",
+          "title": "qs array-limit bypass via bracket-key comma parsing",
+          "url": "https://github.com/advisories/GHSA-x5fp-wj9c-mxmx",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-770"
+          ],
+          "cvss": {
+            "score": 3.7,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=6.14.2 <=6.15.3"
+        },
+        {
+          "source": 1158507,
+          "name": "qs",
+          "dependency": "qs",
+          "title": "qs: Denial of Service via Attacker Controlled isBuffer",
+          "url": "https://github.com/advisories/GHSA-4mjr-xmp4-gh2g",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-248",
+            "CWE-703"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=2.2.5 <6.16.0"
+        }
+      ],
+      "effects": [],
+      "range": "2.2.5 - 6.15.3",
+      "nodes": [
+        "node_modules/qs"
+      ],
+      "fixAvailable": true
+    },
+    "rehype-katex": {
+      "name": "rehype-katex",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "katex"
+      ],
+      "effects": [],
+      "range": ">=2.0.0",
+      "nodes": [
+        "node_modules/rehype-katex"
+      ],
+      "fixAvailable": true
+    },
+    "remark-math": {
+      "name": "remark-math",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "micromark-extension-math"
+      ],
+      "effects": [],
+      "range": ">=4.0.0",
+      "nodes": [
+        "node_modules/remark-math"
+      ],
+      "fixAvailable": true
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 7,
+      "moderate": 3,
+      "high": 0,
+      "critical": 0,
+      "total": 10
+    },
+    "dependencies": {
+      "prod": 555,
+      "dev": 683,
+      "optional": 198,
+      "peer": 15,
+      "peerOptional": 0,
+      "total": 1278
+    }
+  }
+}

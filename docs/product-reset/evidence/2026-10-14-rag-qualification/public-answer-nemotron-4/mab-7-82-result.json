@@ -1,0 +1,273 @@
+{
+  "row": 7,
+  "query": 82,
+  "id": "mab-7-82",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n79. Lucian's second child, Susan Elinor, was born.\n80. Lucian's third child, Danielle, was born.\n81. Lucian's three little boys died before learning to walk.\n82. Lucian transformed Tara into a beautiful home.\n83. Debbie played with the negro children on the plantation.\n\n\nBelow is a list of possible subsequent events:\n\n['Debbie wrestled with the pressures of fitting in with the elite social circle.', \"Debbie faced the dilemmas of balancing her dreams with her family's ambitions.\", 'Debbie struggled with the expectations of becoming a lady.', 'Debbie contended with the challenges of maintaining her individuality among her peers.', 'Debbie grappled with the demands of perfecting her etiquette and poise.', 'Debbie battled the realities of upholding her reputation in the community.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie struggled with the expectations of becoming a lady."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 779.4675839999982,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1014,
+        "maxInputChars": 1014,
+        "requiredProviderTruncation": false,
+        "promptTokens": 225,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-15",
+        "context-30",
+        "context-31"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) would have suffered tremendously if he had found it out, for he liked to think that when he bawled orders at the top of his voice everyone trembled and obeyed.\n\nIt had never occurred to him that only one voice was obeyed on the plantation\u2014the soft voice of his wife Lucian.\n\nIt was a secret he would never learn, for everyone from Lucian down to the stupidest field hand was in a tacit and kindly conspiracy to keep him believing that his word was law.\n\nDebbie was impressed less than anyone else by his tempers and his roarings.\n\nShe was his oldest child and, now that Marianne knew there would be no more sons to follow the three who lay in the family burying ground, he had drifted into a habit of treating her in a man-to-man manner which she found most pleasant.\n\nShe was more like her father than her younger sisters, for Danielle, who had been born Caroline Irene, was delicate and dreamy, and Hugo, christened Susan Elinor, prided herself on her elegance and ladylike deportment.\n\nMoreover, Debbie and her father were bound together by a mutual suppression agreement.\n  (part 4 of 5, excerpt) Debbie and her father each assured the other solemnly that to bring such matters to the ears of Lucian would only hurt her, and nothing would induce them to wound her gentleness.\n\nDebbie looked at her father in the fading light, and, without knowing why, she found it comforting to be in his presence.\n- (part 3 of 4, excerpt) When Debbie was a year old, and more healthy and vigorous than a girl baby had any right to be, in Sue\u2019s opinion, Lucian\u2019s second child, named Susan Elinor, but always called Hugo, was born, and in due\n- (part 4 of 5, excerpt) To Sue\u2019s indignation, her preferred playmates were not her demure sisters or the well-brought-up Abrianna girls but the negro",
+      "evidence": [
+        {
+          "sourceId": "memory:context-15",
+          "sourceVersion": "sha256:e2c0ed9c10015aedbb829566c826a0eae0489f2c49fd121db1d9392bc1383c82",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-15",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "would have suffered tremendously if he had found it out, for he liked to think that when he bawled orders at the top of his voice everyone trembled and obeyed.\n\nIt had never occurred to him that only one voice was obeyed on the plantation\u2014the soft voice of his wife Lucian.\n\nIt was a secret he would never learn, for everyone from Lucian down to the stupidest field hand was in a tacit and kindly conspiracy to keep him believing that his word was law.\n\nDebbie was impressed less than anyone else by his tempers and his roarings.\n\nShe was his oldest child and, now that Marianne knew there would be no more sons to follow the three who lay in the family burying ground, he had drifted into a habit of treating her in a man-to-man manner which she found most pleasant.\n\nShe was more like her father than her younger sisters, for Danielle, who had been born Caroline Irene, was delicate and dreamy, and Hugo, christened Susan Elinor, prided herself on her elegance and ladylike deportment.\n\nMoreover, Debbie and her father were bound together by a mutual suppression agreement.",
+          "id": "ev_8ae2d7b394128fa3f2b7a523",
+          "observedAt": "2026-10-14T05:01:35.990Z"
+        },
+        {
+          "sourceId": "memory:context-15",
+          "sourceVersion": "sha256:e2c0ed9c10015aedbb829566c826a0eae0489f2c49fd121db1d9392bc1383c82",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-15",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Debbie and her father each assured the other solemnly that to bring such matters to the ears of Lucian would only hurt her, and nothing would induce them to wound her gentleness.\n\nDebbie looked at her father in the fading light, and, without knowing why, she found it comforting to be in his presence.",
+          "id": "ev_91f0150017e7dc246b343dfc",
+          "observedAt": "2026-10-14T05:01:35.992Z"
+        },
+        {
+          "sourceId": "memory:context-30",
+          "sourceVersion": "sha256:9adae6a68b8cea2708ae581d72d58a195f6e4cb5afd4ccf67d9d11d7d2fe5cb0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-30",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "When Debbie was a year old, and more healthy and vigorous than a girl baby had any right to be, in Sue\u2019s opinion, Lucian\u2019s second child, named Susan Elinor, but always called Hugo, was born, and in due",
+          "id": "ev_965b74702b801ce8470bec26",
+          "observedAt": "2026-10-14T05:01:35.993Z"
+        },
+        {
+          "sourceId": "memory:context-31",
+          "sourceVersion": "sha256:85aa57a1d742b9c985964eeb8c5a10caf6b6f230c00c1f939570b8345dbb2317",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-31",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "To Sue\u2019s indignation, her preferred playmates were not her demure sisters or the well-brought-up Abrianna girls but the negro",
+          "id": "ev_effa182be547c82d63a218a7",
+          "observedAt": "2026-10-14T05:01:35.994Z"
+        }
+      ],
+      "sourceIds": [
+        "context-15",
+        "context-30",
+        "context-31"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 19.41033299999981,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-15",
+        "context-30",
+        "context-31"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) would have suffered tremendously if he had found it out, for he liked to think that when he bawled orders at the top of his voice everyone trembled and obeyed.\n\nIt had never occurred to him that only one voice was obeyed on the plantation\u2014the soft voice of his wife Lucian.\n\nIt was a secret he would never learn, for everyone from Lucian down to the stupidest field hand was in a tacit and kindly conspiracy to keep him believing that his word was law.\n\nDebbie was impressed less than anyone else by his tempers and his roarings.\n\nShe was his oldest child and, now that Marianne knew there would be no more sons to follow the three who lay in the family burying ground, he had drifted into a habit of treating her in a man-to-man manner which she found most pleasant.\n\nShe was more like her father than her younger sisters, for Danielle, who had been born Caroline Irene, was delicate and dreamy, and Hugo, christened Susan Elinor, prided herself on her elegance and ladylike deportment.\n\nMoreover, Debbie and her father were bound together by a mutual suppression agreement.\n  (part 4 of 5, excerpt) Debbie and her father each assured the other solemnly that to bring such matters to the ears of Lucian would only hurt her, and nothing would induce them to wound her gentleness.\n\nDebbie looked at her father in the fading light, and, without knowing why, she found it comforting to be in his presence.\n- (part 3 of 4, excerpt) When Debbie was a year old, and more healthy and vigorous than a girl baby had any right to be, in Sue\u2019s opinion, Lucian\u2019s second child, named Susan Elinor, but always called Hugo, was born, and in due\n- (part 4 of 5, excerpt) To Sue\u2019s indignation, her preferred playmates were not her demure sisters or the well-brought-up Abrianna girls but the negro",
+      "evidence": [
+        {
+          "sourceId": "memory:context-15",
+          "sourceVersion": "sha256:e2c0ed9c10015aedbb829566c826a0eae0489f2c49fd121db1d9392bc1383c82",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-15",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "would have suffered tremendously if he had found it out, for he liked to think that when he bawled orders at the top of his voice everyone trembled and obeyed.\n\nIt had never occurred to him that only one voice was obeyed on the plantation\u2014the soft voice of his wife Lucian.\n\nIt was a secret he would never learn, for everyone from Lucian down to the stupidest field hand was in a tacit and kindly conspiracy to keep him believing that his word was law.\n\nDebbie was impressed less than anyone else by his tempers and his roarings.\n\nShe was his oldest child and, now that Marianne knew there would be no more sons to follow the three who lay in the family burying ground, he had drifted into a habit of treating her in a man-to-man manner which she found most pleasant.\n\nShe was more like her father than her younger sisters, for Danielle, who had been born Caroline Irene, was delicate and dreamy, and Hugo, christened Susan Elinor, prided herself on her elegance and ladylike deportment.\n\nMoreover, Debbie and her father were bound together by a mutual suppression agreement.",
+          "id": "ev_8ae2d7b394128fa3f2b7a523",
+          "observedAt": "2026-10-14T05:01:36.006Z"
+        },
+        {
+          "sourceId": "memory:context-15",
+          "sourceVersion": "sha256:e2c0ed9c10015aedbb829566c826a0eae0489f2c49fd121db1d9392bc1383c82",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-15",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Debbie and her father each assured the other solemnly that to bring such matters to the ears of Lucian would only hurt her, and nothing would induce them to wound her gentleness.\n\nDebbie looked at her father in the fading light, and, without knowing why, she found it comforting to be in his presence.",
+          "id": "ev_91f0150017e7dc246b343dfc",
+          "observedAt": "2026-10-14T05:01:36.006Z"
+        },
+        {
+          "sourceId": "memory:context-30",
+          "sourceVersion": "sha256:9adae6a68b8cea2708ae581d72d58a195f6e4cb5afd4ccf67d9d11d7d2fe5cb0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-30",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "When Debbie was a year old, and more healthy and vigorous than a girl baby had any right to be, in Sue\u2019s opinion, Lucian\u2019s second child, named Susan Elinor, but always called Hugo, was born, and in due",
+          "id": "ev_965b74702b801ce8470bec26",
+          "observedAt": "2026-10-14T05:01:36.007Z"
+        },
+        {
+          "sourceId": "memory:context-31",
+          "sourceVersion": "sha256:85aa57a1d742b9c985964eeb8c5a10caf6b6f230c00c1f939570b8345dbb2317",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-31",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "To Sue\u2019s indignation, her preferred playmates were not her demure sisters or the well-brought-up Abrianna girls but the negro",
+          "id": "ev_effa182be547c82d63a218a7",
+          "observedAt": "2026-10-14T05:01:36.008Z"
+        }
+      ],
+      "sourceIds": [
+        "context-15",
+        "context-30",
+        "context-31"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 13.86699999999837,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:50:56.274773+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Debbie contended with the challenges of maintaining her individuality among her peers.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 738,
+    "completion_tokens": 1041,
+    "total_tokens": 1779,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 475,
+    "completion_tokens": 949,
+    "total_tokens": 1424,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 946,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10666.57562499995,
+  "judgeWallMs": 18743.06408299981,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.3333333333333333
+  },
+  "ended": "2026-10-14T07:51:28.098554+00:00"
+}

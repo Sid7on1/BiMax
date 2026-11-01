@@ -1,0 +1,193 @@
+{
+  "row": 1,
+  "query": 36,
+  "id": "mab-1-36",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:49:01.770908+00:00",
+  "valid": true,
+  "question": "Seven Brief Lessons on Physics was written by an Italian physicist that has worked in France since what year?",
+  "references": [
+    "2000"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 681.393624999997,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 109,
+        "maxInputChars": 109,
+        "requiredProviderTruncation": false,
+        "promptTokens": 22,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-230",
+        "context-247",
+        "context-24"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 6) erico Fellini. Co-scripted by Fellini, Tullio Pinelli, Ennio Flaiano, and Brunello Rondi, it stars Marcello Mastroianni as Guido Anselmi, a famous Italian film director. Shot in black-and-white by cinematographer Gianni di Venanzo, the film features a soundtrack by Nino Rota with costume and set designs by Piero Gherardi.\n\nDocument 1638:\nGuido Caldarelli\nGuido Caldarelli (born in Rome on 8 April 1967) is an Italian physicist (statistical physics) and full professor in Theoretical Physics at IMT School for Advanced Studies Lucca. He is married with two children and lives in Lucca.\n- (part 4 of 6) \"Surf and Seaweed\" (1931) and \"The Spanish Earth\" (1937), and he contributed two songs to the original 1960 production of Hellman's play \"Toys in the Attic\".\n\nDocument 1763:\nCarlo Rovelli\nCarlo Rovelli (born 3 May 1956) is an Italian theoretical physicist and writer who has worked in Italy, the United States and since 2000, in France. His work is mainly in the field of quantum gravity, where he is among the founders of the loop quantum gravity theory. He has also worked in the history and philosophy of science. He collaborates regularly with several Italian newspapers, in particular the cultural supplements of \"Il Corriere della Sera\", \"Il Sole 24 Ore\" and \"La Repubblica\".\n- (part 4 of 4, excerpt) Document 176:\nSeven Brief Lessons on Physics\nSeven Brief Lessons on Physics (Italian: \"\" ) is a short book by the Italian physicist Carlo Rovelli. Originally published in Italian in 2014, the book has been translated into 41 languages. It is an Italian bestseller, with more than 300,000 copies sold in Rovelli's home country.\n\nDocument 177:\nEustoma",
+      "evidence": [
+        {
+          "sourceId": "memory:context-230",
+          "sourceVersion": "sha256:e4f6bde22d07190e1d3e556ddb645343b54500445f7ec814a501a8588b6730dc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-230",
+            "part": 1,
+            "parts": 6
+          },
+          "text": "erico Fellini. Co-scripted by Fellini, Tullio Pinelli, Ennio Flaiano, and Brunello Rondi, it stars Marcello Mastroianni as Guido Anselmi, a famous Italian film director. Shot in black-and-white by cinematographer Gianni di Venanzo, the film features a soundtrack by Nino Rota with costume and set designs by Piero Gherardi.\n\nDocument 1638:\nGuido Caldarelli\nGuido Caldarelli (born in Rome on 8 April 1967) is an Italian physicist (statistical physics) and full professor in Theoretical Physics at IMT School for Advanced Studies Lucca. He is married with two children and lives in Lucca.",
+          "id": "ev_1a254a0e49eedec8cc58d244",
+          "observedAt": "2026-10-14T04:49:02.457Z"
+        },
+        {
+          "sourceId": "memory:context-247",
+          "sourceVersion": "sha256:9ecfdec2d37dde6b41360bb7ac4b4df831d3823de18a4d089581ac06008e2a5c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-247",
+            "part": 4,
+            "parts": 6
+          },
+          "text": "\"Surf and Seaweed\" (1931) and \"The Spanish Earth\" (1937), and he contributed two songs to the original 1960 production of Hellman's play \"Toys in the Attic\".\n\nDocument 1763:\nCarlo Rovelli\nCarlo Rovelli (born 3 May 1956) is an Italian theoretical physicist and writer who has worked in Italy, the United States and since 2000, in France. His work is mainly in the field of quantum gravity, where he is among the founders of the loop quantum gravity theory. He has also worked in the history and philosophy of science. He collaborates regularly with several Italian newspapers, in particular the cultural supplements of \"Il Corriere della Sera\", \"Il Sole 24 Ore\" and \"La Repubblica\".",
+          "id": "ev_817af8e6733bb82d09ca6eb9",
+          "observedAt": "2026-10-14T04:49:02.457Z"
+        },
+        {
+          "sourceId": "memory:context-24",
+          "sourceVersion": "sha256:c466224bc3395a41719f1c1749f1075bc124769aba2fe0324e741fd0e44a0555",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-24",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Document 176:\nSeven Brief Lessons on Physics\nSeven Brief Lessons on Physics (Italian: \"\" ) is a short book by the Italian physicist Carlo Rovelli. Originally published in Italian in 2014, the book has been translated into 41 languages. It is an Italian bestseller, with more than 300,000 copies sold in Rovelli's home country.\n\nDocument 177:\nEustoma",
+          "id": "ev_c9129204297a7c4bad0e9b36",
+          "observedAt": "2026-10-14T04:49:02.457Z"
+        }
+      ],
+      "sourceIds": [
+        "context-230",
+        "context-247",
+        "context-24"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.561457999996492,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-230",
+        "context-247",
+        "context-24"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 6) erico Fellini. Co-scripted by Fellini, Tullio Pinelli, Ennio Flaiano, and Brunello Rondi, it stars Marcello Mastroianni as Guido Anselmi, a famous Italian film director. Shot in black-and-white by cinematographer Gianni di Venanzo, the film features a soundtrack by Nino Rota with costume and set designs by Piero Gherardi.\n\nDocument 1638:\nGuido Caldarelli\nGuido Caldarelli (born in Rome on 8 April 1967) is an Italian physicist (statistical physics) and full professor in Theoretical Physics at IMT School for Advanced Studies Lucca. He is married with two children and lives in Lucca.\n- (part 4 of 6) \"Surf and Seaweed\" (1931) and \"The Spanish Earth\" (1937), and he contributed two songs to the original 1960 production of Hellman's play \"Toys in the Attic\".\n\nDocument 1763:\nCarlo Rovelli\nCarlo Rovelli (born 3 May 1956) is an Italian theoretical physicist and writer who has worked in Italy, the United States and since 2000, in France. His work is mainly in the field of quantum gravity, where he is among the founders of the loop quantum gravity theory. He has also worked in the history and philosophy of science. He collaborates regularly with several Italian newspapers, in particular the cultural supplements of \"Il Corriere della Sera\", \"Il Sole 24 Ore\" and \"La Repubblica\".\n- (part 4 of 4, excerpt) Document 176:\nSeven Brief Lessons on Physics\nSeven Brief Lessons on Physics (Italian: \"\" ) is a short book by the Italian physicist Carlo Rovelli. Originally published in Italian in 2014, the book has been translated into 41 languages. It is an Italian bestseller, with more than 300,000 copies sold in Rovelli's home country.\n\nDocument 177:\nEustoma",
+      "evidence": [
+        {
+          "sourceId": "memory:context-230",
+          "sourceVersion": "sha256:e4f6bde22d07190e1d3e556ddb645343b54500445f7ec814a501a8588b6730dc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-230",
+            "part": 1,
+            "parts": 6
+          },
+          "text": "erico Fellini. Co-scripted by Fellini, Tullio Pinelli, Ennio Flaiano, and Brunello Rondi, it stars Marcello Mastroianni as Guido Anselmi, a famous Italian film director. Shot in black-and-white by cinematographer Gianni di Venanzo, the film features a soundtrack by Nino Rota with costume and set designs by Piero Gherardi.\n\nDocument 1638:\nGuido Caldarelli\nGuido Caldarelli (born in Rome on 8 April 1967) is an Italian physicist (statistical physics) and full professor in Theoretical Physics at IMT School for Advanced Studies Lucca. He is married with two children and lives in Lucca.",
+          "id": "ev_1a254a0e49eedec8cc58d244",
+          "observedAt": "2026-10-14T04:49:02.464Z"
+        },
+        {
+          "sourceId": "memory:context-247",
+          "sourceVersion": "sha256:9ecfdec2d37dde6b41360bb7ac4b4df831d3823de18a4d089581ac06008e2a5c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-247",
+            "part": 4,
+            "parts": 6
+          },
+          "text": "\"Surf and Seaweed\" (1931) and \"The Spanish Earth\" (1937), and he contributed two songs to the original 1960 production of Hellman's play \"Toys in the Attic\".\n\nDocument 1763:\nCarlo Rovelli\nCarlo Rovelli (born 3 May 1956) is an Italian theoretical physicist and writer who has worked in Italy, the United States and since 2000, in France. His work is mainly in the field of quantum gravity, where he is among the founders of the loop quantum gravity theory. He has also worked in the history and philosophy of science. He collaborates regularly with several Italian newspapers, in particular the cultural supplements of \"Il Corriere della Sera\", \"Il Sole 24 Ore\" and \"La Repubblica\".",
+          "id": "ev_817af8e6733bb82d09ca6eb9",
+          "observedAt": "2026-10-14T04:49:02.464Z"
+        },
+        {
+          "sourceId": "memory:context-24",
+          "sourceVersion": "sha256:c466224bc3395a41719f1c1749f1075bc124769aba2fe0324e741fd0e44a0555",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-24",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Document 176:\nSeven Brief Lessons on Physics\nSeven Brief Lessons on Physics (Italian: \"\" ) is a short book by the Italian physicist Carlo Rovelli. Originally published in Italian in 2014, the book has been translated into 41 languages. It is an Italian bestseller, with more than 300,000 copies sold in Rovelli's home country.\n\nDocument 177:\nEustoma",
+          "id": "ev_c9129204297a7c4bad0e9b36",
+          "observedAt": "2026-10-14T04:49:02.464Z"
+        }
+      ],
+      "sourceIds": [
+        "context-230",
+        "context-247",
+        "context-24"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.613167000003159,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T04:49:02.465183+00:00"
+}

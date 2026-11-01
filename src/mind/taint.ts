@@ -66,9 +66,9 @@ export function getTaintTracker(): TaintTracker {
  * and EVERY MCP tool response ("all MCP output is born tainted" — we don't control what
  * a server returns). Empty results can't carry an injection, so they don't taint.
  */
-export function markToolTaint(toolName: string, rawArgs: string, resultText: string): void {
+export function markToolTaint(toolName: string, rawArgs: string, resultText: string, outputSource?: TaintSource): void {
   if (!resultText || !resultText.trim()) return;
-  const channel = untrustedChannel(toolName);
+  const channel = outputSource || untrustedChannel(toolName);
   if (channel === 'shell') getTaintTracker().mark('shell', taintDetail(toolName, rawArgs));
   else if (channel === 'web') getTaintTracker().mark('web', taintDetail(toolName, rawArgs));
   else if (channel === 'file') getTaintTracker().mark('file', taintDetail(toolName, rawArgs));
@@ -104,8 +104,8 @@ function taintDetail(toolName: string, rawArgs: string): string {
  * like the fence is renamed, so a page cannot close the fence early and speak as Bimax after it. This is a label,
  * not a guarantee — the capability cut above (taintRestriction) is what holds when a model follows the page anyway.
  */
-export function fenceUntrusted(toolName: string, rawArgs: string, text: string): string {
-  const channel = untrustedChannel(toolName);
+export function fenceUntrusted(toolName: string, rawArgs: string, text: string, outputSource?: TaintSource): string {
+  const channel = outputSource || untrustedChannel(toolName);
   if (!channel || !text || !text.trim()) return text;
   const detail = channel === 'mcp' ? toolName : channel === 'screen' ? screenDetail(rawArgs) : taintDetail(toolName, rawArgs);
   const source = `${channel}: ${detail}`.slice(0, 200).replace(/["<>\n\r]/g, ' ');

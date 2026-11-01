@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://bimax.dev/protocol/3.6.0/ndjson-message.schema.json",
-  "title": "Bimax client NDJSON protocol 3.6.0",
+  "$id": "https://bimax.dev/protocol/3.8.0/ndjson-message.schema.json",
+  "title": "Bimax client NDJSON protocol 3.8.0",
   "description": "One decoded NDJSON frame. Unknown additive properties remain allowed within a compatible major.",
   "anyOf": [
     {
@@ -841,6 +841,24 @@
         },
         "text": {
           "type": "string"
+        },
+        "displayText": {
+          "type": "string"
+        },
+        "toolScope": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "required": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
         }
       },
       "additionalProperties": true,

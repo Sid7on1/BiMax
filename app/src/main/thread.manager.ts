@@ -1,3 +1,4 @@
+import { computerRequest, isComputerRoute } from '../shared/computer';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { engineReducer, initialEngineState, type EngineUiState } from '../renderer/src/engine.state';
@@ -19,6 +20,7 @@ export interface ThreadEngine {
  * the engine. `sent`: handed over, and its turn has not finished. A settled turn removes it.
  */
 export interface SavedInput {
+  route?: import('../shared/computer').ComputerRoute;
   id: string;
   /** What the engine receives, which may carry notes about undone changes. */
   text: string;
@@ -56,6 +58,9 @@ interface LiveThread extends SavedThread {
   resumeDeadline?: () => void;
   /** A resume failed and the user has not said what to do with the queued message yet. */
   holdInputs?: boolean;
+  /** Dispatch is paused after a failed acceptance/sent-state save until an explicit user retry. */
+  storageBlocked?: boolean;
+  storageError?: string;
   /** The previous engine's process is still exiting: nothing else may write in this folder yet (backlog F11). */
   draining?: Promise<unknown>;
   /** The person interrupted the current turn, so it ends "interrupted", not "completed" (backlog N12). */
@@ -83,6 +88,8 @@ export function threadWakeFrom(value: unknown): ThreadWake | null {
 }
 
 interface Dependencies {
+  /** Main supplies a per-message tool scope and starts native authority only at actual dispatch. */
+  prepareInput?(id: string, input: SavedInput): Pick<Extract<Inbound, { t: 'input' }>, 'text' | 'toolScope' | 'displayText'>;
   engine(id: string): ThreadEngine;
   changed(): void;
   /**
@@ -150,7 +157,7 @@ export const RESUME_CHOICES = {
 
 const validInput = (input: any): input is SavedInput =>
   !!input && typeof input.id === 'string' && input.id.length <= 80 && typeof input.text === 'string' && input.text.length <= 200_000
-  && typeof input.display === 'string' && (input.state === 'queued' || input.state === 'sent') && typeof input.at === 'number';
+  && (input.route === undefined || isComputerRoute(input.route)) && typeof input.display === 'string' && (input.state === 'queued' || input.state === 'sent') && typeof input.at === 'number';
 
 const quoted = (text: string): string => {
   const flat = text.replace(/\s+/g, ' ').trim();
@@ -366,23 +373,31 @@ export class ThreadManager {
   steer(id: string, text: string, display = text, echo = true): void {
     const r = this.records.get(id);
     if (!r) throw new Error('Thread not found');
-    if (text.trim().startsWith('/')) return this.send(id, { t: 'input', text });
-    const running = r.ready && !!r.engine && (r.summary.status === 'working' || r.summary.status === 'needs-you') && !r.draining && !r.holdInputs;
-    if (!running) return this.submit(id, text, display, echo);
+    if (computerRequest(text) !== null) throw new Error('Choose an app/window with @CU before sending.');
+    if (text.trim().startsWith('/')) { this.send(id, { t: 'input', text }); return; }
+    const running = r.ready && !!r.engine && (r.summary.status === 'working' || r.summary.status === 'needs-you') && !r.draining && !r.holdInputs && !r.storageBlocked;
+    if (!running) { this.submit(id, text, display, echo); return; }
     if (!text.trim() || text.length > 200_000) throw new Error('Prompt must contain 1–200,000 characters');
     r.state = engineReducer(r.state, { type: 'localUser', text: display });
     if (echo) this.deps.message(id, { t: 'event', name: 'thread_user', args: [display] } as Outbound);
     // Saved as being worked on before it is sent (F1): if the engine goes away now, it is reported as possibly run.
     const now = Date.now();
-    r.inputs.push({ id: randomUUID(), text, display, state: 'sent', at: now, sentAt: now });
-    this.persist(r, true);
+    const input: SavedInput = { id: randomUUID(), text, display, state: 'sent', at: now, sentAt: now };
+    r.inputs.push(input);
+    if (!this.persist(r, true)) {
+      input.state = 'queued'; delete input.sentAt;
+      this.blockForStorage(r);
+      return;
+    }
     r.engine!.sendFromRenderer({ t: 'steer', text } as Inbound);
   }
 
   /** `echo: false` when the window that sent the turn has already painted it (see useEngine's submit). */
-  submit(id: string, text: string, display = text, echo = true): void {
+  submit(id: string, text: string, display = text, echo = true, route?: import('../shared/computer').ComputerRoute): void {
     const r = this.records.get(id);
     if (!r) throw new Error('Thread not found');
+    if (route !== undefined && !isComputerRoute(route)) throw new Error('Invalid Computer Use target.');
+    if (computerRequest(text) !== null && !route) throw new Error('Choose an app/window with @CU before sending.');
     if (!text.trim() || text.length > 200_000) throw new Error('Prompt must contain 1–200,000 characters');
     if (r.inputs.filter((input) => input.state === 'queued').length >= 20) throw new Error('This thread already has 20 queued messages');
     // A new message after a failed resume is the user acting: stop holding what was queued, and close the choice.
@@ -413,16 +428,30 @@ export class ThreadManager {
     const engineText = `${recovered}${undone}${text}`;
     r.notes = [];
     r.recovered = [];
-    r.inputs.push({ id: randomUUID(), text: engineText, display, state: 'queued', at: Date.now() });
+    r.inputs.push({ id: randomUUID(), text: engineText, display, state: 'queued', at: Date.now(), ...(route ? { route } : {}) });
     // Saved before this returns: an accepted message must survive a crash, a restart or a reload (backlog F1, T01).
-    this.persist(r, true);
+    if (!this.persist(r, true)) { this.blockForStorage(r); return; }
+    // A new user interaction may retry a previously held queue, only after saving it succeeds.
+    r.storageBlocked = false;
     this.pump(r);
     this.persist(r);
   }
   private pump(r: LiveThread): void {
     const next = r.inputs.find((input) => input.state === 'queued');
-    if (!r.ready || r.pending.size || r.summary.status === 'working' || !next || r.holdInputs || r.draining) return;
+    if (!r.ready || r.pending.size || r.summary.status === 'working' || !next || r.holdInputs || r.storageBlocked || r.draining) return;
     if (this.folderTaken(r)) return;
+    let prepared: Pick<Extract<Inbound, { t: 'input' }>, 'text' | 'toolScope' | 'displayText'>;
+    try {
+      if (next.route && !this.deps.prepareInput) throw new Error('Computer Use is unavailable. Choose its target and send again.');
+      prepared = this.deps.prepareInput?.(r.summary.id, next) ?? { text: next.text };
+    } catch (error) {
+      r.inputs = r.inputs.filter(input => input !== next);
+      this.deps.ended?.(r.summary.id);
+      this.appendNote(r, (error as Error).message, 'warning', true);
+      this.persist(r, true);
+      this.pump(r);
+      return;
+    }
     next.state = 'sent';
     next.sentAt = Date.now();
     r.summary.status = 'working';
@@ -433,8 +462,14 @@ export class ThreadManager {
     r.turnLimited = false;
     r.turnStartedAt = Date.now();
     // Recorded as sent before it is sent: after a crash in between, the message is reported as possibly run, never repeated.
-    this.persist(r, true);
-    r.engine!.sendFromRenderer({ t: 'input', text: next.text });
+    if (!this.persist(r, true)) {
+      next.state = 'queued'; delete next.sentAt;
+      r.summary.status = 'idle'; r.turnStartedAt = undefined;
+      this.deps.ended?.(r.summary.id);
+      this.blockForStorage(r);
+      return;
+    }
+    r.engine!.sendFromRenderer({ t: 'input', ...prepared });
   }
   receive(id: string, msg: Outbound): void {
     const r = this.records.get(id);
@@ -626,6 +661,7 @@ export class ThreadManager {
       finishedTurn = !choice && (r.summary.status === 'working' || r.summary.status === 'needs-you');
       // The turn is over, so the message it answered is settled.
       if (finishedTurn) {
+        this.deps.ended?.(r.summary.id);
         r.inputs = r.inputs.filter((input) => input.state !== 'sent');
         r.summary.outcome = r.interruptAsked ? 'interrupted' : r.turnError ? 'failed' : r.turnLimited ? 'time-limit' : 'completed';
       }
@@ -643,6 +679,7 @@ export class ThreadManager {
   lifecycle(id: string, phase: string, detail: string): void {
     const r = this.records.get(id); if (!r?.engine) return;
     if (['failed','exited','restarting','stopping'].includes(phase)) {
+      this.deps.ended?.(id);
       r.ready = false; r.pending.clear();
       // A turn cut off by the engine: failed when the engine died, interrupted when it restarted or stopped (backlog N12).
       if (r.summary.status === 'working' || r.summary.status === 'needs-you') r.summary.outcome = phase === 'failed' || phase === 'exited' ? 'failed' : 'interrupted';
@@ -666,12 +703,14 @@ export class ThreadManager {
   send(id: string, msg: any): void {
     const r = this.records.get(id);
     if (!r) throw new Error('Thread not found');
-    if (msg.t === 'input' && !msg.text.trim().startsWith('/')) return this.submit(id, msg.text, msg.text, false);
+    if (msg.t === 'input' && !msg.text.trim().startsWith('/')) { this.submit(id, msg.text, msg.text, false); return; }
     // The window paints its own words, so they are not echoed back to it (F7).
-    if (msg.t === 'steer') return this.steer(id, String(msg.text ?? ''), String(msg.text ?? ''), false);
+    if (msg.t === 'steer') { this.steer(id, String(msg.text ?? ''), String(msg.text ?? ''), false); return; }
     if (msg.t === 'reply' && this.takeReply(r, msg) === 'handled') return;
     if (msg.t === 'interrupt') this.cancelTurn(r);
-    r.engine?.sendFromRenderer(msg);
+    // Tool scope belongs to main's prepareInput, never a renderer-supplied frame.
+    const { toolScope: _scope, displayText: _display, ...safe } = msg;
+    r.engine?.sendFromRenderer(safe);
     this.persist(r);
   }
 
@@ -870,7 +909,8 @@ export class ThreadManager {
     const queued = r.inputs.filter((input) => input.state === 'queued').length;
     if (!queued) return summary;
     summary.queued = queued;
-    if (!r.engine) summary.waiting = 'resume';
+    if (r.storageBlocked) summary.waiting = 'storage';
+    else if (!r.engine) summary.waiting = 'resume';
     else if (r.draining || !r.ready) summary.waiting = 'engine';
     else if (this.folderTaken(r)) summary.waiting = 'folder';
     return summary;
@@ -1079,28 +1119,41 @@ export class ThreadManager {
     this.reapCancel?.(); this.reapCancel = undefined;
     for (const id of this.records.keys()) this.stop(id, { keepInputs: true });
   }
-  private persist(r: LiveThread, now = false): void {
+  /** Keep an unexecuted message visible, but do not mistake a deferred retry for dispatch admission. */
+  private blockForStorage(r: LiveThread): void {
+    r.storageBlocked = true;
+    this.appendNote(r, `Your message has not been sent because Bimax could not save it. ${r.storageError ? `${r.storageError.slice(0, 240)} ` : ''}It is kept in this open conversation, but may not survive quitting. Resolve the saving problem, then send a message to retry the queue, or Stop to discard it.`, 'warning', true);
+    this.persist(r);
+  }
+
+  private persist(r: LiveThread, now = false): boolean {
     // An idle engine emits a heartbeat every few seconds that changes nothing a thread stores. Stamping and
     // saving on each one rewrote every live thread's file every 3s and kept bumping `updatedAt`, which also
     // floated idle threads up the list. The reducer returns the same state object for such events, so only
     // a real change — a new state or a changed summary — is written.
     const summary = JSON.stringify({ ...r.summary, updatedAt: 0, inputs: r.inputs });
-    if (r.state === r.savedState && summary === r.savedSummary) return;
-    r.savedState = r.state;
-    r.savedSummary = summary;
+    // A prior coalesced save is not a durable acknowledgement. Urgent admission always writes.
+    if (!now && r.state === r.savedState && summary === r.savedSummary) return true;
     r.summary.updatedAt = Date.now();
     const value: SavedThread = { summary: r.summary, state: r.state, inputs: r.inputs.map((input) => ({ ...input })) };
     if (now && this.deps.saveNow) {
       try {
         this.deps.saveNow(value);
+        r.storageError = undefined;
       } catch (error) {
-        // Could not write at once: keep the message and save it the ordinary way rather than refuse it.
+        // A deferred retry preserves work when possible, but cannot authorize executing it now.
         console.warn(`[threads] could not save thread ${r.summary.id} at once: ${(error as Error).message}`);
+        r.storageError = (error as Error).message;
         this.deps.save(value);
+        this.deps.changed();
+        return false;
       }
     } else {
       this.deps.save(value);
     }
+    r.savedState = r.state;
+    r.savedSummary = summary;
     this.deps.changed();
+    return true;
   }
 }

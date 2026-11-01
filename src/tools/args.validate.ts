@@ -239,7 +239,7 @@ export function validateJsonSchemaValue(schema: JsonSchemaNode | undefined, valu
       violations.push(`${where}: must be at most ${schema.maxLength} characters, received ${value.length}`);
     }
     if (typeof schema.pattern === 'string') {
-      let re: RegExp | null = null;
+      let re: RegExp | null;
       // A schema's own pattern can be an invalid RegExp; that is our bug, not the model's, so it
       // must never become a violation the model is asked to fix.
       try { re = new RegExp(schema.pattern); } catch { re = null; }

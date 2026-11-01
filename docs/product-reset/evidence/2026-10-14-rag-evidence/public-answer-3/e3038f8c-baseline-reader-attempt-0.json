@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T09:11:46.639180+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 0,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/30 (Tue) 20:48\nQuestion: How many rare items do I have in total?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 24, excerpt) user: I'm actually considering expanding my search to online marketplaces and forums, but I'm not sure where to start. Can you recommend some popular platforms for buying and selling rare items, and maybe some tips on how to navigate them safely?\n  (part 6 of 24) collectors. Here are some popular platforms for buying and selling rare items, along with some tips on how to navigate them safely:\n\n**Online Marketplaces:**\n\n1. **eBay**: One of the largest online marketplaces, with a vast range of categories, including rare collectibles. Create a verified account, and make sure to read and follow eBay's policies and guidelines.\n2. **Etsy**: Specializing in handmade, vintage, and unique items, Etsy is a great platform for rare collectibles. Look for sellers with high ratings and reviews.\n3. **1stdibs**: A luxury online marketplace for high-end, rare, and unique items, including art, antiques, and collectibles. Be prepared for higher prices, and make sure to verify the seller's authenticity.\n4. **Ruby Lane**: A marketplace for vintage, antique, and collectible items, with a strong focus on rare and hard-to-find items. Look for sellers with a good reputation and high ratings.\n5. **Bonanza**: An online marketplace with a wide range of categories, including collectibles. Be cautious of sellers with low ratings or few reviews.\n\n**Forums and Communities:**\n- (part 7 of 11, excerpt) Many of their collectibles are highly sought after by collectors and can be worth a significant amount of money, particularly if they are rare or hard to find.\n\n4.\n- (part 20 of 23, excerpt) user: I'll definitely check out those directories and resources to find a reputable book appraiser. By the way, speaking of rare items, I've been meaning to update my inventory list of rare"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 88.43229099966265
+}

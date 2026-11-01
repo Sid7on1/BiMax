@@ -1,0 +1,280 @@
+{
+  "row": 218,
+  "id": "078150f1",
+  "stratum": "multi-session",
+  "dataset": "longmemeval",
+  "question": "How much more money did I raise than my initial goal in the charity cycling event?",
+  "references": [
+    "$50"
+  ],
+  "kind": "multi-session",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 23:36",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 17.20979200000147,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 82,
+        "maxInputChars": 82,
+        "requiredProviderTruncation": false,
+        "promptTokens": 19,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_254d8b09_1",
+        "answer_254d8b09_2",
+        "ultrachat_202549"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 20, excerpt) assistant: That's great to hear that you're looking to improve your cycling endurance and that you participated in a charity cycling event! Congratulations on exceeding your fundraising goal, by the way - how much did you end up raising?\n  (part 13 of 20) new to interval training or need guidance on how to modify the intervals to suit your fitness level, consider working with a personal trainer or fitness coach.\n\nBy following these tips, you'll be able to track your progress, stay motivated, and achieve your fitness goals.\n\nHow do you plan to track your progress and stay motivated? Do you have any favorite fitness apps or workout buddies?\nuser: That's a great list of tips! I think I'll start by setting specific, measurable goals and tracking my workouts using a fitness app. I'll also try to celebrate small victories along the way to stay motivated. I recently participated in a charity cycling event where I initially aimed to raise $200 in donations for the local children's hospital. Speaking of goals, I'm still thinking about signing up for that triathlon in June. Do you think it's a good idea to start training for it now, or should I wait until closer to the event?\nassistant: That's a great idea to start setting specific, measurable goals and tracking your workouts! Celebrating small victories will definitely help you stay motivated and encouraged throughout your fitness journey.\n- (part 1 of 17, excerpt) user: I'm looking to get some bike maintenance tips. I recently participated in a charity cycling event and raised $250 in donations, which was a great experience. Do you have any advice on h\n- (part 4 of 7, excerpt) The result was that the Canadian taxpayers were left to foot a bill that was much larger than originally anticipated.",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_254d8b09_1",
+          "sourceVersion": "sha256:814659d3d0b4e152ea933f3ca2e8b5c3788eeeeeac13a0d74a54b80e172fabdb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_254d8b09_1",
+            "part": 1,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "assistant: That's great to hear that you're looking to improve your cycling endurance and that you participated in a charity cycling event! Congratulations on exceeding your fundraising goal, by the way - how much did you end up raising?",
+          "id": "ev_6f93e31ff69582a8399f12f0",
+          "observedAt": "2026-10-14T05:22:24.327Z"
+        },
+        {
+          "sourceId": "memory:answer_254d8b09_1",
+          "sourceVersion": "sha256:814659d3d0b4e152ea933f3ca2e8b5c3788eeeeeac13a0d74a54b80e172fabdb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_254d8b09_1",
+            "part": 13,
+            "parts": 20
+          },
+          "text": "new to interval training or need guidance on how to modify the intervals to suit your fitness level, consider working with a personal trainer or fitness coach.\n\nBy following these tips, you'll be able to track your progress, stay motivated, and achieve your fitness goals.\n\nHow do you plan to track your progress and stay motivated? Do you have any favorite fitness apps or workout buddies?\nuser: That's a great list of tips! I think I'll start by setting specific, measurable goals and tracking my workouts using a fitness app. I'll also try to celebrate small victories along the way to stay motivated. I recently participated in a charity cycling event where I initially aimed to raise $200 in donations for the local children's hospital. Speaking of goals, I'm still thinking about signing up for that triathlon in June. Do you think it's a good idea to start training for it now, or should I wait until closer to the event?\nassistant: That's a great idea to start setting specific, measurable goals and tracking your workouts! Celebrating small victories will definitely help you stay motivated and encouraged throughout your fitness journey.",
+          "id": "ev_e3cac1b735fc2089637a5b35",
+          "observedAt": "2026-10-14T05:22:24.328Z"
+        },
+        {
+          "sourceId": "memory:answer_254d8b09_2",
+          "sourceVersion": "sha256:543d9b2c72d2a986b2a540a8acfeafb90aade969209d241f7f45e8cbe292a8d8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_254d8b09_2",
+            "part": 1,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "user: I'm looking to get some bike maintenance tips. I recently participated in a charity cycling event and raised $250 in donations, which was a great experience. Do you have any advice on h",
+          "id": "ev_d8ccce977b5ae6da49e77149",
+          "observedAt": "2026-10-14T05:22:24.329Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_202549",
+          "sourceVersion": "sha256:1f773be8e377061859f6b521d701c61826cfe92e7a243681bb01ede11ab7bc4e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_202549",
+            "part": 4,
+            "parts": 7,
+            "partial": true
+          },
+          "text": "The result was that the Canadian taxpayers were left to foot a bill that was much larger than originally anticipated.",
+          "id": "ev_7502d8d802b74362e6184a20",
+          "observedAt": "2026-10-14T05:22:24.329Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_254d8b09_1",
+        "answer_254d8b09_2",
+        "ultrachat_202549"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 22.838458999998693,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_254d8b09_1",
+        "answer_254d8b09_2",
+        "ultrachat_202549"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 20, excerpt) assistant: That's great to hear that you're looking to improve your cycling endurance and that you participated in a charity cycling event! Congratulations on exceeding your fundraising goal, by the way - how much did you end up raising?\n  (part 13 of 20) new to interval training or need guidance on how to modify the intervals to suit your fitness level, consider working with a personal trainer or fitness coach.\n\nBy following these tips, you'll be able to track your progress, stay motivated, and achieve your fitness goals.\n\nHow do you plan to track your progress and stay motivated? Do you have any favorite fitness apps or workout buddies?\nuser: That's a great list of tips! I think I'll start by setting specific, measurable goals and tracking my workouts using a fitness app. I'll also try to celebrate small victories along the way to stay motivated. I recently participated in a charity cycling event where I initially aimed to raise $200 in donations for the local children's hospital. Speaking of goals, I'm still thinking about signing up for that triathlon in June. Do you think it's a good idea to start training for it now, or should I wait until closer to the event?\nassistant: That's a great idea to start setting specific, measurable goals and tracking your workouts! Celebrating small victories will definitely help you stay motivated and encouraged throughout your fitness journey.\n- (part 1 of 17, excerpt) user: I'm looking to get some bike maintenance tips. I recently participated in a charity cycling event and raised $250 in donations, which was a great experience. Do you have any advice on h\n- (part 4 of 7, excerpt) The result was that the Canadian taxpayers were left to foot a bill that was much larger than originally anticipated.",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_254d8b09_1",
+          "sourceVersion": "sha256:814659d3d0b4e152ea933f3ca2e8b5c3788eeeeeac13a0d74a54b80e172fabdb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_254d8b09_1",
+            "part": 1,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "assistant: That's great to hear that you're looking to improve your cycling endurance and that you participated in a charity cycling event! Congratulations on exceeding your fundraising goal, by the way - how much did you end up raising?",
+          "id": "ev_6f93e31ff69582a8399f12f0",
+          "observedAt": "2026-10-14T05:22:24.336Z"
+        },
+        {
+          "sourceId": "memory:answer_254d8b09_1",
+          "sourceVersion": "sha256:814659d3d0b4e152ea933f3ca2e8b5c3788eeeeeac13a0d74a54b80e172fabdb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_254d8b09_1",
+            "part": 13,
+            "parts": 20
+          },
+          "text": "new to interval training or need guidance on how to modify the intervals to suit your fitness level, consider working with a personal trainer or fitness coach.\n\nBy following these tips, you'll be able to track your progress, stay motivated, and achieve your fitness goals.\n\nHow do you plan to track your progress and stay motivated? Do you have any favorite fitness apps or workout buddies?\nuser: That's a great list of tips! I think I'll start by setting specific, measurable goals and tracking my workouts using a fitness app. I'll also try to celebrate small victories along the way to stay motivated. I recently participated in a charity cycling event where I initially aimed to raise $200 in donations for the local children's hospital. Speaking of goals, I'm still thinking about signing up for that triathlon in June. Do you think it's a good idea to start training for it now, or should I wait until closer to the event?\nassistant: That's a great idea to start setting specific, measurable goals and tracking your workouts! Celebrating small victories will definitely help you stay motivated and encouraged throughout your fitness journey.",
+          "id": "ev_e3cac1b735fc2089637a5b35",
+          "observedAt": "2026-10-14T05:22:24.336Z"
+        },
+        {
+          "sourceId": "memory:answer_254d8b09_2",
+          "sourceVersion": "sha256:543d9b2c72d2a986b2a540a8acfeafb90aade969209d241f7f45e8cbe292a8d8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_254d8b09_2",
+            "part": 1,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "user: I'm looking to get some bike maintenance tips. I recently participated in a charity cycling event and raised $250 in donations, which was a great experience. Do you have any advice on h",
+          "id": "ev_d8ccce977b5ae6da49e77149",
+          "observedAt": "2026-10-14T05:22:24.336Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_202549",
+          "sourceVersion": "sha256:1f773be8e377061859f6b521d701c61826cfe92e7a243681bb01ede11ab7bc4e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_202549",
+            "part": 4,
+            "parts": 7,
+            "partial": true
+          },
+          "text": "The result was that the Canadian taxpayers were left to foot a bill that was much larger than originally anticipated.",
+          "id": "ev_7502d8d802b74362e6184a20",
+          "observedAt": "2026-10-14T05:22:24.336Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_254d8b09_1",
+        "answer_254d8b09_2",
+        "ultrachat_202549"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.817041999998764,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "answer_254d8b09_1",
+    "answer_254d8b09_2",
+    "ultrachat_202549"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:49:15.173279+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Based on your conversation history, you initially aimed to raise **$200** for the local children's hospital and ended up raising **$250** in donations. This means you raised **$50 more** than your initial goal.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 516,
+    "completion_tokens": 977,
+    "total_tokens": 1493,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 924,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 298,
+    "completion_tokens": 355,
+    "total_tokens": 653,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 352,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 8908.053500000278,
+  "judgeWallMs": 4911.898750000091,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.06060606060606061
+  },
+  "ended": "2026-10-14T07:49:28.995272+00:00"
+}

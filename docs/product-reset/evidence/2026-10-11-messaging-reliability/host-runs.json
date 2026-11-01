@@ -1,0 +1,6816 @@
+{
+  "scope": "deterministic host contracts; not native/provider/WhatsApp qualification",
+  "records": [
+    {
+      "case": "existing-identical-0",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 0,
+          "afterCount": 1,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "33212e96-5715-47c0-9010-ee855736ab2c:s4",
+          "afterSnapshot": "33212e96-5715-47c0-9010-ee855736ab2c:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "33212e96-5715-47c0-9010-ee855736ab2c:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-1",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 1,
+          "afterCount": 2,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "a4136ee0-ae55-4ed4-8076-4e419d912037:s4",
+          "afterSnapshot": "a4136ee0-ae55-4ed4-8076-4e419d912037:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "a4136ee0-ae55-4ed4-8076-4e419d912037:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-2",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 2,
+          "afterCount": 3,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "a0948b7c-a676-41c5-8dc9-cf7ded34457c:s4",
+          "afterSnapshot": "a0948b7c-a676-41c5-8dc9-cf7ded34457c:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "a0948b7c-a676-41c5-8dc9-cf7ded34457c:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-3",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 3,
+          "afterCount": 4,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "4779f8f7-170d-4455-8558-6c330031da18:s4",
+          "afterSnapshot": "4779f8f7-170d-4455-8558-6c330031da18:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "4779f8f7-170d-4455-8558-6c330031da18:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-4",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 4,
+          "afterCount": 5,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "7e9bdeb3-b8ce-4d95-84d1-7d70ac36efd5:s4",
+          "afterSnapshot": "7e9bdeb3-b8ce-4d95-84d1-7d70ac36efd5:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "7e9bdeb3-b8ce-4d95-84d1-7d70ac36efd5:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-5",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 5,
+          "afterCount": 6,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "bbb3ba3a-3fc0-4c01-9b4b-6bf884edce05:s4",
+          "afterSnapshot": "bbb3ba3a-3fc0-4c01-9b4b-6bf884edce05:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "bbb3ba3a-3fc0-4c01-9b4b-6bf884edce05:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-6",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 6,
+          "afterCount": 7,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "f6d60e67-a5b8-43f8-88f9-db58a88a31ae:s4",
+          "afterSnapshot": "f6d60e67-a5b8-43f8-88f9-db58a88a31ae:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "f6d60e67-a5b8-43f8-88f9-db58a88a31ae:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-7",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 7,
+          "afterCount": 8,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "f4581e8b-064b-436d-8b72-8376ecbab830:s4",
+          "afterSnapshot": "f4581e8b-064b-436d-8b72-8376ecbab830:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "f4581e8b-064b-436d-8b72-8376ecbab830:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-6",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-8",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 8,
+          "afterCount": 9,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "e3f76731-9e5d-4ab8-a7e9-905c22009520:s4",
+          "afterSnapshot": "e3f76731-9e5d-4ab8-a7e9-905c22009520:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "e3f76731-9e5d-4ab8-a7e9-905c22009520:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-6",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-7",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-9",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 9,
+          "afterCount": 10,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "7d127ba2-0a80-4c70-8101-04c3d28c392a:s4",
+          "afterSnapshot": "7d127ba2-0a80-4c70-8101-04c3d28c392a:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "7d127ba2-0a80-4c70-8101-04c3d28c392a:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-6",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-7",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-8",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-10",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 10,
+          "afterCount": 11,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "77ee4f91-6ab2-44a3-afb5-844340745dba:s4",
+          "afterSnapshot": "77ee4f91-6ab2-44a3-afb5-844340745dba:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "77ee4f91-6ab2-44a3-afb5-844340745dba:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-6",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-7",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-8",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-9",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-11",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 11,
+          "afterCount": 12,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "cc61521a-1b1d-480e-b634-b31cbb4c899f:s4",
+          "afterSnapshot": "cc61521a-1b1d-480e-b634-b31cbb4c899f:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "cc61521a-1b1d-480e-b634-b31cbb4c899f:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-6",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-7",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-8",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-9",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-10",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-12",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 12,
+          "afterCount": 13,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "6b6226af-a422-42e0-93f7-770495d55992:s4",
+          "afterSnapshot": "6b6226af-a422-42e0-93f7-770495d55992:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "6b6226af-a422-42e0-93f7-770495d55992:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-6",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-7",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-8",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-9",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-10",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-11",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-13",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 13,
+          "afterCount": 14,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "00ece827-b061-4a5b-99bb-76130a9daa52:s4",
+          "afterSnapshot": "00ece827-b061-4a5b-99bb-76130a9daa52:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "00ece827-b061-4a5b-99bb-76130a9daa52:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-6",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-7",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-8",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-9",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-10",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-11",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-12",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-14",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-13",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-13",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 14,
+          "afterCount": 15,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "96debd32-7667-4f7c-999e-92d829bf59e2:s4",
+          "afterSnapshot": "96debd32-7667-4f7c-999e-92d829bf59e2:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "96debd32-7667-4f7c-999e-92d829bf59e2:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-6",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-7",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-8",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-9",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-10",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-11",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-12",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-13",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-15",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-13",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-14",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-13",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-14",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 15,
+          "afterCount": 16,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "0a780553-3d08-4b57-b033-d39d2827617d:s4",
+          "afterSnapshot": "0a780553-3d08-4b57-b033-d39d2827617d:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "0a780553-3d08-4b57-b033-d39d2827617d:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-6",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-7",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-8",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-9",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-10",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-11",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-12",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-13",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-14",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-16",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-13",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-14",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-15",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-13",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-14",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-15",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 16,
+          "afterCount": 17,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "6c520f8a-5dfd-445d-8a06-b26a66a40516:s4",
+          "afterSnapshot": "6c520f8a-5dfd-445d-8a06-b26a66a40516:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "6c520f8a-5dfd-445d-8a06-b26a66a40516:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-6",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-7",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-8",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-9",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-10",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-11",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-12",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-13",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-14",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-15",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-17",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-13",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-14",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-15",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-16",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-13",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-14",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-15",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-16",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 17,
+          "afterCount": 18,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "aa2a4880-2efc-4f23-b665-6880d8b69f44:s4",
+          "afterSnapshot": "aa2a4880-2efc-4f23-b665-6880d8b69f44:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "aa2a4880-2efc-4f23-b665-6880d8b69f44:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-6",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-7",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-8",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-9",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-10",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-11",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-12",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-13",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-14",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-15",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-16",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-18",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-13",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-14",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-15",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-16",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-17",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-13",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-14",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-15",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-16",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-17",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 18,
+          "afterCount": 19,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "9e96b97d-9a1a-4838-95e6-d19445011861:s4",
+          "afterSnapshot": "9e96b97d-9a1a-4838-95e6-d19445011861:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "9e96b97d-9a1a-4838-95e6-d19445011861:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-6",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-7",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-8",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-9",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-10",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-11",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-12",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-13",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-14",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-15",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-16",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-17",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "existing-identical-19",
+      "before": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 0,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-13",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-14",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-15",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-16",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-17",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-18",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-2",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-3",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-4",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-5",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-6",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-7",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-8",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-9",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-10",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-11",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-12",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-13",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-14",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-15",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-16",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-17",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "old-18",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "result": {
+        "ok": true,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "verified": true,
+        "verification": "exact",
+        "messageVerification": {
+          "recipient": "Mom demo",
+          "text": "hi",
+          "beforeCount": 19,
+          "afterCount": 20,
+          "outcome": "observed-outgoing",
+          "delivery": "unconfirmed",
+          "beforeSnapshot": "e116fc18-84dc-4511-9946-aebc81e1581c:s4",
+          "afterSnapshot": "e116fc18-84dc-4511-9946-aebc81e1581c:s6"
+        },
+        "mode": "do",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 2,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "e116fc18-84dc-4511-9946-aebc81e1581c:s6",
+          "elements": [
+            {
+              "id": "r-6",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-6",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-6",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-2",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-3",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-4",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-5",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-6",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-7",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-8",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-9",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-10",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-11",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-12",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-13",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-14",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-15",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-16",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-17",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "old-18",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ],
+      "approvals": [
+        "Read this app for the current Bimax Thread turn",
+        "Prepare draft: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nSET_VALUE “Message”: {\"element\":\"d-1\",\"action\":\"SET_VALUE\",\"value\":\"hi\"}\nWindow: 5\nBimax asks before every native input.\nRunning build: original",
+        "Send: \"hi\"\nIntended recipient: \"Mom demo\"\nBimax will check the recipient again after approval. Outgoing evidence does not prove delivery.\nCLICK “Send”: {\"element\":\"b-4\",\"action\":\"CLICK\"}\nWindow: 5\n“Send” can send, buy, delete or confirm something, so Bimax asks first.\nRunning build: original"
+      ]
+    },
+    {
+      "case": "noop",
+      "result": {
+        "ok": false,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "blocked": true,
+        "executor": "stop",
+        "code": "native_workflow_stopped",
+        "reason": "Send was submitted but exactly one new outgoing message, the intended recipient and a cleared draft could not be verified. Delivery is uncertain. Do not send again; check the app manually.",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 1,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "0206b474-0f4c-4f65-8cca-39d7c6a3323a:s14",
+          "elements": [
+            {
+              "id": "r-14",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-14",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-14",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        },
+        "replay": false
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ]
+    },
+    {
+      "case": "clear-only",
+      "result": {
+        "ok": false,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "blocked": true,
+        "executor": "stop",
+        "code": "native_workflow_stopped",
+        "reason": "Send was submitted but exactly one new outgoing message, the intended recipient and a cleared draft could not be verified. Delivery is uncertain. Do not send again; check the app manually.",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 1,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "b45b8b38-4479-4121-83de-c32d8e60c4fa:s14",
+          "elements": [
+            {
+              "id": "r-14",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-14",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-14",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        },
+        "replay": false
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ]
+    },
+    {
+      "case": "duplicate",
+      "result": {
+        "ok": false,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "blocked": true,
+        "executor": "stop",
+        "code": "native_workflow_stopped",
+        "reason": "Send was submitted but exactly one new outgoing message, the intended recipient and a cleared draft could not be verified. Delivery is uncertain. Do not send again; check the app manually.",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 1,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "8834b2d2-924d-48ee-a293-54112b8ad10c:s14",
+          "elements": [
+            {
+              "id": "r-14",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-14",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-14",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "duplicate-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        },
+        "replay": false
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "duplicate-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ]
+    },
+    {
+      "case": "wrong-target",
+      "result": {
+        "ok": false,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "blocked": true,
+        "executor": "stop",
+        "code": "native_workflow_stopped",
+        "reason": "Send was submitted but exactly one new outgoing message, the intended recipient and a cleared draft could not be verified. Delivery is uncertain. Do not send again; check the app manually.",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 1,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "dd84d2b6-7789-4023-9bdb-d8cd083b1b9c:s14",
+          "elements": [
+            {
+              "id": "r-14",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-14",
+              "name": "Message",
+              "role": "TextField",
+              "value": "",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-14",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        },
+        "replay": false
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Other demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ]
+    },
+    {
+      "case": "retain-draft",
+      "result": {
+        "ok": false,
+        "driver": "Bimax CU",
+        "operation": "workflow",
+        "blocked": true,
+        "executor": "stop",
+        "code": "native_workflow_stopped",
+        "reason": "Send was submitted but exactly one new outgoing message, the intended recipient and a cleared draft could not be verified. Delivery is uncertain. Do not send again; check the app manually.",
+        "completed": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "verified": true,
+            "input": true
+          }
+        ],
+        "attempted": [
+          {
+            "index": 0,
+            "action": "SET_VALUE",
+            "control": "Message",
+            "inputStatus": "done"
+          },
+          {
+            "index": 1,
+            "action": "SEND_MESSAGE",
+            "control": "Send",
+            "inputStatus": "done"
+          }
+        ],
+        "completedCount": 1,
+        "final": {
+          "pid": 42,
+          "window_id": 5,
+          "snapshot": "2fc33e65-6ee1-46b7-ba60-c99ad99b3820:s14",
+          "elements": [
+            {
+              "id": "r-14",
+              "name": "Conversation",
+              "role": "StaticText",
+              "value": "Mom demo",
+              "actions": []
+            },
+            {
+              "id": "d-14",
+              "name": "Message",
+              "role": "TextField",
+              "value": "hi",
+              "actions": [
+                "SET_VALUE"
+              ]
+            },
+            {
+              "id": "b-14",
+              "name": "Send",
+              "role": "Button",
+              "actions": [
+                "CLICK"
+              ]
+            },
+            {
+              "id": "old-cue",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "older example",
+              "actions": []
+            },
+            {
+              "id": "old-0",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            },
+            {
+              "id": "new-1",
+              "name": "Outgoing message",
+              "role": "StaticText",
+              "value": "hi",
+              "actions": []
+            }
+          ]
+        },
+        "replay": false
+      },
+      "after": {
+        "recipient": "Mom demo",
+        "draft": "hi",
+        "sends": 1,
+        "messages": [
+          {
+            "id": "old-cue",
+            "recipient": "Mom demo",
+            "text": "older example"
+          },
+          {
+            "id": "old-0",
+            "recipient": "Mom demo",
+            "text": "hi"
+          },
+          {
+            "id": "new-1",
+            "recipient": "Mom demo",
+            "text": "hi"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "snapshot": "s2",
+          "element": "d-2",
+          "action": "SET_VALUE",
+          "value": "hi",
+          "settle": true,
+          "recipient": "Mom demo"
+        },
+        {
+          "snapshot": "s5",
+          "element": "b-5",
+          "action": "CLICK",
+          "settle": true,
+          "recipient": "Mom demo"
+        }
+      ]
+    }
+  ]
+}

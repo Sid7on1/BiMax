@@ -1,0 +1,58 @@
+{
+  "generatedAt": "2026-10-18T17:00:01.787Z",
+  "scope": "Current source; synthetic local probes; no provider/model calls or source mutations",
+  "observations": {
+    "sharedWriterLoss": {
+      "reproduced": true,
+      "acknowledgedWrites": 2,
+      "retainedIds": [
+        "writer-a"
+      ],
+      "expectedRetainedIds": [
+        "writer-a",
+        "writer-b"
+      ],
+      "scheduling": "writer A paused before save; writer B completes; A completes"
+    },
+    "staleBackfill": {
+      "reproduced": true,
+      "currentText": "New violet launch destination.",
+      "expectedCurrentVector": [
+        0,
+        1
+      ],
+      "persistedVector": [
+        1,
+        0
+      ]
+    },
+    "denseAbstentionGap": {
+      "reproduced": true,
+      "cosine": 0,
+      "lexicalMatches": 0,
+      "query": "Explain quantum neutrino oscillation parameters",
+      "injected": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- Apricot orchards require seasonal pruning.",
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "limitation": "Controlled orthogonal vectors; no claim about prevalence with a real embedding model."
+    },
+    "longLineEvidenceLoss": {
+      "reproduced": true,
+      "sourceHasFact": true,
+      "sourceChars": 804,
+      "budgetChars": 120,
+      "excerpt": "Background context Background context Background context Background context Background context Background context Backgr",
+      "expectedFact": "VIOLET-73"
+    },
+    "workerEndpointMismatch": {
+      "reproduced": true,
+      "configuredEmbeddingBaseURL": "http://127.0.0.1:11434/v1",
+      "resolvedEmbeddingBaseURL": "https://audit-chat.invalid/v1",
+      "chatKeyReads": 1,
+      "limitation": "Extracted current resolver with fake credentials; no complete worker or HTTP request executed."
+    }
+  }
+}

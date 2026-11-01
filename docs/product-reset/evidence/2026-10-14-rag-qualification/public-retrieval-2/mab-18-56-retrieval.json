@@ -1,0 +1,195 @@
+{
+  "row": 18,
+  "query": 56,
+  "id": "mab-18-56",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T05:06:32.340254+00:00",
+  "valid": true,
+  "question": "Current Date: 2023/06/01 (Thu) 23:23,\n\n Now Answer the Question: What is the order of the three trips I took in the past three months, from earliest to latest?",
+  "references": [
+    "I went on a day hike to Muir Woods National Monument with my family, then I went on a road trip with friends to Big Sur and Monterey, and finally I started my solo camping trip to Yosemite National Park."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/06/01 (Thu) 23:23",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 455.1033330000064,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 159,
+        "maxInputChars": 159,
+        "requiredProviderTruncation": false,
+        "promptTokens": 45,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-267",
+        "context-223",
+        "context-266"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) \\n| Instagram | Fri, [Date] | Sneak peek into your weekend plans | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"A day in the life\" vlog | Video | 10:00 AM |\\n| Facebook | Sun, [Date] | Weekly wrap-up (e.g., \"My favorite moments from the week\") | Post | 6:00 PM |\\n\\n**Week 2:**\\n\\n| Platform | Date | Content Theme | Post Type | Time |\\n| --- | --- | --- | --- | --- |\\n| Twitter | Mon, [Date] | Quote related to your favorite TV show/movie | Tweet | 10:00 AM |\\n| Instagram | Tue, [Date] | Hobby-related photo (e.g., a photo you took with your camera) | Post | 3:00 PM |\\n| TikTok | Wed, [Date] | \"Get ready with me\" morning routine | Video | 8:00 AM |\\n| Facebook | Thu, [Date] | Behind-the-scenes look at your daily life (e.g., a photo of your workspace) | Post | 12:00 PM |\\n| Instagram | Fri, [Date] | Sneak peek into a new hobby or interest | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"Q&A\" session (answer questions from followers) | Video | 2:00 PM |\\n| Facebook | Sun, [Date] | Share a personal achievement or milestone | Post | 6:00 PM |\\n\\nThis content calendar offers a mix of:\\n\\n1.\n- (part 4 of 5, excerpt) We can also check your car's maintenance schedule or consult with a mechanic to determine when these services are typically recommended.\\n\\nLet me know if you have any ideas or if you'd like to investigate further!\"}], 'Chat Time: 2023/05/23 (Tue) 06:01', [{'role': 'user', 'content': \"I'm planning a trip to Asia and I'm considering visiting Japan.\n\nCan you recommend some must-see attractions in Kyoto?\"}, {'role': 'assistant', 'content': 'Kyoto!\n\nYou\\'re in for a treat!\n- (part 1 of 5, excerpt) sion?\"}], 'Chat Time: 2023/05/25 (Thu) 01:35', [{'role': 'user', 'content': \"I'm looking to create a content calendar for my social media platforms.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-267",
+          "sourceVersion": "sha256:ce37f9c82ee2aa8678841573b03a35b26cd240ad1fcf7b918bc230b5f7c75d13",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-267",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "\\n| Instagram | Fri, [Date] | Sneak peek into your weekend plans | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"A day in the life\" vlog | Video | 10:00 AM |\\n| Facebook | Sun, [Date] | Weekly wrap-up (e.g., \"My favorite moments from the week\") | Post | 6:00 PM |\\n\\n**Week 2:**\\n\\n| Platform | Date | Content Theme | Post Type | Time |\\n| --- | --- | --- | --- | --- |\\n| Twitter | Mon, [Date] | Quote related to your favorite TV show/movie | Tweet | 10:00 AM |\\n| Instagram | Tue, [Date] | Hobby-related photo (e.g., a photo you took with your camera) | Post | 3:00 PM |\\n| TikTok | Wed, [Date] | \"Get ready with me\" morning routine | Video | 8:00 AM |\\n| Facebook | Thu, [Date] | Behind-the-scenes look at your daily life (e.g., a photo of your workspace) | Post | 12:00 PM |\\n| Instagram | Fri, [Date] | Sneak peek into a new hobby or interest | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"Q&A\" session (answer questions from followers) | Video | 2:00 PM |\\n| Facebook | Sun, [Date] | Share a personal achievement or milestone | Post | 6:00 PM |\\n\\nThis content calendar offers a mix of:\\n\\n1.",
+          "id": "ev_56a43df1aa324534cc37d82d",
+          "observedAt": "2026-10-14T05:06:32.832Z"
+        },
+        {
+          "sourceId": "memory:context-223",
+          "sourceVersion": "sha256:23560f796deed8683af6acb5b492eb450207edda6de79f3fafeaf927977148e4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-223",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "We can also check your car's maintenance schedule or consult with a mechanic to determine when these services are typically recommended.\\n\\nLet me know if you have any ideas or if you'd like to investigate further!\"}], 'Chat Time: 2023/05/23 (Tue) 06:01', [{'role': 'user', 'content': \"I'm planning a trip to Asia and I'm considering visiting Japan.\n\nCan you recommend some must-see attractions in Kyoto?\"}, {'role': 'assistant', 'content': 'Kyoto!\n\nYou\\'re in for a treat!",
+          "id": "ev_086c52baea496b5f950e42bd",
+          "observedAt": "2026-10-14T05:06:32.835Z"
+        },
+        {
+          "sourceId": "memory:context-266",
+          "sourceVersion": "sha256:938688056d51b6b5477610fdd1f6088192bf11dec3846e1c13a6ca2ddef0789c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-266",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "sion?\"}], 'Chat Time: 2023/05/25 (Thu) 01:35', [{'role': 'user', 'content': \"I'm looking to create a content calendar for my social media platforms.",
+          "id": "ev_19f1e3d4cd69abeadb64a1ab",
+          "observedAt": "2026-10-14T05:06:32.836Z"
+        }
+      ],
+      "sourceIds": [
+        "context-267",
+        "context-223",
+        "context-266"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 40.745834000001196,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-267",
+        "context-223",
+        "context-266"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) \\n| Instagram | Fri, [Date] | Sneak peek into your weekend plans | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"A day in the life\" vlog | Video | 10:00 AM |\\n| Facebook | Sun, [Date] | Weekly wrap-up (e.g., \"My favorite moments from the week\") | Post | 6:00 PM |\\n\\n**Week 2:**\\n\\n| Platform | Date | Content Theme | Post Type | Time |\\n| --- | --- | --- | --- | --- |\\n| Twitter | Mon, [Date] | Quote related to your favorite TV show/movie | Tweet | 10:00 AM |\\n| Instagram | Tue, [Date] | Hobby-related photo (e.g., a photo you took with your camera) | Post | 3:00 PM |\\n| TikTok | Wed, [Date] | \"Get ready with me\" morning routine | Video | 8:00 AM |\\n| Facebook | Thu, [Date] | Behind-the-scenes look at your daily life (e.g., a photo of your workspace) | Post | 12:00 PM |\\n| Instagram | Fri, [Date] | Sneak peek into a new hobby or interest | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"Q&A\" session (answer questions from followers) | Video | 2:00 PM |\\n| Facebook | Sun, [Date] | Share a personal achievement or milestone | Post | 6:00 PM |\\n\\nThis content calendar offers a mix of:\\n\\n1.\n- (part 4 of 5, excerpt) We can also check your car's maintenance schedule or consult with a mechanic to determine when these services are typically recommended.\\n\\nLet me know if you have any ideas or if you'd like to investigate further!\"}], 'Chat Time: 2023/05/23 (Tue) 06:01', [{'role': 'user', 'content': \"I'm planning a trip to Asia and I'm considering visiting Japan.\n\nCan you recommend some must-see attractions in Kyoto?\"}, {'role': 'assistant', 'content': 'Kyoto!\n\nYou\\'re in for a treat!\n- (part 1 of 5, excerpt) sion?\"}], 'Chat Time: 2023/05/25 (Thu) 01:35', [{'role': 'user', 'content': \"I'm looking to create a content calendar for my social media platforms.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-267",
+          "sourceVersion": "sha256:ce37f9c82ee2aa8678841573b03a35b26cd240ad1fcf7b918bc230b5f7c75d13",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-267",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "\\n| Instagram | Fri, [Date] | Sneak peek into your weekend plans | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"A day in the life\" vlog | Video | 10:00 AM |\\n| Facebook | Sun, [Date] | Weekly wrap-up (e.g., \"My favorite moments from the week\") | Post | 6:00 PM |\\n\\n**Week 2:**\\n\\n| Platform | Date | Content Theme | Post Type | Time |\\n| --- | --- | --- | --- | --- |\\n| Twitter | Mon, [Date] | Quote related to your favorite TV show/movie | Tweet | 10:00 AM |\\n| Instagram | Tue, [Date] | Hobby-related photo (e.g., a photo you took with your camera) | Post | 3:00 PM |\\n| TikTok | Wed, [Date] | \"Get ready with me\" morning routine | Video | 8:00 AM |\\n| Facebook | Thu, [Date] | Behind-the-scenes look at your daily life (e.g., a photo of your workspace) | Post | 12:00 PM |\\n| Instagram | Fri, [Date] | Sneak peek into a new hobby or interest | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"Q&A\" session (answer questions from followers) | Video | 2:00 PM |\\n| Facebook | Sun, [Date] | Share a personal achievement or milestone | Post | 6:00 PM |\\n\\nThis content calendar offers a mix of:\\n\\n1.",
+          "id": "ev_56a43df1aa324534cc37d82d",
+          "observedAt": "2026-10-14T05:06:32.851Z"
+        },
+        {
+          "sourceId": "memory:context-223",
+          "sourceVersion": "sha256:23560f796deed8683af6acb5b492eb450207edda6de79f3fafeaf927977148e4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-223",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "We can also check your car's maintenance schedule or consult with a mechanic to determine when these services are typically recommended.\\n\\nLet me know if you have any ideas or if you'd like to investigate further!\"}], 'Chat Time: 2023/05/23 (Tue) 06:01', [{'role': 'user', 'content': \"I'm planning a trip to Asia and I'm considering visiting Japan.\n\nCan you recommend some must-see attractions in Kyoto?\"}, {'role': 'assistant', 'content': 'Kyoto!\n\nYou\\'re in for a treat!",
+          "id": "ev_086c52baea496b5f950e42bd",
+          "observedAt": "2026-10-14T05:06:32.852Z"
+        },
+        {
+          "sourceId": "memory:context-266",
+          "sourceVersion": "sha256:938688056d51b6b5477610fdd1f6088192bf11dec3846e1c13a6ca2ddef0789c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-266",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "sion?\"}], 'Chat Time: 2023/05/25 (Thu) 01:35', [{'role': 'user', 'content': \"I'm looking to create a content calendar for my social media platforms.",
+          "id": "ev_19f1e3d4cd69abeadb64a1ab",
+          "observedAt": "2026-10-14T05:06:32.853Z"
+        }
+      ],
+      "sourceIds": [
+        "context-267",
+        "context-223",
+        "context-266"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 16.859624999997322,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:06:32.855843+00:00"
+}

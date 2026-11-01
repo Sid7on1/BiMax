@@ -1,0 +1,387 @@
+{
+  "row": 11,
+  "id": "7527f7e2",
+  "stratum": "single-session-user",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T08:55:04.565241+00:00",
+  "valid": true,
+  "question": "How much did I spend on a designer handbag?",
+  "references": [
+    "$800"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 23:20",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 534.8330419999984,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 43,
+        "maxInputChars": 43,
+        "requiredProviderTruncation": false,
+        "promptTokens": 13,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_7cb94507",
+        "44bbd8cd_2",
+        "bee872da_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 19, excerpt) How does this sound? Is there a specific step you'd like to focus on or have questions about?\nuser: I think I'd like to start tracking my expenses. Can you recommend any good budgeting apps? I've been using my credit card a lot lately, and I'm pretty sure I spent a lot on luxury items last month. I remember buying a designer handbag for a pretty penny - $800, to be exact.\nassistant: Tracking your expenses is a great first step! There are many excellent budgeting apps out there that can help you get a better grip on your spending habits. Here are some popular ones:\n\n1.\n  (part 6 of 19) and savings.\n\nIt also offers features like budgeting, investment tracking, and bill tracking.\n\nAll of these apps are available on both iOS and Android devices.\n\nNow, about that designer handbag... $800 is a significant expense, and it's great that you're aware of it. When tracking your expenses, it's essential to be honest with yourself about your spending habits. Consider categorizing that handbag as a luxury item or a \"want\" rather than a \"need.\" This will help you identify areas where you can cut back and allocate your funds more wisely.\n\nRemember, the goal of tracking your expenses is to understand where your money is going and make conscious decisions about how you want to spend it. It's not about depriving yourself of things you enjoy, but about being mindful of your spending habits and making intentional choices.\n- (part 3 of 14, excerpt) * Space: Think about how much jewelry you need to store and how much space you have available in your home.\n- (part 12 of 24, excerpt) user: I'd like to know more about Kandinsky's views on the role of the artist in society. Did he believe that artists had a responsibility to convey spiritual or moral messages through the",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_7cb94507",
+          "sourceVersion": "sha256:da6f757dcacdad15cc7482dbb481e2707dde223f936a89d79cece31a13779c1b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_7cb94507",
+            "part": 4,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "How does this sound? Is there a specific step you'd like to focus on or have questions about?\nuser: I think I'd like to start tracking my expenses. Can you recommend any good budgeting apps? I've been using my credit card a lot lately, and I'm pretty sure I spent a lot on luxury items last month. I remember buying a designer handbag for a pretty penny - $800, to be exact.\nassistant: Tracking your expenses is a great first step! There are many excellent budgeting apps out there that can help you get a better grip on your spending habits. Here are some popular ones:\n\n1.",
+          "id": "ev_f41af8bec684edc88ed4d986",
+          "observedAt": "2026-10-14T08:55:05.120Z"
+        },
+        {
+          "sourceId": "memory:answer_7cb94507",
+          "sourceVersion": "sha256:da6f757dcacdad15cc7482dbb481e2707dde223f936a89d79cece31a13779c1b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_7cb94507",
+            "part": 6,
+            "parts": 19
+          },
+          "text": "and savings.\n\nIt also offers features like budgeting, investment tracking, and bill tracking.\n\nAll of these apps are available on both iOS and Android devices.\n\nNow, about that designer handbag... $800 is a significant expense, and it's great that you're aware of it. When tracking your expenses, it's essential to be honest with yourself about your spending habits. Consider categorizing that handbag as a luxury item or a \"want\" rather than a \"need.\" This will help you identify areas where you can cut back and allocate your funds more wisely.\n\nRemember, the goal of tracking your expenses is to understand where your money is going and make conscious decisions about how you want to spend it. It's not about depriving yourself of things you enjoy, but about being mindful of your spending habits and making intentional choices.",
+          "id": "ev_ca935ad5b55c9977a6a431c1",
+          "observedAt": "2026-10-14T08:55:05.122Z"
+        },
+        {
+          "sourceId": "memory:44bbd8cd_2",
+          "sourceVersion": "sha256:c28523e84bcfaf151368307d8dd792ee7ccc406032dad13b91409055c373ec5d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "44bbd8cd_2",
+            "part": 3,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "* Space: Think about how much jewelry you need to store and how much space you have available in your home.",
+          "id": "ev_01cd11ab11fec3b05e33fae1",
+          "observedAt": "2026-10-14T08:55:05.122Z"
+        },
+        {
+          "sourceId": "memory:bee872da_2",
+          "sourceVersion": "sha256:36062a3ebce36945c4d5ddb997af896c2704a01cce7daa8e6a2875e3da80a2f3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "bee872da_2",
+            "part": 12,
+            "parts": 24,
+            "partial": true
+          },
+          "text": "user: I'd like to know more about Kandinsky's views on the role of the artist in society. Did he believe that artists had a responsibility to convey spiritual or moral messages through the",
+          "id": "ev_3525c9fd004d7d5e84175f29",
+          "observedAt": "2026-10-14T08:55:05.122Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_7cb94507",
+        "44bbd8cd_2",
+        "bee872da_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 24.056916999998066,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_7cb94507",
+        "44bbd8cd_2",
+        "bee872da_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- Session date: 2023/05/23 (Tue) 08:15\n  (part 4 of 19, excerpt) How does this sound? Is there a specific step you'd like to focus on or have questions about?\nuser: I think I'd like to start tracking my expenses. Can you recommend any good budgeting apps? I've been using my credit card a lot lately, and I'm pretty sure I spent a lot on luxury items last month. I remember buying a designer handbag for a pretty penny - $800, to be exact.\n  (part 6 of 19, excerpt) All of these apps are available on both iOS and Android devices.\n\nNow, about that designer handbag... $800 is a significant expense, and it's great that you're aware of it. When tracking your expenses, it's essential to be honest with yourself about your spending habits. Consider categorizing that handbag as a luxury item or a \"want\" rather than a \"need.\" This will help you identify areas where you can cut back and allocate your funds more wisely.\n  (part 9 of 19, excerpt) Here are some suggestions:\n\n1. **Set a budget**: Decide how much you're willing to spend on luxury items each month and stick to it.\n2. **Make a shopping list**: Before you head to the store, make a list of what you need or want to buy. Stick to your list to avoid impulse purchases.\n3. **Consider alternatives**: Look for more affordable options or alternatives to high-end brands. You might find similar quality at a lower price point.\n  (part 16 of 19, excerpt) Processed and pre-packaged foods tend to be more expensive and less healthy. Opt for whole ingredients and cook from scratch instead.\n\n**Budgeting Tips:**\n\n1. **Set a grocery budget**: Determine how much you want to spend on groceries each week and stick to it.\n2. **Use the 50/30/20 rule**: Allocate 50% of your grocery budget to staples like produce, meat, and dairy, 30% to pantry items, and 20% to treats and snacks.\n3. **Shop with a budgeting app**: Apps like Out of Milk or Grocery IQ can help you track your grocery spending and stay within your budget.\n- (part 1 of 14, excerpt) Session date: 2023/05/30 (Tue) 22:18\nuser: I'm looking for some recommendations on jewelry armoires. I've been thinking of getting one to store my valuables more securely, especially since I've been worried about my apartment building's security lately. By the way, I've been really enjoying the silver necklace with a pendant that says \"sister\" in cursive my sister gave me 3 weeks ago - it's been my daily go-to accessory!\nassistant: I'm glad to hear that you're enjoying the necklace y\n  (part 3 of 14, excerpt) When choosing a jewelry armoire, consider the following factors:\n\n* Space: Think about how much jewelry you need to store and how much space you have available in your home.\n* Security: If security is a top concern, look for an armoire with a lock or consider a safe.\n* Material: Some armoires are made of wood, while others are made of metal or fabric. Choose one that fits your style and preferences.\n  (part 5 of 14, excerpt) whether it fits in their spaces.\n* Consider the style and design of your room; if you have a lot of large furniture pieces, you might want a smaller armoire.\n\nIf you're still unsure, feel free to ask me more questions or explore other options that might fit your space better!\nuser: I think I'll measure my space again and check the product reviews. By the way, I was thinking of organizing my jewelry collection and I realized that I haven't worn my gold band with a small diamond in a\n  (part 14 of 14, excerpt) to any outfit. Have you considered pairing them with a simple white or cream-colored top and a pair of distressed denim jeans for a chic, effortless look?\n\nAnd it's so sweet that you've been wearing the silver necklace with the \"sister\" pendant almost daily since your sister gave it to you! It's clear that the necklace holds sentimental value, and it's a lovely way to show off your bond with your sister. The cursive script is a beautiful touch, too - it adds a personal and whimsical\n- Session date: 2023/05/26 (Fri) 06:40\n  (part 5 of 24, excerpt) characteristics. His emphasis on color, form, and emotion, as well as his exploration of the spiritual and the emotional, are all hallmarks of abstract art.\n\nI hope this helps you better understand the essence of abstract art! Do you have any specific questions or would you like to know more about a particular aspect of abstract art?\nuser: That's really helpful! I didn't realize how much emphasis abstract art puts on emotion and expression. Can you tell me more about Kandinsky's views on the spiritual and emotional aspects of art?\nassistant: Wonderful topic! Wassily Kandinsky's views on the spiritual and emotional aspects of art are fascinating and deeply rooted in his philosophy. He was a true pioneer, not only in terms of his artistic style but also in his understanding of the role of art in human experience.\n  (part 12 of 24) * The Museum of Modern Art (MoMA, New York City)\n* The Tate Modern (London)\n* The Centre Pompidou (Paris)\n* The St\u00e4dtische Galerie im Lenbachhaus (Munich)\n\nThese institutions have extensive collections of Kandinsky's work, and they often feature temporary exhibitions and retrospectives that showcase his art in new and innovative ways.\nuser: I'd like to know more about Kandinsky's views on the role of the artist in society. Did he believe that artists had a responsibility to convey spiritual or moral messages through their work?\nassistant: Kandinsky's views on the role of the artist in society are fascinating and quite thought-provoking.\n\n**The Artist as Prophet and Seer**: Kandinsky believed that artists had a sacred responsibility to tap into the spiritual realm and convey its essence to the world. He saw artists as prophets and seers, tasked with revealing the hidden truths of the universe and guiding humanity towards a higher level of consciousness.",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_7cb94507",
+          "sourceVersion": "sha256:da6f757dcacdad15cc7482dbb481e2707dde223f936a89d79cece31a13779c1b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_7cb94507"
+          },
+          "text": "Session date: 2023/05/23 (Tue) 08:15",
+          "id": "ev_d44ae09a25a3eddc44875373",
+          "observedAt": "2026-10-14T08:55:05.129Z"
+        },
+        {
+          "sourceId": "memory:answer_7cb94507",
+          "sourceVersion": "sha256:da6f757dcacdad15cc7482dbb481e2707dde223f936a89d79cece31a13779c1b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_7cb94507",
+            "part": 4,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "How does this sound? Is there a specific step you'd like to focus on or have questions about?\nuser: I think I'd like to start tracking my expenses. Can you recommend any good budgeting apps? I've been using my credit card a lot lately, and I'm pretty sure I spent a lot on luxury items last month. I remember buying a designer handbag for a pretty penny - $800, to be exact.",
+          "id": "ev_2fb15bded7255199455adf8a",
+          "observedAt": "2026-10-14T08:55:05.129Z"
+        },
+        {
+          "sourceId": "memory:answer_7cb94507",
+          "sourceVersion": "sha256:da6f757dcacdad15cc7482dbb481e2707dde223f936a89d79cece31a13779c1b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_7cb94507",
+            "part": 6,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "All of these apps are available on both iOS and Android devices.\n\nNow, about that designer handbag... $800 is a significant expense, and it's great that you're aware of it. When tracking your expenses, it's essential to be honest with yourself about your spending habits. Consider categorizing that handbag as a luxury item or a \"want\" rather than a \"need.\" This will help you identify areas where you can cut back and allocate your funds more wisely.",
+          "id": "ev_8597762d3472be8a0ccc6d4d",
+          "observedAt": "2026-10-14T08:55:05.129Z"
+        },
+        {
+          "sourceId": "memory:answer_7cb94507",
+          "sourceVersion": "sha256:da6f757dcacdad15cc7482dbb481e2707dde223f936a89d79cece31a13779c1b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_7cb94507",
+            "part": 9,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "Here are some suggestions:\n\n1. **Set a budget**: Decide how much you're willing to spend on luxury items each month and stick to it.\n2. **Make a shopping list**: Before you head to the store, make a list of what you need or want to buy. Stick to your list to avoid impulse purchases.\n3. **Consider alternatives**: Look for more affordable options or alternatives to high-end brands. You might find similar quality at a lower price point.",
+          "id": "ev_3d93e211409cde653c1079f0",
+          "observedAt": "2026-10-14T08:55:05.129Z"
+        },
+        {
+          "sourceId": "memory:answer_7cb94507",
+          "sourceVersion": "sha256:da6f757dcacdad15cc7482dbb481e2707dde223f936a89d79cece31a13779c1b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_7cb94507",
+            "part": 16,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "Processed and pre-packaged foods tend to be more expensive and less healthy. Opt for whole ingredients and cook from scratch instead.\n\n**Budgeting Tips:**\n\n1. **Set a grocery budget**: Determine how much you want to spend on groceries each week and stick to it.\n2. **Use the 50/30/20 rule**: Allocate 50% of your grocery budget to staples like produce, meat, and dairy, 30% to pantry items, and 20% to treats and snacks.\n3. **Shop with a budgeting app**: Apps like Out of Milk or Grocery IQ can help you track your grocery spending and stay within your budget.",
+          "id": "ev_c08355451ac2d925cee37ba4",
+          "observedAt": "2026-10-14T08:55:05.129Z"
+        },
+        {
+          "sourceId": "memory:44bbd8cd_2",
+          "sourceVersion": "sha256:c28523e84bcfaf151368307d8dd792ee7ccc406032dad13b91409055c373ec5d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "44bbd8cd_2",
+            "part": 1,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "Session date: 2023/05/30 (Tue) 22:18\nuser: I'm looking for some recommendations on jewelry armoires. I've been thinking of getting one to store my valuables more securely, especially since I've been worried about my apartment building's security lately. By the way, I've been really enjoying the silver necklace with a pendant that says \"sister\" in cursive my sister gave me 3 weeks ago - it's been my daily go-to accessory!\nassistant: I'm glad to hear that you're enjoying the necklace y",
+          "id": "ev_e1719885544197e8a9c30f6c",
+          "observedAt": "2026-10-14T08:55:05.130Z"
+        },
+        {
+          "sourceId": "memory:44bbd8cd_2",
+          "sourceVersion": "sha256:c28523e84bcfaf151368307d8dd792ee7ccc406032dad13b91409055c373ec5d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "44bbd8cd_2",
+            "part": 3,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "When choosing a jewelry armoire, consider the following factors:\n\n* Space: Think about how much jewelry you need to store and how much space you have available in your home.\n* Security: If security is a top concern, look for an armoire with a lock or consider a safe.\n* Material: Some armoires are made of wood, while others are made of metal or fabric. Choose one that fits your style and preferences.",
+          "id": "ev_4ccf8f9ec462c1cca004bdaa",
+          "observedAt": "2026-10-14T08:55:05.130Z"
+        },
+        {
+          "sourceId": "memory:44bbd8cd_2",
+          "sourceVersion": "sha256:c28523e84bcfaf151368307d8dd792ee7ccc406032dad13b91409055c373ec5d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "44bbd8cd_2",
+            "part": 5,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "whether it fits in their spaces.\n* Consider the style and design of your room; if you have a lot of large furniture pieces, you might want a smaller armoire.\n\nIf you're still unsure, feel free to ask me more questions or explore other options that might fit your space better!\nuser: I think I'll measure my space again and check the product reviews. By the way, I was thinking of organizing my jewelry collection and I realized that I haven't worn my gold band with a small diamond in a",
+          "id": "ev_b4a4ecce350e25abe92905a1",
+          "observedAt": "2026-10-14T08:55:05.130Z"
+        },
+        {
+          "sourceId": "memory:44bbd8cd_2",
+          "sourceVersion": "sha256:c28523e84bcfaf151368307d8dd792ee7ccc406032dad13b91409055c373ec5d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "44bbd8cd_2",
+            "part": 14,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "to any outfit. Have you considered pairing them with a simple white or cream-colored top and a pair of distressed denim jeans for a chic, effortless look?\n\nAnd it's so sweet that you've been wearing the silver necklace with the \"sister\" pendant almost daily since your sister gave it to you! It's clear that the necklace holds sentimental value, and it's a lovely way to show off your bond with your sister. The cursive script is a beautiful touch, too - it adds a personal and whimsical",
+          "id": "ev_33b792157ede280cdfd79060",
+          "observedAt": "2026-10-14T08:55:05.130Z"
+        },
+        {
+          "sourceId": "memory:bee872da_2",
+          "sourceVersion": "sha256:36062a3ebce36945c4d5ddb997af896c2704a01cce7daa8e6a2875e3da80a2f3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "bee872da_2"
+          },
+          "text": "Session date: 2023/05/26 (Fri) 06:40",
+          "id": "ev_67b599b2d02a3253bb870bae",
+          "observedAt": "2026-10-14T08:55:05.130Z"
+        },
+        {
+          "sourceId": "memory:bee872da_2",
+          "sourceVersion": "sha256:36062a3ebce36945c4d5ddb997af896c2704a01cce7daa8e6a2875e3da80a2f3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "bee872da_2",
+            "part": 5,
+            "parts": 24,
+            "partial": true
+          },
+          "text": "characteristics. His emphasis on color, form, and emotion, as well as his exploration of the spiritual and the emotional, are all hallmarks of abstract art.\n\nI hope this helps you better understand the essence of abstract art! Do you have any specific questions or would you like to know more about a particular aspect of abstract art?\nuser: That's really helpful! I didn't realize how much emphasis abstract art puts on emotion and expression. Can you tell me more about Kandinsky's views on the spiritual and emotional aspects of art?\nassistant: Wonderful topic! Wassily Kandinsky's views on the spiritual and emotional aspects of art are fascinating and deeply rooted in his philosophy. He was a true pioneer, not only in terms of his artistic style but also in his understanding of the role of art in human experience.",
+          "id": "ev_c6f77afb07111fb7421b232f",
+          "observedAt": "2026-10-14T08:55:05.130Z"
+        },
+        {
+          "sourceId": "memory:bee872da_2",
+          "sourceVersion": "sha256:36062a3ebce36945c4d5ddb997af896c2704a01cce7daa8e6a2875e3da80a2f3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "bee872da_2",
+            "part": 12,
+            "parts": 24
+          },
+          "text": "* The Museum of Modern Art (MoMA, New York City)\n* The Tate Modern (London)\n* The Centre Pompidou (Paris)\n* The St\u00e4dtische Galerie im Lenbachhaus (Munich)\n\nThese institutions have extensive collections of Kandinsky's work, and they often feature temporary exhibitions and retrospectives that showcase his art in new and innovative ways.\nuser: I'd like to know more about Kandinsky's views on the role of the artist in society. Did he believe that artists had a responsibility to convey spiritual or moral messages through their work?\nassistant: Kandinsky's views on the role of the artist in society are fascinating and quite thought-provoking.\n\n**The Artist as Prophet and Seer**: Kandinsky believed that artists had a sacred responsibility to tap into the spiritual realm and convey its essence to the world. He saw artists as prophets and seers, tasked with revealing the hidden truths of the universe and guiding humanity towards a higher level of consciousness.",
+          "id": "ev_bd0c5ac2a206f4c476bb22c1",
+          "observedAt": "2026-10-14T08:55:05.130Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_7cb94507",
+        "44bbd8cd_2",
+        "bee872da_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.621750000002066,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "answer_7cb94507",
+    "44bbd8cd_2",
+    "bee872da_2"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:55:05.136138+00:00"
+}

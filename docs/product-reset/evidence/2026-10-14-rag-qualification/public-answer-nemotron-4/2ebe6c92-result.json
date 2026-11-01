@@ -1,0 +1,275 @@
+{
+  "row": 286,
+  "id": "2ebe6c92",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "question": "Which book did I finish a week ago?",
+  "references": [
+    "'The Nightingale' by Kristin Hannah"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/02/07 (Tue) 09:09",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 22.031000000002678,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 35,
+        "maxInputChars": 35,
+        "requiredProviderTruncation": false,
+        "promptTokens": 11,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_c9d35c00_2",
+        "1ba79ea8_1",
+        "ca3a4e4f_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 13 of 14, excerpt) Both authors share a focus on character development, emotional depth, and historical context, which are likely to appeal to you if you enjoyed \"The Nightingale.\" Miller's writing is more lyrical and poetic, while Grissom's is more straightforward and accessible. However, both authors are masterful storytellers who will transport you to another time and place, and make you care deeply about the characters they've created.\n  (part 14 of 14) reading in short bursts before bed. Madeline Miller's writing is so evocative and immersive that it's easy to get lost in the story, even in short sessions.\n\nYou're about halfway through, which means you're probably getting to the more intense and emotional parts of the story. Be prepared to have your heart strings pulled, because Miller's writing can be quite affecting.\n\nFinishing the book by the end of the month is a great goal, and I'm sure you'll be able to achieve it. Take your time, though, and savor the experience. The story is worth lingering over, and the characters will stay with you long after you finish the book.\n\nWhat do you think of Patroclus and Achilles' relationship so far? Have you noticed how Miller weaves together the mythological and historical elements with the characters' personal stories?\n\nFeel free to share your thoughts, and I'll be happy to discuss the book with you!\n- (part 4 of 20, excerpt) These are just a few examples to get you started. You can also explore Goodreads, Book Riot, and BookTube for more recommendations and reviews. Happy reading!\n- (part 12 of 14, excerpt) What did you think of the third season? Did you have any favorite moments or characters? And most importantly, what are your theories about what's going to happen in season 4?",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_c9d35c00_2",
+          "sourceVersion": "sha256:7e07cec5ba09c180d799484fa0d6e938667dc04b446005ab6f774fffe71dbe68",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c9d35c00_2",
+            "part": 13,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "Both authors share a focus on character development, emotional depth, and historical context, which are likely to appeal to you if you enjoyed \"The Nightingale.\" Miller's writing is more lyrical and poetic, while Grissom's is more straightforward and accessible. However, both authors are masterful storytellers who will transport you to another time and place, and make you care deeply about the characters they've created.",
+          "id": "ev_ab1fb2b4b2e66912767f9996",
+          "observedAt": "2026-10-14T05:14:35.140Z"
+        },
+        {
+          "sourceId": "memory:answer_c9d35c00_2",
+          "sourceVersion": "sha256:7e07cec5ba09c180d799484fa0d6e938667dc04b446005ab6f774fffe71dbe68",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c9d35c00_2",
+            "part": 14,
+            "parts": 14
+          },
+          "text": "reading in short bursts before bed. Madeline Miller's writing is so evocative and immersive that it's easy to get lost in the story, even in short sessions.\n\nYou're about halfway through, which means you're probably getting to the more intense and emotional parts of the story. Be prepared to have your heart strings pulled, because Miller's writing can be quite affecting.\n\nFinishing the book by the end of the month is a great goal, and I'm sure you'll be able to achieve it. Take your time, though, and savor the experience. The story is worth lingering over, and the characters will stay with you long after you finish the book.\n\nWhat do you think of Patroclus and Achilles' relationship so far? Have you noticed how Miller weaves together the mythological and historical elements with the characters' personal stories?\n\nFeel free to share your thoughts, and I'll be happy to discuss the book with you!",
+          "id": "ev_1134da051f5161d9182a2804",
+          "observedAt": "2026-10-14T05:14:35.141Z"
+        },
+        {
+          "sourceId": "memory:1ba79ea8_1",
+          "sourceVersion": "sha256:2ad10b542c0f34447a93e639450917d3e529cc81917bc33f923a0da14ec0478e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "1ba79ea8_1",
+            "part": 4,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "These are just a few examples to get you started. You can also explore Goodreads, Book Riot, and BookTube for more recommendations and reviews. Happy reading!",
+          "id": "ev_3ea20052a31f2ddd3b704341",
+          "observedAt": "2026-10-14T05:14:35.142Z"
+        },
+        {
+          "sourceId": "memory:ca3a4e4f_1",
+          "sourceVersion": "sha256:fba9e4367bec56c4eb8c1d10ecfa706437bef4e153ab57abcf5f29282dc1fdae",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ca3a4e4f_1",
+            "part": 12,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "What did you think of the third season? Did you have any favorite moments or characters? And most importantly, what are your theories about what's going to happen in season 4?",
+          "id": "ev_097a6a595fb0c143e9c6a4a5",
+          "observedAt": "2026-10-14T05:14:35.142Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_c9d35c00_2",
+        "1ba79ea8_1",
+        "ca3a4e4f_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 30.799417000001995,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_c9d35c00_2",
+        "1ba79ea8_1",
+        "ca3a4e4f_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 13 of 14, excerpt) Both authors share a focus on character development, emotional depth, and historical context, which are likely to appeal to you if you enjoyed \"The Nightingale.\" Miller's writing is more lyrical and poetic, while Grissom's is more straightforward and accessible. However, both authors are masterful storytellers who will transport you to another time and place, and make you care deeply about the characters they've created.\n  (part 14 of 14) reading in short bursts before bed. Madeline Miller's writing is so evocative and immersive that it's easy to get lost in the story, even in short sessions.\n\nYou're about halfway through, which means you're probably getting to the more intense and emotional parts of the story. Be prepared to have your heart strings pulled, because Miller's writing can be quite affecting.\n\nFinishing the book by the end of the month is a great goal, and I'm sure you'll be able to achieve it. Take your time, though, and savor the experience. The story is worth lingering over, and the characters will stay with you long after you finish the book.\n\nWhat do you think of Patroclus and Achilles' relationship so far? Have you noticed how Miller weaves together the mythological and historical elements with the characters' personal stories?\n\nFeel free to share your thoughts, and I'll be happy to discuss the book with you!\n- (part 4 of 20, excerpt) These are just a few examples to get you started. You can also explore Goodreads, Book Riot, and BookTube for more recommendations and reviews. Happy reading!\n- (part 12 of 14, excerpt) What did you think of the third season? Did you have any favorite moments or characters? And most importantly, what are your theories about what's going to happen in season 4?",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_c9d35c00_2",
+          "sourceVersion": "sha256:7e07cec5ba09c180d799484fa0d6e938667dc04b446005ab6f774fffe71dbe68",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c9d35c00_2",
+            "part": 13,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "Both authors share a focus on character development, emotional depth, and historical context, which are likely to appeal to you if you enjoyed \"The Nightingale.\" Miller's writing is more lyrical and poetic, while Grissom's is more straightforward and accessible. However, both authors are masterful storytellers who will transport you to another time and place, and make you care deeply about the characters they've created.",
+          "id": "ev_ab1fb2b4b2e66912767f9996",
+          "observedAt": "2026-10-14T05:14:35.149Z"
+        },
+        {
+          "sourceId": "memory:answer_c9d35c00_2",
+          "sourceVersion": "sha256:7e07cec5ba09c180d799484fa0d6e938667dc04b446005ab6f774fffe71dbe68",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c9d35c00_2",
+            "part": 14,
+            "parts": 14
+          },
+          "text": "reading in short bursts before bed. Madeline Miller's writing is so evocative and immersive that it's easy to get lost in the story, even in short sessions.\n\nYou're about halfway through, which means you're probably getting to the more intense and emotional parts of the story. Be prepared to have your heart strings pulled, because Miller's writing can be quite affecting.\n\nFinishing the book by the end of the month is a great goal, and I'm sure you'll be able to achieve it. Take your time, though, and savor the experience. The story is worth lingering over, and the characters will stay with you long after you finish the book.\n\nWhat do you think of Patroclus and Achilles' relationship so far? Have you noticed how Miller weaves together the mythological and historical elements with the characters' personal stories?\n\nFeel free to share your thoughts, and I'll be happy to discuss the book with you!",
+          "id": "ev_1134da051f5161d9182a2804",
+          "observedAt": "2026-10-14T05:14:35.149Z"
+        },
+        {
+          "sourceId": "memory:1ba79ea8_1",
+          "sourceVersion": "sha256:2ad10b542c0f34447a93e639450917d3e529cc81917bc33f923a0da14ec0478e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "1ba79ea8_1",
+            "part": 4,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "These are just a few examples to get you started. You can also explore Goodreads, Book Riot, and BookTube for more recommendations and reviews. Happy reading!",
+          "id": "ev_3ea20052a31f2ddd3b704341",
+          "observedAt": "2026-10-14T05:14:35.149Z"
+        },
+        {
+          "sourceId": "memory:ca3a4e4f_1",
+          "sourceVersion": "sha256:fba9e4367bec56c4eb8c1d10ecfa706437bef4e153ab57abcf5f29282dc1fdae",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ca3a4e4f_1",
+            "part": 12,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "What did you think of the third season? Did you have any favorite moments or characters? And most importantly, what are your theories about what's going to happen in season 4?",
+          "id": "ev_097a6a595fb0c143e9c6a4a5",
+          "observedAt": "2026-10-14T05:14:35.149Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_c9d35c00_2",
+        "1ba79ea8_1",
+        "ca3a4e4f_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.964416999995592,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 0.5,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:50:00.637938+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "I do not know. The retrieved history contains no record of a book finished a week ago.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 516,
+    "completion_tokens": 955,
+    "total_tokens": 1471,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 934,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 392,
+    "completion_tokens": 1026,
+    "total_tokens": 1418,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 46029.86891699993,
+  "judgeWallMs": 14596.763917000317,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:51:01.267105+00:00"
+}

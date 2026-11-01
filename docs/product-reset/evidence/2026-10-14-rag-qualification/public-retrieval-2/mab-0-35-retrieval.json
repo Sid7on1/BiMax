@@ -1,0 +1,235 @@
+{
+  "row": 0,
+  "query": 35,
+  "id": "mab-0-35",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:44:31.540024+00:00",
+  "valid": true,
+  "question": "Who was Emma's brother?",
+  "references": [
+    "Duke Richard II",
+    "Duke Richard II",
+    "Duke Richard II"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 6.996041999998852,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 23,
+        "maxInputChars": 23,
+        "requiredProviderTruncation": false,
+        "promptTokens": 9,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-189",
+        "context-233",
+        "context-90"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) um (Last Glacial Maximum). During this time, the lower Rhine flowed roughly west through the Netherlands and extended to the southwest, through the English Channel and finally, to the Atlantic Ocean. The English Channel, the Irish Channel and most of the North Sea were dry land, mainly because sea level was approximately 120 m (390 ft) lower than today.\n\nDocument 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n  (part 2 of 5, excerpt) by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n\nDocument 947:\n- (part 2 of 4, excerpt) Normans came into Scotland, building castles and founding noble families who would provide some future kings, such as Robert the Bruce, as well as founding a considerable number of the Scottish clans. King David I of Scotland, whose elder brother Alexander I had married Sybilla of Normandy, was instrumental in introducing Normans and Norman culture to Scotland, part of the process some scholars c\n- (part 5 of 6, excerpt) When finally Edward the Confessor returned from his father's refuge in 1041, at the invitation of his half-brother Harthacnut",
+      "evidence": [
+        {
+          "sourceId": "memory:context-189",
+          "sourceVersion": "sha256:1e2275347ec9de496eb42c1d852f77b368d8264ddfa0030036703b2c4f3352d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-189",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "um (Last Glacial Maximum). During this time, the lower Rhine flowed roughly west through the Netherlands and extended to the southwest, through the English Channel and finally, to the Atlantic Ocean. The English Channel, the Irish Channel and most of the North Sea were dry land, mainly because sea level was approximately 120 m (390 ft) lower than today.\n\nDocument 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.",
+          "id": "ev_f7fea43d9cc571c4a85ef122",
+          "observedAt": "2026-10-14T04:44:31.548Z"
+        },
+        {
+          "sourceId": "memory:context-189",
+          "sourceVersion": "sha256:1e2275347ec9de496eb42c1d852f77b368d8264ddfa0030036703b2c4f3352d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-189",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n\nDocument 947:",
+          "id": "ev_c503a5b5901c1e1ce58d55ba",
+          "observedAt": "2026-10-14T04:44:31.548Z"
+        },
+        {
+          "sourceId": "memory:context-233",
+          "sourceVersion": "sha256:60c740071537491ad8223dcfde5313d5ed57f568893f49bf3cffa6f8b99462de",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-233",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Normans came into Scotland, building castles and founding noble families who would provide some future kings, such as Robert the Bruce, as well as founding a considerable number of the Scottish clans. King David I of Scotland, whose elder brother Alexander I had married Sybilla of Normandy, was instrumental in introducing Normans and Norman culture to Scotland, part of the process some scholars c",
+          "id": "ev_cdd140359f6bbceb6c4d1325",
+          "observedAt": "2026-10-14T04:44:31.548Z"
+        },
+        {
+          "sourceId": "memory:context-90",
+          "sourceVersion": "sha256:07b94a4c7857300c2e4a07bf6c932f09e270f166e3fe04062cac6389a9cbbe1a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-90",
+            "part": 5,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "When finally Edward the Confessor returned from his father's refuge in 1041, at the invitation of his half-brother Harthacnut",
+          "id": "ev_9d9b6b875e3e30732bdd7696",
+          "observedAt": "2026-10-14T04:44:31.548Z"
+        }
+      ],
+      "sourceIds": [
+        "context-189",
+        "context-233",
+        "context-90"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.4357079999972484,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-189",
+        "context-233",
+        "context-90"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) um (Last Glacial Maximum). During this time, the lower Rhine flowed roughly west through the Netherlands and extended to the southwest, through the English Channel and finally, to the Atlantic Ocean. The English Channel, the Irish Channel and most of the North Sea were dry land, mainly because sea level was approximately 120 m (390 ft) lower than today.\n\nDocument 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n  (part 2 of 5, excerpt) by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n\nDocument 947:\n- (part 2 of 4, excerpt) Normans came into Scotland, building castles and founding noble families who would provide some future kings, such as Robert the Bruce, as well as founding a considerable number of the Scottish clans. King David I of Scotland, whose elder brother Alexander I had married Sybilla of Normandy, was instrumental in introducing Normans and Norman culture to Scotland, part of the process some scholars c\n- (part 5 of 6, excerpt) When finally Edward the Confessor returned from his father's refuge in 1041, at the invitation of his half-brother Harthacnut",
+      "evidence": [
+        {
+          "sourceId": "memory:context-189",
+          "sourceVersion": "sha256:1e2275347ec9de496eb42c1d852f77b368d8264ddfa0030036703b2c4f3352d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-189",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "um (Last Glacial Maximum). During this time, the lower Rhine flowed roughly west through the Netherlands and extended to the southwest, through the English Channel and finally, to the Atlantic Ocean. The English Channel, the Irish Channel and most of the North Sea were dry land, mainly because sea level was approximately 120 m (390 ft) lower than today.\n\nDocument 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.",
+          "id": "ev_f7fea43d9cc571c4a85ef122",
+          "observedAt": "2026-10-14T04:44:31.549Z"
+        },
+        {
+          "sourceId": "memory:context-189",
+          "sourceVersion": "sha256:1e2275347ec9de496eb42c1d852f77b368d8264ddfa0030036703b2c4f3352d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-189",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n\nDocument 947:",
+          "id": "ev_c503a5b5901c1e1ce58d55ba",
+          "observedAt": "2026-10-14T04:44:31.549Z"
+        },
+        {
+          "sourceId": "memory:context-233",
+          "sourceVersion": "sha256:60c740071537491ad8223dcfde5313d5ed57f568893f49bf3cffa6f8b99462de",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-233",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Normans came into Scotland, building castles and founding noble families who would provide some future kings, such as Robert the Bruce, as well as founding a considerable number of the Scottish clans. King David I of Scotland, whose elder brother Alexander I had married Sybilla of Normandy, was instrumental in introducing Normans and Norman culture to Scotland, part of the process some scholars c",
+          "id": "ev_cdd140359f6bbceb6c4d1325",
+          "observedAt": "2026-10-14T04:44:31.549Z"
+        },
+        {
+          "sourceId": "memory:context-90",
+          "sourceVersion": "sha256:07b94a4c7857300c2e4a07bf6c932f09e270f166e3fe04062cac6389a9cbbe1a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-90",
+            "part": 5,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "When finally Edward the Confessor returned from his father's refuge in 1041, at the invitation of his half-brother Harthacnut",
+          "id": "ev_9d9b6b875e3e30732bdd7696",
+          "observedAt": "2026-10-14T04:44:31.549Z"
+        }
+      ],
+      "sourceIds": [
+        "context-189",
+        "context-233",
+        "context-90"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.2644579999978305,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T04:44:31.550112+00:00"
+}

@@ -1,0 +1,373 @@
+{
+  "row": 7,
+  "query": 8,
+  "id": "mab-7-8",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:51:02.550864+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n5. Debbie's mother, Beatrice Tarleton, handled the new stallion in the stable.\n6. Debbie hoped it would not rain on the day of the barbecue.\n7. Brent and Stuart asked Debbie to promise them dances at the ball.\n8. Debbie learned about the engagement announcement during the ball.\n9. Stuart revealed the engagement announcement for Kali to Charlie's sister.\n\n\nBelow is a list of possible subsequent events:\n\n['Stuart arranged to meet the Tarleton twins for a game night.', 'Brent invited the Tarleton twins to join him for a picnic.', 'Debbie promised to help the Tarleton twins with their homework.', 'Debbie decided to watch a movie with the Tarleton twins.', 'Debbie agreed to eat supper with the Tarleton twins.', 'Stuart planned to attend a concert with the Tarleton twins.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie agreed to eat supper with the Tarleton twins."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 14.888542000000143,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1003,
+        "maxInputChars": 1003,
+        "requiredProviderTruncation": false,
+        "promptTokens": 224,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-4",
+        "context-3",
+        "context-6"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) be better to get married soon.\n\nSo it\u2019s to be announced tomorrow night at the supper intermission.\n\nNow, Debbie, we\u2019ve told you the secret, so you\u2019ve got to promise to eat supper with us.\u201d \u201cOf course I will,\u201d Debbie said automatically.\n\n\u201cAnd all the waltzes?\u201d\n\n\u201cAll.\u201d\n\n\u201cYou\u2019re sweet!\n\nI\u2019ll bet the other boys will be hopping mad.\u201d \u201cLet \u2018em be mad,\u201d said Brent.\n\n\u201cWe two can handle \u2018em.\n\nLook, Debbie.\n\nSit with us at the barbecue in the morning.\u201d \u201cWhat?\u201d\n\nStuart repeated his request.\n\n\u201cOf course.\u201d\n\nThe twins looked at each other jubilantly but with some surprise.\n\nAlthough they considered themselves Debbie\u2019s favored suitors, they had never before gained tokens of this favor so easily.\n\nUsually she made them beg and plead, while she put them off, refusing to give a Yes or No answer, laughing if they sulked, growing cool if they became angry.\n\nAnd here she had practically promised them the whole of tomorrow\u2014seats by her at the barbecue, all the waltzes (and they\u2019d see to it that the dances were all waltzes!) and the supper intermission.\n\nThis was worth getting expelled from the university.\n  (part 2 of 5, excerpt) Filled with new enthusiasm by their success, they lingered on, talking about the barbecue and the ball and Kali Abrianna and Edgar Kaitlin, interrupting each other, making jokes and laughing at them, hinting broadly for invitations to supper.\n\nSome time had passed before they realized that Debbie was having very little to say.\n- (part 4 of 4, excerpt) \u201cIt\u2019s Kali\u2019s to Charlie\u2019s sister, Miss Edgar!\u201d Debbie\u2019s face did not change but her lips went white\u2014like a person who has received a stunning blow wit\n- (part 3 of 5, excerpt) They never arrived at the correct answer, which was that Debbie on that day had decided to make them notice.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-4",
+          "sourceVersion": "sha256:74923d1e7be5a6a94d7a33f24dd7b2ae1fc9db2d50c8d3f0ba6bf93880f72c7f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-4",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "be better to get married soon.\n\nSo it\u2019s to be announced tomorrow night at the supper intermission.\n\nNow, Debbie, we\u2019ve told you the secret, so you\u2019ve got to promise to eat supper with us.\u201d \u201cOf course I will,\u201d Debbie said automatically.\n\n\u201cAnd all the waltzes?\u201d\n\n\u201cAll.\u201d\n\n\u201cYou\u2019re sweet!\n\nI\u2019ll bet the other boys will be hopping mad.\u201d \u201cLet \u2018em be mad,\u201d said Brent.\n\n\u201cWe two can handle \u2018em.\n\nLook, Debbie.\n\nSit with us at the barbecue in the morning.\u201d \u201cWhat?\u201d\n\nStuart repeated his request.\n\n\u201cOf course.\u201d\n\nThe twins looked at each other jubilantly but with some surprise.\n\nAlthough they considered themselves Debbie\u2019s favored suitors, they had never before gained tokens of this favor so easily.\n\nUsually she made them beg and plead, while she put them off, refusing to give a Yes or No answer, laughing if they sulked, growing cool if they became angry.\n\nAnd here she had practically promised them the whole of tomorrow\u2014seats by her at the barbecue, all the waltzes (and they\u2019d see to it that the dances were all waltzes!) and the supper intermission.\n\nThis was worth getting expelled from the university.",
+          "id": "ev_2e62596bab28c965c97bdd71",
+          "observedAt": "2026-10-14T08:51:02.568Z"
+        },
+        {
+          "sourceId": "memory:context-4",
+          "sourceVersion": "sha256:74923d1e7be5a6a94d7a33f24dd7b2ae1fc9db2d50c8d3f0ba6bf93880f72c7f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-4",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Filled with new enthusiasm by their success, they lingered on, talking about the barbecue and the ball and Kali Abrianna and Edgar Kaitlin, interrupting each other, making jokes and laughing at them, hinting broadly for invitations to supper.\n\nSome time had passed before they realized that Debbie was having very little to say.",
+          "id": "ev_125a4132102571cb49f9fa2f",
+          "observedAt": "2026-10-14T08:51:02.568Z"
+        },
+        {
+          "sourceId": "memory:context-3",
+          "sourceVersion": "sha256:ff4291a9a6c153a06121d1fef9ebd7bcd0e14cdbf809118d1b59b76e36b6daeb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-3",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cIt\u2019s Kali\u2019s to Charlie\u2019s sister, Miss Edgar!\u201d Debbie\u2019s face did not change but her lips went white\u2014like a person who has received a stunning blow wit",
+          "id": "ev_65a77febdf96bfb8342a8793",
+          "observedAt": "2026-10-14T08:51:02.568Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:b1fcf3e407c77170634b3ecc70660fe72f03f851448f8f8bca4c98e32279c019",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "They never arrived at the correct answer, which was that Debbie on that day had decided to make them notice.",
+          "id": "ev_a1af5d8f956a59cccae635b9",
+          "observedAt": "2026-10-14T08:51:02.569Z"
+        }
+      ],
+      "sourceIds": [
+        "context-4",
+        "context-3",
+        "context-6"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.875792000000274,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-4",
+        "context-3",
+        "context-6"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) Usually she made them beg and plead, while she put them off, refusing to give a Yes or No answer, laughing if they sulked, growing cool if they became angry.\n\nAnd here she had practically promised them the whole of tomorrow\u2014seats by her at the barbecue, all the waltzes (and they\u2019d see to it that the dances were all waltzes!) and the supper intermission.\n\nThis was worth getting expelled from the university.\n  (part 2 of 5, excerpt) This was worth getting expelled from the university.\n\nFilled with new enthusiasm by their success, they lingered on, talking about the barbecue and the ball and Kali Abrianna and Edgar Kaitlin, interrupting each other, making jokes and laughing at them, hinting broadly for invitations to supper.\n\nSome time had passed before they realized that Debbie was having very little to say.\n\nThe atmosphere had somehow changed.\n  (part 3 of 5, excerpt) He had been their childhood playmate and had been given to the twins for their own on their tenth birthday.\n\nAt the sight of him, the Tarleton hounds rose up out of the red dust and stood waiting expectantly for their masters.\n\nThe boys bowed, shook hands and told Debbie they\u2019d be over at the Abriannaes\u2019 early in the morning, waiting for her.\n\nThen they were off down the walk at a rush, mounted their horses and, followed by Jeems, went down the avenue of cedars at a gallop, waving their hats and yelling back to her.\n  (part 4 of 5, excerpt) The horses, feeling slack reins, stretched down their necks to crop the tender spring grass, and the patient hounds lay down again in the soft red dust and looked up longingly at the chimney swallows circling in the gathering dusk.\n\nBrent\u2019s wide ingenuous face was puzzled and mildly indignant.\n\n\u201cLook,\u201d he said.\n\n\u201cDon\u2019t it look to you like she would of asked us to stay for supper?\u201d\n\n\u201cI thought she would,\u201d said Stuart.\n\nI kept waiting for her to do it, but she didn\u2019t.\n\nWhat do you make of it?\u201d\n- (part 2 of 4, excerpt) At these last sounds, the twins realized it was time they were starting home.\n\nBut they were loath to face their mother and they lingered on the porch of Tara, momentarily expecting Debbie to give them an invitation to supper.\n\n\u201cLook, Debbie.\n\nAbout tomorrow,\u201d said Brent.\n\n\u201cJust because we\u2019ve been away and didn\u2019t know about the barbecue and the ball, that\u2019s no reason why we shouldn\u2019t get plenty of dances tomorrow night.\n\nYou haven\u2019t promised them all, have you?\u201d\n\n\u201cWell, I have!\n\nHow did I know you all would be home?\n\nI couldn\u2019t risk being a wallflower just waiting on you two.\u201d \u201cYou a wallflower!\u201d The boys laughed uproariously.\n\n\u201cLook, honey.\n  (part 3 of 4, excerpt) If it is, you know we promised not to tell.\u201d\n\n\u201cWell, Miss Pitty told us.\u201d\n\n\u201cMiss Who?\u201d\n\n\u201cYou know, Kali Abrianna\u2019 cousin who lives in Atlanta, Miss Marla Kaitlin\u2014Kamala and Edgar Kaitlin\u2019s aunt.\u201d \u201cI do, and a sillier old lady I never met in all my life.\u201d \u201cWell, when we were in Atlanta yesterday, waiting for the home train, her carriage went by the depot and she stopped and talked to us, and she told us there was going to be an engagement announced tomorrow night at the Abrianna ball.\u201d \u201cOh, I know about that,\u201d said Debbie in disappointment.\n\n\u201cThat silly nephew of hers, Charlie Kaitlin, and Honey Abrianna.\n  (part 4 of 4, excerpt) \u201cLast Christmas you sure let him buzz round you plenty.\u201d\n\n\u201cI couldn\u2019t help him buzzing,\u201d Debbie shrugged negligently.\n\n\u201cI think he\u2019s an awful sissy.\u201d\n\n\u201cBesides, it isn\u2019t his engagement that\u2019s going to be announced,\u201d said Stuart triumphantly.\n\n\u201cIt\u2019s Kali\u2019s to Charlie\u2019s sister, Miss Edgar!\u201d Debbie\u2019s face did not change but her lips went white\u2014like a person who has received a stunning blow without warning and who, in the first moments of shock, does not realize what has happened.\n\nSo still was her face as she stared at Stuart that he, never analytic, took it for granted that she was merely surprised and very interested.\n- (part 1 of 5, excerpt) Brent liked Kellan but he thought her mighty plain and tame, and he simply could not fall in love with her himself to keep Stuart company.\n\nThat was the first time the twins\u2019 interest had ever diverged, and Brent was resentful of his brother\u2019s attentions to a girl who seemed to him not at all remarkable.\n\nThen, last summer at a political speaking in a grove of oak trees at Jonesboro, they both suddenly became aware of Debbie O\u2019Kerry.\n  (part 2 of 5, excerpt) Their clever remarks sent her into merry peals of laughter and, inspired by the thought that she considered them a remarkable pair, they fairly outdid themselves.\n\nIt was a memorable day in the life of the twins.\n\nThereafter, when they talked it over, they always wondered just why they had failed to notice Debbie\u2019s charms before.\n\nThey never arrived at the correct answer, which was that Debbie on that day had decided to make them notice.\n  (part 3 of 5, excerpt) they had failed to notice Debbie\u2019s charms before.\n\nThey never arrived at the correct answer, which was that Debbie on that day had decided to make them notice.\n\nShe was constitutionally unable to endure any man being in love with any woman not herself, and the sight of Kellan Abrianna and Stuart at the speaking had been too much for her predatory nature.\n\nNot content with Stuart alone, she had set her cap for Brent as well, and with a thoroughness that overwhelmed the two of them.\n  (part 4 of 5, excerpt) interested the neighbors and annoyed their mother, who had no liking for Debbie.\n\n\u201cIt will serve you right if that sly piece does accept one of you,\u201d she said.\n\n\u201cOr maybe she\u2019ll accept both of you, and then you\u2019ll have to move to Utah, if the Mormons\u2019ll have you\u2014which I doubt.\n\n...\n\nAll that bothers me is that some one of these days you\u2019re both going to get lickered up and jealous of each other about that two-faced, little, green-eyed baggage, and you\u2019ll shoot each other.\n\nBut that might not be a bad idea either.\u201d\n\nSince the day of the speaking, Stuart had been uncomfortable in Kellan\u2019s presence.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-4",
+          "sourceVersion": "sha256:74923d1e7be5a6a94d7a33f24dd7b2ae1fc9db2d50c8d3f0ba6bf93880f72c7f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-4",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Usually she made them beg and plead, while she put them off, refusing to give a Yes or No answer, laughing if they sulked, growing cool if they became angry.\n\nAnd here she had practically promised them the whole of tomorrow\u2014seats by her at the barbecue, all the waltzes (and they\u2019d see to it that the dances were all waltzes!) and the supper intermission.\n\nThis was worth getting expelled from the university.",
+          "id": "ev_c85165a87dcc42f3c36f0dee",
+          "observedAt": "2026-10-14T08:51:02.573Z"
+        },
+        {
+          "sourceId": "memory:context-4",
+          "sourceVersion": "sha256:74923d1e7be5a6a94d7a33f24dd7b2ae1fc9db2d50c8d3f0ba6bf93880f72c7f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-4",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "This was worth getting expelled from the university.\n\nFilled with new enthusiasm by their success, they lingered on, talking about the barbecue and the ball and Kali Abrianna and Edgar Kaitlin, interrupting each other, making jokes and laughing at them, hinting broadly for invitations to supper.\n\nSome time had passed before they realized that Debbie was having very little to say.\n\nThe atmosphere had somehow changed.",
+          "id": "ev_80a23992bcfc93f0df53d585",
+          "observedAt": "2026-10-14T08:51:02.573Z"
+        },
+        {
+          "sourceId": "memory:context-4",
+          "sourceVersion": "sha256:74923d1e7be5a6a94d7a33f24dd7b2ae1fc9db2d50c8d3f0ba6bf93880f72c7f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-4",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "He had been their childhood playmate and had been given to the twins for their own on their tenth birthday.\n\nAt the sight of him, the Tarleton hounds rose up out of the red dust and stood waiting expectantly for their masters.\n\nThe boys bowed, shook hands and told Debbie they\u2019d be over at the Abriannaes\u2019 early in the morning, waiting for her.\n\nThen they were off down the walk at a rush, mounted their horses and, followed by Jeems, went down the avenue of cedars at a gallop, waving their hats and yelling back to her.",
+          "id": "ev_42450fca4b82f7da5101a2c4",
+          "observedAt": "2026-10-14T08:51:02.573Z"
+        },
+        {
+          "sourceId": "memory:context-4",
+          "sourceVersion": "sha256:74923d1e7be5a6a94d7a33f24dd7b2ae1fc9db2d50c8d3f0ba6bf93880f72c7f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-4",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The horses, feeling slack reins, stretched down their necks to crop the tender spring grass, and the patient hounds lay down again in the soft red dust and looked up longingly at the chimney swallows circling in the gathering dusk.\n\nBrent\u2019s wide ingenuous face was puzzled and mildly indignant.\n\n\u201cLook,\u201d he said.\n\n\u201cDon\u2019t it look to you like she would of asked us to stay for supper?\u201d\n\n\u201cI thought she would,\u201d said Stuart.\n\nI kept waiting for her to do it, but she didn\u2019t.\n\nWhat do you make of it?\u201d",
+          "id": "ev_24eee4711aa13ae1f72b3726",
+          "observedAt": "2026-10-14T08:51:02.573Z"
+        },
+        {
+          "sourceId": "memory:context-3",
+          "sourceVersion": "sha256:ff4291a9a6c153a06121d1fef9ebd7bcd0e14cdbf809118d1b59b76e36b6daeb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-3",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "At these last sounds, the twins realized it was time they were starting home.\n\nBut they were loath to face their mother and they lingered on the porch of Tara, momentarily expecting Debbie to give them an invitation to supper.\n\n\u201cLook, Debbie.\n\nAbout tomorrow,\u201d said Brent.\n\n\u201cJust because we\u2019ve been away and didn\u2019t know about the barbecue and the ball, that\u2019s no reason why we shouldn\u2019t get plenty of dances tomorrow night.\n\nYou haven\u2019t promised them all, have you?\u201d\n\n\u201cWell, I have!\n\nHow did I know you all would be home?\n\nI couldn\u2019t risk being a wallflower just waiting on you two.\u201d \u201cYou a wallflower!\u201d The boys laughed uproariously.\n\n\u201cLook, honey.",
+          "id": "ev_bcb83b3d68cbc6bbdbb4ee83",
+          "observedAt": "2026-10-14T08:51:02.575Z"
+        },
+        {
+          "sourceId": "memory:context-3",
+          "sourceVersion": "sha256:ff4291a9a6c153a06121d1fef9ebd7bcd0e14cdbf809118d1b59b76e36b6daeb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-3",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "If it is, you know we promised not to tell.\u201d\n\n\u201cWell, Miss Pitty told us.\u201d\n\n\u201cMiss Who?\u201d\n\n\u201cYou know, Kali Abrianna\u2019 cousin who lives in Atlanta, Miss Marla Kaitlin\u2014Kamala and Edgar Kaitlin\u2019s aunt.\u201d \u201cI do, and a sillier old lady I never met in all my life.\u201d \u201cWell, when we were in Atlanta yesterday, waiting for the home train, her carriage went by the depot and she stopped and talked to us, and she told us there was going to be an engagement announced tomorrow night at the Abrianna ball.\u201d \u201cOh, I know about that,\u201d said Debbie in disappointment.\n\n\u201cThat silly nephew of hers, Charlie Kaitlin, and Honey Abrianna.",
+          "id": "ev_765465ff4e3a1616b27bc258",
+          "observedAt": "2026-10-14T08:51:02.575Z"
+        },
+        {
+          "sourceId": "memory:context-3",
+          "sourceVersion": "sha256:ff4291a9a6c153a06121d1fef9ebd7bcd0e14cdbf809118d1b59b76e36b6daeb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-3",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cLast Christmas you sure let him buzz round you plenty.\u201d\n\n\u201cI couldn\u2019t help him buzzing,\u201d Debbie shrugged negligently.\n\n\u201cI think he\u2019s an awful sissy.\u201d\n\n\u201cBesides, it isn\u2019t his engagement that\u2019s going to be announced,\u201d said Stuart triumphantly.\n\n\u201cIt\u2019s Kali\u2019s to Charlie\u2019s sister, Miss Edgar!\u201d Debbie\u2019s face did not change but her lips went white\u2014like a person who has received a stunning blow without warning and who, in the first moments of shock, does not realize what has happened.\n\nSo still was her face as she stared at Stuart that he, never analytic, took it for granted that she was merely surprised and very interested.",
+          "id": "ev_caeaf471a2f37c2852570d2a",
+          "observedAt": "2026-10-14T08:51:02.575Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:b1fcf3e407c77170634b3ecc70660fe72f03f851448f8f8bca4c98e32279c019",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Brent liked Kellan but he thought her mighty plain and tame, and he simply could not fall in love with her himself to keep Stuart company.\n\nThat was the first time the twins\u2019 interest had ever diverged, and Brent was resentful of his brother\u2019s attentions to a girl who seemed to him not at all remarkable.\n\nThen, last summer at a political speaking in a grove of oak trees at Jonesboro, they both suddenly became aware of Debbie O\u2019Kerry.",
+          "id": "ev_d47a3b0dca28910146ecb31e",
+          "observedAt": "2026-10-14T08:51:02.577Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:b1fcf3e407c77170634b3ecc70660fe72f03f851448f8f8bca4c98e32279c019",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Their clever remarks sent her into merry peals of laughter and, inspired by the thought that she considered them a remarkable pair, they fairly outdid themselves.\n\nIt was a memorable day in the life of the twins.\n\nThereafter, when they talked it over, they always wondered just why they had failed to notice Debbie\u2019s charms before.\n\nThey never arrived at the correct answer, which was that Debbie on that day had decided to make them notice.",
+          "id": "ev_0479b1398834b17563361bf1",
+          "observedAt": "2026-10-14T08:51:02.577Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:b1fcf3e407c77170634b3ecc70660fe72f03f851448f8f8bca4c98e32279c019",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "they had failed to notice Debbie\u2019s charms before.\n\nThey never arrived at the correct answer, which was that Debbie on that day had decided to make them notice.\n\nShe was constitutionally unable to endure any man being in love with any woman not herself, and the sight of Kellan Abrianna and Stuart at the speaking had been too much for her predatory nature.\n\nNot content with Stuart alone, she had set her cap for Brent as well, and with a thoroughness that overwhelmed the two of them.",
+          "id": "ev_d11332309cd0ae6eedd3b3e4",
+          "observedAt": "2026-10-14T08:51:02.577Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:b1fcf3e407c77170634b3ecc70660fe72f03f851448f8f8bca4c98e32279c019",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "interested the neighbors and annoyed their mother, who had no liking for Debbie.\n\n\u201cIt will serve you right if that sly piece does accept one of you,\u201d she said.\n\n\u201cOr maybe she\u2019ll accept both of you, and then you\u2019ll have to move to Utah, if the Mormons\u2019ll have you\u2014which I doubt.\n\n...\n\nAll that bothers me is that some one of these days you\u2019re both going to get lickered up and jealous of each other about that two-faced, little, green-eyed baggage, and you\u2019ll shoot each other.\n\nBut that might not be a bad idea either.\u201d\n\nSince the day of the speaking, Stuart had been uncomfortable in Kellan\u2019s presence.",
+          "id": "ev_eaa16da099cf1fd6c06f0ac7",
+          "observedAt": "2026-10-14T08:51:02.577Z"
+        }
+      ],
+      "sourceIds": [
+        "context-4",
+        "context-3",
+        "context-6"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 8.619916999999987,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-4",
+    "context-3",
+    "context-6"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:51:02.580168+00:00"
+}

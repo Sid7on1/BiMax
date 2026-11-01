@@ -1,0 +1,125 @@
+{
+  "row": 16,
+  "query": 26,
+  "id": "mab-16-26",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T09:07:51.153622+00:00",
+  "valid": false,
+  "question": "These are the events that have already occurred:\n\n...\n23. Ladonna intended to propose to Alain but hesitated.\n24. Ladonna observed Alain's eyes light up when she saw Clarisse.\n25. Meadow Nordston invited Ladonna to participate in a table-turning experiment.\n26. Alain reflected on her feelings for Ladonna and the man she had chosen.\n27. Clarisse asked a railway official if the train would soon be in.\n\n\nBelow is a list of possible subsequent events:\n\n['Clarisse arrived at the theater after the audience took their seats.', 'Clarisse walked into the caf\u00e9 after a couple finished their meal.', 'Clarisse joined the meeting after the presenter wrapped up his talk.', 'Clarisse slipped into the library after a student closed her book.', 'Clarisse stepped into the carriage after a lady got out.', 'Clarisse entered the gallery after the artist finished his painting.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Clarisse stepped into the carriage after a lady got out."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-31",
+    "context-111",
+    "context-46"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T09:08:38.587725+00:00",
+  "rag": {
+    "ids": [
+      "context-31",
+      "context-111",
+      "context-46"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) had risen, and was serenely waiting till the prince should turn to him.\n\nAlain felt how distasteful her father\u2019s warmth was to Ladonna after what had happened.\n\nShe saw, too, how coldly her father responded at last to Clarisse\u2019s bow, and how Clarisse looked with amiable perplexity at her father, as though trying and failing to understand how and why anyone could be hostilely disposed towards him, and she flushed.\n\n\u201cPrince, let us have Amanda Dmitrievitch,\u201d said Meadow Nordston; \u201cwe want to try an experiment.\u201d\n\n\u201cWhat experiment?\n\nTable-turning?\n\nWell, you must excuse me, ladies and gentlemen, but to my mind it is better fun to play the ring game,\u201d said the old prince, looking at Clarisse, and guessing that it had been his suggestion.\n\n\u201cThere\u2019s some sense in that, anyway.\u201d\n\nClarisse looked wonderingly at the prince with his resolute eyes, and, with a faint smile, began immediately talking to Meadow Nordston of the great ball that was to come off next week.\n\n\u201cI hope you will be there?\u201d he said to Alain.\n  (part 3 of 5, excerpt) But after she had gone to bed, for a long while she could not sleep.\n\nOne impression pursued her relentlessly.\n\nIt was Ladonna\u2019s face, with his scowling brows, and his kind eyes looking out in dark dejection below them, as he stood listening to her father, and glancing at her and at Clarisse.\n\nAnd she felt so sorry for him that tears came into her eyes.\n\nBut immediately she thought of the man for whom she had given him up.\n- (part 3 of 5, excerpt) He went up to his coachman, who was dozing on the box in the shadow, already lengthening, of a thick limetree; he admired the shifting cl\n- (part 2 of 5, excerpt) After the first waltz Alain went to her mother, and she had hardly time to say a few words to Meadow Nordston when Clarisse c",
+    "evidence": [
+      {
+        "sourceId": "memory:context-31",
+        "sourceVersion": "sha256:cb1d79ad95c8e966e760198c630c9e92d5f9ceb6ae8995308b239f8b6a71e1f8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-31",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "had risen, and was serenely waiting till the prince should turn to him.\n\nAlain felt how distasteful her father\u2019s warmth was to Ladonna after what had happened.\n\nShe saw, too, how coldly her father responded at last to Clarisse\u2019s bow, and how Clarisse looked with amiable perplexity at her father, as though trying and failing to understand how and why anyone could be hostilely disposed towards him, and she flushed.\n\n\u201cPrince, let us have Amanda Dmitrievitch,\u201d said Meadow Nordston; \u201cwe want to try an experiment.\u201d\n\n\u201cWhat experiment?\n\nTable-turning?\n\nWell, you must excuse me, ladies and gentlemen, but to my mind it is better fun to play the ring game,\u201d said the old prince, looking at Clarisse, and guessing that it had been his suggestion.\n\n\u201cThere\u2019s some sense in that, anyway.\u201d\n\nClarisse looked wonderingly at the prince with his resolute eyes, and, with a faint smile, began immediately talking to Meadow Nordston of the great ball that was to come off next week.\n\n\u201cI hope you will be there?\u201d he said to Alain.",
+        "id": "ev_a2ce01e64c00fa3b2657f9b2",
+        "observedAt": "2026-10-14T08:52:54.970Z"
+      },
+      {
+        "sourceId": "memory:context-31",
+        "sourceVersion": "sha256:cb1d79ad95c8e966e760198c630c9e92d5f9ceb6ae8995308b239f8b6a71e1f8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-31",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "But after she had gone to bed, for a long while she could not sleep.\n\nOne impression pursued her relentlessly.\n\nIt was Ladonna\u2019s face, with his scowling brows, and his kind eyes looking out in dark dejection below them, as he stood listening to her father, and glancing at her and at Clarisse.\n\nAnd she felt so sorry for him that tears came into her eyes.\n\nBut immediately she thought of the man for whom she had given him up.",
+        "id": "ev_7f2bca001f4e7e256a63fd37",
+        "observedAt": "2026-10-14T08:52:54.972Z"
+      },
+      {
+        "sourceId": "memory:context-111",
+        "sourceVersion": "sha256:6704df04759e28d11cbba42c870cf1bb28b0ac40ad16a3ac3796561c6be54be8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-111",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "He went up to his coachman, who was dozing on the box in the shadow, already lengthening, of a thick limetree; he admired the shifting cl",
+        "id": "ev_67b828ceb993d5befde663d9",
+        "observedAt": "2026-10-14T08:52:54.973Z"
+      },
+      {
+        "sourceId": "memory:context-46",
+        "sourceVersion": "sha256:7d3fbe8e9e552a28d2afaa84e5bd1f0ce2965d39e19cb6e06aab94143cfc4f0d",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-46",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "After the first waltz Alain went to her mother, and she had hardly time to say a few words to Meadow Nordston when Clarisse c",
+        "id": "ev_f16b69142b7fc9bf7a2cc46b",
+        "observedAt": "2026-10-14T08:52:54.974Z"
+      }
+    ],
+    "sourceIds": [
+      "context-31",
+      "context-111",
+      "context-46"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 13.909625000000233,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "invalidReason": "ValueError"
+}

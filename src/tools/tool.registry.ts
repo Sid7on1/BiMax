@@ -101,6 +101,9 @@ export class ToolRegistry {
     Logger.info(`[ToolRegistry] Registered tool: ${tool.name} (Destructive: ${tool.isDestructive})`);
   }
 
+  /** A trusted embedded host makes its compact capability visible without external tool search. */
+  public discover(name: string): void { if (this.tools.has(name)) this.discovered.add(name); }
+
   public getTool(name: string): BuiltTool | undefined {
     const exact = this.tools.get(name);
     if (exact) return exact;
@@ -138,6 +141,7 @@ export class ToolRegistry {
    * they are never in CORE_TOOLS.
    */
   public isDeferred(name: string): boolean {
+    if (this.tools.get(name)?.scopeOnly) return false;
     // Index-gated tools are never "deferred" (load-on-demand): they're either fully sent (indexed) or
     // fully hidden (not indexed), never advertised in the LOAD-ON-DEMAND list.
     return this.tools.has(name) && !CORE_TOOLS.has(name) && name !== TOOL_SEARCH_TOOL && !INDEX_GATED_TOOLS.has(name);
@@ -148,6 +152,7 @@ export class ToolRegistry {
    * getSchemas (what goes on the wire) and the persona prompt (what it lists), so they never drift.
    */
   public isSent(name: string, mode: ContextMode): boolean {
+    if (this.tools.get(name)?.scopeOnly) return false;
     // Gated tools ride entirely on index readiness, in BOTH modes.
     if (INDEX_GATED_TOOLS.has(name)) return this.isGraphReady();
     if (mode === 'full') return name !== TOOL_SEARCH_TOOL;
@@ -265,7 +270,8 @@ export class ToolRegistry {
 
   /** Back-compat: the full, unfiltered schema list. */
   public getAllSchemas(): any[] {
-    return this.getSchemas({ mode: 'full' });
+    // Explicit turn scopes resolve host tools even when hidden from the ordinary working set.
+    return Array.from(this.tools.values()).filter(t => t.scopeOnly || this.isSent(t.name, 'full')).map(toSchema);
   }
 }
 

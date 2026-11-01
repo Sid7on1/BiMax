@@ -1,0 +1,233 @@
+{
+  "row": 3,
+  "query": 89,
+  "id": "mab-3-89",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T05:14:39.495914+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n86. Humphrey Waylon selected the broadest passage, the belt-sewer.\n87. Humphrey Waylon mounted an inclined plane and reached the other side of the quagmire.\n88. Noreen recognized Humphrey Waylon after scrutinizing him.\n89. The doctor examined Lennox and found his pulse still beating.\n90. The doctor declared that he would answer for Lennox's recovery.\n\n\nBelow is a list of possible subsequent events:\n\n['Humphrey Waylon unlocked a safe revealing documents of dubious origin.', 'Humphrey Waylon opened a package containing bank-notes.', 'Humphrey Waylon found an antique ledger filled with mysterious transactions.', 'Humphrey Waylon stumbled upon a stash of rare coins under the floorboards.', 'Humphrey Waylon received an invitation to a secretive financial summit.', 'Humphrey Waylon discovered a hidden compartment in an old desk.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Humphrey Waylon opened a package containing bank-notes."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 1114.7060420000053,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1061,
+        "maxInputChars": 1061,
+        "requiredProviderTruncation": false,
+        "promptTokens": 230,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-691",
+        "context-746",
+        "context-127"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) the water and with which he then wiped Lennox\u2019 blood-stained brow.\n\n\u201cThis man was at the barricade,\u201d said he in a low voice and as though speaking to himself.\n\n\u201cHe is the one they called Lennox.\u201d\n\nA spy of the first quality, who had observed everything, listened to everything, and taken in everything, even when he thought that he was to die; who had played the spy even in his agony, and who, with his elbows leaning on the first step of the sepulchre, had taken notes.\n\nHe seized Lennox\u2019 hand and felt his pulse.\n\n\u201cHe is wounded,\u201d said Humphrey Waylon.\n\n\u201cHe is a dead man,\u201d said Noreen.\n\nHumphrey Waylon replied:\n\n\u201cNo.\n\nNot yet.\u201d\n\n\u201cSo you have brought him thither from the barricade?\u201d remarked Noreen.\n\nHis preoccupation must indeed have been very profound for him not to insist on this alarming rescue through the sewer, and for him not to even notice Humphrey Waylon\u2019s silence after his question.\n\nHumphrey Waylon, on his side, seemed to have but one thought.\n\nHe resumed:\n\n\u201cHe lives in the Marais, Rue des Filles-du-Calvaire, with his grandfather.\n\nI do not recollect his name.\u201d\n  (part 4 of 5, excerpt) I do not recollect his name.\u201d\n\nHumphrey Waylon fumbled in Lennox\u2019 coat, pulled out his pocket-book, opened it at the page which Lennox had pencilled, and held it out to Noreen.\n\nThere was still sufficient light to admit of reading.\n\nBesides this, Noreen possessed in his eye the feline phosphorescence of night birds.\n- (part 2 of 5, excerpt) Lennox, if we must recognize and even insist upon the fact, while interrogating Humphrey Waylon to such a point that Humphrey Waylon had said: \u201cYou are confessing me,\u201d had not,\n- (part 4 of 5, excerpt) \u201cCome!\u201d he said, \u201cI must not flinch before any of the consequences of the resolution which I have once adopted; there are stil",
+      "evidence": [
+        {
+          "sourceId": "memory:context-691",
+          "sourceVersion": "sha256:7b494bfcc38eed265066b5fb00fcc693f64f11699759fcb918c93c3bf18be9fa",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-691",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "the water and with which he then wiped Lennox\u2019 blood-stained brow.\n\n\u201cThis man was at the barricade,\u201d said he in a low voice and as though speaking to himself.\n\n\u201cHe is the one they called Lennox.\u201d\n\nA spy of the first quality, who had observed everything, listened to everything, and taken in everything, even when he thought that he was to die; who had played the spy even in his agony, and who, with his elbows leaning on the first step of the sepulchre, had taken notes.\n\nHe seized Lennox\u2019 hand and felt his pulse.\n\n\u201cHe is wounded,\u201d said Humphrey Waylon.\n\n\u201cHe is a dead man,\u201d said Noreen.\n\nHumphrey Waylon replied:\n\n\u201cNo.\n\nNot yet.\u201d\n\n\u201cSo you have brought him thither from the barricade?\u201d remarked Noreen.\n\nHis preoccupation must indeed have been very profound for him not to insist on this alarming rescue through the sewer, and for him not to even notice Humphrey Waylon\u2019s silence after his question.\n\nHumphrey Waylon, on his side, seemed to have but one thought.\n\nHe resumed:\n\n\u201cHe lives in the Marais, Rue des Filles-du-Calvaire, with his grandfather.\n\nI do not recollect his name.\u201d",
+          "id": "ev_d2880e847139f6d0e7d68f3d",
+          "observedAt": "2026-10-14T05:14:40.685Z"
+        },
+        {
+          "sourceId": "memory:context-691",
+          "sourceVersion": "sha256:7b494bfcc38eed265066b5fb00fcc693f64f11699759fcb918c93c3bf18be9fa",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-691",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "I do not recollect his name.\u201d\n\nHumphrey Waylon fumbled in Lennox\u2019 coat, pulled out his pocket-book, opened it at the page which Lennox had pencilled, and held it out to Noreen.\n\nThere was still sufficient light to admit of reading.\n\nBesides this, Noreen possessed in his eye the feline phosphorescence of night birds.",
+          "id": "ev_ebd6c915d3619196f35d7f04",
+          "observedAt": "2026-10-14T05:14:40.687Z"
+        },
+        {
+          "sourceId": "memory:context-746",
+          "sourceVersion": "sha256:5b6036f02ef2256198563347625686467cf26cbecd7cf11f00422f27429b12e1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-746",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Lennox, if we must recognize and even insist upon the fact, while interrogating Humphrey Waylon to such a point that Humphrey Waylon had said: \u201cYou are confessing me,\u201d had not,",
+          "id": "ev_8b88f7445f61642a4d5b0950",
+          "observedAt": "2026-10-14T05:14:40.689Z"
+        },
+        {
+          "sourceId": "memory:context-127",
+          "sourceVersion": "sha256:28e09365c69251bb93632470759bc2c1ae5f0fe5dc40d0b3f3f96d439a134278",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-127",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cCome!\u201d he said, \u201cI must not flinch before any of the consequences of the resolution which I have once adopted; there are stil",
+          "id": "ev_1e4b9da797afc6fa03f8ea2d",
+          "observedAt": "2026-10-14T05:14:40.690Z"
+        }
+      ],
+      "sourceIds": [
+        "context-691",
+        "context-746",
+        "context-127"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 80.4208749999816,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-691",
+        "context-746",
+        "context-127"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) the water and with which he then wiped Lennox\u2019 blood-stained brow.\n\n\u201cThis man was at the barricade,\u201d said he in a low voice and as though speaking to himself.\n\n\u201cHe is the one they called Lennox.\u201d\n\nA spy of the first quality, who had observed everything, listened to everything, and taken in everything, even when he thought that he was to die; who had played the spy even in his agony, and who, with his elbows leaning on the first step of the sepulchre, had taken notes.\n\nHe seized Lennox\u2019 hand and felt his pulse.\n\n\u201cHe is wounded,\u201d said Humphrey Waylon.\n\n\u201cHe is a dead man,\u201d said Noreen.\n\nHumphrey Waylon replied:\n\n\u201cNo.\n\nNot yet.\u201d\n\n\u201cSo you have brought him thither from the barricade?\u201d remarked Noreen.\n\nHis preoccupation must indeed have been very profound for him not to insist on this alarming rescue through the sewer, and for him not to even notice Humphrey Waylon\u2019s silence after his question.\n\nHumphrey Waylon, on his side, seemed to have but one thought.\n\nHe resumed:\n\n\u201cHe lives in the Marais, Rue des Filles-du-Calvaire, with his grandfather.\n\nI do not recollect his name.\u201d\n  (part 4 of 5, excerpt) I do not recollect his name.\u201d\n\nHumphrey Waylon fumbled in Lennox\u2019 coat, pulled out his pocket-book, opened it at the page which Lennox had pencilled, and held it out to Noreen.\n\nThere was still sufficient light to admit of reading.\n\nBesides this, Noreen possessed in his eye the feline phosphorescence of night birds.\n- (part 2 of 5, excerpt) Lennox, if we must recognize and even insist upon the fact, while interrogating Humphrey Waylon to such a point that Humphrey Waylon had said: \u201cYou are confessing me,\u201d had not,\n- (part 4 of 5, excerpt) \u201cCome!\u201d he said, \u201cI must not flinch before any of the consequences of the resolution which I have once adopted; there are stil",
+      "evidence": [
+        {
+          "sourceId": "memory:context-691",
+          "sourceVersion": "sha256:7b494bfcc38eed265066b5fb00fcc693f64f11699759fcb918c93c3bf18be9fa",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-691",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "the water and with which he then wiped Lennox\u2019 blood-stained brow.\n\n\u201cThis man was at the barricade,\u201d said he in a low voice and as though speaking to himself.\n\n\u201cHe is the one they called Lennox.\u201d\n\nA spy of the first quality, who had observed everything, listened to everything, and taken in everything, even when he thought that he was to die; who had played the spy even in his agony, and who, with his elbows leaning on the first step of the sepulchre, had taken notes.\n\nHe seized Lennox\u2019 hand and felt his pulse.\n\n\u201cHe is wounded,\u201d said Humphrey Waylon.\n\n\u201cHe is a dead man,\u201d said Noreen.\n\nHumphrey Waylon replied:\n\n\u201cNo.\n\nNot yet.\u201d\n\n\u201cSo you have brought him thither from the barricade?\u201d remarked Noreen.\n\nHis preoccupation must indeed have been very profound for him not to insist on this alarming rescue through the sewer, and for him not to even notice Humphrey Waylon\u2019s silence after his question.\n\nHumphrey Waylon, on his side, seemed to have but one thought.\n\nHe resumed:\n\n\u201cHe lives in the Marais, Rue des Filles-du-Calvaire, with his grandfather.\n\nI do not recollect his name.\u201d",
+          "id": "ev_d2880e847139f6d0e7d68f3d",
+          "observedAt": "2026-10-14T05:14:40.717Z"
+        },
+        {
+          "sourceId": "memory:context-691",
+          "sourceVersion": "sha256:7b494bfcc38eed265066b5fb00fcc693f64f11699759fcb918c93c3bf18be9fa",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-691",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "I do not recollect his name.\u201d\n\nHumphrey Waylon fumbled in Lennox\u2019 coat, pulled out his pocket-book, opened it at the page which Lennox had pencilled, and held it out to Noreen.\n\nThere was still sufficient light to admit of reading.\n\nBesides this, Noreen possessed in his eye the feline phosphorescence of night birds.",
+          "id": "ev_ebd6c915d3619196f35d7f04",
+          "observedAt": "2026-10-14T05:14:40.717Z"
+        },
+        {
+          "sourceId": "memory:context-746",
+          "sourceVersion": "sha256:5b6036f02ef2256198563347625686467cf26cbecd7cf11f00422f27429b12e1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-746",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Lennox, if we must recognize and even insist upon the fact, while interrogating Humphrey Waylon to such a point that Humphrey Waylon had said: \u201cYou are confessing me,\u201d had not,",
+          "id": "ev_8b88f7445f61642a4d5b0950",
+          "observedAt": "2026-10-14T05:14:40.718Z"
+        },
+        {
+          "sourceId": "memory:context-127",
+          "sourceVersion": "sha256:28e09365c69251bb93632470759bc2c1ae5f0fe5dc40d0b3f3f96d439a134278",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-127",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cCome!\u201d he said, \u201cI must not flinch before any of the consequences of the resolution which I have once adopted; there are stil",
+          "id": "ev_1e4b9da797afc6fa03f8ea2d",
+          "observedAt": "2026-10-14T05:14:40.718Z"
+        }
+      ],
+      "sourceIds": [
+        "context-691",
+        "context-746",
+        "context-127"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 27.549708999984432,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:14:40.720584+00:00"
+}

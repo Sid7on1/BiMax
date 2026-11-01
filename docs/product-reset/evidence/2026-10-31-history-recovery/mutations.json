@@ -1,0 +1,85 @@
+[
+  {
+    "mutant": "writer-limit",
+    "assertion_caught": true,
+    "failed_tests": [
+      "immediate publication refuses oversized bytes without replacing a reloadable snapshot",
+      "coalesced publication refuses oversized bytes without replacing a reloadable snapshot",
+      "final publication refuses oversized bytes without replacing a reloadable snapshot",
+      "the boundary is encoded bytes: exact-limit Unicode round-trips; one byte over refuses"
+    ],
+    "exit_code": 1
+  },
+  {
+    "mutant": "silent-discovery",
+    "assertion_caught": true,
+    "failed_tests": [
+      "existing oversized main and archived files remain discoverable without reading their bodies",
+      "unreadable snapshots are reported and cannot be silently overwritten by a small placeholder",
+      "invalid UTF-8 is retained for recovery rather than silently replacing damaged content",
+      "short filesystem reads preserve exact text; growth during reading is retained as unavailable",
+      "the production recovery action exports exact retained bytes (archived=false), preserving originals",
+      "invalid/uncatalogued identities never open the picker; cancellation exports nothing",
+      "export cannot replace any conversation inside storage, including through a directory alias",
+      "source replacement during the streamed export refuses publication and cleans the temporary copy",
+      "independent read-back catches corrupted staged bytes without replacing an earlier export"
+    ],
+    "exit_code": 1
+  },
+  {
+    "mutant": "tombstone-before-admission",
+    "assertion_caught": true,
+    "failed_tests": [
+      "final publication refuses oversized bytes without replacing a reloadable snapshot"
+    ],
+    "exit_code": 1
+  },
+  {
+    "mutant": "unbounded-unarchive",
+    "assertion_caught": true,
+    "failed_tests": [
+      "existing oversized main and archived files remain discoverable without reading their bodies"
+    ],
+    "exit_code": 1
+  },
+  {
+    "mutant": "bin-envelope-limit",
+    "assertion_caught": true,
+    "failed_tests": [
+      "exact-limit snapshots survive the Bin envelope and restore exact content after reopening recovery"
+    ],
+    "exit_code": 1
+  },
+  {
+    "mutant": "delete-unreadable-backup",
+    "assertion_caught": true,
+    "failed_tests": [
+      "oversized and corrupt Bin backups survive pruning and have exact-byte recovery export"
+    ],
+    "exit_code": 1
+  },
+  {
+    "mutant": "skip-source-identity",
+    "assertion_caught": true,
+    "failed_tests": [
+      "source replacement during the streamed export refuses publication and cleans the temporary copy"
+    ],
+    "exit_code": 1
+  },
+  {
+    "mutant": "skip-byte-verification",
+    "assertion_caught": true,
+    "failed_tests": [
+      "independent read-back catches corrupted staged bytes without replacing an earlier export"
+    ],
+    "exit_code": 1
+  },
+  {
+    "mutant": "overwrite-recovery",
+    "assertion_caught": true,
+    "failed_tests": [
+      "unreadable snapshots are reported and cannot be silently overwritten by a small placeholder"
+    ],
+    "exit_code": 1
+  }
+]

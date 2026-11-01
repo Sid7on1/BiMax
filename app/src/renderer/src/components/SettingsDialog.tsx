@@ -4,6 +4,7 @@ import {
   KeyRound, Search, Settings2, Shield, TerminalSquare, X,
 } from 'lucide-react';
 import { VoiceSettings } from './VoiceSettings';
+import { MobileSettings } from './MobileSettings';
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 import { cn } from '../lib/cn';
 import type { EngineConfig } from '../protocol';
@@ -18,7 +19,7 @@ type Control =
   | { kind: 'text'; placeholder?: string };
 
 interface Item { key: keyof EngineConfig; label: string; desc: string; control: Control }
-type PageId = 'general' | 'providers' | 'voice' | 'environment' | 'alchemist' | 'autonomy' | 'safety';
+type PageId = 'general' | 'providers' | 'voice' | 'environment' | 'alchemist' | 'autonomy' | 'safety' | 'mobile';
 interface Page { id: PageId; label: string; icon: React.ReactNode; subtitle: string; items: Item[] }
 
 /**
@@ -54,6 +55,7 @@ const PAGES: Page[] = [
       { key: 'parallelToolCalls', label: 'Parallel tool calls', desc: 'Allow compatible models to batch independent tool calls.', control: { kind: 'toggle' } },
     ],
   },
+  { id: 'mobile', label: 'Phone connection', icon: <Globe2 size={15}/>, subtitle: 'Pair, connect and revoke your phone', items: [] },
   { id: 'voice', label: 'Voice', icon: <AudioLines size={15} />, subtitle: 'How Bimax sounds in talk mode', items: [] },
   { id: 'environment', label: 'Environment', icon: <TerminalSquare size={15} />, subtitle: 'Runtimes, SDKs and local developer services', items: [] },
   { id: 'alchemist', label: 'ML Alchemist', icon: <FlaskConical size={15} />, subtitle: 'Measured local-model experiments and compression', items: [] },
@@ -83,8 +85,10 @@ const PAGES: Page[] = [
 ];
 
 export function SettingsDialog({
-  open, onClose, onOpenHealth, onOpenModels, onOpenInspector, phase9, configGet, configSet,
+  open, onClose, onOpenHealth, onOpenModels, onOpenInspector, phase9, configGet, configSet, notices = [], engineAvailable = true,
 }: {
+  engineAvailable?: boolean;
+  notices?: import("../../../../../src/protocol/protocol").EngineNotice[];
   open: boolean;
   onClose: () => void;
   onOpenHealth: () => void;
@@ -102,13 +106,17 @@ export function SettingsDialog({
 
   useEffect(() => {
     if (!open) return;
+    if(!engineAvailable){setCfg({});setUnsupported(true);return;}
+    let current=true;
     setCfg(null); setUnsupported(false);
     void configGet().then((value) => {
+      if(!current)return;
       setUnsupported(Object.keys(value).length === 0);
       setCfg(value);
       if (typeof value.reducedMotion === 'boolean') applyMotionPreference(value.reducedMotion);
-    });
-  }, [open, configGet]);
+    }).catch(()=>{if(current){setCfg({});setUnsupported(true);}});
+    return()=>{current=false;};
+  }, [open, configGet, engineAvailable]);
 
   useEffect(() => () => {
     debounceRef.current.forEach((timer) => clearTimeout(timer));
@@ -171,8 +179,8 @@ export function SettingsDialog({
           </header>
 
           <div className="min-h-0 flex-1 overflow-y-auto px-7 pb-7">
-            {unsupported ? <div className="mt-3 rounded-xl border border-amber/30 bg-amber/8 px-3 py-2 text-xs text-amber">Engine controls are unavailable in this build. Capability pages remain read-only.</div> : null}
-            {customPage && page === 'voice' ? (
+            {unsupported && page !== 'mobile' ? <div className="mt-3 rounded-xl border border-amber/30 bg-amber/8 px-3 py-2 text-xs text-amber">{engineAvailable?'Agent controls are unavailable in this build. Capability pages remain read-only.':'Open a project to change agent settings. Phone connection is available now.'}</div> : null}
+            {customPage && page === 'mobile' ? <MobileSettings/> : customPage && page === 'voice' ? (
               <VoiceSettings />
             ) : customPage ? (
               <CapabilitySettings page={page} phase9={phase9} onOpenModels={onOpenModels} onOpenInspector={onOpenInspector} onOpenHealth={onOpenHealth} onClose={onClose} />
@@ -180,6 +188,7 @@ export function SettingsDialog({
               <div className="mt-6 space-y-3">{[0, 1, 2, 3].map((index) => <div key={index} className="h-16 animate-pulse rounded-xl bg-raise" />)}</div>
             ) : (
               <div className="mt-2">
+                {page === 'providers' && !q && notices.length > 0 && <section className="output-notices" aria-label="Usage notices"><h3>Usage estimates</h3>{notices.map(notice=><p key={notice.id}>{notice.text}</p>)}<p>Set provider-specific rates with BIMAX_MODEL_PRICING_JSON in the engine environment. Estimates do not change your provider’s bill.</p></section>}
                 {page === 'providers' && !q ? (
                   <ActionCard icon={<KeyRound size={16} />} title="Provider catalogue & credentials" description="Connect API providers, store keys in the macOS Keychain and choose a compatible model for each role." action="Manage providers" onClick={onOpenModels} />
                 ) : null}

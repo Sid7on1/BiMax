@@ -46,7 +46,7 @@ test('a retired host call refuses immediately and sends nothing to the app', asy
   const { port1, port2 } = new MessageChannel();
   const emitter = new EventEmitter();
   const outbound: any[] = [];
-  port2.on('message', (frame) => { for (const line of String(frame).split('\n').filter(Boolean)) { try { outbound.push(JSON.parse(line)); } catch {} } });
+  port2.on('message', (frame) => { for (const line of String(frame).split('\n').filter(Boolean)) { try { outbound.push(JSON.parse(line)); } catch { /* Fixture body intentionally performs no work. */ } } });
   const dispose = startPortHost({ emitter, port: port1 } as any);
   const results: unknown[] = [];
   try {

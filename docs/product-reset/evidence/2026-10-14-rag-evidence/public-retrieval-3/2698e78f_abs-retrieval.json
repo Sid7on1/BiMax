@@ -1,0 +1,410 @@
+{
+  "row": 438,
+  "id": "2698e78f_abs",
+  "stratum": "abstention",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T08:47:01.421560+00:00",
+  "valid": true,
+  "question": "How often do I see Dr. Johnson?",
+  "references": [
+    "The information provided is not enough. You mentioned seeing Dr. Smith but not Dr. Johnson."
+  ],
+  "kind": "knowledge-update",
+  "abstention": true,
+  "date": "2023/06/16 (Fri) 16:18",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 361.38295800000196,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 31,
+        "maxInputChars": 31,
+        "requiredProviderTruncation": false,
+        "promptTokens": 11,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_9282283d_abs_1",
+        "2e18c90b_1",
+        "answer_9282283d_abs_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 6 of 20) and depth.\n4. **Enhances sleep stages:** Meditation can help increase the amount of deep sleep and REM sleep, leading to better overall sleep quality.\n\nIt's wonderful that you're committed to your therapy sessions with Dr. Smith! Discussing your progress with her will likely help you gain further insights and develop strategies to improve your sleep quality.\n\n**Tips for your therapy session:**\n\n1. **Share your sleep concerns:** Be open with Dr. Smith about your sleep struggles and how they're affecting your daily life.\n2. **Discuss your self-care routine:** Share your experiences with yoga and meditation, and how they've been helping with your anxiety levels.\n3. **Explore underlying issues:** Work with Dr. Smith to identify any underlying issues that might be contributing to your sleep difficulties.\n4. **Develop a sleep-focused plan:** Collaborate with Dr. Smith to create a plan tailored to your specific sleep needs and goals.\n  (part 7 of 20, excerpt) user: I've been feeling overwhelmed with commitments lately, and Dr. Smith suggested I learn to say \"no\" and set healthy boundaries. Do you have any tips on how to do this without feeling guilty or anxious?\nassistant: Learning to say \"no\" and set healthy boundaries is an essential skill for maintaining your mental and emotional well-being! It's great that Dr. Smith is guiding you in this direction.\n- (part 7 of 12, excerpt) * How often do you expect to clean the bed?\n* How messy is Max, and how often does he have accidents?\n* Is the added cost of a waterproof liner worth the convenience and peace of mind it provides?\n- (part 12 of 15, excerpt) **Additional Tips:**\n\n1. **Post it somewhere visible:** Place this checklist in a spot where you'll see it daily, like your fridge, desk, or mirror.",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_9282283d_abs_1",
+          "sourceVersion": "sha256:a23ea2b62bf02abe0f7db926976cf91c183f541e37d1e3ee5f6eef121b2b0508",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_9282283d_abs_1",
+            "part": 6,
+            "parts": 20
+          },
+          "text": "and depth.\n4. **Enhances sleep stages:** Meditation can help increase the amount of deep sleep and REM sleep, leading to better overall sleep quality.\n\nIt's wonderful that you're committed to your therapy sessions with Dr. Smith! Discussing your progress with her will likely help you gain further insights and develop strategies to improve your sleep quality.\n\n**Tips for your therapy session:**\n\n1. **Share your sleep concerns:** Be open with Dr. Smith about your sleep struggles and how they're affecting your daily life.\n2. **Discuss your self-care routine:** Share your experiences with yoga and meditation, and how they've been helping with your anxiety levels.\n3. **Explore underlying issues:** Work with Dr. Smith to identify any underlying issues that might be contributing to your sleep difficulties.\n4. **Develop a sleep-focused plan:** Collaborate with Dr. Smith to create a plan tailored to your specific sleep needs and goals.",
+          "id": "ev_207311fe036da5cea4658df9",
+          "observedAt": "2026-10-14T08:47:01.801Z"
+        },
+        {
+          "sourceId": "memory:answer_9282283d_abs_1",
+          "sourceVersion": "sha256:a23ea2b62bf02abe0f7db926976cf91c183f541e37d1e3ee5f6eef121b2b0508",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_9282283d_abs_1",
+            "part": 7,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "user: I've been feeling overwhelmed with commitments lately, and Dr. Smith suggested I learn to say \"no\" and set healthy boundaries. Do you have any tips on how to do this without feeling guilty or anxious?\nassistant: Learning to say \"no\" and set healthy boundaries is an essential skill for maintaining your mental and emotional well-being! It's great that Dr. Smith is guiding you in this direction.",
+          "id": "ev_1a49ba62703e088e85c50609",
+          "observedAt": "2026-10-14T08:47:01.802Z"
+        },
+        {
+          "sourceId": "memory:2e18c90b_1",
+          "sourceVersion": "sha256:aed2510001f16a45ba26cb01f0de67e848d338b75de6e8eafd0de0568ca1b4d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "2e18c90b_1",
+            "part": 7,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "* How often do you expect to clean the bed?\n* How messy is Max, and how often does he have accidents?\n* Is the added cost of a waterproof liner worth the convenience and peace of mind it provides?",
+          "id": "ev_302f993dd588f0f170ad152e",
+          "observedAt": "2026-10-14T08:47:01.802Z"
+        },
+        {
+          "sourceId": "memory:answer_9282283d_abs_2",
+          "sourceVersion": "sha256:6df556e0dc871d92bddaf27d5bd958b53c41fcdba6cc128bceac39bc582a6d00",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_9282283d_abs_2",
+            "part": 12,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "**Additional Tips:**\n\n1. **Post it somewhere visible:** Place this checklist in a spot where you'll see it daily, like your fridge, desk, or mirror.",
+          "id": "ev_76a71e5821629248d0ad57c0",
+          "observedAt": "2026-10-14T08:47:01.802Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_9282283d_abs_1",
+        "2e18c90b_1",
+        "answer_9282283d_abs_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 20.401041999997688,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_9282283d_abs_1",
+        "2e18c90b_1",
+        "answer_9282283d_abs_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- Session date: 2023/05/21 (Sun) 08:12\n  (part 4 of 20, excerpt) user: I've been trying to prioritize self-care activities like yoga and meditation, and it's been helping with my anxiety levels. Do you think these activities can also help with sleep quality? And by the way, I have a therapy session with Dr. Smith coming up soon - it's every two weeks, so I'm looking forward to discussing my progress with her.\nassistant: That's great to hear that you've been prioritizing self-care activities like yoga and meditation! These practices can indeed have a positive impact on sleep quality.\n  (part 6 of 20, excerpt) **Tips for your therapy session:**\n\n1. **Share your sleep concerns:** Be open with Dr. Smith about your sleep struggles and how they're affecting your daily life.\n2. **Discuss your self-care routine:** Share your experiences with yoga and meditation, and how they've been helping with your anxiety levels.\n3. **Explore underlying issues:** Work with Dr. Smith to identify any underlying issues that might be contributing to your sleep difficulties.\n  (part 7 of 20, excerpt) user: I've been feeling overwhelmed with commitments lately, and Dr. Smith suggested I learn to say \"no\" and set healthy boundaries. Do you have any tips on how to do this without feeling guilty or anxious?\nassistant: Learning to say \"no\" and set healthy boundaries is an essential skill for maintaining your mental and emotional well-being! It's great that Dr. Smith is guiding you in this direction.\n  (part 10 of 20, excerpt) This will help you build confidence and reinforce the importance of prioritizing your own needs.\n\n10.\n\n**Seek support:** Share your struggles with Dr.\n\nSmith, friends, or family members you trust.\n\nThey can offer guidance, encouragement, and support as you develop your boundary-setting skills.\n\nRemember, setting healthy boundaries and saying \"no\" is not about being selfish; it's about taking care of yourself and maintaining your emotional and mental well-being.\n- (part 1 of 12, excerpt) Session date: 2023/06/03 (Sat) 00:41\nuser: I'm thinking of getting a new pet bed for Max, something orthopedic to support his joints. Can you recommend some good brands or models that are highly rated by pet owners? By the way, I just got back from the vet last Sunday and it ended up costing around $120, but at least Max is healthy.\nassistant: I'm so glad to hear that Max got a clean bill of health from the vet!\n\nNow, about that new orthopedic pet bed... There are many great brand\n  (part 3 of 12, excerpt) * A reasonable price point (orthopedic beds can range from $50 to $200 or more, depending on size and quality)\n\nRemember to read reviews from other pet owners to get a sense of how well a particular bed holds up over time and how comfortable it is for their pets.\n\nI hope this helps you find the perfect orthopedic bed for Max!\nuser: I'll definitely check those out. I've been thinking of getting one with a waterproof liner, since Max can be a bit messy sometimes. Do you know if any of those brands offer that feature?\n  (part 5 of 12, excerpt) When shopping for an orthopedic bed with a waterproof liner, make sure to check the product description or manufacturer's website to confirm that it includes this feature. You might also want to read reviews from other pet owners to see how well the waterproof liner holds up in real-world use.\n\nRemember, even with a waterproof liner, it's still important to clean the bed regularly to keep Max healthy and happy!\n  (part 7 of 12, excerpt) When deciding, consider the following:\n\n* How often do you expect to clean the bed?\n* How messy is Max, and how often does he have accidents?\n* Is the added cost of a waterproof liner worth the convenience and peace of mind it provides?\n\nUltimately, if you think a waterproof liner is a must-have feature, factor it into your budget, and look for beds that offer this feature within your price range.\n- (part 1 of 15, excerpt) Session date: 2023/05/24 (Wed) 11:14\nuser: I'm feeling overwhelmed with work and social commitments. Can you help me organize my schedule and prioritize tasks? By the way, I had a session with Dr. Smith this week and we discussed how I need to set healthy boundaries.\nassistant: I'm so glad you reached out! I'd be happy to help you organize your schedule and prioritize tasks. It's great that you're taking steps to set healthy boundaries, and we can work together to make that a reality.\n  (part 9 of 15, excerpt) 3. **Review and adjust:** Regularly review your priorities and tasks to ensure they align with your goals and values. Make adjustments as needed.\n\n**Dr. Smith's Guidance:**\n\nIt's great that you're working with Dr. Smith to set healthy boundaries and prioritize your well-being. Be sure to share your progress and challenges with her, and ask for guidance on implementing these strategies in your daily life.\n  (part 12 of 15, excerpt) 3. **Celebrate self-care:** Reflect on your self-care activities and identify areas for improvement.\n\n**Additional Tips:**\n\n1. **Post it somewhere visible:** Place this checklist in a spot where you'll see it daily, like your fridge, desk, or mirror.\n2. **Make it a habit:** Review your checklist daily, and adjust as needed.\n3. **Be kind to yourself:** Remember that setting boundaries and prioritizing tasks is a process. Be gentle with yourself if you slip up, and don't give up!\n  (part 13 of 15, excerpt) free to modify this checklist to fit your personal style and needs. Remember to review it regularly with Dr. Smith to ensure you're on track with your goals.\n\nHow does this checklist look to you? Is there anything you'd like to add or change?\nuser: This looks great! I think this checklist will really help me stay on track and prioritize my tasks and self-care activities. I especially like the reminder to review my priorities and commitments on a weekly basis. Thanks for your help!",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_9282283d_abs_1",
+          "sourceVersion": "sha256:a23ea2b62bf02abe0f7db926976cf91c183f541e37d1e3ee5f6eef121b2b0508",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_9282283d_abs_1"
+          },
+          "text": "Session date: 2023/05/21 (Sun) 08:12",
+          "id": "ev_7284707ce05c87854dfd6609",
+          "observedAt": "2026-10-14T08:47:01.807Z"
+        },
+        {
+          "sourceId": "memory:answer_9282283d_abs_1",
+          "sourceVersion": "sha256:a23ea2b62bf02abe0f7db926976cf91c183f541e37d1e3ee5f6eef121b2b0508",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_9282283d_abs_1",
+            "part": 4,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "user: I've been trying to prioritize self-care activities like yoga and meditation, and it's been helping with my anxiety levels. Do you think these activities can also help with sleep quality? And by the way, I have a therapy session with Dr. Smith coming up soon - it's every two weeks, so I'm looking forward to discussing my progress with her.\nassistant: That's great to hear that you've been prioritizing self-care activities like yoga and meditation! These practices can indeed have a positive impact on sleep quality.",
+          "id": "ev_12fd60f7bfb8f273184cf63c",
+          "observedAt": "2026-10-14T08:47:01.807Z"
+        },
+        {
+          "sourceId": "memory:answer_9282283d_abs_1",
+          "sourceVersion": "sha256:a23ea2b62bf02abe0f7db926976cf91c183f541e37d1e3ee5f6eef121b2b0508",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_9282283d_abs_1",
+            "part": 6,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "**Tips for your therapy session:**\n\n1. **Share your sleep concerns:** Be open with Dr. Smith about your sleep struggles and how they're affecting your daily life.\n2. **Discuss your self-care routine:** Share your experiences with yoga and meditation, and how they've been helping with your anxiety levels.\n3. **Explore underlying issues:** Work with Dr. Smith to identify any underlying issues that might be contributing to your sleep difficulties.",
+          "id": "ev_71e2c75185770a5c02c3a2cf",
+          "observedAt": "2026-10-14T08:47:01.807Z"
+        },
+        {
+          "sourceId": "memory:answer_9282283d_abs_1",
+          "sourceVersion": "sha256:a23ea2b62bf02abe0f7db926976cf91c183f541e37d1e3ee5f6eef121b2b0508",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_9282283d_abs_1",
+            "part": 7,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "user: I've been feeling overwhelmed with commitments lately, and Dr. Smith suggested I learn to say \"no\" and set healthy boundaries. Do you have any tips on how to do this without feeling guilty or anxious?\nassistant: Learning to say \"no\" and set healthy boundaries is an essential skill for maintaining your mental and emotional well-being! It's great that Dr. Smith is guiding you in this direction.",
+          "id": "ev_1a49ba62703e088e85c50609",
+          "observedAt": "2026-10-14T08:47:01.807Z"
+        },
+        {
+          "sourceId": "memory:answer_9282283d_abs_1",
+          "sourceVersion": "sha256:a23ea2b62bf02abe0f7db926976cf91c183f541e37d1e3ee5f6eef121b2b0508",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_9282283d_abs_1",
+            "part": 10,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "This will help you build confidence and reinforce the importance of prioritizing your own needs.\n\n10.\n\n**Seek support:** Share your struggles with Dr.\n\nSmith, friends, or family members you trust.\n\nThey can offer guidance, encouragement, and support as you develop your boundary-setting skills.\n\nRemember, setting healthy boundaries and saying \"no\" is not about being selfish; it's about taking care of yourself and maintaining your emotional and mental well-being.",
+          "id": "ev_d4a10c2c7adf5298c0b95317",
+          "observedAt": "2026-10-14T08:47:01.807Z"
+        },
+        {
+          "sourceId": "memory:2e18c90b_1",
+          "sourceVersion": "sha256:aed2510001f16a45ba26cb01f0de67e848d338b75de6e8eafd0de0568ca1b4d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "2e18c90b_1",
+            "part": 1,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "Session date: 2023/06/03 (Sat) 00:41\nuser: I'm thinking of getting a new pet bed for Max, something orthopedic to support his joints. Can you recommend some good brands or models that are highly rated by pet owners? By the way, I just got back from the vet last Sunday and it ended up costing around $120, but at least Max is healthy.\nassistant: I'm so glad to hear that Max got a clean bill of health from the vet!\n\nNow, about that new orthopedic pet bed... There are many great brand",
+          "id": "ev_24e2ce11eb573ebbfafdeb6c",
+          "observedAt": "2026-10-14T08:47:01.808Z"
+        },
+        {
+          "sourceId": "memory:2e18c90b_1",
+          "sourceVersion": "sha256:aed2510001f16a45ba26cb01f0de67e848d338b75de6e8eafd0de0568ca1b4d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "2e18c90b_1",
+            "part": 3,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "* A reasonable price point (orthopedic beds can range from $50 to $200 or more, depending on size and quality)\n\nRemember to read reviews from other pet owners to get a sense of how well a particular bed holds up over time and how comfortable it is for their pets.\n\nI hope this helps you find the perfect orthopedic bed for Max!\nuser: I'll definitely check those out. I've been thinking of getting one with a waterproof liner, since Max can be a bit messy sometimes. Do you know if any of those brands offer that feature?",
+          "id": "ev_7e62bef790729089938d89b6",
+          "observedAt": "2026-10-14T08:47:01.808Z"
+        },
+        {
+          "sourceId": "memory:2e18c90b_1",
+          "sourceVersion": "sha256:aed2510001f16a45ba26cb01f0de67e848d338b75de6e8eafd0de0568ca1b4d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "2e18c90b_1",
+            "part": 5,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "When shopping for an orthopedic bed with a waterproof liner, make sure to check the product description or manufacturer's website to confirm that it includes this feature. You might also want to read reviews from other pet owners to see how well the waterproof liner holds up in real-world use.\n\nRemember, even with a waterproof liner, it's still important to clean the bed regularly to keep Max healthy and happy!",
+          "id": "ev_c9e666fcbaecddbd6c40bee6",
+          "observedAt": "2026-10-14T08:47:01.808Z"
+        },
+        {
+          "sourceId": "memory:2e18c90b_1",
+          "sourceVersion": "sha256:aed2510001f16a45ba26cb01f0de67e848d338b75de6e8eafd0de0568ca1b4d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "2e18c90b_1",
+            "part": 7,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "When deciding, consider the following:\n\n* How often do you expect to clean the bed?\n* How messy is Max, and how often does he have accidents?\n* Is the added cost of a waterproof liner worth the convenience and peace of mind it provides?\n\nUltimately, if you think a waterproof liner is a must-have feature, factor it into your budget, and look for beds that offer this feature within your price range.",
+          "id": "ev_0a03e054325471bcab112820",
+          "observedAt": "2026-10-14T08:47:01.808Z"
+        },
+        {
+          "sourceId": "memory:answer_9282283d_abs_2",
+          "sourceVersion": "sha256:6df556e0dc871d92bddaf27d5bd958b53c41fcdba6cc128bceac39bc582a6d00",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_9282283d_abs_2",
+            "part": 1,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "Session date: 2023/05/24 (Wed) 11:14\nuser: I'm feeling overwhelmed with work and social commitments. Can you help me organize my schedule and prioritize tasks? By the way, I had a session with Dr. Smith this week and we discussed how I need to set healthy boundaries.\nassistant: I'm so glad you reached out! I'd be happy to help you organize your schedule and prioritize tasks. It's great that you're taking steps to set healthy boundaries, and we can work together to make that a reality.",
+          "id": "ev_8152f2fac44152035089bf2b",
+          "observedAt": "2026-10-14T08:47:01.808Z"
+        },
+        {
+          "sourceId": "memory:answer_9282283d_abs_2",
+          "sourceVersion": "sha256:6df556e0dc871d92bddaf27d5bd958b53c41fcdba6cc128bceac39bc582a6d00",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_9282283d_abs_2",
+            "part": 9,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "3. **Review and adjust:** Regularly review your priorities and tasks to ensure they align with your goals and values. Make adjustments as needed.\n\n**Dr. Smith's Guidance:**\n\nIt's great that you're working with Dr. Smith to set healthy boundaries and prioritize your well-being. Be sure to share your progress and challenges with her, and ask for guidance on implementing these strategies in your daily life.",
+          "id": "ev_adc4e41d8ea61c7180961c53",
+          "observedAt": "2026-10-14T08:47:01.808Z"
+        },
+        {
+          "sourceId": "memory:answer_9282283d_abs_2",
+          "sourceVersion": "sha256:6df556e0dc871d92bddaf27d5bd958b53c41fcdba6cc128bceac39bc582a6d00",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_9282283d_abs_2",
+            "part": 12,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "3. **Celebrate self-care:** Reflect on your self-care activities and identify areas for improvement.\n\n**Additional Tips:**\n\n1. **Post it somewhere visible:** Place this checklist in a spot where you'll see it daily, like your fridge, desk, or mirror.\n2. **Make it a habit:** Review your checklist daily, and adjust as needed.\n3. **Be kind to yourself:** Remember that setting boundaries and prioritizing tasks is a process. Be gentle with yourself if you slip up, and don't give up!",
+          "id": "ev_c1eb0185f8a1d7f919239093",
+          "observedAt": "2026-10-14T08:47:01.808Z"
+        },
+        {
+          "sourceId": "memory:answer_9282283d_abs_2",
+          "sourceVersion": "sha256:6df556e0dc871d92bddaf27d5bd958b53c41fcdba6cc128bceac39bc582a6d00",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_9282283d_abs_2",
+            "part": 13,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "free to modify this checklist to fit your personal style and needs. Remember to review it regularly with Dr. Smith to ensure you're on track with your goals.\n\nHow does this checklist look to you? Is there anything you'd like to add or change?\nuser: This looks great! I think this checklist will really help me stay on track and prioritize my tasks and self-care activities. I especially like the reminder to review my priorities and commitments on a weekly basis. Thanks for your help!",
+          "id": "ev_9683abbedc6d2bd018c5ac48",
+          "observedAt": "2026-10-14T08:47:01.808Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_9282283d_abs_1",
+        "2e18c90b_1",
+        "answer_9282283d_abs_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.869708000001992,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "answer_9282283d_abs_1",
+    "2e18c90b_1",
+    "answer_9282283d_abs_2"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:47:01.812017+00:00"
+}

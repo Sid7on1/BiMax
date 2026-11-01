@@ -9,10 +9,10 @@ const DECODE_MS = 320;
 const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
 
 /** The word on screen, settling letter by letter from left to right whenever `word` changes. */
-function useDecodingWord(word: string): string {
+function useDecodingWord(word: string, reduceMotion: boolean): string {
   const [text, setText] = useState(word);
   useEffect(() => {
-    if (prefersReducedMotion() || isQuietRendering()) { setText(word); return; }
+    if (reduceMotion || isQuietRendering()) { setText(word); return; }
     const started = performance.now();
     let frame = 0;
     const tick = (now: number): void => {
@@ -25,7 +25,7 @@ function useDecodingWord(word: string): string {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [word]);
+  }, [word, reduceMotion]);
   return text;
 }
 
@@ -37,21 +37,21 @@ function useDecodingWord(word: string): string {
  * — in which case the row says so instead of rendering the loop. The full reasoning is still kept on
  * the finished message, behind its "Thought for Ns" line.
  */
-export function ThinkingIndicator({ thinking, status }: { thinking: string; status?: string }): React.ReactElement {
+export function ThinkingIndicator({ thinking, status, reduceMotion = prefersReducedMotion() }: { thinking: string; status?: string; reduceMotion?: boolean }): React.ReactElement {
   const startedAt = useRef(Date.now());
   const [elapsed, setElapsed] = useState(0);
   const [verb, setVerb] = useState<string>(() => THINKING_VERBS[Math.floor(Math.random() * THINKING_VERBS.length)]);
   const [open, setOpen] = useState(true);
-  const shown = useDecodingWord(verb);
+  const shown = useDecodingWord(verb, reduceMotion);
 
   useEffect(() => {
     // The elapsed counter is information — how long this turn has been running — so it keeps ticking
     // under quiet rendering. The rotating verb is decoration, and stops (WP-2, record 57).
     const clock = window.setInterval(() => setElapsed(Math.floor((Date.now() - startedAt.current) / 1000)), 1000);
-    if (isQuietRendering()) return () => window.clearInterval(clock);
+    if (reduceMotion || isQuietRendering()) return () => window.clearInterval(clock);
     const words = window.setInterval(() => setVerb((current) => nextVerb(current)), VERB_MS);
     return () => { window.clearInterval(clock); window.clearInterval(words); };
-  }, []);
+  }, [reduceMotion]);
 
   const degenerate = thinking ? isDegenerate(thinking) : false;
   return (

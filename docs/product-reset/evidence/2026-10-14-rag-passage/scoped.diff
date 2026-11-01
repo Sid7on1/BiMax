@@ -1,0 +1,1554 @@
+--- a/docs/product-reset/README.md
++++ b/docs/product-reset/README.md
+@@ -1,4 +1,8 @@
+ # Bimax product reset
++
++## Complete RAG passages — 2026-10-14, record 98
++
++[Record 98](98_RAG_COMPLETE_PASSAGES.md) completes the owner-authorized fresh 25+25 paired pilot and rejects its isolated prototype: classic LongMemEval judged answers improve 6→13/25 (+28 percentage points), while MemoryAgentBench custom judged answers tie 15→15/25 with three gains/three losses. Reader input rises 2.51×. All 100 arms, raw requests/verdicts/model/usage, 722 source spans and frozen inputs pass audit; five altered observations are caught. A possible judging/format disagreement remains flagged without rescoring. Production and generated staging engine remain unchanged; 32 existing recall/RAG tests pass after one retained heap-limited test-run abort. Streamed preparation, serial CPU-only embeddings and atomic checkpoints complete the pilot without establishing a Mac crash fix. Independent judging, fresh larger/equal-budget/embedding-window qualification, installed full R02 and release remain Target.
+ 
+ ## RAG answering evidence — 2026-10-14, record 97
+ 
+--- a/docs/product-reset/competitive/05_GAP_REGISTER.md
++++ b/docs/product-reset/competitive/05_GAP_REGISTER.md
+@@ -1,4 +1,8 @@
+ # Bimax gap register
++
++## Complete-passage pilot — 2026-10-14, record 98
++
++[Record 98](../98_RAG_COMPLETE_PASSAGES.md): **Measured rejected prototype**. Fresh paired classic LongMemEval judged answers improve 6→13/25, but MemoryAgentBench custom judged answers tie 15→15/25 with three gains/three losses and two declining EventQA families. The fixed positive-gain-in-both rule fails; production and generated staging runtime remain unchanged. Reader input costs 2.51×. All 100 arms, frozen sources/raw requests/model/verdict/usage and 722 shown spans pass audit; five altered observations are assertion-caught. One possible judge/format disagreement remains explicit. Fourteen candidate fixtures, eleven source faults, streaming/cache controls and 32 existing production tests pass; the first 256-MiB test-heap abort is retained, followed by one passing 512-MiB-cap retry. Public scores are small-subset same-model judgments, not population/reference leaderboard or installed qualification. Independent judging, oracle/equal-budget/embedding-window/reranker work, larger fresh qualification, crash-cause diagnosis, installed/full R02/release/Win remain **Target**. No CU/UI/configuration change.
+ 
+ ## RAG answering evidence — 2026-10-14, record 97
+ 
+--- a/docs/product-reset/competitive/07_BUILD_SEQUENCE.md
++++ b/docs/product-reset/competitive/07_BUILD_SEQUENCE.md
+@@ -1,4 +1,8 @@
+ # Competitive build sequence
++
++## Completed fresh 50 RAG pilot — 2026-10-14, record 98
++
++[Record 98](../98_RAG_COMPLETE_PASSAGES.md) completes all 100 valid paired evaluations and rejects the isolated candidate: LongMemEval 6→13/25 gains coexist with MemoryAgentBench 15→15/25, three lost cases and 2.51× reader input. Production and staging engine remain at baseline; all raw evidence, assertions and failures survive. The fixed adoption rule is not relaxed. The authorized 50-question scope is exhausted; no further hosted evaluation starts. Next Targets: independent judge/human agreement and reader final-answer formatting; separately bounded oracle/equal-budget and embedding-window/ranking experiments on independent constructed cases, then a new frozen candidate and separately authorized fresh qualification. Preserve every valid wrong answer, all costs and query/passage truncation. Keep one hosted HTTP call, serial CPU-only embedding requests, persistent atomic receipts and low-priority work on the unstable Mac. Installed full R02, crash-cause diagnosis and release remain Target.
+ 
+ ## RAG answer-evidence qualification — 2026-10-14, record 97
+ 
+--- a/docs/product-reset/competitive/08_SOURCE_LEDGER.md
++++ b/docs/product-reset/competitive/08_SOURCE_LEDGER.md
+@@ -1038,3 +1038,9 @@
+ Following reported Mac crashes, a readonly diagnostic check finds watchdog reports without establishing cause. The new benchmark-only durable wrapper preserves frozen request/judge/source/selection semantics and uses file/directory fsync plus create-only atomic publication. Five tiny offline end-state/process-termination checks, an assertion-caught direct-overwrite fault and a fake-transport exact-body preflight support this receipt writer only. `public-answer-8` reuses 321 valid arms at nice 10, three requests/minute and one HTTP call; one client snapshot is about 59 MiB RSS and 0% CPU. No local embedding or broad build/test rerun, macOS settings change, hardware durability or installed C04 claim. A 43 MiB same-volume recovery archive has every file hash verified; it is not a disk-failure backup. Current diagnostic/recovery receipts are in record-97 evidence.
+ 
+ The final record-97 paired audit completes 400 valid arms: classic LongMemEval 43→64/100, answerable 29→49/85, MemoryAgentBench custom judge 51→45/100. All three EventQA family totals decline, so the predeclared adoption rule rejects the candidate; production recall and generated runtime return to starting behavior. Reader input rises 2.45×. All 1195 attempts,334 throttling responses,1,413,836 reported tokens, source/raw request/usage audits and five failing observation faults remain preserved. The rejected source/tests are archived without weakening assertions;32 restored recall/RAG tests pass. An explicit hash-checked source snapshot permits reproducible re-audit after production restoration. The owner authorizes only 50 fresh questions (25 per dataset) for the next qualification; no result from that revision is yet measured.
++
++## 2026-10-14 — Complete passages and fresh 50 pilot, record 98
++
++[Record 98](../98_RAG_COMPLETE_PASSAGES.md) keeps its revision isolated after rejecting record 97. Newly checked first-party [LlamaIndex parser documentation](https://developers.llamaindex.ai/python/framework/module_guides/loading/node_parsers/modules/) distinguishes complete sentences, reader context windows and hierarchical expansion. Bimax preserves complete existing matched passages; it imports no parser/auto-merging implementation and claims no inherited gains. [Ollama embed API](https://docs.ollama.com/api/embed), [FAQ](https://docs.ollama.com/faq) and [official typed options](https://github.com/ollama/ollama/blob/main/api/types.go) document runtime options/truncation/keep-alive and num_gpu/num_thread fields. Installed 0.40.4 independently returns real 384-dimensional all-minilm embeddings with zero loaded VRAM for the CPU control. Cached original vectors retain exact model-digest/role/text identity and conservative flags; a read-only seed and separate batched overlay avoid copying the large cache. Streamed preparation,14 fixtures,11 source faults, cache rollback controls and hashes scope local evidence. The 50-question paired pilot excludes all earlier 400 IDs/normalized questions and remains unmeasured until all 100 arms pass audit. No production, OS settings, configuration, CU/UI, installed or release change.
++
++The completed record-98 pilot audits all 100 valid arms and rejects the isolated candidate under its unchanged rule: classic LongMemEval judged answers 6→13/25, MemoryAgentBench custom judged answers 15→15/25 with three gains/three losses and two declining EventQA families. These new paired denominators cannot be compared directly to earlier subsets. Reader input rises 31,179→78,279 tokens (2.51×); all 259 attempts and 360,145 reported total tokens remain recorded. Same-model semantic agreement remains unqualified: one lost response ends with the reference choice after long analysis, but the frozen judge marks it false. No score/profile/parser change follows this observation. Preserved upstream MAB helpers yield EM 36→40%, F1 45.77→49.48% and substring EM 52→56%; these do not override the adoption rule. All 19 frozen dependencies, 41 raw corpora and 722 shown spans match; five altered observations are caught. Production source/vector store/staging engine remain at baseline. One 256-MiB heap-limited regression invocation aborts; one identical-assertion 512-MiB-cap retry passes all 32 tests, observing 626,491,392 bytes maximum RSS and zero process swaps. No installed, crash-fix, population/reference leaderboard, release or Win claim follows. The authorized fresh 50-question scope is complete.
+--- a/docs/product-reset/competitive/examples/R02_RETRIEVAL_TRUTH.md
++++ b/docs/product-reset/competitive/examples/R02_RETRIEVAL_TRUTH.md
+@@ -1,4 +1,8 @@
+ # R02 — Retrieval Truth Across Restart and Provider Boundaries
++
++## Complete-passage candidate contract — 2026-10-14, record 98
++
++[Record 98](../../98_RAG_COMPLETE_PASSAGES.md) preserves whole ranked passages when they fit after later-match reservation. Fourteen isolated tests and eleven assertion-caught source faults qualify local behavior; they do not establish product adoption. The full fresh 25+25 paired audit measures LongMemEval judged answers 6→13/25 and MemoryAgentBench custom judged answers 15→15/25, with three MAB losses and 2.51× reader input. The fixed rule rejects the candidate; production/staged runtime remain unchanged, with 32 existing tests passing. All 100 arms must match the pre-inference freeze, 41 original raw corpus hashes, source versions/shown spans, exact reader/judge messages, model identity, verdicts and usage. Five altered observations must fail assertions; valid wrong answers cannot be replayed. Preserve a possible judge/format disagreement without post-hoc rescoring, all declining families, truncation and failed attempts. The authorized scope is complete; this bounded same-model pilot does not qualify independent judging, installed live-code/reranker R02, release or Win.
+ 
+ ## Answer-evidence qualification — 2026-10-14, record 97
+ 
+--- /dev/null
++++ b/docs/product-reset/98_RAG_COMPLETE_PASSAGES.md
+@@ -0,0 +1,87 @@
++# Complete retrieval passages — 2026-10-14
++
++Status: **Measured rejected prototype**. The owner-authorized fresh 25+25 pilot completes all 100 valid answer arms. LongMemEval improves, but MemoryAgentBench ties with three losses, failing the predeclared positive-gain-in-both rule. Production recall and the generated staging engine remain unchanged. No installed qualification, Product-ready status, release or Win is claimed.
++
++## Guidance and decision
++
++The product-reset README, repo/architecture boundary, full Mac Buddy vision, V03/V27B research cards, competitive status/model-independent strategy, head-to-head rules, R02 and acceptance gates guide this work. Current ownership records 55/64/79–84 supersede historical split/CU text. The referenced capability matrix remains absent. There is no CU/UI/native permission, OS setting, dependency, installed-app or global provider change.
++
++Record 97’s complete fresh 100+100 qualification improved classic LongMemEval 43→64/100, but regressed MemoryAgentBench 51→45/100. Its positive-gain-in-both rule rejected the candidate. Source, proposed tests, all 400 valid answer arms, raw attempts and losses remain preserved; production and generated staging runtime were restored. The owner then authorized **50 fresh questions, 25 per dataset**, with care for the unstable eight-GiB Mac.
++
++This experiment keeps its source in `evidence/2026-10-14-rag-passage/candidate/recall.ts`, outside production. The model runner checks that production still matches the frozen baseline at startup and completion. Only a qualifying result can justify adoption. Earlier scored questions are never reused to tune or qualify this revision.
++
++## Independent source reproduction
++
++Uniform fragment shares can clip a high-ranked passage even when it fits inside the source allowance. A constructed eligibility heading plus background and a final relational restriction demonstrates the failure: the heading survives, while the complete qualifying rule disappears. It uses invented initiatives and no public benchmark content. Two whole-passage cases fail against the archived record 97 implementation; ten existing local controls pass.
++
++The revision retains a complete ranked passage when it fits **after reserving a useful minimum for later matches**. Oversized passages still use bounded fair excerpts. The existing long-line word window, actual source-date quotation, duplicate identity, scope, cancellation and three-source ranking remain. Default excerpt allowance is still 6000 versus baseline 1800 characters; this is a combined policy comparison, not an equal-budget public ablation or proof that one mechanism alone caused an answer gain.
++
++Fourteen independent fixture cases pass. Eleven real source faults fail assertions: long-line head, source starvation, chunk starvation, uniform fragments, omitted later-match reservation, date omission, reversed duplicate identity, overclaimed spans, invented recency dates, unmatched tail and small default allowance. Each restores exact candidate bytes; production is never mutated by these faults.
++
++Newly checked primary references: [LlamaIndex node parsers](https://developers.llamaindex.ai/python/framework/module_guides/loading/node_parsers/modules/) distinguish sentence boundaries, surrounding reader context and hierarchical context expansion. This supports investigating retained complete context; Bimax imports none of these implementations and does not claim to implement sentence-window embeddings or auto-merging retrieval. The production chunker and ranking remain unchanged. References describe mechanisms, not Bimax accuracy.
++
++## Low-load preparation and execution
++
++Pinned original datasets/revisions/licenses remain those of records 96–97. Their persistent full-file hashes are checked through one-MiB reads. Classic JSON is streamed one record at a time; Parquet uses one row per batch with threads disabled. Metadata/hash-only round-robin selection chooses 25 questions per dataset, excluding the union of **400 earlier IDs and 400 normalized question texts**. An independent audit confirms 50 distinct normalized fresh questions and exact hashes for all 41 selected raw corpora. Answers and retrieval outcomes do not select cases.
++
++The real preparation observation is 6.02 s wall, 184,041,472 bytes maximum RSS, 157,582,056 bytes peak memory footprint and zero process swaps. Its maximum JSON text buffer is 835,218 characters. These are process observations on this pinned workload, not whole-app or all-input memory guarantees. Boundary/Unicode/scalar-prefix and malformed-input parser checks pass.
++
++One local embedding worker runs sequentially at nice 10. Fresh all-minilm requests use batches 16 with `num_gpu:0`, `num_thread:1` and 30-second keep-alive. An independent real control returns 384 finite dimensions with the same model digest; immediate `/api/ps` reports zero VRAM. This changes per-request benchmark execution only. [Ollama embed API](https://docs.ollama.com/api/embed), [FAQ](https://docs.ollama.com/faq) and [official option types](https://github.com/ollama/ollama/blob/main/api/types.go) support these controls; installed API version is 0.40.4. No server environment or OS settings are changed.
++
++The original 637-MiB vector checkpoint is opened read-only. Exact normalized real vectors are reused by model digest, query/passage role and UTF-8 text hash; conservative original truncation flags remain. Fresh CPU vectors go to a separate persistent overlay, in one transaction per provider batch rather than one per vector. Two in-memory cache tests prove exact row/duplicate ownership and rollback after a later insert fails; a partial-commit source fault is assertion-caught. Synthetic test rows never enter the real benchmark cache or count as embeddings. Cached original execution and fresh CPU execution are declared separately; both comparison arms share the same vectors.
++
++Real worker preflights have equal ordinary-control prompts/source ranking and valid exact provenance. The final worker control observes 55.30 MiB worker RSS; it excludes the separate Ollama service and is not a peak/whole-workload memory claim. Fresh batch truncation, cached flags, ingestion/query timings and residency are retained individually.
++
++One hosted evaluation worker uses configured NVIDIA Nemotron 3.5 Lightning 30B A3B for both reading and judging, temperature 0, thinking 1024, completion cap 2048. It reuses the same frozen record 96 functions/rubric and 22 passing controls under exact hashes, making no new control requests. The transport wrapper admits at most 3 requests/minute and one HTTP call, applies declared 429 cooldown and publishes create-only atomic file/directory-fsynced receipts. Parent retrieval receipts use the same writer. Five earlier focused writer/process-death checks and its direct-overwrite source fault remain supporting evidence; hardware power-loss and installed C 04 remain unqualified.
++
++All raw inputs, overlay vectors and evidence use persistent paths. A complete paired denominator requires **100 valid arms for 50 questions**; all valid wrong answers survive resume, and only absent/invalid evaluations may retry. `evaluation-freeze.json` fixes source/compiled/selection/model dependencies before selected-question inference. No source/model/grading/selection adjustment may follow pilot outcomes.
++
++## Completed public pilot and decision
++
++[The full audit](evidence/2026-10-14-rag-passage/public-answer-qualified.json) verifies all 100 answers against raw reader/judge requests, returned model identity, exact predictions/verdicts, usage, original source versions and shown text. All 19 pre-inference dependency hashes and 41 raw corpus hashes match. Both arms retrieve identical sources on all 50 questions; 722 shown spans pass containment/version checks, with zero scope/budget/provenance faults. [Five altered observations](evidence/2026-10-14-rag-passage/auditor-faults/results.json) fail assertions: verdict, reader input, missing answer, returned model and cost. Original answer rows remain unchanged. The auditor exits 2 to report **adoption rejection**, not failed integrity.
++
++These are new paired denominators, not a continuation or direct comparison to records 96–97’s different subsets. All 25 classic questions in this fresh selection are answerable; earlier exclusions leave no fresh abstention cases in this pilot. Same configured NVIDIA `nvidia/nemotron-3.5-lightning-30b-a3b` answers and judges both arms under the frozen profile.
++
++| Dataset / frozen metric | Baseline | Candidate | Paired change | Gains / losses |
++|---|---:|---:|---:|---:|
++| Classic LongMemEval judged answers | 6/25 (24%) | 13/25 (52%) | +28 percentage points | 7 / 0 |
++| MemoryAgentBench custom judged answers | 15/25 (60%) | 15/25 (60%) | 0 percentage points | 3 / 3 |
++
++| Family | Baseline | Candidate |
++|---|---:|---:|
++| Classic knowledge update | 0/5 | 3/5 |
++| Classic multi-session | 1/5 | 1/5 |
++| Classic assistant facts | 4/5 | 4/5 |
++| Classic preferences | 0/2 | 0/2 |
++| Classic user facts | 1/4 | 3/4 |
++| Classic temporal reasoning | 0/4 | 2/4 |
++| MAB EventQA 131072 | 4/5 | 2/5 |
++| MAB EventQA 65536 | 2/4 | 4/4 |
++| MAB EventQA full | 3/4 | 2/4 |
++| MAB embedded LongMemEval | 3/4 | 3/4 |
++| MAB RULER QA1 | 3/4 | 4/4 |
++| MAB RULER QA2 | 0/4 | 0/4 |
++
++Every changed verdict is listed in [paired changes](evidence/2026-10-14-rag-passage/paired-changes.json). The three losses are `mab-14-77`, `mab-16-57` and `mab-3-80`. Post-completion inspection flags a possible judging/format disagreement: the first candidate response ends with the reference event after long analysis containing other options, yet the frozen judge marks it false. The other two choose different events. No verdict, parser, profile, rule or candidate is changed to improve this score. Independent human/judge agreement remains unqualified; faithfully auditing a verdict is not proof of its semantic correctness.
++
++Preserved upstream MAB functions produce EM 36→40%, token F1 45.77→49.48%, and substring EM 52→56%. These differ from the custom judge metric and do not override its predeclared adoption rule. ROUGE/full official evaluation is absent. Classic source Recall@3 stays 84.67% in both arms, with all required sessions present on 19/25 questions. Literal-reference containment changes 15/23→17/23 classic and 5/24→8/24 MAB; it is diagnostic text containment, not answer correctness.
++
++[The adoption decision](evidence/2026-10-14-rag-passage/adoption-decision.json) rejects the prototype because **both datasets must improve**. No benchmark-label routing, selective adoption, post-hoc rescoring or retuning on these questions follows. The candidate and all assertions remain isolated and preserved. Production recall retains SHA-256 `a849be001290b83ef3cc59945232634dd628001780120121d7d9759d9a6ff7ef`; vector store and generated staging engine also match their starting bytes. The installed app is untouched.
++
++## Costs, failures and actual verification
++
++Accepted reader prompt tokens rise **31,179→78,279 (2.51×)**. Reader total tokens rise 78,843→130,045; accepted reader-plus-judge totals rise 134,047→185,460. All 259 retained provider attempts include 217 HTTP 200, 39 HTTP 429 and three connection failures without HTTP status. Seventeen HTTP-200 responses fail completion/verdict validation and remain recorded. Reported usage across every retained attempt is **360,145 total tokens**; currency cost is unavailable. The run takes about 116.6 minutes, including pacing, retries and cooldowns. No new judge-control requests were made. HTTP service time and admission waits are separate in the audit; no hosted latency speedup is claimed.
++
++Local retrieval completes 41 corpora, 5,657 documents and 36,099 indexed chunks. Recorded passage embedding inputs include 21,000 cached and 15,067 fresh; 20,995 cached inputs retain conservative potential-truncation flags. Fresh truncation occurs in 895 passage batches, bounding affected inputs at 895–14,202 rather than asserting a per-chunk rate. All 50 query embeddings are fresh; six single-query batches require truncation. Both arms share the same vectors. This small embedding window remains a quality limitation and is not repaired by supplying longer reader passages.
++
++Fourteen isolated candidate fixtures, eleven assertion-caught source faults, parser boundary/malformed-input checks, two cache ownership/rollback cases and its partial-commit source fault pass. The earlier five atomic writer/process-death checks support the unchanged checkpoint library. Full result auditing and its five altered-observation checks pass. Existing production recall/resource/RAG suites pass **32 tests in three suites** with one worker. The first extra run aborts at the deliberately imposed 256-MiB JavaScript heap limit; its raw log is retained. One identical-assertion retry with a 512-MiB heap cap passes in 2.98s wall, observes 626,491,392 bytes maximum RSS and zero process swaps. Heap cap is not RSS, and this is a process observation rather than an installed memory guarantee. No broader suite/build, installation or local answer-model run is performed.
++
++Earlier retained snapshots show AC power; the closing check shows battery power at 78%, with all benchmark workers already finished. One hosted-client snapshot is 8,304 KiB RSS and 0% CPU at nice 10, excluding other services and peaks. No new Mac crash is observed during this pilot, but the cause of the earlier watchdog reports remains unestablished. Successful benchmark completion does not demonstrate a crash fix.
++
++## Remaining Targets
++
++Independent judge/human agreement, reader final-answer formatting, oracle/equal-budget ablations, larger representative unseen workloads, embedding-window/reranker qualification, sustained installed latency/RSS/energy, the cause of the Mac watchdog failures, full R02 and release remain Target. The completed 50-question scope is exhausted; no further hosted qualification is started. Future candidates must use independent constructed development cases and new questions, rather than tuning on these results. A small balanced same-model self-judged pilot cannot establish population accuracy, a reference-model leaderboard or a competitive Win. Three earlier unrelated complete-suite failures remain open.
++
++## Evidence closure
++
++[Preservation receipt](evidence/2026-10-14-rag-passage/preservation-final.json) verifies all 6,631 starting paths, with only the five declared research indexes changed. Earlier record-97 artifacts/scripts, production source, generated staging engine, configuration and existing assertions remain unchanged. The scoped source/document diff and content-hash manifest retain this prototype, low-load tooling, raw attempts, all valid wrong answers, audit faults and the failed test-heap attempt. Credential scanning finds zero known-key matches. No installation, commit or push occurs in this pilot.
+--- /dev/null
++++ b/docs/product-reset/evidence/2026-10-14-rag-passage/candidate/recall.ts
+@@ -0,0 +1,402 @@
++import { reportCapability } from '../core/capability.status';
++/**
++ * Automatic recall — the stage that decides whether any of the rest is ever used.
++ *
++ * ## The gap this closes
++ *
++ * Retrieval was reachable only through `MemoryQueryTool`: the model had to *decide* to search. That
++ * makes recall conditional on the model noticing it might not know something, which is the one
++ * thing models are reliably bad at. A perfect retrieval pipeline behind a tool the model never
++ * calls contributes exactly nothing, and the failure is invisible — the answer is simply worse,
++ * with no missing-tool-call to point at.
++ *
++ * So retrieval runs on the turn, not on request. The tool stays, because an explicit "search my
++ * memory for X" is a different and legitimate act; this is the involuntary half.
++ *
++ * ## Why it does not run on every turn
++ *
++ * Because most turns do not need it, and a block of recalled memory injected into a turn that was
++ * about the previous tool result is not neutral — it is a distraction with a token cost, and at the
++ * volume of an agent loop it displaces the working context that turn actually depends on. Three
++ * guards, cheapest first:
++ *
++ *   1. **Only on a user turn.** The turns in between are the model reacting to its own tool output;
++ *      it has not asked anything new, so there is nothing new to recall against.
++ *   2. **Only on a substantial one.** "yes", "continue", "try again" carry no retrievable intent,
++ *      and searching on them returns whatever the store happens to rank highest for noise.
++ *   3. **Never twice for the same thing.** A repeated query inside one session re-injects text the
++ *      model can already see, which is pure cost.
++ *
++ * ## Why it is injected as a system note and marked
++ *
++ * The recalled text is *evidence the system found*, not something the user said, and attributing it
++ * to the user would let the model treat a half-relevant old note as a fresh instruction. The block
++ * is prefixed so the compaction passes can find and drop it — `ContextManager` already strips
++ * `[RepoMap]` blocks the same way — and so a reader of the transcript can tell what the model was
++ * given from what it was told.
++ */
++
++import type { StoredChunk, VectorDocument, VectorStore } from './vector.store';
++import { evidenceSpan, versionOfText, type EvidenceSpan } from '../context/evidence';
++import { tokenize } from './bm25';
++import { UNKNOWN_SUBJECT_SHARE, contentStems } from './sufficiency';
++
++export const RECALL_PREFIX = '[Recalled memory]';
++
++/** Below this a message is an acknowledgement, not a question. Measured in characters. */
++const MIN_QUERY_CHARS = 24;
++
++export interface RecallOptions {
++  limit?: number;
++  signal?: AbortSignal;
++  /** Maximum recalled excerpt characters, excluding the fixed attribution header. */
++  maxChars?: number;
++}
++
++export interface RecalledMemory {
++  text: string;
++  ids: string[];
++  /** What was injected, as evidence: the memory, the version of its stored text, and which part. */
++  evidence: EvidenceSpan[];
++}
++
++/**
++ * Whether this turn should trigger a recall, and on what.
++ *
++ * Pure and exported so the policy is testable without a store, a model or a loop — every one of the
++ * guards above is a decision that can regress silently otherwise.
++ */
++export function recallQuery(
++  role: string,
++  content: unknown,
++  alreadyAsked: ReadonlySet<string>,
++): string | null {
++  if (role !== 'user') return null;
++  if (typeof content !== 'string') return null;
++
++  const text = content.trim();
++  if (text.length < MIN_QUERY_CHARS) return null;
++  // Slash commands are instructions to the CLI, not questions about the work.
++  if (text.startsWith('/')) return null;
++  // Our own injected blocks must never become a query — that recalls against a recall.
++  if (text.startsWith(RECALL_PREFIX)) return null;
++
++  const key = text.toLowerCase().replace(/\s+/g, ' ');
++  if (alreadyAsked.has(key)) return null;
++  return text;
++}
++
++/** Normalized form used to remember what has already been recalled against this session. */
++export function recallKey(query: string): string {
++  return query.trim().toLowerCase().replace(/\s+/g, ' ');
++}
++
++/**
++ * Run the pipeline for this turn and format what it found.
++ *
++ * Returns null when there is nothing worth injecting, which includes the case where retrieval
++ * itself failed — a recall block that says "no memories found" is noise the model has to read.
++ */
++/** What automatic recall never searches: the persona injects project memory itself, and code belongs to code search. */
++const RECALL_EXCLUDED_TAGS = ['project-memory', 'code'];
++
++export async function recallForTurn(
++  store: VectorStore,
++  query: string,
++  options: RecallOptions = {},
++): Promise<RecalledMemory | null> {
++  options.signal?.throwIfAborted();
++  const limit = options.limit ?? 3;
++  const maxChars = options.maxChars ?? 6_000;
++
++  let documents;
++  try {
++    // A floor of 0: the whole point is finding things phrased differently, and a lexical-overlap
++    // threshold would filter out exactly those.
++    //
++    // project-memory is EXCLUDED: the persona already injects those as a prompt block every turn
++    // (conventions are deliberately re-shown), and one memory arriving twice — from two paths
++    // that cannot see each other — is the exact token cost this module's guards exist to prevent.
++    // code is EXCLUDED for the same reason from the other side: source chunks belong to
++    // CodeSearchTool, and auto-recall injecting a wall of code into a user turn is displacement,
++    // not help. Recall is for durable knowledge; code has its own door.
++    documents = await store.semanticSearch(query, limit, 0, { excludeTags: RECALL_EXCLUDED_TAGS, passages: true });
++  } catch {
++    options.signal?.throwIfAborted();
++    reportCapability({ id: 'memory-recall', label: 'Memory recall', state: 'degraded',
++      reason: 'Memory lookup failed.', impact: 'This turn continues without recalled context.',
++      action: 'Check memory storage and retrieval settings.' });
++    return null;
++  }
++  options.signal?.throwIfAborted();
++  reportCapability({ id: 'memory-recall', label: 'Memory recall', state: 'ready',
++    reason: 'Memory lookup completed.', impact: '', action: '' });
++  if (!documents.length) return null;
++  // Lexical retrieval cannot tell a note that answers from one that shares a word with the question. When at least half
++  // of the question's content words appear in no memory at all, memory does not know the subject: inject nothing
++  // (record 47 §4, benchmark S5). With the dense stage on, a paraphrase can match without shared words, so this stays off.
++  // A store that cannot say how it searched or what it holds (a partial stand-in) gets no abstention, as before.
++  const lexicalOnly = typeof store.lastSearchMode === 'function' && !store.lastSearchMode().dense;
++  if (lexicalOnly && typeof store.unknownTerms === 'function') {
++    const asked = contentStems(query);
++    if (asked.length && store.unknownTerms(asked, { excludeTags: RECALL_EXCLUDED_TAGS }).length / asked.length >= UNKNOWN_SUBJECT_SHARE) {
++      return null;
++    }
++  }
++
++  const parts: string[] = [];
++  const ids: string[] = [];
++  const evidence: EvidenceSpan[] = [];
++  let budget = maxChars;
++  for (const [index, doc] of documents.entries()) {
++    // Share evidence room across sources. Short notes return their unused share to the next
++    // source; a tiny budget still belongs to the best result rather than unusable fragments.
++    const reservePerSource = MIN_EXCERPT_CHARS + LABEL_ALLOWANCE + 3;
++    const later = Math.min(documents.length - index - 1, Math.max(0, Math.floor((budget - reservePerSource) / reservePerSource)));
++    const share = later ? Math.floor(budget / (later + 1)) : budget;
++    const passage = passageOf(doc, share, query);
++    const content = passage.text;
++    if (!content) continue;
++    // Truncate the last one that fits rather than dropping it: a partial memory is usually still
++    // the fact that was wanted, and the alternative is silently recalling less than the budget.
++    const shown = content.length <= budget ? content : content.slice(0, Math.max(0, budget - 1)).trimEnd();
++    const slice = shown === content ? content : `${shown}…`;
++    if (!shown) break;
++    parts.push(`- ${slice}`);
++    ids.push(doc.id);
++    evidence.push(...memoryEvidence(doc, passage, shown.length));
++    budget -= slice.length + 3;
++    if (budget <= 80) break;
++  }
++  if (!parts.length) return null;
++
++  return {
++    ids,
++    evidence,
++    text: [
++      `${RECALL_PREFIX} — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.`,
++      ...parts,
++    ].join('\n'),
++  };
++}
++
++/**
++ * The part of a recalled document worth injecting: its matched chunks, best first until `budget` is
++ * spent, shown in document order with their position when the document has several. Injecting the start
++ * of the document lost the answer whenever it sat further down a long note (record 47, A03). A result
++ * without matched chunks, from a store that does not report them, falls back to the whole content.
++ */
++interface Passage {
++  text: string;
++  /**
++   * What `text` is made of, in order, joined by PASSAGE_JOINER: each chunk's position label and the text shown from it,
++   * which is an excerpt (`partial`) when the whole chunk did not fit.
++   */
++  segments: Array<{ chunk: StoredChunk | null; label: string; body: string; partial?: boolean }>;
++}
++
++/** Room left for a label such as "(part 12 of 12, excerpt) " and the joiner, per segment. */
++const LABEL_ALLOWANCE = 28;
++/** A later chunk is excerpted only when at least this much of the budget is left for it. */
++const MIN_EXCERPT_CHARS = 120;
++
++/**
++ * The lines of `text` that best answer `query`, contiguous and within `budget` characters: the line holding the most
++ * weight of query terms, widened by its neighbours while they fit. A term weighs more the fewer lines hold it, so a
++ * word on every line does not choose the line. With no query term in `text`, its head, as before.
++ *
++ * This is the "exact span" representation of record 47 §3.4 for recall. Showing the head of a chunk the budget could
++ * not hold cut the answer whenever it sat at the chunk's end (context benchmark case B5).
++ */
++export function answeringExcerpt(text: string, query: string, budget: number): string {
++  if (budget <= 0) return '';
++  if (text.length <= budget) return text;
++  const lines = text.split('\n');
++  const terms = [...new Set(tokenize(query))];
++  const lineTerms = lines.map((line) => new Set(tokenize(line)));
++  const weight = new Map(terms.map((term) => {
++    const holding = lineTerms.filter((set) => set.has(term)).length;
++    return [term, holding ? Math.log(1 + lines.length / holding) : 0] as const;
++  }));
++  let best = -1;
++  let bestScore = 0;
++  lineTerms.forEach((set, i) => {
++    let score = 0;
++    for (const term of terms) if (set.has(term)) score += weight.get(term)!;
++    if (score > bestScore) { bestScore = score; best = i; }
++  });
++  if (best < 0) return text.slice(0, budget).trimEnd();
++  if (lines[best].length > budget) return wordWindow(lines[best], query, budget);
++  let start = best;
++  let end = best + 1;
++  let length = lines[best].length;
++  for (let grew = true; grew;) {
++    grew = false;
++    if (end < lines.length && length + 1 + lines[end].length <= budget) { length += 1 + lines[end].length; end++; grew = true; }
++    if (start > 0 && length + 1 + lines[start - 1].length <= budget) { start--; length += 1 + lines[start].length; grew = true; }
++  }
++  return lines.slice(start, end).join('\n').trim();
++}
++
++/** A linear sliding word window, with rare query terms and balanced surrounding context. */
++function wordWindow(text: string, query: string, budget: number): string {
++  const terms = new Set(tokenize(query));
++  const words = [...text.matchAll(/\S+/gu)].map(match => ({
++    start: match.index!, end: match.index! + match[0].length,
++    terms: [...new Set(tokenize(match[0]).filter(term => terms.has(term)))],
++  }));
++  const frequency = new Map<string, number>();
++  for (const word of words) for (const term of word.terms) frequency.set(term, (frequency.get(term) ?? 0) + 1);
++  if (!frequency.size) return text.slice(0, budget).trimEnd();
++  const weights = new Map([...frequency].map(([term, count]) => [term, Math.log(1 + words.length / count)]));
++  const counts = new Map<string, number>();
++  let score = 0, mass = 0, position = 0, right = 0;
++  let bestScore = 0, bestDistance = Infinity, bestStart = 0, bestEnd = Math.min(text.length, budget);
++  const change = (word: typeof words[number], delta: 1 | -1) => {
++    for (const term of word.terms) {
++      const before = counts.get(term) ?? 0, weight = weights.get(term)!;
++      counts.set(term, before + delta);
++      if (!before && delta === 1) score += weight;
++      if (before === 1 && delta === -1) score -= weight;
++      mass += delta * weight;
++      position += delta * weight * (word.start + word.end) / 2;
++    }
++  };
++  for (let left = 0; left < words.length; left++) {
++    if (right < left) right = left;
++    while (right < words.length && words[right].end - words[left].start <= budget) change(words[right++], 1);
++    if (right > left && mass > 0) {
++      const start = words[left].start, end = words[right - 1].end;
++      const distance = Math.abs(position / mass - (start + end) / 2);
++      if (score > bestScore + 1e-10 || (Math.abs(score - bestScore) <= 1e-10 && distance < bestDistance)) {
++        bestScore = score; bestDistance = distance; bestStart = start; bestEnd = end;
++      }
++    }
++    if (right > left) change(words[left], -1);
++  }
++  return text.slice(bestStart, bestEnd).trim();
++}
++
++const PASSAGE_JOINER = '\n  ';
++
++function passageOf(doc: VectorDocument, budget: number, query: string): Passage {
++  const chunks = doc.chunks ?? [];
++  const matched = doc.matchedChunks ?? [];
++  const source = (doc.metadata?.content || '').trim();
++  // This is quoted source text, never a date inferred from last retrieval or a benchmark label.
++  const firstLine = source.split('\n', 1)[0].trim();
++  const header = firstLine.length <= 160 && /^(?:session\s+date|date|timestamp)\s*:/i.test(firstLine)
++    && budget >= firstLine.length + MIN_EXCERPT_CHARS + LABEL_ALLOWANCE ? firstLine : '';
++  const bodyBudget = budget - (header ? header.length + PASSAGE_JOINER.length : 0);
++  const finish = (segments: Passage['segments']): Passage => {
++    if (header && !segments.some(segment => segment.body.includes(header))) {
++      segments.unshift({ chunk: null, label: '', body: header });
++    }
++    return { text: segments.map(segment => segment.label + segment.body).join(PASSAGE_JOINER), segments };
++  };
++  if (!matched.length || !chunks.length) {
++    const whole = source;
++    const body = whole.length > bodyBudget ? answeringExcerpt(whole, query, Math.max(0, bodyBudget - LABEL_ALLOWANCE)) : whole;
++    const partial = body.length < whole.length;
++    return finish(body ? [{ chunk: null, label: partial ? '(excerpt) ' : '', body, partial }] : []);
++  }
++  const picked: Array<{ chunk: StoredChunk; body: string }> = [];
++  const unique: StoredChunk[] = [];
++  const seen = new Set<string>();
++  for (const chunk of matched) {
++    const text = chunk.text.trim();
++    if (!text || seen.has(text)) continue;
++    seen.add(text); unique.push(chunk);
++    if (unique.length === 4) break;
++  }
++  if (!unique.length) return { text: '', segments: [] };
++  // Bound the number of fragments; preserve retrieval order for admission, source order for reading.
++  const count = Math.min(4, unique.length, Math.max(1, Math.floor(bodyBudget / (MIN_EXCERPT_CHARS + LABEL_ALLOWANCE))));
++  let used = 0;
++  for (const chunk of unique.slice(0, count)) {
++    const whole = chunk.text.trim();
++    const remaining = count - picked.length;
++    const available = bodyBudget - used;
++    const share = Math.floor(available / remaining);
++    // Keep a complete best passage when it fits while reserving useful room for later
++    // matches. Equal-sized snippets can erase a relation's qualifying sentence even
++    // when the full passage fits. Oversized passages still share the excerpt allowance.
++    const completeRoom = available - (remaining - 1) * (MIN_EXCERPT_CHARS + LABEL_ALLOWANCE);
++    if (whole.length + LABEL_ALLOWANCE <= completeRoom) {
++      picked.push({ chunk, body: whole });
++      used += whole.length + LABEL_ALLOWANCE;
++      continue;
++    }
++    // A chunk the budget cannot hold is shown as the lines that answer the query. The best chunk always gets its
++    // excerpt; a later one only when enough budget is left to say something.
++    const room = share - LABEL_ALLOWANCE;
++    if (picked.length && room < MIN_EXCERPT_CHARS) continue;
++    const body = answeringExcerpt(whole, query, Math.max(0, room));
++    if (!body) continue;
++    picked.push({ chunk, body });
++    used += body.length + LABEL_ALLOWANCE;
++  }
++  const segments = picked
++    .map(({ chunk, body }) => ({ chunk, body, at: chunks.indexOf(chunk), partial: body.length < chunk.text.trim().length }))
++    .sort((a, b) => a.at - b.at)
++    .map(({ chunk, body, at, partial }) => {
++      const position = chunks.length > 1 && at >= 0 ? `part ${at + 1} of ${chunks.length}` : '';
++      const label = position || partial ? `(${[position, partial ? 'excerpt' : ''].filter(Boolean).join(', ')}) ` : '';
++      return { chunk, body, label, partial };
++    })
++    .filter((segment) => segment.body);
++  return finish(segments);
++}
++
++/**
++ * A recalled document as evidence: one span per injected chunk, or one for the whole note when no chunk was reported,
++ * holding exactly the text the recall block shows. The first `shownChars` of the passage reached the prompt; a chunk
++ * the budget cut is recorded as its visible part and marked partial, and one cut entirely is not recorded. Recording
++ * the whole chunk claimed the model saw text it never did (audit 51, U07). The version is the hash of the stored text.
++ * A memory records no date, so `validFrom` stays unset rather than guessed.
++ */
++function memoryEvidence(doc: VectorDocument, passage: Passage, shownChars: number): EvidenceSpan[] {
++  const content = doc.metadata?.content || '';
++  const chunks = doc.chunks ?? [];
++  const base = {
++    sourceId: `memory:${doc.id}`,
++    sourceVersion: versionOfText(content),
++    scope: { tags: doc.metadata?.tags ?? [] },
++    derivedFrom: [],
++    kind: 'source' as const,
++  };
++  const spans: EvidenceSpan[] = [];
++  let offset = 0;
++  passage.segments.forEach((segment, n) => {
++    if (n > 0) offset += PASSAGE_JOINER.length;
++    const start = offset + segment.label.length;
++    offset = start + segment.body.length;
++    const text = segment.body.slice(0, Math.max(0, Math.min(segment.body.length, shownChars - start))).trimEnd();
++    if (!text) return;
++    const partial = text.length < segment.body.length || segment.partial ? { partial: true } : {};
++    const locator = segment.chunk
++      ? { kind: 'memory' as const, documentId: doc.id, part: chunks.indexOf(segment.chunk) + 1, parts: chunks.length, ...partial }
++      : { kind: 'memory' as const, documentId: doc.id, ...partial };
++    spans.push(evidenceSpan({ ...base, locator, text }));
++  });
++  return spans;
++}
++
++/**
++ * Whether compaction dropped a recall block: `before` held one that `after` no longer contains.
++ *
++ * Compaction drops recall blocks because they are evidence for the turn they were retrieved for. The
++ * session's "already recalled" set has to forget when that happens, or a question whose evidence was
++ * compacted away could never recall again (record 47, A04).
++ */
++export function droppedRecall(
++  before: readonly { role: string; content?: unknown }[],
++  after: readonly { role: string; content?: unknown }[],
++): boolean {
++  const kept = new Set(after);
++  return before.some((message) =>
++    message.role === 'system'
++    && typeof message.content === 'string'
++    && message.content.startsWith(RECALL_PREFIX)
++    && !kept.has(message));
++}
+--- /dev/null
++++ b/scripts/bench-rag-passage-model.py
+@@ -0,0 +1,110 @@
++#!/usr/bin/env python3
++"""Paired model answers on frozen query-heldout RAG inputs; all valid answers retained."""
++import argparse, concurrent.futures, datetime, hashlib, json, runpy, statistics, sys, threading, time
++from pathlib import Path
++
++ROOT=Path(__file__).resolve().parents[1]
++EVIDENCE=ROOT/'docs/product-reset/evidence/2026-10-14-rag-passage'
++OLD=ROOT/'docs/product-reset/evidence/2026-10-14-rag-qualification'
++p=argparse.ArgumentParser(description=__doc__)
++p.add_argument('--output',type=Path,required=True);p.add_argument('--retrieval-run',type=Path,required=True)
++p.add_argument('--resume-from',type=Path);args=p.parse_args()
++out=args.output.resolve();retrieval=args.retrieval_run.resolve()
++old=json.loads((OLD/'public-answer-nemotron-4/configuration.json').read_text())
++sha=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
++for path in ['scripts/bench-rag-public.py','scripts/lib/rag_public_grader.py']:
++ assert sha(ROOT/path)==old['sourceHashes'][path]
++assert sha(OLD/'research/LongMemEval-evaluate_qa.py')==old['promptSourceSha256']
++controls=json.loads((OLD/'public-answer-nemotron-4/judge-self-check.json').read_text())
++extra=json.loads((OLD/'public-rubric-controls-1/results.json').read_text())
++assert len(controls)==17 and len(extra)==5 and all(r['passed'] for r in controls+extra)
++sys.argv=['bench-rag-public.py','--output',str(out),'--model',old['judge'],'--thinking-budget','1024','--workers','1']
++# Execute first-party setup only, not its old main/selection loop. Reuse the exact frozen HTTP/judge functions.
++ns=runpy.run_path(str(ROOT/'scripts/bench-rag-public.py'),run_name='frozen_rag_model_functions')
++write=ns['immutable'];request=ns['request'];judge=ns['judge'];grader=ns['grader'];now=ns['now']
++selection=json.loads((EVIDENCE/'public-selection.json').read_text())
++items=[{**item,'dataset':dataset} for dataset,group in selection['selection'].items() for item in group]
++items.sort(key=lambda item:hashlib.sha256(item['id'].encode()).hexdigest())
++assert len(items)==50 and len({r['id'] for r in items})==50
++paths=[Path(__file__),ROOT/'scripts/bench-rag-public.py',ROOT/'scripts/lib/rag_public_grader.py',ROOT/'scripts/rag-passage-worker.cjs',ROOT/'scripts/lib/rag_vector_cache.cjs',ROOT/'scripts/lib/rag_benchmark_checkpoint.py',
++ EVIDENCE/'baseline/src/memory/recall.ts',EVIDENCE/'candidate/recall.ts',ROOT/'src/memory/vector.store.ts',EVIDENCE/'compiled/recall-baseline.js',EVIDENCE/'compiled/recall-current.js',
++ EVIDENCE/'compiled/baseline.js',EVIDENCE/'compiled/current.js',ROOT/'dist/memory/chunking.js',ROOT/'dist/context/evidence.js']
++hashes={str(path.relative_to(ROOT)):sha(path) for path in paths}
++production_start=sha(ROOT/'src/memory/recall.ts')
++assert production_start==sha(EVIDENCE/'baseline/src/memory/recall.ts'),'Keep isolated candidate outside production until qualified'
++configuration={'productionRecallAtStart':production_start,'started':now(),'reader':old['reader'],'judge':old['judge'],'modelSettings':{k:old[k] for k in ['readerMaxTokens','judgeMaxTokens','temperature','reasoning','rpm']},
++ 'selectionSha256':sha(EVIDENCE/'public-selection.json'),'sourceHashes':hashes,'retrievalRun':str(retrieval),
++ 'scope':selection['scope'],'arms':{'baseline':'Frozen record-96 recall, limit3/excerpts1800','current':'Isolated complete-passage candidate,limit3/default excerpts6000'},
++ 'controls':'Reuse 17+5 passing controls only under identical model/settings/judge source/published rubric; original raw attempts and failures retained.',
++ 'controlRun':str(OLD/'public-answer-nemotron-4'),'extraControlRun':str(OLD/'public-rubric-controls-1'),
++ 'baselineComparison':'New fresh25+25 paired query-heldout pilot; earlier 40/100 and39/100 are historical, not the paired denominator.',
++ 'resumeFrom':str(args.resume_from.resolve()) if args.resume_from else None}
++write('configuration.json',configuration);write('judge-self-check.json',controls+extra)
++progress=[];lock=threading.Lock();reused={}
++if args.resume_from:
++ previous=json.loads((args.resume_from/'configuration.json').read_text())
++ assert previous['sourceHashes']==hashes and previous['selectionSha256']==configuration['selectionSha256']
++ assert previous['modelSettings']==configuration['modelSettings'] and previous['reader']==old['reader'] and previous['judge']==old['judge']
++ for file in args.resume_from.glob('*-result.json'):
++  row=json.loads(file.read_text())
++  if row['valid']:
++   origin=Path(row['inferenceRun']);label=row['id']+'-'+row['arm']
++   for role in ['reader','judge']:
++    valid=[json.loads(f.read_text()) for f in origin.glob(label+'-'+role+'-attempt-*.json') if json.loads(f.read_text())['valid']]
++    assert len(valid)==1
++    text=grader.completion_text(valid[0]['status'],valid[0]['response'])
++    assert text==row['prediction'] if role=='reader' else grader.judge_verdict(text)==row['correct']
++   write(file.name,row);reused[(row['id'],row['arm'])]=row;progress.append({'id':row['id'],'arm':row['arm'],'valid':True})
++ write('reused-results.json',{'rule':'Reuse all valid answers including wrong answers; only absent/invalid arms may retry.','results':list(reused)})
++def evaluate(item):
++ cached=json.loads((retrieval/(item['id']+'-retrieval.json')).read_text())
++ assert cached['valid'] and cached['rag']['sameSources']
++ arms=['baseline','current'] if int(hashlib.sha256(item['id'].encode()).hexdigest(),16)%2 else ['current','baseline']
++ for arm in arms:
++  if (item['id'],arm) in reused:continue
++  label=item['id']+'-'+arm;rag=cached['rag'][arm]
++  record={**{k:v for k,v in cached.items() if k!='rag'},'rag':rag,'arm':arm,'started':now(),'valid':False,'inferenceRun':str(out)}
++  try:
++   assert rag['provenance'] and (not rag['prompt'] or rag['evidence'])
++   prediction,call=request([{'role':'system','content':'Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer.'},
++    {'role':'user','content':f"Question date: {cached['date'] or 'not specified'}\nQuestion: {cached['question']}\n\nRetrieved history:\n{rag['prompt'] or '(no evidence retrieved)'}"}],label+'-reader')
++   correct,judgment=judge(cached['question'],cached['references'],prediction,cached['kind'],cached['abstention'],label+'-judge',
++    required_all=cached['dataset']=='memoryagentbench' and cached['stratum'].startswith('eventqa'))
++   record.update(valid=True,prediction=prediction,correct=correct,answerMetrics=grader.answer_metrics(prediction,cached['references']),
++    readerUsage=call['response'].get('usage'),judgeUsage=judgment['response'].get('usage'),readerWallMs=call['wallMs'],judgeWallMs=judgment['wallMs'])
++  except Exception as error:record['invalidReason']=type(error).__name__
++  record['ended']=now();write(label+'-result.json',record)
++  with lock:
++   progress.append({'id':item['id'],'arm':arm,'valid':record['valid']})
++   (out/'progress.json').write_text(json.dumps(progress,indent=2)+'\n')
++   print(f"{len(progress)}/100 {label} valid={record['valid']}",flush=True)
++# Overlap independent local ingestion with hosted inference. A partially written JSON is never submitted.
++pending={item['id']:item for item in items};submitted=[];deadline=time.monotonic()+4*3600
++with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
++ while pending:
++  for id,item in list(pending.items()):
++   file=retrieval/(id+'-retrieval.json')
++   if not file.exists():continue
++   try:row=json.loads(file.read_text())
++   except json.JSONDecodeError:continue
++   assert row['valid'],id
++   submitted.append(pool.submit(evaluate,item));del pending[id]
++  if pending:
++   if (retrieval/'summary.json').exists():raise RuntimeError('Retrieval ended without all selected cases')
++   if time.monotonic()>deadline:raise TimeoutError('Local retrieval did not complete within four hours')
++   time.sleep(2)
++ for future in submitted:future.result()
++rows=[json.loads(f.read_text()) for f in out.glob('*-result.json')]
++retrieval_summary=json.loads((retrieval/'summary.json').read_text());assert retrieval_summary['validQuestions']==50
++assert all(sha(ROOT/path)==digest for path,digest in hashes.items())
++assert sha(ROOT/'src/memory/recall.ts')==production_start,'Production changed during isolated evaluation'
++summary={'scope':selection['scope'],'expectedAnswers':100,'validAnswers':sum(r['valid'] for r in rows),'invalid':[r['id']+'-'+r['arm'] for r in rows if not r['valid']],
++ 'datasets':{},'ended':now(),'configUnchanged':ns['hashlib'].sha256(ns['SECRETS'].read_bytes()).hexdigest()==ns['secret_before']}
++for dataset in selection['selection']:
++ summary['datasets'][dataset]={}
++ for arm in ['baseline','current']:
++  group=[r for r in rows if r['dataset']==dataset and r['arm']==arm and r['valid']]
++  summary['datasets'][dataset][arm]={'valid':len(group),'correct':sum(r['correct'] for r in group),
++   'strata':{kind:{'valid':len(g:=[r for r in group if r['stratum']==kind]),'correct':sum(r['correct'] for r in g)} for kind in sorted({r['stratum'] for r in group})}}
++write('summary.json',summary);print(json.dumps(summary),flush=True)
++if len(rows)!=100 or summary['validAnswers']!=100:raise RuntimeError('Paired qualification incomplete; no complete-denominator score')
+--- /dev/null
++++ b/scripts/bench-rag-passage-retrieval.py
+@@ -0,0 +1,85 @@
++#!/usr/bin/env python3
++"""Complete the fixed public retrieval subset independently of hosted reader availability."""
++import argparse,ast,concurrent.futures,datetime,hashlib,importlib.util,json,subprocess,threading
++from pathlib import Path
++ROOT=Path(__file__).resolve().parents[1];EVIDENCE=ROOT/'docs/product-reset/evidence/2026-10-14-rag-passage'
++p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);p.add_argument('--reuse-from',type=Path);args=p.parse_args();OUT=args.output.resolve();OUT.mkdir(parents=True,exist_ok=False)
++selection=json.loads((EVIDENCE/'public-selection.json').read_text());CACHE=Path(selection['cache']);lock=threading.Lock();progress=[]
++spec=importlib.util.spec_from_file_location('grader',ROOT/'scripts/lib/rag_public_grader.py');grader=importlib.util.module_from_spec(spec);spec.loader.exec_module(grader)
++# Share the exact source-only ingestion functions; no hosted evaluator imports/driver execute.
++source=ROOT/'scripts/bench-rag-public.py';tree=ast.parse(source.read_text());namespace={}
++functions=[node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name in ['documents_lme','documents_mab']];assert len(functions)==2
++exec(compile(ast.Module(body=functions,type_ignores=[]),str(source),'exec'),namespace)
++def now():return datetime.datetime.now(datetime.timezone.utc).isoformat()
++import sys
++sys.path.insert(0,str(ROOT/'scripts/lib'))
++from rag_benchmark_checkpoint import immutable_json
++def write(name,data):immutable_json(OUT/name,data)
++def job(value):
++ dataset,row_at,items=value;row=json.loads((CACHE/f"{'lme' if dataset=='longmemeval' else 'mab'}-{row_at}.json").read_text());label=f'{dataset}-{row_at}'
++ with (OUT/(label+'-worker.log')).open('x') as stderr:
++  child=subprocess.Popen(['node',str(ROOT/'scripts/rag-passage-worker.cjs'),str(EVIDENCE)],cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=stderr,text=True)
++  def command(payload):
++   child.stdin.write(json.dumps(payload)+'\n');child.stdin.flush();line=child.stdout.readline()
++   if not line:raise RuntimeError('RAG worker ended without an observation')
++   data=json.loads(line)
++   if not data.get('ok'):raise RuntimeError(data.get('error'))
++   return data['value']
++  try:
++   docs=namespace['documents_lme' if dataset=='longmemeval' else 'documents_mab'](row)
++   aliases={doc['id']:doc.get('sourceSessionId',doc['id']) for doc in docs}
++   ingestion=command({'op':'load','documents':docs});write(label+'-ingestion.json',ingestion)
++   for item in items:
++    result={**item,'dataset':dataset,'started':now(),'valid':False}
++    try:
++     if dataset=='longmemeval':
++      question,references,kind=row['question'],[str(row['answer'])],row['question_type'];expected=row['answer_session_ids'];abstention=row['question_id'].endswith('_abs');date=row['question_date']
++     else:
++      i=item['query'];question,references=row['questions'][i],row['answers'][i];expected=[];metadata=row['metadata'];types=metadata.get('question_types') or [];qids=metadata.get('question_ids') or [];dates=metadata.get('question_dates') or [];kind=types[i] if i<len(types) else 'single-session-user';abstention=i<len(qids) and qids[i].endswith('_abs');date=dates[i] if i<len(dates) else None
++     rag=command({'op':'query','query':question});assert rag['sameSources']
++     for version in ['baseline','current']:assert not rag[version]['prompt'] or rag[version]['evidence']
++     # This is text containment, never downstream answer correctness or preference-rubric satisfaction.
++     prompt=grader.normalize(rag['current']['prompt']);matches=[bool(grader.normalize(a)) and grader.normalize(a) in prompt for a in references]
++     result.update(valid=True,question=question,references=references,kind=kind,abstention=abstention,date=date,rag=rag,benchmarkSessionIds=[aliases[id] for id in rag['current']['ids']],sources=grader.source_metrics([aliases[id] for id in rag['current']['ids']],expected),referenceTextPresent=all(matches) if item['stratum'].startswith('eventqa') else any(matches))
++    except Exception as error:result['invalidReason']=str(error)
++    result['ended']=now();write(item['id']+'-retrieval.json',result)
++    with lock:
++     progress.append({'id':item['id'],'dataset':dataset,'valid':result['valid']});(OUT/'progress.json').write_text(json.dumps(progress,indent=2)+'\n');print(f"{len(progress)}/50 {item['id']} valid={result['valid']}",flush=True)
++  except Exception as error:write(label+'-job-error.json',{'error':str(error),'remaining':[i['id'] for i in items]})
++  finally:
++   try:command({'op':'close'})
++   except Exception:pass
++   try:child.stdin.close()
++   except BrokenPipeError:pass
++   child.wait(timeout=10)
++write('configuration.json',{'scope':selection['scope'],'selectionSha256':hashlib.sha256((EVIDENCE/'public-selection.json').read_bytes()).hexdigest(),'started':now(),'reader':None,'judge':None,'workers':1,'protocol':'Frozen fresh50 questions; no quality tuning; paired frozen record-96/current inputs, real all-minilm vectors with content-addressed persistent cache, explicit recorded truncation; limit3, baseline1800/current6000 default excerpt budget. No model-answer score.', 'sourceHashes':{str(path.relative_to(ROOT)):hashlib.sha256(path.read_bytes()).hexdigest() for path in [Path(__file__),source,ROOT/'scripts/rag-passage-worker.cjs',ROOT/'scripts/lib/rag_vector_cache.cjs',ROOT/'scripts/lib/rag_benchmark_checkpoint.py',ROOT/'scripts/lib/rag_public_grader.py',ROOT/'src/memory/vector.store.ts',EVIDENCE/'baseline/src/memory/recall.ts',EVIDENCE/'candidate/recall.ts',EVIDENCE/'compiled/baseline.js',EVIDENCE/'compiled/current.js',EVIDENCE/'compiled/recall-baseline.js',EVIDENCE/'compiled/recall-current.js',ROOT/'dist/memory/chunking.js']}})
++groups={}
++for dataset,items in selection['selection'].items():
++ for item in items:groups.setdefault((dataset,item['row']),[]).append(item)
++jobs=[(dataset,row,items) for (dataset,row),items in groups.items()];jobs.sort(key=lambda j:hashlib.sha256(f'{j[0]}:{j[1]}'.encode()).hexdigest())
++if args.reuse_from:
++ previous=json.loads((args.reuse_from/'configuration.json').read_text());assert previous['selectionSha256']==hashlib.sha256((EVIDENCE/'public-selection.json').read_bytes()).hexdigest()
++ for path in previous['sourceHashes']:
++  if path == str(Path(__file__).relative_to(ROOT)):continue # Parent cleanup only; worker/production/compiled dependencies must match.
++  assert previous['sourceHashes'][path]==hashlib.sha256((ROOT/path).read_bytes()).hexdigest(),path
++ remaining=[];reused=[]
++ for dataset,row_at,items in jobs:
++  label=f'{dataset}-{row_at}';ingestion_path=args.reuse_from/(label+'-ingestion.json');results=[args.reuse_from/(item['id']+'-retrieval.json') for item in items]
++  row=json.loads((CACHE/f"{'lme' if dataset=='longmemeval' else 'mab'}-{row_at}.json").read_text());docs=namespace['documents_lme' if dataset=='longmemeval' else 'documents_mab'](row)
++  # Match JavaScript JSON.stringify bytes, including UTF-8, before reusing actual observations.
++  digest=hashlib.sha256(json.dumps(docs,ensure_ascii=False,separators=(',',':')).encode()).hexdigest()
++  if not ingestion_path.exists() or not all(file.exists() for file in results):remaining.append((dataset,row_at,items));continue
++  ingestion=json.loads(ingestion_path.read_text());observations=[json.loads(file.read_text()) for file in results]
++  if ingestion['inputSha256']!=digest or not all(record['valid'] for record in observations):remaining.append((dataset,row_at,items));continue
++  write(label+'-ingestion.json',ingestion)
++  for file,record in zip(results,observations):
++   write(file.name,record);progress.append({'id':record['id'],'dataset':dataset,'valid':True});reused.append({'file':file.name,'from':str(file),'sha256':hashlib.sha256(file.read_bytes()).hexdigest()})
++ write('reused-observations.json',{'observations':reused,'questions':len(reused),'remainingCorpora':len(remaining),'rule':'Identical selection, production/worker/compiled source and exact corpus input SHA-256; only changed ingestion inputs rerun.'});jobs=remaining
++with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:list(pool.map(job,jobs))
++rows=[json.loads(f.read_text()) for f in OUT.glob('*-retrieval.json')];valid=[r for r in rows if r['valid']]
++summary={'scope':selection['scope'],'expectedQuestions':50,'attemptedQuestions':len(rows),'validQuestions':len(valid),'invalid':[r['id'] for r in rows if not r['valid']],'datasets':{},'ended':now(),'modelAnswerAccuracy':'unmeasured; no reader/judge invoked'}
++for dataset in selection['selection']:
++ group=[r for r in valid if r['dataset']==dataset];sources=[r['sources'] for r in group if r['sources'] is not None and not r['abstention']]
++ summary['datasets'][dataset]={'questions':len(group),'baselineCurrentPromptEqual':sum(r['rag']['same'] for r in group),'baselineCurrentSourcesEqual':sum(r['rag']['sameSources'] for r in group),'validProvenance':sum(r['rag']['current']['provenance'] for r in group),'answerSourceQuestions':len(sources),'meanAnswerSourceRecallAt3':sum(s['recallAt3'] for s in sources)/len(sources) if sources else None,'completeAnswerSources':sum(s['complete'] for s in sources),'referenceTextPresent':sum(r['referenceTextPresent'] for r in group),'strata':{kind:{'questions':len(g:=[r for r in group if r['stratum']==kind]),'referenceTextPresent':sum(r['referenceTextPresent'] for r in g)} for kind in sorted({r['stratum'] for r in group})}}
++write('summary.json',summary);print(json.dumps(summary),flush=True)
++if len(rows)!=50 or len(valid)!=50:raise RuntimeError('retrieval qualification incomplete; no full-denominator result')
+--- /dev/null
++++ b/scripts/bench-rag-passage-throttle.py
+@@ -0,0 +1,74 @@
++#!/usr/bin/env python3
++"""Atomic-checkpoint, lower-traffic transport recovery; frozen model and request bodies."""
++import datetime,email.utils,hashlib,inspect,json,os,runpy,sys,threading,time
++from pathlib import Path
++import requests
++
++ROOT=Path(__file__).resolve().parents[1]
++OUT=Path(sys.argv[sys.argv.index('--output')+1]).resolve()
++MODEL_DRIVER=ROOT/'scripts/bench-rag-passage-model.py'
++sys.path.insert(0,str(ROOT/'scripts/lib'))
++from rag_benchmark_checkpoint import immutable_json
++CHECKPOINT_SOURCE=ROOT/'scripts/lib/rag_benchmark_checkpoint.py'
++def immutable(name,value):immutable_json(OUT/name,value)
++BASE_SESSION=requests.Session
++condition=threading.Condition();slots=threading.Semaphore(1)
++next_send=0.;cooldown=0.;consecutive_limits=0;profile_written=False
++RPM=3
++assert os.environ.get('NVIDIA_API_KEY_RPM')=='10','Keep the original driver ceiling aligned with the wrapper'
++def acquire():
++ global next_send,profile_written
++ started=time.monotonic()
++ with condition:
++  while (wait:=max(next_send,cooldown)-time.monotonic())>0:condition.wait(timeout=min(wait,5))
++  next_send=time.monotonic()+60/RPM+.03
++  if not profile_written:
++   value={'at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'wrapperSha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
++    'driverSha256':hashlib.sha256(MODEL_DRIVER.read_bytes()).hexdigest(),'maximumRPM':RPM,'maximumConcurrentHTTP':1,'driverPacingCeilingRPM':10,
++    'cooldown':'60 seconds doubling for consecutive429, capped300s; honor a longer supplied Retry-After.',
++    'checkpointSha256':hashlib.sha256(CHECKPOINT_SOURCE.read_bytes()).hexdigest(),
++    'checkpoint':'Create-only atomic link after JSON/file fsync, followed by directory fsync. Progress is best-effort; completed result files are authoritative. Not a hardware power-loss guarantee.',
++    'semantics':'Only benchmark checkpoint publication and HTTP admission/cooldown change. Model, prompt, reasoning, output cap, keys and frozen driver are unchanged. Existing valid answers are reused regardless of correctness.'}
++   immutable('transport-wrapper.json',value)
++   profile_written=True
++ return (time.monotonic()-started)*1000
++class CooldownSession(BASE_SESSION):
++ def post(self,*args,**kwargs):
++  global cooldown,consecutive_limits
++  frame=inspect.currentframe().f_back
++  label=frame.f_locals['label'];attempt=frame.f_locals['attempt']
++  queued=time.monotonic()
++  with slots:
++   gate_ms=acquire();started=time.monotonic();response=super().post(*args,**kwargs);http_ms=(time.monotonic()-started)*1000
++   with condition:
++    if response.status_code==429:
++     consecutive_limits+=1;delay=min(300,60*2**min(3,consecutive_limits-1))
++     retry=response.headers.get('Retry-After')
++     if retry:
++      try:delay=max(delay,float(retry))
++      except ValueError:
++       try:delay=max(delay,(email.utils.parsedate_to_datetime(retry)-datetime.datetime.now(datetime.timezone.utc)).total_seconds())
++       except (TypeError,ValueError):pass
++     cooldown=max(cooldown,time.monotonic()+delay)
++     print(f'HTTP429: global benchmark cooldown {delay:.0f}s',flush=True)
++    elif response.status_code==200:consecutive_limits=0
++    condition.notify_all()
++   observation={'label':label,'attempt':attempt,'status':response.status_code,'gateWaitMs':gate_ms,
++    'slotAndGateWaitMs':(started-queued)*1000,'httpWallMs':http_ms,'retryAfter':response.headers.get('Retry-After'),
++    'at':datetime.datetime.now(datetime.timezone.utc).isoformat()}
++   immutable(f'transport-{label}-{attempt}.json',observation)
++   return response
++requests.Session=CooldownSession
++# The old setup returns before the frozen driver submits any inference. Replace only its
++# receipt writer; the original request/judge functions and all request bodies stay intact.
++original_run_path=runpy.run_path
++def durable_setup(path,*args,**kwargs):
++ namespace=original_run_path(path,*args,**kwargs)
++ if Path(path).resolve()==ROOT/'scripts/bench-rag-public.py':
++  assert namespace['OUT']==OUT
++  namespace['immutable']=immutable
++  namespace['request'].__globals__['immutable']=immutable
++ return namespace
++runpy.run_path=durable_setup
++sys.argv[0]=str(MODEL_DRIVER)
++original_run_path(str(MODEL_DRIVER),run_name='__main__')
+--- /dev/null
++++ b/scripts/lib/rag_json_array.py
+@@ -0,0 +1,41 @@
++"""Read pinned public JSON arrays one record at a time, without a full-file load."""
++import json
++
++
++def iter_array(path, chunk_size=262144, observations=None):
++    decoder=json.JSONDecoder();buffer='';position=0;eof=False
++    with path.open(encoding='utf-8') as stream:
++        def fill():
++            nonlocal buffer,position,eof
++            buffer=buffer[position:];position=0
++            chunk=stream.read(chunk_size);eof=not chunk;buffer+=chunk
++            if observations is not None:
++                observations['maxBufferedChars']=max(observations.get('maxBufferedChars',0),len(buffer))
++        def token():
++            nonlocal position
++            while True:
++                while position<len(buffer) and buffer[position].isspace():position+=1
++                if position<len(buffer) or eof:return buffer[position:position+1]
++                fill()
++        if token()!='[':raise ValueError('Expected a JSON array')
++        position+=1;first=True
++        while True:
++            if token()==']':
++                if not first:raise ValueError('Trailing comma')
++                position+=1;break
++            while True:
++                try:
++                    value,end=decoder.raw_decode(buffer,position)
++                    # A complete scalar prefix (for example1 of123) needs its delimiter.
++                    if not eof and (end==len(buffer) or buffer[end] not in ',] \t\r\n'):
++                        fill();continue
++                    break
++                except json.JSONDecodeError:
++                    if eof:raise
++                    fill()
++            position=end;yield value
++            next_token=token()
++            if next_token==']':position+=1;break
++            if next_token!=',':raise ValueError('Expected comma between records')
++            position+=1;first=False
++        if token():raise ValueError('Trailing content after JSON array')
+--- /dev/null
++++ b/scripts/lib/rag_json_array_test.py
+@@ -0,0 +1,21 @@
++import json,tempfile,unittest
++from pathlib import Path
++from rag_json_array import iter_array
++
++class Arrays(unittest.TestCase):
++ def test_small_boundaries_unicode_nested_and_scalar_prefixes(self):
++  cases=[[],[{'text':'नील ] , \\"'},{'nested':[1,2,{'a':True}]}],
++   [{'long':'x'*5000}],[12,12345,-52.2,1e15,True,'abc',None,{}]]
++  with tempfile.TemporaryDirectory() as d:
++   path=Path(d)/'data.json'
++   for value in cases:
++    path.write_text(json.dumps(value,ensure_ascii=False))
++    for size in [1,7,31,1024]:
++     with self.subTest(valueType=str(type(value)),size=size):self.assertEqual(list(iter_array(path,size)),value)
++ def test_incomplete_or_ambiguous_input_refuses(self):
++  with tempfile.TemporaryDirectory() as d:
++   path=Path(d)/'data.json'
++   for value in ['[1,]','[1 2]','[1','{}','[]false','[1e]']:
++    path.write_text(value)
++    with self.subTest(value=value),self.assertRaises(ValueError):list(iter_array(path,7))
++if __name__=='__main__':unittest.main()
+--- /dev/null
++++ b/scripts/lib/rag_vector_cache.cjs
+@@ -0,0 +1,12 @@
++// Benchmark-only SQLite publication: one complete provider batch, no partial cache on failure.
++function writeBatch(database, insert, rows) {
++  database.exec('BEGIN');
++  try {
++    for (const row of rows) insert.run(...row);
++    database.exec('COMMIT');
++  } catch (error) {
++    database.exec('ROLLBACK');
++    throw error;
++  }
++}
++module.exports = { writeBatch };
+--- /dev/null
++++ b/scripts/lib/rag_vector_cache.test.cjs
+@@ -0,0 +1,14 @@
++const {test}=require('node:test'),assert=require('node:assert/strict');
++const {DatabaseSync}=require('node:sqlite');const {writeBatch}=require('./rag_vector_cache.cjs');
++function database(){const db=new DatabaseSync(':memory:');db.exec('CREATE TABLE vectors(key TEXT PRIMARY KEY,vector TEXT NOT NULL,truncated INTEGER NOT NULL)');return db;}
++test('batch preserves exact rows and INSERT OR IGNORE ownership in one explicit transaction',()=>{
++ const db=database(),insert=db.prepare('INSERT OR IGNORE INTO vectors VALUES(?,?,?)');
++ insert.run('existing','old',0);const rows=[['a','[0.25,0.75]',0],['b','[0.5,0.5]',1],['existing','new',1],['a','duplicate',1]];
++ const statements=[];writeBatch({exec:s=>{statements.push(s);db.exec(s);}},insert,rows);
++ assert.deepEqual(statements,['BEGIN','COMMIT']);assert.deepEqual(db.prepare('SELECT * FROM vectors ORDER BY key').all().map(r=>({...r})),[{key:'a',vector:'[0.25,0.75]',truncated:0},{key:'b',vector:'[0.5,0.5]',truncated:1},{key:'existing',vector:'old',truncated:0}]);db.close();
++});
++test('a failed later insert leaves zero partial rows and preserves prior observations',()=>{
++ const db=database(),insert=db.prepare('INSERT OR IGNORE INTO vectors VALUES(?,?,?)');insert.run('prior','keep',0);let count=0;
++ assert.throws(()=>writeBatch(db,{run:(...row)=>{if(++count===2)throw new Error('injected cache failure');insert.run(...row);}},[['a','first',0],['b','second',0]]),/injected cache failure/);
++ assert.deepEqual(db.prepare('SELECT * FROM vectors').all().map(r=>({...r})),[{key:'prior',vector:'keep',truncated:0}]);db.close();
++});
+--- /dev/null
++++ b/scripts/prepare-rag-passage.py
+@@ -0,0 +1,71 @@
++#!/usr/bin/env python3
++"""Freeze the authorized fresh25+25 subset using bounded sequential corpus reads."""
++import hashlib,json,sys
++from pathlib import Path
++import pyarrow.parquet as pq
++ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'docs/product-reset/evidence/2026-10-14-rag-passage'
++OLD=ROOT/'docs/product-reset/evidence/2026-10-14-rag-qualification';REJECTED=ROOT/'docs/product-reset/evidence/2026-10-14-rag-evidence'
++sys.path.insert(0,str(ROOT/'scripts/lib'))
++from rag_json_array import iter_array
++from rag_benchmark_checkpoint import immutable_json
++RECOVERY=Path('/Users/vishsiddharth/Library/Caches/BimaxBench/rag-evidence-20261014')
++CACHE=RECOVERY/'fresh50-raw';CACHE.mkdir(exist_ok=True)
++datasets=json.loads((OLD/'public-selection.json').read_text())['datasets']
++def digest_file(path):
++ h=hashlib.sha256()
++ with path.open('rb') as f:
++  while block:=f.read(1024*1024):h.update(block)
++ return h.hexdigest()
++paths=[RECOVERY/'longmemeval_s_cleaned.json',RECOVERY/'Accurate_Retrieval.parquet']
++for path,expected in zip(paths,datasets):assert path.stat().st_size==expected['bytes'] and digest_file(path)==expected['sha256']
++normalize=lambda s:' '.join(s.lower().split())
++old_ids=set();old_questions=set()
++for folder,run in [(OLD,'public-answer-nemotron-4'),(REJECTED,'public-answer-8')]:
++ selection=json.loads((folder/'public-selection.json').read_text())['selection']
++ old_ids.update(item['id'] for group in selection.values() for item in group)
++ for file in (folder/run).glob('*-result.json'):old_questions.add(normalize(json.loads(file.read_text())['question']))
++seed='bimax-rag-complete-passage-fresh50-2026-10-14-v1'
++def select(items):
++ groups={}
++ for item in items:groups.setdefault(item['stratum'],[]).append(item)
++ for group in groups.values():group.sort(key=lambda item:hashlib.sha256((seed+json.dumps(item,sort_keys=True)).encode()).hexdigest())
++ selected=[]
++ while len(selected)<25:
++  before=len(selected)
++  for name in sorted(groups):
++   if groups[name] and len(selected)<25:selected.append(groups[name].pop(0))
++  assert len(selected)>before
++ return selected
++observation={};lme_items=[];count=0
++for i,row in enumerate(iter_array(paths[0],observations=observation)):
++ count+=1
++ if row['question_id'] not in old_ids and normalize(row['question']) not in old_questions:
++  lme_items.append({'row':i,'id':row['question_id'],'stratum':'abstention' if row['question_id'].endswith('_abs') else row['question_type']})
++assert count==500
++def mab_rows():
++ for batch in pq.ParquetFile(paths[1]).iter_batches(batch_size=1,use_threads=False):
++  yield batch.to_pylist()[0]
++mab_items=[];questions=0;count=0
++for i,row in enumerate(mab_rows()):
++ count+=1;questions+=len(row['questions'])
++ for j,question in enumerate(row['questions']):
++  if f'mab-{i}-{j}' not in old_ids and normalize(question) not in old_questions:
++   mab_items.append({'row':i,'query':j,'id':f'mab-{i}-{j}','stratum':row['metadata']['source']})
++assert count==22 and questions==2000
++selected={'longmemeval':select(lme_items),'memoryagentbench':select(mab_items)}
++assert len({r['id'] for g in selected.values() for r in g})==50
++assert not ({r['id'] for g in selected.values() for r in g}&old_ids)
++needed={r['row'] for r in selected['longmemeval']};raw_hashes={}
++for i,row in enumerate(iter_array(paths[0],observations=observation)):
++ if i in needed:
++  assert normalize(row['question']) not in old_questions
++  target=CACHE/f'lme-{i}.json';immutable_json(target,row);raw_hashes[target.name]=digest_file(target)
++needed={r['row'] for r in selected['memoryagentbench']}
++for i,row in enumerate(mab_rows()):
++ if i in needed:
++  assert all(normalize(row['questions'][r['query']]) not in old_questions for r in selected['memoryagentbench'] if r['row']==i)
++  target=CACHE/f'mab-{i}.json';immutable_json(target,row);raw_hashes[target.name]=digest_file(target)
++immutable_json(OUT/'public-selection.json',{'selectionVersion':seed,'scope':'Owner-authorized fresh balanced25classicLongMemEval_S+25MemoryAgentBench,paired100answer arms; excludes all record96+97 IDs and normalized questions. Small pilot,shared public corpora,not independent population/official leaderboard.',
++ 'datasets':datasets,'selection':selected,'cache':str(CACHE),'oldIdsExcluded':len(old_ids),'oldQuestionsExcluded':len(old_questions),'rawCorpusHashes':raw_hashes,'preparation':{'lmeSequentialPasses':2,**observation,'parquetRowsPerBatch':1,'parquetThreads':False},
++ 'rule':'Metadata/hash-only before inference; no answer/retrieval outcome selects cases; no same-question duplicates across earlier experiments.'})
++print(json.dumps({'questions':50,'perDataset':25,'corpora':len(raw_hashes),'oldIdsExcluded':len(old_ids),'oldNormalizedQuestionsExcluded':len(old_questions),'stream':observation}))
+--- /dev/null
++++ b/scripts/prove-rag-passage-audit.py
+@@ -0,0 +1,54 @@
++#!/usr/bin/env python3
++"""Prove the completed-result auditor rejects tampered observations, without API calls."""
++import argparse,datetime,hashlib,json,shutil,subprocess,sys,tempfile
++from pathlib import Path
++
++ROOT=Path(__file__).resolve().parents[1]
++p=argparse.ArgumentParser(description=__doc__)
++p.add_argument('run',type=Path);p.add_argument('--output',type=Path,required=True)
++p.add_argument('--candidate-source',type=Path,help='Forward an explicit hash-checked rejected-candidate source snapshot to the auditor.')
++args=p.parse_args()
++source=args.run.resolve();out=args.output.resolve();out.mkdir(parents=True,exist_ok=False)
++auditor=ROOT/'scripts/summarize-rag-passage.py'
++sha=lambda f:hashlib.sha256(f.read_bytes()).hexdigest()
++files=list(source.glob('*-result.json'))
++assert len(files)==100 and all(json.loads(f.read_text())['valid'] for f in files)
++before={str(f):sha(f) for f in files}
++cases=['wrong-verdict','changed-reader-input','missing-answer','wrong-returned-model','changed-cost-observation']
++results=[]
++for fault in cases:
++ with tempfile.TemporaryDirectory(prefix='bimax-rag-audit-fault-') as temporary:
++  fixture=Path(temporary)
++  for f in files+[source/'configuration.json',source/'summary.json',source/'judge-self-check.json']:
++   shutil.copy2(f,fixture/f.name)
++  selected=fixture/sorted(files)[0].name;row=json.loads(selected.read_text())
++  if fault=='wrong-verdict':row['correct']=not row['correct']
++  elif fault=='changed-reader-input':row['rag']['prompt']+='\nUnobserved extra evidence.'
++  elif fault=='changed-cost-observation':row['readerWallMs']+=1
++  elif fault=='missing-answer':selected.unlink()
++  elif fault=='wrong-returned-model':
++   original=Path(row['inferenceRun']);label=row['id']+'-'+row['arm'];raw=fixture/'raw';raw.mkdir()
++   for role in ['reader','judge']:
++    valid=[f for f in original.glob(label+'-'+role+'-attempt-*.json') if json.loads(f.read_text())['valid']]
++    assert len(valid)==1
++    request=json.loads(valid[0].read_text())
++    if role=='reader':request['response']['model']='unconfigured-wrong-model'
++    (raw/valid[0].name).write_text(json.dumps(request)+'\n')
++   row['inferenceRun']=str(raw)
++  if selected.exists():selected.write_text(json.dumps(row)+'\n')
++  report=fixture/'report.json'
++  command=[sys.executable,str(auditor),str(fixture),'--output',str(report)]
++  if args.candidate_source:command.extend(['--candidate-source',str(args.candidate_source.resolve())])
++  result=subprocess.run(command,cwd=ROOT,
++   capture_output=True,text=True,timeout=120)
++  (out/(fault+'.stdout.log')).write_text(result.stdout)
++  (out/(fault+'.stderr.log')).write_text(result.stderr)
++  caught=result.returncode==1 and 'AssertionError' in result.stderr and not report.exists()
++  results.append({'fault':fault,'returncode':result.returncode,'assertionCaught':caught,'reportWritten':report.exists()})
++  assert caught,fault
++assert all(sha(Path(f))==h for f,h in before.items()),'Original results changed'
++value={'at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'auditorSha256':sha(auditor),
++ 'proofSha256':sha(Path(__file__)),'run':str(source),'cases':results,'original100RowsUnchanged':True,
++ 'method':'Temporary copies only; no provider calls, source/grading changes, valid-answer replay or original artifact edits.'}
++(out/'results.json').write_text(json.dumps(value,indent=2)+'\n')
++print(json.dumps(value,indent=2))
+--- /dev/null
++++ b/scripts/prove-rag-passage.py
+@@ -0,0 +1,45 @@
++#!/usr/bin/env python3
++"""Qualify evidence-selection checks with executable source faults and exact restoration."""
++from pathlib import Path
++import hashlib,json,re,subprocess
++ROOT=Path(__file__).resolve().parents[1]
++OUT=ROOT/'docs/product-reset/evidence/2026-10-14-rag-passage/mutations-qualified'
++OUT.mkdir(exist_ok=False)
++source=ROOT/'docs/product-reset/evidence/2026-10-14-rag-passage/candidate/recall.ts';original=source.read_bytes();text=original.decode();digest=hashlib.sha256(original).hexdigest()
++faults=[
++ ('long-line-head','return wordWindow(lines[best], query, budget);','return lines[best].slice(0, budget).trimEnd();'),
++ ('source-starvation','const share = later ? Math.floor(budget / (later + 1)) : budget;','const share = budget - later * reservePerSource;'),
++ ('chunk-starvation','const share = Math.floor(available / remaining);','const share = available;'),
++ ('uniform-fragments','const completeRoom = available - (remaining - 1) * (MIN_EXCERPT_CHARS + LABEL_ALLOWANCE);','const completeRoom = share;'),
++ ('drop-later-reserve','const completeRoom = available - (remaining - 1) * (MIN_EXCERPT_CHARS + LABEL_ALLOWANCE);','const completeRoom = available;'),
++ ('drop-date','if (header && !segments.some(segment => segment.body.includes(header))) {','if (false && header && !segments.some(segment => segment.body.includes(header))) {'),
++ ('reverse-duplicate','for (const chunk of matched) {','for (const chunk of [...matched].reverse()) {'),
++ ('overclaim-span','const text = segment.body.slice(0, Math.max(0, Math.min(segment.body.length, shownChars - start))).trimEnd();','const text = segment.chunk?.text ?? segment.body;'),
++ ('invent-date',"const finish = (segments: Passage['segments']): Passage => {","const finish = (segments: Passage['segments']): Passage => {\n    if (doc.lastUsedAt) segments.unshift({chunk:null,label:'',body:String(doc.lastUsedAt)});"),
++ ('no-hit-tail',"if (best < 0) return text.slice(0, budget).trimEnd();","if (best < 0) return text.slice(-budget).trimEnd();"),
++ ('default-starvation','const maxChars = options.maxChars ?? 6_000;','const maxChars = options.maxChars ?? 1_800;'),
++]
++command=['node','--test','scripts/rag-passage-candidate.test.cjs']
++def run(name):
++ result=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=90)
++ log=result.stdout+result.stderr;(OUT/(name+'.log')).write_text(log)
++ return result.returncode,log
++results=[]
++try:
++ code,log=run('current-before');assert code==0
++ for name,before,after in faults:
++  assert text.count(before)==1,(name,text.count(before))
++  try:
++   source.write_text(text.replace(before,after))
++   code,log=run(name)
++   caught=code==1 and ('AssertionError' in log or 'ERR_ASSERTION' in log) and '# fail' in log and not re.search(r'error TS\d|SyntaxError|heap out of memory|SIGKILL',log)
++   results.append({'fault':name,'exit':code,'assertionCaught':caught})
++  finally:source.write_bytes(original)
++  assert hashlib.sha256(source.read_bytes()).hexdigest()==digest
++  (OUT/'results.json').write_text(json.dumps({'sourceSha256':digest,'results':results},indent=2)+'\n')
++  print(f'{name}: assertionCaught={caught}',flush=True)
++ code,log=run('restored');assert code==0
++ assert all(r['assertionCaught'] for r in results)
++finally:
++ source.write_bytes(original)
++ (OUT/'restoration.json').write_text(json.dumps({'expected':digest,'actual':hashlib.sha256(source.read_bytes()).hexdigest()},indent=2)+'\n')
+--- /dev/null
++++ b/scripts/rag-passage-candidate.test.cjs
+@@ -0,0 +1,88 @@
++const {test}=require('node:test'),assert=require('node:assert/strict');
++const fs=require('node:fs'),path=require('node:path'),Module=require('node:module'),ts=require('typescript');
++const root=path.resolve(__dirname,'..');
++const source=process.env.BIMAX_PASSAGE_TEST_SOURCE||path.join(root,'docs/product-reset/evidence/2026-10-14-rag-passage/candidate/recall.ts');
++const filename=path.join(root,'dist/memory/recall.prototype.js'),loaded=new Module(filename);
++loaded.filename=filename;loaded.paths=Module._nodeModulePaths(path.dirname(filename));
++loaded._compile(ts.transpileModule(fs.readFileSync(source,'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS,esModuleInterop:true}}).outputText,filename);
++const {recallForTurn,answeringExcerpt,recallQuery}=loaded.exports;
++const {versionOfText}=require('../dist/context/evidence');
++function document(id,bodies,header=''){
++ const chunks=bodies.map((text,i)=>({id:`${id}#${i}`,text}));
++ return {id,metadata:{content:[header,...bodies].filter(Boolean).join('\n'),tags:[]},chunks,matchedChunks:chunks};
++}
++const seam=docs=>({semanticSearch:async()=>docs});
++function exact(result,docs,budget){
++ assert.ok(result);assert.ok(result.text.split('\n').slice(1).join('\n').length<=budget);
++ for(const span of result.evidence){const doc=docs.find(d=>d.id===span.locator.documentId);assert.ok(result.text.includes(span.text));assert.ok(doc.metadata.content.includes(span.text));assert.equal(span.sourceVersion,versionOfText(doc.metadata.content));}
++}
++function relational(){return ['Orchid launch approval decisions require checking the complete eligibility statement.',
++ 'Ordinary operational background. '.repeat(27),
++ 'Only initiatives CEDAR and LINDEN satisfy the combined conditions; every other initiative is excluded.'].join('\n');}
++test('a complete best passage retains its final relational restriction before extra fragments',async()=>{
++ const core=relational();assert.ok(core.length>500&&core.length<1400);
++ const doc=document('rules',[core,...['alpha','beta','gamma'].map(n=>`${n} unrelated context. `.repeat(55))]);
++ const result=await recallForTurn(seam([doc]),'List Orchid launch approval decisions.',{maxChars:2000});
++ assert.ok(result.text.includes(core),'Complete qualifying relation must survive, not just its query-bearing heading');
++ assert.ok(result.evidence.some(s=>s.text===core));exact(result,[doc],2000);
++});
++test('complete best passage survives the ordinary three-source default allowance',async()=>{
++ const core=relational(),first=document('rule',[core,...['one','two','three'].map(n=>`${n} unrelated details. `.repeat(65))]);
++ const docs=[first,document('side',['Short secondary note.']),document('other',['Short tertiary note.'])];
++ const result=await recallForTurn(seam(docs),'List Orchid launch approval decisions.');
++ assert.ok(result.text.includes(core));assert.deepEqual(result.ids,['rule','side','other']);exact(result,docs,6000);
++});
++test('when no chunk fits completely, fair excerpts retain multiple independent facts',async()=>{
++ const doc=document('course',['copper','silver','gold'].map((n,i)=>`The ${n} course attendance total is ${23+i}. ${'Background course administration. '.repeat(45)}`));
++ doc.matchedChunks=[doc.chunks[2],doc.chunks[0],doc.chunks[1]];
++ const result=await recallForTurn(seam([doc]),'What were the copper, silver and gold course attendance totals?',{maxChars:900});
++ for(const n of ['23','24','25'])assert.ok(result.text.includes(n));assert.ok(result.text.indexOf('copper')<result.text.indexOf('silver'));assert.ok(result.text.indexOf('silver')<result.text.indexOf('gold'));exact(result,[doc],900);
++});
++test('keeping a whole passage cannot consume a later match’s minimum useful room',async()=>{
++ const doc=document('reserve',['bronze','platinum'].map((n,i)=>`The ${n} course attendance total is ${23+i}.\n${'ordinary administration details. '.repeat(24)}`));
++ assert.ok(doc.chunks[0].text.length+28<900&&doc.chunks[0].text.length+28>752);
++ const result=await recallForTurn(seam([doc]),'What are bronze and platinum course attendance totals?',{maxChars:900});
++ assert.ok(result.text.includes('23'));assert.ok(result.text.includes('24'));exact(result,[doc],900);
++});
++test('three sources retain their own late facts under the same1800-character ceiling',async()=>{
++ const docs=['crane','ibis','tern'].map((n,i)=>document(n,[`${n} maintenance history ${'ordinary background '.repeat(100)}. ${n} launch credential is BIRD-${81+i}.`]));
++ const result=await recallForTurn(seam(docs),'What are the crane, ibis and tern launch credentials?',{maxChars:1800});
++ for(const n of ['BIRD-81','BIRD-82','BIRD-83'])assert.ok(result.text.includes(n));exact(result,docs,1800);
++});
++test('a later source keeps a complete multi-part constraint rather than a tiny heading',async()=>{
++ const tail=`The pelican credential procedure is ID-P61, then ${'read the independent instruction carefully '.repeat(5)} TOKEN-P62, and finally CHECK-P63.`;
++ const docs=[document('first',['Routine launch reference. '.repeat(100)]),document('second',[`${'Unrelated historical details. '.repeat(100)}${tail}`])];
++ const result=await recallForTurn(seam(docs),'What is the pelican credential procedure?',{maxChars:1800});
++ for(const fact of ['ID-P61','TOKEN-P62','CHECK-P63'])assert.ok(result.text.includes(fact));exact(result,docs,1800);
++});
++test('an oversized line preserves an exact window around its late query-bearing clause',()=>{
++ const text=`${'Routine unrelated logistics detail. '.repeat(100)}The indigo launch code is KESTREL-83. Please keep the complete code.`;
++ const shown=answeringExcerpt(text,'What is the indigo launch code?',160);assert.ok(shown.includes('indigo launch code is KESTREL-83'));assert.ok(shown.length<=160);assert.ok(text.includes(shown));
++});
++test('Unicode whole words cannot be displaced by a substring decoy',()=>{
++ const text=`${'A codependence discussion has no answer. '.repeat(100)}नील कमल पासवर्ड = VIOLET-28. This is the saved password.`;
++ const shown=answeringExcerpt(text,'नील कमल पासवर्ड',120);assert.ok(shown.includes('VIOLET-28'));assert.ok(text.includes(shown));
++});
++test('actual source dates are shown without inventing semantic validity',async()=>{
++ const doc=document('visit',['user: I visited the observatory yesterday.'],'Session date: 2026/04/17 (Fri) 12:30');
++ const result=await recallForTurn(seam([doc]),'On which date did I visit the observatory?',{maxChars:500});
++ assert.ok(result.text.includes('Session date: 2026/04/17 (Fri) 12:30'));assert.ok(result.evidence.some(s=>s.text.includes('Session date:')));assert.ok(result.evidence.every(s=>s.validFrom===undefined));exact(result,[doc],500);
++});
++test('tiny budgets retain partial exact evidence and never turn recency into a date',async()=>{
++ const doc={...document('plain',['marigold '.repeat(100)]),lastUsedAt:1780000000000};
++ const result=await recallForTurn(seam([doc]),'marigold',{maxChars:100});assert.equal(result.evidence[0].locator.partial,true);assert.ok(!result.text.includes('1780000000000'));exact(result,[doc],100);
++});
++test('unmatched queries keep their old head fallback and short notes stay complete',async()=>{
++ const text='A short ordinary passage. '.repeat(40);assert.equal(answeringExcerpt(text,'zebra quokka',100),text.slice(0,100).trimEnd());
++ const doc=document('small',['The amber retry limit is 8.']);const result=await recallForTurn(seam([doc]),'amber retry limit');assert.ok(result.text.includes(doc.metadata.content));exact(result,[doc],6000);
++});
++test('exact duplicate text retains its first ranked locator',async()=>{
++ const doc=document('duplicate',['The cyan launch token is LARK-19.','The cyan launch token is LARK-19.']);const result=await recallForTurn(seam([doc]),'cyan launch token');assert.equal(result.evidence.length,1);assert.equal(result.evidence[0].locator.part,1);assert.equal(result.evidence[0].locator.parts,2);
++});
++test('all complete short chunks fit the bounded default allowance',async()=>{
++ const doc=document('complete',['violet','scarlet','ochre'].map(n=>`${n} ${'precise operational details '.repeat(32)}`.trimEnd()));const result=await recallForTurn(seam([doc]),'violet scarlet ochre operational details');for(const c of doc.chunks)assert.ok(result.text.includes(c.text));exact(result,[doc],6000);
++});
++test('ordinary admission and cancellation retain the production contracts',async()=>{
++ assert.equal(recallQuery('user','continue',new Set()),null);assert.equal(recallQuery('assistant','Explain the orchard launch requirements.',new Set()),null);
++ const controller=new AbortController();controller.abort();let calls=0;await assert.rejects(recallForTurn({semanticSearch:async()=>{calls++;return [];}},'Explain the orchard launch requirements.',{signal:controller.signal}));assert.equal(calls,0);
++});
+--- /dev/null
++++ b/scripts/rag-passage-worker.cjs
+@@ -0,0 +1,146 @@
++// Isolated real memory RAG. Answers/labels never enter this worker or its indexes.
++const fs = require('fs'), os = require('os'), path = require('path'), Module = require('module');
++const { createHash } = require('crypto'), readline = require('readline');
++const root = path.resolve(__dirname, '..'), out = path.resolve(process.argv[2]);
++const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-public-rag-'));
++process.env.BIMAX_STATE_DIR = path.join(temp, 'state'); process.env.BIMAX_BREAKGLASS_DIR = path.join(temp, 'breakglass');
++process.env.BIMAX_RECENCY_FLUSH_MS = '3600000';
++const { Logger } = require('../dist/utils/logger'); Logger.info = () => {}; Logger.warn = () => {};
++const recalls = {};
++const { DatabaseSync } = require('node:sqlite');
++const {writeBatch}=require('./lib/rag_vector_cache.cjs');
++const cachePath = '/Users/vishsiddharth/Library/Caches/BimaxBench/rag-evidence-20261014/fresh50-embeddings.sqlite';
++const cache = new DatabaseSync(cachePath);
++const seed = new DatabaseSync('/Users/vishsiddharth/Library/Caches/BimaxBench/rag-evidence-20261014/embeddings-checkpoint-1.sqlite', {readOnly:true});
++const seedRead=seed.prepare('SELECT vector,truncated FROM vectors WHERE key=?');
++cache.exec('PRAGMA busy_timeout=30000');
++cache.exec('PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS vectors (key TEXT PRIMARY KEY, vector TEXT NOT NULL, truncated INTEGER NOT NULL)');
++const cacheRead = cache.prepare('SELECT vector,truncated FROM vectors WHERE key=?');
++const cacheWrite = cache.prepare('INSERT OR IGNORE INTO vectors VALUES(?,?,?)');
++let cacheHits=0,cacheMisses=0;
++const { chunkDocument } = require('../dist/memory/chunking');
++const { normalize } = require('../dist/memory/embeddings');
++const hash = text => createHash('sha256').update(text).digest('hex');
++const versions = {};
++for (const version of ['baseline', 'current']) {
++  const filename = path.join(root, 'dist/memory/vector.store.js');
++  const mod = new Module(filename); mod.filename = filename; mod.paths = Module._nodeModulePaths(path.dirname(filename));
++  mod._compile(fs.readFileSync(path.join(out, 'compiled', `${version}.js`), 'utf8'), filename);
++  versions[version] = mod.exports.VectorStore;
++  const recallFile = path.join(root, 'dist/memory/recall.js');
++  const recallModule = new Module(recallFile); recallModule.filename = recallFile; recallModule.paths = Module._nodeModulePaths(path.dirname(recallFile));
++  recallModule._compile(fs.readFileSync(path.join(out, 'compiled', `recall-${version}.js`), 'utf8'), recallFile);
++  recalls[version] = recallModule.exports.recallForTurn;
++}
++let stores = {}, originals = new Map(), embedded = new Map(), modelDigest = '', corpusSerial = 0;
++let embeddingObservations = [];
++const backend = { get id() { return `ollama:all-minilm:${modelDigest}:384`; }, dimensions: 384,
++  async embed(texts, role) {
++    let cached=0,potentiallyTruncated=0;
++    for (const text of new Set(texts)) if (!embedded.has(text)) {
++      const key=`${modelDigest}:${role}:${hash(text)}`;
++      const row=cacheRead.get(key)||seedRead.get(key);
++      if (row) {
++        const vector=JSON.parse(row.vector);
++        if (vector.length!==384 || !vector.every(Number.isFinite) || !vector.some(x=>x!==0)) throw new Error('Invalid cached real embedding');
++        embedded.set(text,vector);cached++;potentiallyTruncated+=row.truncated;cacheHits++;
++      }
++    }
++    if(cached) embeddingObservations.push({role,cacheHit:true,inputs:cached,potentiallyTruncatedInputs:potentiallyTruncated,requiredProviderTruncation:false,truncationAffectedInputsBound:[0,0]});
++    const missing = [...new Set(texts.filter(text => !embedded.has(text)))]; cacheMisses+=missing.length;
++    for (let i = 0; i < missing.length; i += 16) {
++      const batch = missing.slice(i, i + 16);
++      const call = truncate => fetch('http://localhost:11434/api/embed', { method: 'POST', headers: { 'Content-Type': 'application/json' },
++        body: JSON.stringify({ model: 'all-minilm:latest', input: batch, truncate, keep_alive: '30s', options: {num_gpu:0,num_thread:1} }), signal: AbortSignal.timeout(90000) });
++      let response = await call(false), truncated = false;
++      if (!response.ok) {
++        const error = await response.text();
++        if (response.status !== 400 || !error.includes('input length exceeds the context length')) throw new Error(`embedding HTTP ${response.status}: ${error}`);
++        truncated = true; response = await call(true);
++      }
++      if (!response.ok) throw new Error(`embedding HTTP ${response.status}: ${await response.text()}`);
++      const data = await response.json();
++      embeddingObservations.push({ role, inputs: batch.length, inputChars: batch.reduce((n, text) => n + text.length, 0),
++        maxInputChars: Math.max(...batch.map(text => text.length)), requiredProviderTruncation: truncated, promptTokens: data.prompt_eval_count,
++        truncationAffectedInputsBound: truncated ? [1, batch.length] : [0, 0] });
++      if (data.embeddings?.length !== batch.length) throw new Error('incomplete embedding batch');
++      const pendingRows=[];
++      data.embeddings.forEach((vector, at) => {
++        if (vector.length !== 384 || !vector.every(Number.isFinite) || !vector.some(value=>value!==0)) throw new Error('invalid embedding space');
++        const normalized=normalize(vector); embedded.set(batch[at], normalized);
++        pendingRows.push([`${modelDigest}:${role}:${hash(batch[at])}`,JSON.stringify(normalized),truncated?1:0]);
++      });
++      writeBatch(cache,cacheWrite,pendingRows);
++    }
++    return texts.map(text => embedded.get(text));
++  } };
++function dispose() {
++  for (const store of Object.values(stores)) clearTimeout(store.recencyTimer);
++  stores = {}; originals.clear(); embedded.clear(); embeddingObservations = [];
++}
++async function dispatch(input) {
++  if (input.op === 'load') {
++    dispose();
++    const started = performance.now();
++    const tags = await (await fetch('http://localhost:11434/api/tags', { signal: AbortSignal.timeout(5000) })).json();
++    const model = tags.models.find(model => model.name === 'all-minilm:latest');
++    if (!model?.digest) throw new Error('required real embedding model absent');
++    if (modelDigest && modelDigest !== model.digest) throw new Error('embedding model changed during run');
++    modelDigest = model.digest;
++    const docs = input.documents.map(doc => ({ id: doc.id, metadata: { content: doc.text, tags: [] }, chunks: chunkDocument(doc.id, doc.text) }));
++    originals = new Map(docs.map(doc => [doc.id, doc.metadata.content]));
++    const chunks = docs.flatMap(doc => doc.chunks);
++    await backend.embed(chunks.map(chunk => chunk.text), 'passage');
++    for (const chunk of chunks) { chunk.embedding = embedded.get(chunk.text); chunk.space = backend.id; }
++    const json = JSON.stringify(docs);
++    for (const version of ['baseline', 'current']) {
++      const storePath = path.join(temp, `${version}.json`); fs.writeFileSync(storePath, json);
++      stores[version] = new versions[version](backend, null, { storePath, maxVectors: Math.max(500, docs.length), dedup: false });
++      await stores[version].semanticSearch('initializationnomatch', 1, 0, { mode: 'lexical' });
++    }
++    corpusSerial++;
++    return { corpusSerial, documents: docs.length, chunks: chunks.length, ingestionMs: performance.now() - started,
++      embedding: backend.id, embeddingObservations, stats: stores.current.stats(), execution:{embeddingWorkerConcurrency:1,batchSize:16,num_gpu:0,num_thread:1,keep_alive:'30s',cacheTransaction:'one per fresh embedding batch',seedReadOnly:true}, inputSha256: hash(JSON.stringify(input.documents)), rss: process.memoryUsage().rss, embeddingCache:{hits:cacheHits,misses:cacheMisses,format:'exact normalized JSON vectors, model-digest/role/text-SHA keyed, batch truncation conservative flag'} };
++  }
++  if (input.op === 'query') {
++    const observationAt = embeddingObservations.length;
++    const started = performance.now(); await backend.embed([input.query], 'query');
++    const queryEmbeddingMs = performance.now() - started;
++    const responses = {};
++    for (const version of corpusSerial % 2 ? ['baseline', 'current'] : ['current', 'baseline']) {
++      let hits = [];
++      const store = stores[version];
++      const seam = { semanticSearch: async (...args) => { hits = await store.semanticSearch(...args); return hits; },
++        unknownTerms: (...args) => store.unknownTerms(...args), lastSearchMode: () => store.lastSearchMode() };
++      const start = performance.now();
++      const recalled = await recalls[version](seam, input.query, version === 'baseline' ? {limit:3,maxChars:1800} : {limit:3});
++      const provenance = (recalled?.evidence ?? []).every(span => {
++        const id = span.locator.documentId, original = originals.get(id);
++        // Production chunk assembly can insert whitespace between structural pieces.
++        // Require the same ordered source text modulo whitespace, plus exact source version and shown span.
++        return original !== undefined && recalled.text.includes(span.text)
++          && original.replace(/\s+/g, ' ').includes(span.text.replace(/\s+/g, ' '))
++          && span.sourceId === `memory:${id}` && span.sourceVersion === `sha256:${hash(original)}`;
++      });
++      if (!provenance) throw new Error('evidence provenance failed');
++      responses[version] = { ids: recalled?.ids ?? [], prompt: recalled?.text ?? '', evidence: recalled?.evidence ?? [],
++        sourceIds: hits.map(doc => doc.id), mode: store.lastSearchMode(), recallSkipped: hits.length === 0,
++        wallMs: performance.now() - start, provenance };
++    }
++    const same = JSON.stringify(responses.baseline.ids) === JSON.stringify(responses.current.ids)
++      && responses.baseline.prompt === responses.current.prompt;
++    const sameSources=JSON.stringify(responses.baseline.sourceIds)===JSON.stringify(responses.current.sourceIds);
++    if (!sameSources) throw new Error('Passage-only change altered retrieved document ranking');
++    return { same, sameSources, queryEmbeddingMs, queryEmbeddingObservations: embeddingObservations.slice(observationAt), ...responses };
++  }
++  if (input.op === 'close') { dispose(); fs.rmSync(temp, { recursive: true, force: true }); cache.close(); seed.close(); return { closed: true }; }
++  throw new Error('unknown operation');
++}
++const lines = readline.createInterface({ input: process.stdin });
++(async () => {
++  for await (const line of lines) {
++    try { process.stdout.write(JSON.stringify({ ok: true, value: await dispatch(JSON.parse(line)) }) + '\n'); }
++    catch (error) { process.stdout.write(JSON.stringify({ ok: false, error: String(error.message) }) + '\n'); }
++  }
++  dispose(); fs.rmSync(temp, { recursive: true, force: true });
++})().catch(error => { process.stderr.write(error.stack + '\n'); process.exitCode = 1; });
+--- /dev/null
++++ b/scripts/summarize-rag-passage.py
+@@ -0,0 +1,203 @@
++#!/usr/bin/env python3
++"""Audit every paired answer against raw requests and source text before reporting quality."""
++import argparse,ast,collections,datetime,hashlib,importlib.util,json,statistics,string,re
++from pathlib import Path
++ROOT=Path(__file__).resolve().parents[1];EVIDENCE=ROOT/'docs/product-reset/evidence/2026-10-14-rag-passage'
++OLD=ROOT/'docs/product-reset/evidence/2026-10-14-rag-qualification'
++p=argparse.ArgumentParser(description=__doc__);p.add_argument('run',type=Path);p.add_argument('--output',type=Path,required=True)
++p.add_argument('--candidate-source',type=Path,help='Explicit frozen candidate TS snapshot after reverting production; exact recorded source hash is still required.')
++args=p.parse_args()
++run=args.run.resolve();config=json.loads((run/'configuration.json').read_text());summary=json.loads((run/'summary.json').read_text())
++sha=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
++selection=json.loads((EVIDENCE/'public-selection.json').read_text());cache=Path(selection['cache']);retrieval=Path(config['retrievalRun'])
++freeze=json.loads((EVIDENCE/'evaluation-freeze.json').read_text())
++assert all(sha(ROOT/path)==digest for path,digest in freeze['sourceHashes'].items()),'Pre-inference dependency freeze changed'
++assert all(freeze['sourceHashes'].get(path)==digest for path,digest in config['sourceHashes'].items()),'Run dependencies differ from pre-inference freeze'
++assert config['productionRecallAtStart']==freeze['productionRecallSha256']
++assert all(sha(cache/path)==digest for path,digest in selection['rawCorpusHashes'].items()),'Raw selected corpus changed'
++assert sha(EVIDENCE/'public-selection.json')==config['selectionSha256']
++resolved={path:(args.candidate_source.resolve() if path=='src/memory/recall.ts' and args.candidate_source else ROOT/path) for path in config['sourceHashes']}
++assert all(sha(resolved[path])==digest for path,digest in config['sourceHashes'].items())
++assert summary['validAnswers']==100 and not summary['invalid'] and summary['configUnchanged']
++assert len(controls:=json.loads((run/'judge-self-check.json').read_text()))==22 and all(c['passed'] for c in controls)
++expected={(item['id'],arm) for group in selection['selection'].values() for item in group for arm in ['baseline','current']}
++rows=[json.loads(f.read_text()) for f in run.glob('*-result.json')]
++assert len(rows)==100 and {(r['id'],r['arm']) for r in rows}==expected and all(r['valid'] for r in rows)
++# Audit one corpus at a time instead of retaining every public history on an eight-GiB Mac.
++rows.sort(key=lambda row:(row['dataset'],row['row'],row['id'],row['arm']))
++spec=importlib.util.spec_from_file_location('grader',ROOT/'scripts/lib/rag_public_grader.py');grader=importlib.util.module_from_spec(spec);spec.loader.exec_module(grader)
++tree=ast.parse((ROOT/'scripts/bench-rag-public.py').read_text());ingestion={}
++functions=[node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name in ['documents_lme','documents_mab']]
++exec(compile(ast.Module(body=functions,type_ignores=[]),'source-only-ingestion','exec'),ingestion)
++# Reconstruct the exact frozen judge messages without executing its provider/setup code.
++rubric_tree=ast.parse((OLD/'research/LongMemEval-evaluate_qa.py').read_text())
++judge_namespace={'json':json,'grader':grader}
++rubric=[node for node in rubric_tree.body if isinstance(node,ast.FunctionDef) and node.name=='get_anscheck_prompt'];assert len(rubric)==1
++exec(compile(ast.Module(body=rubric,type_ignores=[]),'pinned-rubric','exec'),judge_namespace)
++judge_namespace['judge_prompt']=judge_namespace['get_anscheck_prompt']
++def capture_judge(messages,label,judge=False):
++ assert judge
++ judge_namespace['captured_messages']=messages
++ return 'yes',None
++judge_namespace['request']=capture_judge
++judge_function=[node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name=='judge'];assert len(judge_function)==1
++exec(compile(ast.Module(body=judge_function,type_ignores=[]),'frozen-judge-messages','exec'),judge_namespace)
++originals={};source_coverage={};reference_presence={};cases={};accepted_calls=[]
++old_ids={r['id'] for g in json.loads((OLD/'public-selection.json').read_text())['selection'].values() for r in g}
++old_questions={' '.join(json.loads(f.read_text())['question'].lower().split()) for f in (OLD/'public-answer-nemotron-4').glob('*-result.json')}
++rejected=ROOT/'docs/product-reset/evidence/2026-10-14-rag-evidence'
++old_ids.update(r['id'] for g in json.loads((rejected/'public-selection.json').read_text())['selection'].values() for r in g)
++old_questions.update(' '.join(json.loads(f.read_text())['question'].lower().split()) for f in (rejected/'public-answer-8').glob('*-result.json'))
++assert not ({id for id,_ in expected}&old_ids)
++for row in rows:
++ assert ' '.join(row['question'].lower().split()) not in old_questions
++ cached=json.loads((retrieval/(row['id']+'-retrieval.json')).read_text());assert cached['valid'] and cached['rag']['sameSources']
++ assert row['rag']==cached['rag'][row['arm']],(row['id'],row['arm'],'reused retrieval changed')
++ assert all(row[k]==cached[k] for k in ['question','references','kind','abstention','date','stratum'])
++ corpus_key=(row['dataset'],row['row'])
++ if corpus_key not in originals:
++  originals.clear()
++  docs=raw=None
++  raw=json.loads((cache/f"{'lme' if row['dataset']=='longmemeval' else 'mab'}-{row['row']}.json").read_text())
++  docs=ingestion['documents_lme' if row['dataset']=='longmemeval' else 'documents_mab'](raw)
++  originals[corpus_key]=({doc['id']:doc for doc in docs},raw)
++ assert len(originals)==1
++ docs,raw=originals[corpus_key]
++ prompt=row['rag']['prompt'];budget=1800 if row['arm']=='baseline' else 6000
++ assert len(prompt.split('\n',1)[1] if '\n' in prompt else '')<=budget
++ assert row['rag']['provenance'] and (not prompt or row['rag']['evidence'])
++ for span in row['rag']['evidence']:
++  id=span['locator']['documentId'];source=docs[id]['text']
++  assert span['sourceId']=='memory:'+id and span['sourceVersion']=='sha256:'+hashlib.sha256(source.encode()).hexdigest()
++  assert span['text'] in prompt and ' '.join(span['text'].split()) in ' '.join(source.split())
++  assert not span.get('validFrom'), 'No source dates may be guessed from recency'
++ if row['dataset']=='longmemeval' and not row['abstention']:
++  source_coverage[(row['id'],row['arm'])]=grader.source_metrics([docs[id].get('sourceSessionId',id) for id in row['rag']['ids']],raw['answer_session_ids'])
++ if not row['abstention'] and row['kind']!='single-session-preference':
++  matched=[bool(grader.normalize(a)) and grader.normalize(a) in grader.normalize(prompt) for a in row['references']]
++  reference_presence[(row['id'],row['arm'])]=all(matched) if row['stratum'].startswith('eventqa') else any(matched)
++ origin=Path(row['inferenceRun']);label=row['id']+'-'+row['arm']
++ for role in ['reader','judge']:
++  valid=[(f,json.loads(f.read_text())) for f in origin.glob(label+'-'+role+'-attempt-*.json') if json.loads(f.read_text())['valid']]
++  assert len(valid)==1,(label,role)
++  file,a=valid[0];text=grader.completion_text(a['status'],a['response']);body=a['request'];assert body['model']==config[role] and a['response']['model']==config[role] and body['temperature']==0 and body['max_tokens']==2048
++  assert body['chat_template_kwargs']=={'enable_thinking':True} and body['reasoning_budget']==1024
++  assert row[role+'WallMs']==a['wallMs'] and row[role+'Usage']==a['response'].get('usage'),(label,role,'cost observation drift')
++  transport_file=origin/f"transport-{label}-{role}-{a['attempt']}.json"
++  transport=json.loads(transport_file.read_text()) if transport_file.exists() else None
++  if transport:assert transport['status']==a['status'] and transport['attempt']==a['attempt'] and transport['label']==label+'-'+role
++  accepted_calls.append({'dataset':row['dataset'],'arm':row['arm'],'role':role,'file':str(file),
++   'attemptWallMsIncludingAdmission':a['wallMs'],'httpWallMs':transport['httpWallMs'] if transport else a['wallMs'],
++   'slotAndGateWaitMs':transport['slotAndGateWaitMs'] if transport else 0,'transportInstrumented':transport is not None})
++  if role=='reader':
++   assert text==row['prediction']
++   assert body['messages'][0]=={'role':'system','content':'Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer.'}
++   assert body['messages'][1]['content']==f"Question date: {row['date'] or 'not specified'}\nQuestion: {row['question']}\n\nRetrieved history:\n{prompt or '(no evidence retrieved)'}"
++  else:
++   assert grader.judge_verdict(text)==row['correct']
++   judge_namespace['judge'](row['question'],row['references'],row['prediction'],row['kind'],row['abstention'],'offline-audit',
++    required_all=row['dataset']=='memoryagentbench' and row['stratum'].startswith('eventqa'))
++   assert body['messages']==judge_namespace['captured_messages'],(label,'judge input drift')
++ assert grader.answer_metrics(row['prediction'],row['references'])==row['answerMetrics']
++ cases.setdefault(row['id'],{})[row['arm']]=row
++def dist(values):
++ values=sorted(values);n=len(values)
++ return {'count':n,'median':statistics.median(values) if n else None,'p95':values[min(n-1,int(.95*n))] if n else None,'min':values[0] if n else None,'max':values[-1] if n else None}
++def paired(group):
++ a=[pair['baseline'] for pair in group];b=[pair['current'] for pair in group]
++ before=sum(r['correct'] for r in a);after=sum(r['correct'] for r in b);n=len(group)
++ return {'questions':n,'baselineCorrect':before,'currentCorrect':after,'baselineAccuracy':before/n,'currentAccuracy':after/n,
++  'gainPercentagePoints':100*(after-before)/n,'gained':sum(not x['correct'] and y['correct'] for x,y in zip(a,b)),
++  'lost':sum(x['correct'] and not y['correct'] for x,y in zip(a,b)),
++  'bothCorrect':sum(x['correct'] and y['correct'] for x,y in zip(a,b)),'bothWrong':sum(not x['correct'] and not y['correct'] for x,y in zip(a,b))}
++datasets={}
++for dataset in selection['selection']:
++ group=[pair for pair in cases.values() if pair['baseline']['dataset']==dataset];assert len(group)==25
++ metrics={**paired(group),'strata':{kind:paired([p for p in group if p['baseline']['stratum']==kind]) for kind in sorted({p['baseline']['stratum'] for p in group})}}
++ if dataset=='longmemeval':
++  metrics['answerable']=paired([p for p in group if not p['baseline']['abstention']])
++  metrics['sourceCoverage']={arm:{'questions':len(source_coverage)//2,'recallAt3':statistics.mean(v['recallAt3'] for (id,a),v in source_coverage.items() if a==arm),'complete':sum(v['complete'] for (id,a),v in source_coverage.items() if a==arm)} for arm in ['baseline','current']}
++ metrics['literalReferencePresence']={arm:{'eligible':len(g:=[v for (id,a),v in reference_presence.items() if a==arm and cases[id]['baseline']['dataset']==dataset]),'present':sum(g),'definition':'Diagnostic containment only; excludes preferences and abstentions, not answer correctness.'} for arm in ['baseline','current']}
++ metrics['promptChars']={arm:dist([p[arm]['rag']['prompt'].__len__() for p in group]) for arm in ['baseline','current']}
++ metrics['readerLatencyMs']={arm:dist([p[arm]['readerWallMs'] for p in group]) for arm in ['baseline','current']}
++ metrics['judgeLatencyMs']={arm:dist([p[arm]['judgeWallMs'] for p in group]) for arm in ['baseline','current']}
++ metrics['acceptedCallLatency']={arm:{role:{key:dist([c[key] for c in accepted_calls if c['dataset']==dataset and c['arm']==arm and c['role']==role])
++  for key in ['attemptWallMsIncludingAdmission','httpWallMs','slotAndGateWaitMs']} for role in ['reader','judge']} for arm in ['baseline','current']}
++ metrics['acceptedUsage']={arm:{role:{k:sum((pair[arm].get(role+'Usage') or {}).get(k,0) for pair in group) for k in ['prompt_tokens','completion_tokens','total_tokens']} for role in ['reader','judge']} for arm in ['baseline','current']}
++ metrics['acceptedUsageAvailability']={arm:{role:{'calls':len(group),'callsWithUsage':sum(isinstance(pair[arm].get(role+'Usage'),dict) for pair in group)} for role in ['reader','judge']} for arm in ['baseline','current']}
++ datasets[dataset]=metrics
++# Preserved licensed upstream MemoryAgentBench metric functions, without imports or network helpers.
++upstream=EVIDENCE/'research/MemoryAgentBench-eval_other_utils.py';tree=ast.parse(upstream.read_text())
++names={'normalize_answer','f1_score','drqa_exact_match_score','substring_exact_match_score','drqa_metric_max_over_ground_truths','parse_output'}
++namespace={'re':re,'string':string,'Counter':collections.Counter}
++functions=[node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name in names];assert len(functions)==6
++exec(compile(ast.Module(body=functions,type_ignores=[]),str(upstream),'exec'),namespace)
++max_gold=namespace['drqa_metric_max_over_ground_truths']
++def standard(prediction,answers):return {'exactMatch':float(max_gold(namespace['drqa_exact_match_score'],prediction,answers)),
++ 'tokenF1':max_gold(lambda p,g:namespace['f1_score'](p,g)[0],prediction,answers),'substringExactMatch':float(max_gold(namespace['substring_exact_match_score'],prediction,answers))}
++mab=[]
++for row in rows:
++ if row['dataset']!='memoryagentbench':continue
++ prediction=row['prediction'];parsed=namespace['parse_output'](prediction);answers=row['references']
++ values=standard(parsed if parsed is not None else '',answers) if row['stratum'].startswith('eventqa') else standard(prediction,answers)
++ if row['stratum'].startswith('eventqa'):values['eventqaRecall']=float(all(a.lower() in prediction.lower() for a in answers))
++ elif parsed is not None:
++  parsed_values=standard(parsed,answers);values={k:max(v,parsed_values[k]) for k,v in values.items()}
++ mab.append({'id':row['id'],'arm':row['arm'],'family':row['stratum'],**values})
++mab_arms={arm:{'overall':{k:statistics.mean(r[k] for r in mab if r['arm']==arm) for k in ['exactMatch','tokenF1','substringExactMatch']},
++ 'families':{family:{'count':len(g:=[r for r in mab if r['arm']==arm and r['family']==family]),**{k:statistics.mean(r[k] for r in g) for k in g[0] if k not in ['id','arm','family']}} for family in sorted({r['family'] for r in mab})}} for arm in ['baseline','current']}
++usage=collections.Counter();attempts=[];runs=[];origin=run;transport_profiles=[];transport_attempts=[]
++def add_usage(value,prefix=''):
++ for k,v in value.items():
++  if isinstance(v,dict):add_usage(v,prefix+k+'.')
++  elif isinstance(v,(int,float)):usage[prefix+k]+=v
++while origin not in runs:
++ runs.append(origin)
++ for file in origin.glob('*-attempt-*.json'):
++  data=json.loads(file.read_text());attempts.append({'file':str(file),'valid':data['valid'],'judge':data['judge'],'wallMs':data['wallMs'],'status':data.get('status'),'error':data.get('error')});add_usage(data.get('response',{}).get('usage') or {})
++ profile=origin/'transport-wrapper.json'
++ if profile.exists():
++  receipt=json.loads(profile.read_text())
++  wrappers=list((ROOT/'scripts').glob('bench-rag-passage-throttle*.py'))
++  assert receipt['wrapperSha256'] in {sha(p) for p in wrappers},'Transport wrapper source drift'
++  assert receipt['driverSha256']==config['sourceHashes']['scripts/bench-rag-passage-model.py']
++  if 'checkpointSha256' in receipt:assert receipt['checkpointSha256']==sha(ROOT/'scripts/lib/rag_benchmark_checkpoint.py')
++  transport_profiles.append({'run':str(origin),**receipt})
++  for file in origin.glob('transport-*.json'):
++   if file==profile:continue
++   transport_attempts.append({'file':str(file),**json.loads(file.read_text())})
++ previous=json.loads((origin/'configuration.json').read_text()).get('resumeFrom')
++ if not previous:break
++ origin=Path(previous)
++corpora=[json.loads(f.read_text()) for f in retrieval.glob('*-ingestion.json')]
++embeddings={r['embedding'] for r in corpora};assert len(embeddings)==1
++batch=[b for r in corpora for b in r['embeddingObservations']]
++fresh=[b for b in batch if not b.get('cacheHit')];truncated=[b for b in fresh if b['requiredProviderTruncation']]
++value={'scope':selection['scope'],'selectionSha256':config['selectionSha256'],'model':config['reader'],'judge':config['judge'],'settings':config['modelSettings'],
++ 'candidateSourceSnapshot':str(args.candidate_source.resolve()) if args.candidate_source else None,
++ 'all100AnswersValid':True,'all50QuestionsPaired':True,'rawReaderJudgeAudits':100,'provenanceAudits':100,'maximumCachedSourceCorpora':1,'oldQuestionIdsOverlap':0,'oldNormalizedQuestionsOverlap':0,
++ 'preInferenceFreezeVerified':True,'rawCorpusHashesVerified':len(selection['rawCorpusHashes']),
++ 'datasets':datasets,'mabUpstreamMetrics':{'method':'Preserved upstream functions and family postprocessing; no ROUGE or complete official evaluator/leaderboard.','sourceSha256':sha(upstream),'arms':mab_arms,'questions':mab},
++ 'embeddingExecution':'Serial local batches16,requestedCPU-only num_gpu0/num_thread1; exact real model-digest/role/text-keyed original seed cache reused read-only; overlay commits once per fresh batch.',
++ 'embedding':next(iter(embeddings)),'corpora':len(corpora),'documents':sum(r['documents'] for r in corpora),'chunks':sum(r['chunks'] for r in corpora),
++ 'embeddingCache':{'freshPassageInputs':sum(b['inputs'] for b in fresh),'cachedPassageInputs':sum(b['inputs'] for b in batch if b.get('cacheHit')),'cachedPotentiallyTruncatedInputs':sum(b.get('potentiallyTruncatedInputs',0) for b in batch)},
++ 'embeddingTruncation':{'freshAffectedPassageBatches':len(truncated),'freshAffectedInputBound':[sum(b['truncationAffectedInputsBound'][0] for b in truncated),sum(b['truncationAffectedInputsBound'][1] for b in truncated)],'definition':'Batch bounds only. Cached vectors retain conservative original batch truncation flags; no per-chunk truncation rate.'},
++ 'providerAttempts':len(attempts),'providerStatusCounts':dict(collections.Counter(str(r['status']) for r in attempts)),
++ 'invalidProviderAttempts':[r for r in attempts if not r['valid']],'reportedUsageAllRetainedAttempts':dict(usage),
++ 'transportRecovery':{'profiles':transport_profiles,'recordedHTTPAttempts':len(transport_attempts),
++  'slotAndGateWaitMs':dist([r['slotAndGateWaitMs'] for r in transport_attempts]),'httpWallMs':dist([r['httpWallMs'] for r in transport_attempts]),
++  'latencyDefinition':'Attempt wall time includes admission/cooldown in wrapper runs and transport-receipt publication overhead in durable runs. Separate wrapper HTTP and slot/gate times are recorded; earlier runs used HTTP/decode wall time without this wrapper. Failed HTTP calls without a response have no separate transport observation. These are service observations, not paired speed claims.'},
++ 'attemptRuns':[str(p) for p in runs],'newJudgeControlRequests':0,'reusedPassingJudgeControls':22,'cost':'Currency cost not available; usage not converted to assumed prices.',
++ 'started':min(json.loads((p/'configuration.json').read_text())['started'] for p in runs),'ended':summary['ended'],
++ 'limitations':['Small25+25 balanced fresh query-heldout pilot, shared corpora/questions across source families; not independent population samples or official leaderboard.',
++  'Same-model self-judging and hosted serving version not independently pinned; controls do not establish human agreement.',
++  'Candidate changes both excerpt selection and default excerpt allowance 1800 to6000; measured gain cannot be attributed to only one.',
++  'Record96 and97 scores belong to different subsets and candidates; compare only the fresh paired25-question per-dataset denominators.',
++  'Embedding truncation is explicit; no reranker. Public timings are shared-machine/service observations, not qualified speed ratios.',
++  'Interrupted in-flight calls without a returned record have unknown usage; every recorded attempt and all valid answers are retained.',
++  'Accepted-attempt latency excludes earlier failed attempts/backoff. Wrapper admission/cooldown is separated where instrumented; no end-to-end speedup or energy claim.']}
++value['adoption']={'bothDatasetsNetAccuracyGain':all(d['gainPercentagePoints']>0 for d in datasets.values()),
++ 'rule':'Require positive paired net accuracy in both datasets plus zero provenance/scope/budget/required-contract failures. Report losses and declining strata; no release qualification.'}
++with args.output.open('x') as f:json.dump(value,f,indent=2);f.write('\n')
++print(json.dumps({k:v for k,v in value.items() if k not in ['mabUpstreamMetrics','invalidProviderAttempts']},indent=2))
++if not value['adoption']['bothDatasetsNetAccuracyGain']:raise SystemExit(2)

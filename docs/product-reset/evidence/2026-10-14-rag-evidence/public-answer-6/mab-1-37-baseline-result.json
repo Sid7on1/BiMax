@@ -1,0 +1,143 @@
+{
+  "row": 1,
+  "query": 37,
+  "id": "mab-1-37",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:46:45.652617+00:00",
+  "valid": true,
+  "question": "The Livesey Hal War Memorial commemorates the fallen of which war, that had over 60 million casualties?",
+  "references": [
+    "World War II"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-101",
+    "context-77",
+    "context-347"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:47:09.393721+00:00",
+  "rag": {
+    "ids": [
+      "context-101",
+      "context-77",
+      "context-347"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) selected by the San Francisco 49ers in the first round of the 2004 NFL Draft, and played professionally for the NFL's 49ers and the CFL's Toronto Argonauts.\n\nDocument 750:\nLivesey Hall War Memorial\nThe Livesey Hall War Memorial commemorates the fallen of World War I and World War II who had been employed by the South Suburban Gas Company of London. It is also a tribute to those employees who served in the wars. The monument was designed and executed by British sculptor Sydney March, of the March family of artists.\n\nDocument 751:\nValerie Lloyd-Chandos\nPauline Valerie Lloyd-Chandos (born 24 May 1933) is a British diver, who ranked 12th in the Women's 10m platform event at the 1952 Summer Olympics. In July 1950, she competed in the National Diving Championship at Morecambe and Heysham. Part of her practice for this event involved diving into a sand pit in her back garden in Teddington.\n- (part 4 of 5, excerpt) Document 571:\nAlamein Memorial\nThe Alamein Memorial is a Commonwealth War Graves Commission war memorial in the El Alamein War Cemetery, El Alamein, Egypt. The memorial commemorates 11,866 Commonwealth forces members who died during World War II. The memorial was designed by Hubert Worthington and unveiled by Viscount Montgomery of Alamein on 24 October 1954.\n- (part 3 of 6, excerpt) World War II was the deadliest military conflict in history in absolute terms of total casualties. Over 60 million people were killed, which was about 3% of the 1940 world population (est. 2.3 billion). The tables below give a detailed country-by-country count of human losses. World War II fatality statistics vary, with estimates of total deaths ranging from 50 million to more than 80 million. The higher figure of over 80 million includes deaths from war-related diseas",
+    "evidence": [
+      {
+        "sourceId": "memory:context-101",
+        "sourceVersion": "sha256:b575485cfb0d1aa4f72ca7f339e130d9b82a1d8a9712dd9628ceac7a3e815626",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-101",
+          "part": 3,
+          "parts": 5
+        },
+        "text": "selected by the San Francisco 49ers in the first round of the 2004 NFL Draft, and played professionally for the NFL's 49ers and the CFL's Toronto Argonauts.\n\nDocument 750:\nLivesey Hall War Memorial\nThe Livesey Hall War Memorial commemorates the fallen of World War I and World War II who had been employed by the South Suburban Gas Company of London. It is also a tribute to those employees who served in the wars. The monument was designed and executed by British sculptor Sydney March, of the March family of artists.\n\nDocument 751:\nValerie Lloyd-Chandos\nPauline Valerie Lloyd-Chandos (born 24 May 1933) is a British diver, who ranked 12th in the Women's 10m platform event at the 1952 Summer Olympics. In July 1950, she competed in the National Diving Championship at Morecambe and Heysham. Part of her practice for this event involved diving into a sand pit in her back garden in Teddington.",
+        "id": "ev_4a005aca01fbf86021040af6",
+        "observedAt": "2026-10-14T08:41:08.281Z"
+      },
+      {
+        "sourceId": "memory:context-77",
+        "sourceVersion": "sha256:c466a6f6b6e4579578e2855885ade92a8bea3e759ac2ce0a6d3f4ef73037683f",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-77",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Document 571:\nAlamein Memorial\nThe Alamein Memorial is a Commonwealth War Graves Commission war memorial in the El Alamein War Cemetery, El Alamein, Egypt. The memorial commemorates 11,866 Commonwealth forces members who died during World War II. The memorial was designed by Hubert Worthington and unveiled by Viscount Montgomery of Alamein on 24 October 1954.",
+        "id": "ev_1912e221b71cf793e3888619",
+        "observedAt": "2026-10-14T08:41:08.282Z"
+      },
+      {
+        "sourceId": "memory:context-347",
+        "sourceVersion": "sha256:4e321769df6683ce4ff54de8ed572c350700d1af3c2a66f4b1acb5ab24474004",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-347",
+          "part": 3,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "World War II was the deadliest military conflict in history in absolute terms of total casualties. Over 60 million people were killed, which was about 3% of the 1940 world population (est. 2.3 billion). The tables below give a detailed country-by-country count of human losses. World War II fatality statistics vary, with estimates of total deaths ranging from 50 million to more than 80 million. The higher figure of over 80 million includes deaths from war-related diseas",
+        "id": "ev_b062478b79fe16016c7d37d5",
+        "observedAt": "2026-10-14T08:41:08.282Z"
+      }
+    ],
+    "sourceIds": [
+      "context-101",
+      "context-77",
+      "context-347"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 5.259167000011075,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "The Livesey Hall War Memorial commemorates the fallen of **World War I and World War II** (per Document 750). Among these, **World War II** is the conflict with over 60 million casualties (per Document 571).",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.17142857142857143
+  },
+  "readerUsage": {
+    "prompt_tokens": 579,
+    "completion_tokens": 943,
+    "total_tokens": 1522,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 886,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 309,
+    "completion_tokens": 553,
+    "total_tokens": 862,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 550,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 11587.303582999994,
+  "judgeWallMs": 12151.063332999911
+}

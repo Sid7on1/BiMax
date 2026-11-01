@@ -1,0 +1,65 @@
+{
+  "started": "2026-10-14T07:45:14.025938+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 0,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/24 (Wed) 14:19\nQuestion: Current Date: 2023/05/24 (Wed) 14:19,\n\n Now Answer the Question: What was the approximate increase in Instagram followers I experienced in two weeks?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5, excerpt) - This term emphasizes the impulsive or compulsive nature of certain sexual behaviors and the difficulties individuals may face in controlling them.\\n4.\n\nCompulsive sexuality - This phrase emphasizes the compulsive nature of certain sexual behaviors and the difficulties individuals may face in breaking free from them.\\n\\nI hope these suggestions are more helpful for you.\"}], 'Chat Time: 2023/05/23 (Tue) 19:42', [{'role': 'user', 'content': \"I've been trying to analyze my social media performance and I was wondering if you could help me understand what kind of content tends to perform well on Instagram.\n  (part 5 of 5) into their followers.\\n10.\n\n**Experiment and analyze**: Try different content types, hashtags, and posting schedules to see what works best for your audience.\n\nUse Instagram Insights to track your performance and adjust your strategy accordingly.\\n\\nTo further optimize your content, consider the following:\\n\\n* Post when your audience is most active (use Instagram Insights to determine your peak hours).\\n* Use Instagram's features like polls, quizzes, and question stickers to increase engagement.\\n* Share user-friendly, informative, and entertaining content that adds value to your audience.\\n* Utilize Instagram's shopping feature to tag products and enable customers to purchase from your feed.\\n\\nNow, about your 350 followers in two weeks - that's a great start!\n\nTo continue\n- (part 2 of 5, excerpt) **Rotate your display:** Periodically rotate your display to showcase different posters and art prints and keep the arrangement fresh and interesting.\\n\\nBy implementing these storage\n- (part 4 of 5, excerpt) However, to increase your Twitter followers, you might need to try a few more strategies."
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 200,
+  "response": {
+    "id": "chatcmpl-2a4b15ae-d128-4a59-9752-9e3ed37b7c34",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "content": null,
+          "role": "assistant",
+          "reasoning_content": "- (part 5 of 5, excerpt)"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "created": 1791963914,
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "service_tier": null,
+    "system_fingerprint": null,
+    "object": "chat.completion",
+    "usage": {
+      "prompt_tokens": 547,
+      "completion_tokens": 12,
+      "total_tokens": 559,
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 12,
+        "rejected_prediction_tokens": null
+      }
+    }
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 555.1433340001495
+}

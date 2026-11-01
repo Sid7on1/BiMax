@@ -196,3 +196,16 @@ it('does not announce or emit clear when history replacement is refused', async 
     expect((result as any).content).toContain('still busy');
   } finally { engineEvents.off('clear', onClear); }
 });
+
+test('a host-scoped hello uses the full persona with exactly that scope and separate visible words', async () => {
+ const execute=jest.fn(async (_prompt:string,token:(s:string)=>void)=>{token('Observed fixture.');return '';});
+ const converse=jest.fn(),persona={messages:[],execute,converse} as any;
+ const session=new HeadlessSession({personas:{bimax:persona},options:{llmAdapter:{userModel:'same',liteModel:'same'},maxToolIterations:5},graphStore:{} as any});
+ const messages:any[]=[],listener=(m:any)=>messages.push(m);engineEvents.on('message',listener);
+ try {await session.dispatch('hello',{names:['NativeHost','AskUserTool'],required:'NativeHost'},'@CU hello · Fixture');}
+ finally {engineEvents.off('message',listener);}
+ expect(converse).not.toHaveBeenCalled();expect(execute).toHaveBeenCalledTimes(1);
+ expect(execute.mock.calls[0][0]).toBe('hello');
+ expect((execute.mock.calls[0] as any[])[2]).toMatchObject({toolNames:['NativeHost','AskUserTool'],requireTool:'NativeHost'});
+ expect(messages.find(m=>m.role==='user').content).toBe('@CU hello · Fixture');
+});

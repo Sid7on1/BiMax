@@ -21,12 +21,14 @@ export interface PageRankResult {
 //
 // The key used to be node and edge COUNTS plus the first and last node id, so a re-index that rewired
 // edges without changing those counts kept serving the old ranking (record 47, A06). The cache is now
-// keyed by the GraphData object itself and checked against the identity and length of its edge array
-// and its node count: setGraph, clear, loadFromDisk and removeNode replace the object or the array, and
-// addNode/addEdge change a count. Only an edge mutated in place would go unseen. A WeakMap drops
-// entries along with their graphs, so a cross-repo workspace that ranks several stores per turn (PR3)
+// keyed by store, graph identity and mutation revision, with edge/node shape checks for legacy
+// stores. setGraph also invalidates when the caller republishes an edited object at equal counts.
+// Mutations made through a raw graph must be published with setGraph. A WeakMap drops
+// entries along with their stores, so a cross-repo workspace that ranks several stores per turn (PR3)
 // still hits without a size cap.
 interface GraphCacheEntry<T> {
+  graph: GraphData;
+  revision: number | undefined;
   edges: GraphEdge[];
   edgeCount: number;
   nodeCount: number;
@@ -34,17 +36,18 @@ interface GraphCacheEntry<T> {
 }
 
 /** The cached values for this graph, emptied whenever the graph has changed since they were stored. */
-function cacheFor<T>(cache: WeakMap<GraphData, GraphCacheEntry<T>>, graph: GraphData): Map<string, T> {
-  const entry = cache.get(graph);
-  if (entry && entry.edges === graph.edges && entry.edgeCount === graph.edges.length && entry.nodeCount === graph.nodes.size) {
+function cacheFor<T>(cache: WeakMap<IGraphStore, GraphCacheEntry<T>>, store: IGraphStore, graph: GraphData): Map<string, T> {
+  const entry = cache.get(store);
+  const revision = store.getRevision?.();
+  if (entry && entry.graph === graph && entry.revision === revision && entry.edges === graph.edges && entry.edgeCount === graph.edges.length && entry.nodeCount === graph.nodes.size) {
     return entry.values;
   }
-  const fresh: GraphCacheEntry<T> = { edges: graph.edges, edgeCount: graph.edges.length, nodeCount: graph.nodes.size, values: new Map() };
-  cache.set(graph, fresh);
+  const fresh: GraphCacheEntry<T> = { graph, revision, edges: graph.edges, edgeCount: graph.edges.length, nodeCount: graph.nodes.size, values: new Map() };
+  cache.set(store, fresh);
   return fresh.values;
 }
 
-const _prCache = new WeakMap<GraphData, GraphCacheEntry<Map<string, number>>>();
+const _prCache = new WeakMap<IGraphStore, GraphCacheEntry<Map<string, number>>>();
 
 export function computePageRank(
   store: IGraphStore,
@@ -52,13 +55,14 @@ export function computePageRank(
   damping = 0.85,
 ): Map<string, number> {
   const graph = store.getGraph();
-  const nodes = Array.from(graph.nodes.values());
-  if (nodes.length === 0) return new Map();
+  if (graph.nodes.size === 0) return new Map();
 
-  const cached = cacheFor(_prCache, graph);
+  const cached = cacheFor(_prCache, store, graph);
   const key = `${iterations}:${damping}`;
   const hit = cached.get(key);
   if (hit) return hit;
+
+  const nodes = Array.from(graph.nodes.values());
 
   const N = nodes.length;
   const scores = new Map<string, number>();
@@ -133,7 +137,7 @@ const estTokens = (s: string) => Math.ceil(s.length / 4);
  * has no captured signature (older graphs). Empty string when the graph isn't indexed.
  */
 const MAP_CACHE_MAX = 8;
-const _mapCache = new WeakMap<GraphData, GraphCacheEntry<string>>();
+const _mapCache = new WeakMap<IGraphStore, GraphCacheEntry<string>>();
 
 /**
  * `headerLabel` (PR3): override the standalone `[RepoMap] …` header with a compact repo-scoped line
@@ -146,8 +150,8 @@ export function formatRepoMapOutline(store: IGraphStore, maxTokens = 1500, focus
   // the same user message) are stable — cache the rendered outline per graph (keyed by the graph object,
   // for the reason given above computePageRank) and per budget + focus, so we render once per task
   // instead of sorting 19k nodes 130×. At most MAP_CACHE_MAX outlines are kept for one graph.
-  const outlines = cacheFor(_mapCache, graph);
-  const cacheKey = `${maxTokens}:${focusTerms.join(',')}:${headerLabel || ''}`;
+  const outlines = cacheFor(_mapCache, store, graph);
+  const cacheKey = JSON.stringify([String(maxTokens), focusTerms, headerLabel ?? null]);
   const hit = outlines.get(cacheKey);
   if (hit !== undefined) return hit;
   const done = (out: string): string => {

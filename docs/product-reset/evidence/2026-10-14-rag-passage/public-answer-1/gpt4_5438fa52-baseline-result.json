@@ -1,0 +1,164 @@
+{
+  "row": 356,
+  "id": "gpt4_5438fa52",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T15:18:02.536269+00:00",
+  "valid": true,
+  "question": "Which event happened first, my attendance at a cultural festival or the start of my Spanish classes?",
+  "references": [
+    "Spanish classes"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/05/27 (Sat) 16:21",
+  "benchmarkSessionIds": [
+    "answer_b10f3828_2",
+    "ab8dce45",
+    "a8e24e22"
+  ],
+  "sources": {
+    "recallAt3": 0.5,
+    "complete": false
+  },
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T15:18:33.755146+00:00",
+  "rag": {
+    "ids": [
+      "answer_b10f3828_2",
+      "ab8dce45",
+      "a8e24e22"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 22, excerpt) 3. **Customs regulations:** Familiarize yourself with customs regulations, especially if you plan to bring gifts or items of value. You can check the official government websites for each country to learn more.\n\n**Language:**\nWhile you've been studying Spanish, it's great that you're thinking about language skills for your trip! While Spanish won't be directly useful in Germany, France, or the UK, it's still a valuable skill to have. Here's a brief language breakdown for each country:\n  (part 8 of 22) Immerse yourself in the language by listening to native speakers, watching TV shows or movies with subtitles, and speaking with native speakers (if possible).\n\nRemember, the key is to be consistent and have fun with the learning process! Good luck, and I hope you enjoy your trip!\nuser: I'll definitely check out those resources. Since I've been taking Spanish classes for the past three months, I'm curious if there are any similarities or cognates between Spanish and French or German that I can leverage to learn faster.\nassistant: As a Spanish speaker, you'll find that there are many similarities and cognates between Spanish and French, as well as some similarities with German. This is because all three languages share a common Latin root and have borrowed words from each other throughout history.\n\n**Spanish-French Cognates:**\n- (part 9 of 18, excerpt) Once you've secured your accreditation, you can start planning your festival schedule, including which films to see, industry events to attend, and networking opportunities to take advantage of.\n- (part 1 of 14, excerpt) **Method 1: Event-Based Organization**\n\n* Create a main folder for each art event (e.g., \"Art Fair 2022\", \"Gallery Opening\", \"Street Art Festival\", etc.)",
+    "evidence": [
+      {
+        "sourceId": "memory:answer_b10f3828_2",
+        "sourceVersion": "sha256:10a2f3ce8f1d5cca2aca1bce2d03b1347c38f979c7604df6f2b1dcc0e1321810",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_b10f3828_2",
+          "part": 2,
+          "parts": 22,
+          "partial": true
+        },
+        "text": "3. **Customs regulations:** Familiarize yourself with customs regulations, especially if you plan to bring gifts or items of value. You can check the official government websites for each country to learn more.\n\n**Language:**\nWhile you've been studying Spanish, it's great that you're thinking about language skills for your trip! While Spanish won't be directly useful in Germany, France, or the UK, it's still a valuable skill to have. Here's a brief language breakdown for each country:",
+        "id": "ev_10efff5330f628975a99636d",
+        "observedAt": "2026-10-14T15:18:02.240Z"
+      },
+      {
+        "sourceId": "memory:answer_b10f3828_2",
+        "sourceVersion": "sha256:10a2f3ce8f1d5cca2aca1bce2d03b1347c38f979c7604df6f2b1dcc0e1321810",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_b10f3828_2",
+          "part": 8,
+          "parts": 22
+        },
+        "text": "Immerse yourself in the language by listening to native speakers, watching TV shows or movies with subtitles, and speaking with native speakers (if possible).\n\nRemember, the key is to be consistent and have fun with the learning process! Good luck, and I hope you enjoy your trip!\nuser: I'll definitely check out those resources. Since I've been taking Spanish classes for the past three months, I'm curious if there are any similarities or cognates between Spanish and French or German that I can leverage to learn faster.\nassistant: As a Spanish speaker, you'll find that there are many similarities and cognates between Spanish and French, as well as some similarities with German. This is because all three languages share a common Latin root and have borrowed words from each other throughout history.\n\n**Spanish-French Cognates:**",
+        "id": "ev_3f478f70a0ba50e73cffcbb2",
+        "observedAt": "2026-10-14T15:18:02.245Z"
+      },
+      {
+        "sourceId": "memory:ab8dce45",
+        "sourceVersion": "sha256:fc865058dbde5be388eb772ceca0e11862299e26dc9f1e5cb5876d6c670bd464",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "ab8dce45",
+          "part": 9,
+          "parts": 18,
+          "partial": true
+        },
+        "text": "Once you've secured your accreditation, you can start planning your festival schedule, including which films to see, industry events to attend, and networking opportunities to take advantage of.",
+        "id": "ev_80b7118ef16b5371d63481c5",
+        "observedAt": "2026-10-14T15:18:02.246Z"
+      },
+      {
+        "sourceId": "memory:a8e24e22",
+        "sourceVersion": "sha256:1cc8f438eb438165a1085964bd519880abf95a68aa3816e926140b39ce596de2",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "a8e24e22",
+          "part": 1,
+          "parts": 14,
+          "partial": true
+        },
+        "text": "**Method 1: Event-Based Organization**\n\n* Create a main folder for each art event (e.g., \"Art Fair 2022\", \"Gallery Opening\", \"Street Art Festival\", etc.)",
+        "id": "ev_301c734d2d2f4cbfa572bd45",
+        "observedAt": "2026-10-14T15:18:02.246Z"
+      }
+    ],
+    "sourceIds": [
+      "answer_b10f3828_2",
+      "ab8dce45",
+      "a8e24e22"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 38.90166599999793,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+  "prediction": "The retrieved history does not contain any dates or specific references to your attendance at a cultural festival or the start of your Spanish classes, so I cannot determine which event happened first. If you can provide the relevant dates or context, I'd be happy to help.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.08888888888888889
+  },
+  "readerUsage": {
+    "prompt_tokens": 520,
+    "completion_tokens": 810,
+    "total_tokens": 1330,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 756,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 428,
+    "completion_tokens": 939,
+    "total_tokens": 1367,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 936,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10513.100916999974,
+  "judgeWallMs": 20701.32675000059
+}

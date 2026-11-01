@@ -1,0 +1,8 @@
+{
+  "checked": "2026-10-13",
+  "sources": [
+    {"url":"https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.traversal.breadth_first_search.bfs_layers.html","decision":"Layered breadth-first semantics inform FIFO depth boundaries. Bimax uses an indexed FIFO with periodic compaction after experiments; preserve its own order, missing-node and non-finite-depth behavior. No library or upstream code imported."},
+    {"url":"https://www.boost.org/doc/libs/develop/doc/html/circular_buffer.html","decision":"Considered constant-time queue ends; use a simpler indexed array with consumed references cleared and amortized compaction. No claim that Array.shift is always slow; profile wide and narrow graphs separately."},
+    {"url":"https://lucene.apache.org/core/10_3_1/core/org/apache/lucene/util/PriorityQueue.html","decision":"Investigate bounded selector mechanics and monotonic-prefix/ring portfolios; reject two Bimax candidates because general-input timings regress. Retain the existing production heap. References establish mechanics, not Bimax performance."}
+  ]
+}

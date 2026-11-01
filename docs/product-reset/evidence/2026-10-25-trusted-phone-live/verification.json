@@ -1,0 +1,161 @@
+{
+  "record": 110,
+  "date": "2026-10-25",
+  "node": "24.15.0",
+  "checks": [
+    {
+      "check": "Desktop full Jest",
+      "result": "pass",
+      "suites": 478,
+      "tests": 4634,
+      "skippedSuites": 1,
+      "skippedTests": 3
+    },
+    {
+      "check": "Additional native cloud regressions",
+      "result": "pass",
+      "tests": 3
+    },
+    {
+      "check": "Bun ledger fresh process + other suites",
+      "result": "pass",
+      "tests": 133
+    },
+    {
+      "check": "Release scripts",
+      "result": "pass",
+      "tests": 3
+    },
+    {
+      "check": "Mobile full check (SDK 58, types, lint, all platform/security/integration/linked suites)",
+      "result": "pass",
+      "lintErrors": 0,
+      "inheritedLintWarnings": 3
+    },
+    {
+      "check": "Final phone action route typecheck/lint/rendered checks after full suite",
+      "result": "pass",
+      "uiChecks": 9
+    },
+    {
+      "check": "Offline actual Desktop renderer on phone, including incremental patches and Retry",
+      "result": "pass",
+      "checks": 13
+    },
+    {
+      "check": "Live conversation ordered-revision/regression end states",
+      "result": "pass",
+      "checks": 12
+    },
+    {
+      "check": "Paced bounded history and authenticated dispatcher",
+      "result": "pass",
+      "checks": 18
+    },
+    {
+      "check": "Real Desktop adapter",
+      "result": "pass",
+      "checks": 14
+    },
+    {
+      "check": "Encrypted responder integration including Mac-origin live patch",
+      "result": "pass",
+      "cases": 14
+    },
+    {
+      "check": "Actual Workers/D1/KV account/device transport admission",
+      "result": "pass"
+    },
+    {
+      "check": "Gateway units/migrations",
+      "result": "pass",
+      "suites": 11,
+      "tests": 53
+    },
+    {
+      "check": "Public cloud TLS/Noise roaming after LAN removal",
+      "result": "pass",
+      "realAccount": false,
+      "physicalPhone": false,
+      "realEngine": false
+    },
+    {
+      "check": "Electron native host/no prompt/native menu Stop",
+      "result": "pass",
+      "requestsWithoutPrompt": 20
+    },
+    {
+      "check": "Disposable host/history dangerous source faults",
+      "result": "pass",
+      "assertionCaught": 6
+    },
+    {
+      "check": "Core/relay/responder/engine/Desktop builds and native-cloud types",
+      "result": "pass"
+    },
+    {
+      "check": "Final iOS Hermes export",
+      "result": "pass",
+      "approxBundleMB": 25
+    },
+    {
+      "check": "Bundled engine actual Electron exchanges",
+      "result": "pass",
+      "exchanges": 7
+    },
+    {
+      "check": "Signed packaged engine/action/signature gates",
+      "result": "pass"
+    },
+    {
+      "check": "Packaged phone Settings/preload/controller/Noise fixture",
+      "result": "pass",
+      "endStates": 11
+    },
+    {
+      "check": "Current Metro iOS delivery",
+      "result": "pass"
+    },
+    {
+      "check": "Installed native window/projectless Settings and physical phone qualification",
+      "result": "partial",
+      "reason": "Preceding code-identical behavior build opens after owner Keychain step; final help-copy refresh awaits owner launch/enable/phone check",
+      "ownerConfirmedAppOpens": true,
+      "projectlessSettingsObserved": true,
+      "physicalPhone": "pending"
+    }
+  ],
+  "rendererSourceHash": "4089645b058acc1458a45d99cbcd548a747b8d868345c82d569a57bf9856d90a",
+  "cloud": {
+    "relay": "https://bimax-relay.sid7vish.workers.dev",
+    "deployed": true,
+    "schemaAddition": "nullable relay_devices.renewal_id",
+    "modelGatewayRedeployed": false,
+    "supabaseChanged": false,
+    "health": 200,
+    "unauthenticatedTicket": 401,
+    "jwksAlg": "ES256"
+  },
+  "historicalOwnerObservation": "record-109 repeated Mac prompts and lack of live sync; current build device result pending",
+  "publicRelease": false,
+  "installation": {
+    "installedPath": "/Applications/Bimax.app",
+    "installedAsarSha256": "cbd3f0f62d1e3c876b30cd8f382177ab55519a3f724674b5598c693d43724c38",
+    "profileFiles": 921,
+    "profileByteIdenticalDuringReplacement": true,
+    "profileReset": false,
+    "previousAppPreserved": true,
+    "termination": "Native Bimax \u2192 Quit; saved and exited before final replacement",
+    "sameSigningRequirement": true,
+    "signatureVerified": true,
+    "ownerConfirmedPrecedingBuildOpens": true
+  },
+  "finalHelpCopyRegression": true,
+  "finalNativeLaunch": {
+    "state": "waiting_for_owner_keychain",
+    "ownerConfirmedPrecedingBehaviorBuild": true,
+    "finalHelpCopyRefreshWindowObserved": false,
+    "newPhoneTrustGrantedByAgent": false,
+    "enableRequiredAtObservedSettings": true
+  }
+}

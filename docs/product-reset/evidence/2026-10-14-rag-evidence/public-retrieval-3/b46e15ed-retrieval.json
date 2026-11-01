@@ -1,0 +1,314 @@
+{
+  "row": 236,
+  "id": "b46e15ed",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T08:48:45.200393+00:00",
+  "valid": true,
+  "question": "How many months have passed since I participated in two charity events in a row, on consecutive days?",
+  "references": [
+    "2"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/04/18 (Tue) 03:31",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 512.429333,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 101,
+        "maxInputChars": 101,
+        "requiredProviderTruncation": false,
+        "promptTokens": 22,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_4bfcc250_1",
+        "940629b2_2",
+        "f598d30f_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 13 of 15) to get the word out.\n* **Have fun**: Make it a fun event by playing music, offering samples, and having a \"bake-off\" competition among colleagues.\n\nRemember to follow proper food safety guidelines and consider any dietary restrictions or allergies when preparing your baked goods. Good luck with your charity bake sale, and I hope you raise lots of money for the local animal shelter!\nuser: That's a great idea! I'll definitely consider those options. By the way, do you have any tips on how to stay organized and manage my time effectively when volunteering for multiple charity events? I've been participating in a lot of events lately, and it can get overwhelming at times.\nassistant: I'm glad you asked! Staying organized and managing your time effectively is crucial when volunteering for multiple charity events. Here are some tips to help you stay on top of your commitments:\n\n**1. Create a master calendar**: Keep a calendar specifically for your charity events and volunteer work. Write down all the events, dates, times, and deadlines. This will help you visualize your commitments and avoid conflicts.\n  (part 14 of 15, excerpt) charity events and volunteer work. Write down all the events, dates, times, and deadlines. This will help you visualize your commitments and avoid conflicts.\n\n**2. Prioritize your events**: Identify the most important events and focus on those first. Consider the impact, urgency, and deadlines for each event.\n- (part 16 of 20, excerpt) **Win-Back Campaign**\n\n1. Trigger: Lead has been inactive for a certain period (e.g., 6 months).\n- (part 1 of 15, excerpt) user: I'm planning a long bike trip next weekend and I want to make sure my road bike is in top condition. I participated in the 'Ride to Cure Cancer' charity bike ride and rode 4",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_4bfcc250_1",
+          "sourceVersion": "sha256:f8869347723dd2f335cdb549d6fc079be37f986bf5ac555f304cecead7f8e510",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_4bfcc250_1",
+            "part": 13,
+            "parts": 15
+          },
+          "text": "to get the word out.\n* **Have fun**: Make it a fun event by playing music, offering samples, and having a \"bake-off\" competition among colleagues.\n\nRemember to follow proper food safety guidelines and consider any dietary restrictions or allergies when preparing your baked goods. Good luck with your charity bake sale, and I hope you raise lots of money for the local animal shelter!\nuser: That's a great idea! I'll definitely consider those options. By the way, do you have any tips on how to stay organized and manage my time effectively when volunteering for multiple charity events? I've been participating in a lot of events lately, and it can get overwhelming at times.\nassistant: I'm glad you asked! Staying organized and managing your time effectively is crucial when volunteering for multiple charity events. Here are some tips to help you stay on top of your commitments:\n\n**1. Create a master calendar**: Keep a calendar specifically for your charity events and volunteer work. Write down all the events, dates, times, and deadlines. This will help you visualize your commitments and avoid conflicts.",
+          "id": "ev_7b2f724c679e79d36081fe58",
+          "observedAt": "2026-10-14T08:48:45.731Z"
+        },
+        {
+          "sourceId": "memory:answer_4bfcc250_1",
+          "sourceVersion": "sha256:f8869347723dd2f335cdb549d6fc079be37f986bf5ac555f304cecead7f8e510",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_4bfcc250_1",
+            "part": 14,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "charity events and volunteer work. Write down all the events, dates, times, and deadlines. This will help you visualize your commitments and avoid conflicts.\n\n**2. Prioritize your events**: Identify the most important events and focus on those first. Consider the impact, urgency, and deadlines for each event.",
+          "id": "ev_c6c371d53188364cedcaf5d3",
+          "observedAt": "2026-10-14T08:48:45.731Z"
+        },
+        {
+          "sourceId": "memory:940629b2_2",
+          "sourceVersion": "sha256:e6fb7678a482ee98d4e01e4c18a5d22f9f6ed946843ec74d11f04f7b06ef833d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "940629b2_2",
+            "part": 16,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "**Win-Back Campaign**\n\n1. Trigger: Lead has been inactive for a certain period (e.g., 6 months).",
+          "id": "ev_0ef8613f5a02f8b4c1fe281e",
+          "observedAt": "2026-10-14T08:48:45.732Z"
+        },
+        {
+          "sourceId": "memory:f598d30f_1",
+          "sourceVersion": "sha256:671e04cead86680b7f41e53634c6c8eb8820ef5e77f52476d04ab6088eb4fb9d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "f598d30f_1",
+            "part": 1,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "user: I'm planning a long bike trip next weekend and I want to make sure my road bike is in top condition. I participated in the 'Ride to Cure Cancer' charity bike ride and rode 4",
+          "id": "ev_714cac64993ac38da35d632c",
+          "observedAt": "2026-10-14T08:48:45.732Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_4bfcc250_1",
+        "940629b2_2",
+        "f598d30f_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 20.574375000000146,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_4bfcc250_1",
+        "940629b2_2",
+        "f598d30f_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- Session date: 2023/03/19 (Sun) 15:02\n  (part 10 of 15, excerpt) user: Thanks for these helpful tips! I'll definitely keep them in mind for my next charity walk. By the way, I was thinking of organizing a charity bake sale at my office to raise money for the local animal shelter. Do you have any ideas for some easy-to-make and delicious baked goods that I could sell?\nassistant: What a wonderful idea! A charity bake sale is a great way to raise money for a good cause, and who can resist sweet treats?\n  (part 11 of 15, excerpt) goods that I could sell?\nassistant: What a wonderful idea! A charity bake sale is a great way to raise money for a good cause, and who can resist sweet treats?\n\nI'd be happy to help you with some easy-to-make and delicious baked goods ideas that are perfect for a charity bake sale. Here are some crowd-pleasers:\n\n1.\n\n**Chocolate Chip Cookies**: A classic favorite, chocolate chip cookies are easy to make and always a hit.\n\nYou can also add nuts or oatmeal for extra texture and flavor.\n\n2.\n  (part 13 of 15, excerpt) user: That's a great idea! I'll definitely consider those options. By the way, do you have any tips on how to stay organized and manage my time effectively when volunteering for multiple charity events? I've been participating in a lot of events lately, and it can get overwhelming at times.\n  (part 14 of 15, excerpt) charity events and volunteer work. Write down all the events, dates, times, and deadlines. This will help you visualize your commitments and avoid conflicts.\n\n**2. Prioritize your events**: Identify the most important events and focus on those first. Consider the impact, urgency, and deadlines for each event.\n\n**3. Break down tasks into smaller chunks**: Divide larger tasks into smaller, manageable chunks. This will help you stay focused and avoid feeling overwhelmed.\n- (part 1 of 20, excerpt) Session date: 2023/02/14 (Tue) 11:58\nuser: I'm looking for some tips on designing an effective product display for trade shows. Our wireless charging pad got a lot of attention at the TechXpo, but I think we could improve our booth setup. By the way, we literally ran out of product brochures by lunchtime on the second day, so it's clear people were interested!\nassistant: Congratulations on the success of your wireless charging pad at the TechXpo! That's fantastic news about running out of brochures by lunchtime on the second day - it's a great problem to have! Now, let's dive into some tips to help you optimize your product display for future trade shows:\n\n1.\n\n**Clearly Communicate Your Value Proposition**: Ensure your booth display clearly communicates the benefits and unique selling points of your wireless charging pad.\n\nUse concise, attention-grabbing headlines and visuals to highlight its features, such as \"Fast and Efficient Wireless Charging\" or \"Say Goodbye to Tangled Cords.\"\n\n2.\n  (part 16 of 20, excerpt) 3. Condition: If lead score reaches a certain threshold (e.g., 50 points).\n4. Action: Send a personalized email with a relevant offer or a sales follow-up.\n\n**Birthday Greetings**\n\n1. Trigger: Lead's birthday.\n2. Action: Send a personalized birthday email with a special offer or discount.\n\n**Win-Back Campaign**\n\n1. Trigger: Lead has been inactive for a certain period (e.g., 6 months).\n2. Action: Send a re-engagement email with a personalized message and a relevant offer.\n3. Delay: 14 days\n4. Action: Send a second email with a more personalized message and a stronger offer.\n\n**Post-Purchase Follow-up**\n\n1. Trigger: Customer makes a purchase.\n2. Action: Send a thank-you email with a personalized message and a request for feedback.\n3. Delay: 30 days\n4. Action: Send a follow-up email with a relevant offer or a loyalty program invitation.\n\n**Event-Based Triggers**\n\n1. Trigger: Lead registers for a webinar or event.\n- (part 1 of 15) Session date: 2023/02/15 (Wed) 08:39\nuser: I'm planning a long bike trip next weekend and I want to make sure my road bike is in top condition. I participated in the 'Ride to Cure Cancer' charity bike ride and rode 40 miles on my road bike recently, so I'm pretty confident in its performance, but I want to double-check everything. Can you give me a checklist of things to inspect on my bike before a long trip?\nassistant: Kudos to you for participating in the 'Ride to Cure Cancer' charity bike ride! That's a great cause.\n\nExcellent decision to double-check your bike's condition before embarking on a long trip. Here's a comprehensive checklist to help you ensure your road bike is in top shape:\n\n**1. Tire Check**\n\n* Tire pressure: Check the recommended pressure on the sidewall or in your owner's manual. Proper pressure can improve efficiency, comfort, and safety.\n* Tread wear: Inspect for excessive wear, cracks, or damage. Replace tires if necessary.\n* Quick release or bolts: Make sure they're securely tightened.\n\n**2. Brake System**",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_4bfcc250_1",
+          "sourceVersion": "sha256:f8869347723dd2f335cdb549d6fc079be37f986bf5ac555f304cecead7f8e510",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_4bfcc250_1"
+          },
+          "text": "Session date: 2023/03/19 (Sun) 15:02",
+          "id": "ev_04281d852d8f30128e67fdda",
+          "observedAt": "2026-10-14T08:48:45.737Z"
+        },
+        {
+          "sourceId": "memory:answer_4bfcc250_1",
+          "sourceVersion": "sha256:f8869347723dd2f335cdb549d6fc079be37f986bf5ac555f304cecead7f8e510",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_4bfcc250_1",
+            "part": 10,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "user: Thanks for these helpful tips! I'll definitely keep them in mind for my next charity walk. By the way, I was thinking of organizing a charity bake sale at my office to raise money for the local animal shelter. Do you have any ideas for some easy-to-make and delicious baked goods that I could sell?\nassistant: What a wonderful idea! A charity bake sale is a great way to raise money for a good cause, and who can resist sweet treats?",
+          "id": "ev_33941432561b8feae0428ad6",
+          "observedAt": "2026-10-14T08:48:45.737Z"
+        },
+        {
+          "sourceId": "memory:answer_4bfcc250_1",
+          "sourceVersion": "sha256:f8869347723dd2f335cdb549d6fc079be37f986bf5ac555f304cecead7f8e510",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_4bfcc250_1",
+            "part": 11,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "goods that I could sell?\nassistant: What a wonderful idea! A charity bake sale is a great way to raise money for a good cause, and who can resist sweet treats?\n\nI'd be happy to help you with some easy-to-make and delicious baked goods ideas that are perfect for a charity bake sale. Here are some crowd-pleasers:\n\n1.\n\n**Chocolate Chip Cookies**: A classic favorite, chocolate chip cookies are easy to make and always a hit.\n\nYou can also add nuts or oatmeal for extra texture and flavor.\n\n2.",
+          "id": "ev_416e1b9d4311d7c524d2f513",
+          "observedAt": "2026-10-14T08:48:45.737Z"
+        },
+        {
+          "sourceId": "memory:answer_4bfcc250_1",
+          "sourceVersion": "sha256:f8869347723dd2f335cdb549d6fc079be37f986bf5ac555f304cecead7f8e510",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_4bfcc250_1",
+            "part": 13,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "user: That's a great idea! I'll definitely consider those options. By the way, do you have any tips on how to stay organized and manage my time effectively when volunteering for multiple charity events? I've been participating in a lot of events lately, and it can get overwhelming at times.",
+          "id": "ev_4e934990d76b523ddda4d775",
+          "observedAt": "2026-10-14T08:48:45.737Z"
+        },
+        {
+          "sourceId": "memory:answer_4bfcc250_1",
+          "sourceVersion": "sha256:f8869347723dd2f335cdb549d6fc079be37f986bf5ac555f304cecead7f8e510",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_4bfcc250_1",
+            "part": 14,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "charity events and volunteer work. Write down all the events, dates, times, and deadlines. This will help you visualize your commitments and avoid conflicts.\n\n**2. Prioritize your events**: Identify the most important events and focus on those first. Consider the impact, urgency, and deadlines for each event.\n\n**3. Break down tasks into smaller chunks**: Divide larger tasks into smaller, manageable chunks. This will help you stay focused and avoid feeling overwhelmed.",
+          "id": "ev_d3aa068e25856c07247570e7",
+          "observedAt": "2026-10-14T08:48:45.737Z"
+        },
+        {
+          "sourceId": "memory:940629b2_2",
+          "sourceVersion": "sha256:e6fb7678a482ee98d4e01e4c18a5d22f9f6ed946843ec74d11f04f7b06ef833d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "940629b2_2",
+            "part": 1,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "Session date: 2023/02/14 (Tue) 11:58\nuser: I'm looking for some tips on designing an effective product display for trade shows. Our wireless charging pad got a lot of attention at the TechXpo, but I think we could improve our booth setup. By the way, we literally ran out of product brochures by lunchtime on the second day, so it's clear people were interested!\nassistant: Congratulations on the success of your wireless charging pad at the TechXpo! That's fantastic news about running out of brochures by lunchtime on the second day - it's a great problem to have! Now, let's dive into some tips to help you optimize your product display for future trade shows:\n\n1.\n\n**Clearly Communicate Your Value Proposition**: Ensure your booth display clearly communicates the benefits and unique selling points of your wireless charging pad.\n\nUse concise, attention-grabbing headlines and visuals to highlight its features, such as \"Fast and Efficient Wireless Charging\" or \"Say Goodbye to Tangled Cords.\"\n\n2.",
+          "id": "ev_11abd7c97b2bbf5ec25a2c97",
+          "observedAt": "2026-10-14T08:48:45.738Z"
+        },
+        {
+          "sourceId": "memory:940629b2_2",
+          "sourceVersion": "sha256:e6fb7678a482ee98d4e01e4c18a5d22f9f6ed946843ec74d11f04f7b06ef833d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "940629b2_2",
+            "part": 16,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "3. Condition: If lead score reaches a certain threshold (e.g., 50 points).\n4. Action: Send a personalized email with a relevant offer or a sales follow-up.\n\n**Birthday Greetings**\n\n1. Trigger: Lead's birthday.\n2. Action: Send a personalized birthday email with a special offer or discount.\n\n**Win-Back Campaign**\n\n1. Trigger: Lead has been inactive for a certain period (e.g., 6 months).\n2. Action: Send a re-engagement email with a personalized message and a relevant offer.\n3. Delay: 14 days\n4. Action: Send a second email with a more personalized message and a stronger offer.\n\n**Post-Purchase Follow-up**\n\n1. Trigger: Customer makes a purchase.\n2. Action: Send a thank-you email with a personalized message and a request for feedback.\n3. Delay: 30 days\n4. Action: Send a follow-up email with a relevant offer or a loyalty program invitation.\n\n**Event-Based Triggers**\n\n1. Trigger: Lead registers for a webinar or event.",
+          "id": "ev_cb3eaf1d8cc23cdcd2057489",
+          "observedAt": "2026-10-14T08:48:45.738Z"
+        },
+        {
+          "sourceId": "memory:f598d30f_1",
+          "sourceVersion": "sha256:671e04cead86680b7f41e53634c6c8eb8820ef5e77f52476d04ab6088eb4fb9d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "f598d30f_1",
+            "part": 1,
+            "parts": 15
+          },
+          "text": "Session date: 2023/02/15 (Wed) 08:39\nuser: I'm planning a long bike trip next weekend and I want to make sure my road bike is in top condition. I participated in the 'Ride to Cure Cancer' charity bike ride and rode 40 miles on my road bike recently, so I'm pretty confident in its performance, but I want to double-check everything. Can you give me a checklist of things to inspect on my bike before a long trip?\nassistant: Kudos to you for participating in the 'Ride to Cure Cancer' charity bike ride! That's a great cause.\n\nExcellent decision to double-check your bike's condition before embarking on a long trip. Here's a comprehensive checklist to help you ensure your road bike is in top shape:\n\n**1. Tire Check**\n\n* Tire pressure: Check the recommended pressure on the sidewall or in your owner's manual. Proper pressure can improve efficiency, comfort, and safety.\n* Tread wear: Inspect for excessive wear, cracks, or damage. Replace tires if necessary.\n* Quick release or bolts: Make sure they're securely tightened.\n\n**2. Brake System**",
+          "id": "ev_dded963f858d62cb411c2e2c",
+          "observedAt": "2026-10-14T08:48:45.738Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_4bfcc250_1",
+        "940629b2_2",
+        "f598d30f_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.187374999997701,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "answer_4bfcc250_1",
+    "940629b2_2",
+    "f598d30f_1"
+  ],
+  "sources": {
+    "recallAt3": 0.25,
+    "complete": false
+  },
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:48:45.741127+00:00"
+}

@@ -1,0 +1,162 @@
+{
+  "row": 1,
+  "query": 39,
+  "id": "mab-1-39",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:40:04.226050+00:00",
+  "valid": true,
+  "question": "Ralph Hefferline was a psychology professor at a university that is located in what city?",
+  "references": [
+    "New York City"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-108",
+    "context-77",
+    "context-398"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T15:40:46.072923+00:00",
+  "rag": {
+    "ids": [
+      "context-108",
+      "context-77",
+      "context-398"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6) with several dance acts Todd Terry to name one. The label continued to thrive well into the mid-2000s with Atomic Kitten and Blue achieving Platinum sales.\n\nDocument 799:\nDavid C. Funder\nDavid C. Funder (Ph.D., Stanford University, 1979) is a psychology professor who has written a number of important textbooks and research articles pertaining to the field of personality psychology. Funder resides as the chair of the Psychology department at the University of California, Riverside. He used to be a past editor of the \"Journal of Research and Personality\", as well as being a former secondary editor of the \"Journal of Personality and Social Psychology\". Funder has been praised for his studies on personality judgment. He had also published research over the attribution theory and the \"delay of gratification\".\n  (part 5 of 6, excerpt) Funder has been praised for his studies on personality judgment. He had also published research over the attribution theory and the \"delay of gratification\".\n\nDocument 800:\nKansas City jazz\n- (part 3 of 5, excerpt) The Princeton Neuroscience Institute (PNI) is a center for neuroscience research at Princeton University. PNI was created in 2006 as a partnership of Princeton University's departments of Psychology and Molecular Biology. This partnership was led by psychology professor Jonathan Cohen and molecular biology professor David Tank, who continue to serve as Co-Directors of the Institute. In 2014, PNI moved into a dedicated research complex that houses both PNI and the Department of Psychology. The building is 248,00 square feet, and was designed by Rafael Moneo to meet LEE\n- (part 2 of 6, excerpt) Moshe Bar is a neuroscientist, director of the Gonda Multidisciplinary Brain Research Center at Bar-Ilan University, associat",
+    "evidence": [
+      {
+        "sourceId": "memory:context-108",
+        "sourceVersion": "sha256:e6c399c59aa685f2b5728fe324c4b2021cee9de168833bb0e357a0c21ed0e56a",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-108",
+          "part": 4,
+          "parts": 6
+        },
+        "text": "with several dance acts Todd Terry to name one. The label continued to thrive well into the mid-2000s with Atomic Kitten and Blue achieving Platinum sales.\n\nDocument 799:\nDavid C. Funder\nDavid C. Funder (Ph.D., Stanford University, 1979) is a psychology professor who has written a number of important textbooks and research articles pertaining to the field of personality psychology. Funder resides as the chair of the Psychology department at the University of California, Riverside. He used to be a past editor of the \"Journal of Research and Personality\", as well as being a former secondary editor of the \"Journal of Personality and Social Psychology\". Funder has been praised for his studies on personality judgment. He had also published research over the attribution theory and the \"delay of gratification\".",
+        "id": "ev_c7e7684e254402330fa75e74",
+        "observedAt": "2026-10-14T15:19:21.241Z"
+      },
+      {
+        "sourceId": "memory:context-108",
+        "sourceVersion": "sha256:e6c399c59aa685f2b5728fe324c4b2021cee9de168833bb0e357a0c21ed0e56a",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-108",
+          "part": 5,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "Funder has been praised for his studies on personality judgment. He had also published research over the attribution theory and the \"delay of gratification\".\n\nDocument 800:\nKansas City jazz",
+        "id": "ev_8a22d3208a0e0dc8278ad7b2",
+        "observedAt": "2026-10-14T15:19:21.241Z"
+      },
+      {
+        "sourceId": "memory:context-77",
+        "sourceVersion": "sha256:c466a6f6b6e4579578e2855885ade92a8bea3e759ac2ce0a6d3f4ef73037683f",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-77",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "The Princeton Neuroscience Institute (PNI) is a center for neuroscience research at Princeton University. PNI was created in 2006 as a partnership of Princeton University's departments of Psychology and Molecular Biology. This partnership was led by psychology professor Jonathan Cohen and molecular biology professor David Tank, who continue to serve as Co-Directors of the Institute. In 2014, PNI moved into a dedicated research complex that houses both PNI and the Department of Psychology. The building is 248,00 square feet, and was designed by Rafael Moneo to meet LEE",
+        "id": "ev_1536319aeb633f28aec035c0",
+        "observedAt": "2026-10-14T15:19:21.242Z"
+      },
+      {
+        "sourceId": "memory:context-398",
+        "sourceVersion": "sha256:5ec70a916de63af80b897c576720d6fc5cb0958bd028313cc3d7d5a3be010593",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-398",
+          "part": 2,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "Moshe Bar is a neuroscientist, director of the Gonda Multidisciplinary Brain Research Center at Bar-Ilan University, associat",
+        "id": "ev_c1664700adbb2649f1c06731",
+        "observedAt": "2026-10-14T15:19:21.242Z"
+      }
+    ],
+    "sourceIds": [
+      "context-108",
+      "context-77",
+      "context-398"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 19.060499999999593,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+  "prediction": "I do not know. The retrieved history does not contain any mention of Ralph Hefferline or his university's location.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 517,
+    "completion_tokens": 695,
+    "total_tokens": 1212,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 669,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 272,
+    "completion_tokens": 480,
+    "total_tokens": 752,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 477,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 22406.04304199951,
+  "judgeWallMs": 19433.80866699954
+}

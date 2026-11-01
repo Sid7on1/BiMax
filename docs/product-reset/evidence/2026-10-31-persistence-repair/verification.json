@@ -1,0 +1,112 @@
+{
+  "status": "Implemented and locally verified: audit A01/A02 and latent A06; remaining backlog open",
+  "existing_baseline_files": 10165,
+  "changed_existing_files": [
+    "app/src/main/responder/adapter.ts",
+    "app/src/main/thread.manager.ts",
+    "app/src/main/thread.storage.ts",
+    "app/src/shared/threads.ts",
+    "docs/product-reset/08_ACCEPTANCE_GATES.md",
+    "docs/product-reset/README.md",
+    "docs/product-reset/competitive/05_GAP_REGISTER.md",
+    "docs/product-reset/competitive/07_BUILD_SEQUENCE.md"
+  ],
+  "missing_existing_files": [],
+  "unrelated_files_byte_identical": 10157,
+  "preexisting_research_content_preserved": {
+    "docs/product-reset/README.md": true,
+    "docs/product-reset/competitive/05_GAP_REGISTER.md": true,
+    "docs/product-reset/competitive/07_BUILD_SEQUENCE.md": true,
+    "docs/product-reset/08_ACCEPTANCE_GATES.md": true
+  },
+  "tests_before_fix": {
+    "persistence_assertion_failures": 5,
+    "remote_assertion_failures": 1
+  },
+  "final_jest": {
+    "passed": 4647,
+    "failed": 0,
+    "skipped": 3,
+    "suites_passed": 481
+  },
+  "bun": {
+    "passed": 133,
+    "failed": 0
+  },
+  "typecheck": {
+    "engine": "pass",
+    "app": "pass"
+  },
+  "production_bundle": "pass; main/preload/renderer, no install or packaging",
+  "scoped_lint": {
+    "errors": 0,
+    "warnings": 16
+  },
+  "counterfactuals": [
+    {
+      "mutant": "async-commit",
+      "assertion_caught": true,
+      "failed_tests": [
+        "an old asynchronous publication cannot replace a newer acknowledged snapshot"
+      ],
+      "exit_code": 1
+    },
+    {
+      "mutant": "accept-without-save",
+      "assertion_caught": true,
+      "failed_tests": [
+        "queued-state write failure dispatches nothing, retains the input and permits an explicit retry"
+      ],
+      "exit_code": 1
+    },
+    {
+      "mutant": "dispatch-after-failed-save",
+      "assertion_caught": true,
+      "failed_tests": [
+        "sent-state write failure dispatches nothing, retains the input and permits an explicit retry",
+        "an actual process exit after a failed sent-state write cannot duplicate a disk side effect on restart"
+      ],
+      "exit_code": 1
+    },
+    {
+      "mutant": "steer-after-failed-save",
+      "assertion_caught": true,
+      "failed_tests": [
+        "a failed steering save cannot send unrecorded steering or forget the running request"
+      ],
+      "exit_code": 1
+    },
+    {
+      "mutant": "automatic-retry-without-user",
+      "assertion_caught": true,
+      "failed_tests": [
+        "queued-state write failure dispatches nothing, retains the input and permits an explicit retry",
+        "sent-state write failure dispatches nothing, retains the input and permits an explicit retry"
+      ],
+      "exit_code": 1
+    },
+    {
+      "mutant": "double-remote-submit",
+      "assertion_caught": true,
+      "failed_tests": [
+        "one remote instruction creates one queued input and one dispatch through the real manager"
+      ],
+      "exit_code": 1
+    }
+  ],
+  "source_sha256": {
+    "app/src/main/thread.storage.ts": "1a33feb607ec2c2bd351082582300a96b795e95a202c7178c1468331fdee8eb2",
+    "app/src/main/thread.manager.ts": "7bea98fe7ceeebbbb75c86105cd0d43cea39b830c84d623a5a285606a2a1a2c0",
+    "app/src/main/responder/adapter.ts": "ae4d7ad3b4853c703e3e2012fd05ecfb6af06926842237540257f63b793e2a9b",
+    "app/src/shared/threads.ts": "96c830691a794ff0403e595db8f63ca9e2788f07ca791898b6939167b02f44e7",
+    "app/src/__tests__/thread.persistence.sprint.test.ts": "fe15660aefbb5594f94e798a6ed64003943fc667b3bd6081d4ab58ce49c02b69",
+    "app/src/__tests__/fixtures/thread.persistence.worker.cjs": "4d8c21e3dafb38fdd1e40a5c9e7f3805e726faff8992584fec6821fd1c240fbc",
+    "scripts/prove-thread-persistence.py": "bc435a7455c4924ef62eb0c610d783134e337313dc72f3e61300a30805b559ea"
+  },
+  "limits": [
+    "Real process/storage fixture uses a synthetic disk-effect engine port",
+    "No power-loss/fsync, installed full C04/R01, device or release qualification",
+    "A03 large-history recovery is next; A04 queued echo identity and memory/build/performance backlog remain open",
+    "No configuration/model/profile change or installation"
+  ]
+}

@@ -1,0 +1,273 @@
+{
+  "row": 0,
+  "query": 42,
+  "id": "mab-0-42",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "question": "Who killed Harold II?",
+  "references": [
+    "William II",
+    "Duke William II",
+    "Duke William II"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 281.75241700000333,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 21,
+        "maxInputChars": 21,
+        "requiredProviderTruncation": false,
+        "promptTokens": 7,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-219",
+        "context-162",
+        "context-123"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6) and improvements of living conditions. The Social Charter became the basis for European Community legislation on these issues in 40 pieces of legislation.\n\nDocument 1095:\nIn 1066, Duke William II of Normandy conquered England killing King Harold II at the Battle of Hastings. The invading Normans and their descendants replaced the Anglo-Saxons as the ruling class of England. The nobility of England were part of a single Normans culture and many had lands on both sides of the channel. Early Norman kings of England, as Dukes of Normandy, owed homage to the King of France for their land on the continent. They considered England to be their most important holding (it brought with it the title of King\u2014an important status symbol).\n  (part 6 of 6) 1713, still had a significant French-speaking population. Britain also claimed Rupert's Land, where the Hudson's Bay Company traded for furs with local tribes.\n\nDocument 1097:\nIn 1973, Nixon named William E. Simon as the first Administrator of the Federal Energy Office, a short-term organization created to coordinate the response to the embargo. Simon allocated states the same amount of domestic oil for 1974 that each had consumed in 1972, which worked for states whose populations were not increasing\n- (part 5 of 5, excerpt) In what became known as the St. Bartholomew's Day Massacre of 24 August \u2013 3 October 1572, Catholics killed thousands of Huguenots in Paris. Similar massacres took place in other towns in the weeks following. The main provincial towns and cities experiencing the Massacre were Aix, Bordeaux, Bourges, Lyons, Meaux, Orleans, Rouen, Toulouse, and Troye\n- (part 3 of 5, excerpt) Afterwards, Tugh Tem\u00fcr abdicated in favour of his brother Kusala, who was backed by Chagatai Khan Eljigidey, and announced Kh",
+      "evidence": [
+        {
+          "sourceId": "memory:context-219",
+          "sourceVersion": "sha256:3b0ef2f3aa63c90f36b8995231e8f8b0ba784a2397bca91f08d261f3a0d9bb7c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-219",
+            "part": 4,
+            "parts": 6
+          },
+          "text": "and improvements of living conditions. The Social Charter became the basis for European Community legislation on these issues in 40 pieces of legislation.\n\nDocument 1095:\nIn 1066, Duke William II of Normandy conquered England killing King Harold II at the Battle of Hastings. The invading Normans and their descendants replaced the Anglo-Saxons as the ruling class of England. The nobility of England were part of a single Normans culture and many had lands on both sides of the channel. Early Norman kings of England, as Dukes of Normandy, owed homage to the King of France for their land on the continent. They considered England to be their most important holding (it brought with it the title of King\u2014an important status symbol).",
+          "id": "ev_e48fa98cc6dc9500666c8a95",
+          "observedAt": "2026-10-14T04:44:31.091Z"
+        },
+        {
+          "sourceId": "memory:context-219",
+          "sourceVersion": "sha256:3b0ef2f3aa63c90f36b8995231e8f8b0ba784a2397bca91f08d261f3a0d9bb7c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-219",
+            "part": 6,
+            "parts": 6
+          },
+          "text": "1713, still had a significant French-speaking population. Britain also claimed Rupert's Land, where the Hudson's Bay Company traded for furs with local tribes.\n\nDocument 1097:\nIn 1973, Nixon named William E. Simon as the first Administrator of the Federal Energy Office, a short-term organization created to coordinate the response to the embargo. Simon allocated states the same amount of domestic oil for 1974 that each had consumed in 1972, which worked for states whose populations were not increasing",
+          "id": "ev_5c93c0893ae37e7c558907fa",
+          "observedAt": "2026-10-14T04:44:31.092Z"
+        },
+        {
+          "sourceId": "memory:context-162",
+          "sourceVersion": "sha256:eadf99c35ee2c971ee6576aebfb36f1edf384250d3a63300121235f6f0ee4f10",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-162",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In what became known as the St. Bartholomew's Day Massacre of 24 August \u2013 3 October 1572, Catholics killed thousands of Huguenots in Paris. Similar massacres took place in other towns in the weeks following. The main provincial towns and cities experiencing the Massacre were Aix, Bordeaux, Bourges, Lyons, Meaux, Orleans, Rouen, Toulouse, and Troye",
+          "id": "ev_b11185a6816ca377895066fb",
+          "observedAt": "2026-10-14T04:44:31.092Z"
+        },
+        {
+          "sourceId": "memory:context-123",
+          "sourceVersion": "sha256:00b29cf55d8f0e8b61fe386d114a3da7eefbb7bb60690ee2cdb4cb2808bfd671",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-123",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Afterwards, Tugh Tem\u00fcr abdicated in favour of his brother Kusala, who was backed by Chagatai Khan Eljigidey, and announced Kh",
+          "id": "ev_b5a5d66a2efd52c79ad122f2",
+          "observedAt": "2026-10-14T04:44:31.092Z"
+        }
+      ],
+      "sourceIds": [
+        "context-219",
+        "context-162",
+        "context-123"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 16.41191699999763,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-219",
+        "context-162",
+        "context-123"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6) and improvements of living conditions. The Social Charter became the basis for European Community legislation on these issues in 40 pieces of legislation.\n\nDocument 1095:\nIn 1066, Duke William II of Normandy conquered England killing King Harold II at the Battle of Hastings. The invading Normans and their descendants replaced the Anglo-Saxons as the ruling class of England. The nobility of England were part of a single Normans culture and many had lands on both sides of the channel. Early Norman kings of England, as Dukes of Normandy, owed homage to the King of France for their land on the continent. They considered England to be their most important holding (it brought with it the title of King\u2014an important status symbol).\n  (part 6 of 6) 1713, still had a significant French-speaking population. Britain also claimed Rupert's Land, where the Hudson's Bay Company traded for furs with local tribes.\n\nDocument 1097:\nIn 1973, Nixon named William E. Simon as the first Administrator of the Federal Energy Office, a short-term organization created to coordinate the response to the embargo. Simon allocated states the same amount of domestic oil for 1974 that each had consumed in 1972, which worked for states whose populations were not increasing\n- (part 5 of 5, excerpt) In what became known as the St. Bartholomew's Day Massacre of 24 August \u2013 3 October 1572, Catholics killed thousands of Huguenots in Paris. Similar massacres took place in other towns in the weeks following. The main provincial towns and cities experiencing the Massacre were Aix, Bordeaux, Bourges, Lyons, Meaux, Orleans, Rouen, Toulouse, and Troye\n- (part 3 of 5, excerpt) Afterwards, Tugh Tem\u00fcr abdicated in favour of his brother Kusala, who was backed by Chagatai Khan Eljigidey, and announced Kh",
+      "evidence": [
+        {
+          "sourceId": "memory:context-219",
+          "sourceVersion": "sha256:3b0ef2f3aa63c90f36b8995231e8f8b0ba784a2397bca91f08d261f3a0d9bb7c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-219",
+            "part": 4,
+            "parts": 6
+          },
+          "text": "and improvements of living conditions. The Social Charter became the basis for European Community legislation on these issues in 40 pieces of legislation.\n\nDocument 1095:\nIn 1066, Duke William II of Normandy conquered England killing King Harold II at the Battle of Hastings. The invading Normans and their descendants replaced the Anglo-Saxons as the ruling class of England. The nobility of England were part of a single Normans culture and many had lands on both sides of the channel. Early Norman kings of England, as Dukes of Normandy, owed homage to the King of France for their land on the continent. They considered England to be their most important holding (it brought with it the title of King\u2014an important status symbol).",
+          "id": "ev_e48fa98cc6dc9500666c8a95",
+          "observedAt": "2026-10-14T04:44:31.095Z"
+        },
+        {
+          "sourceId": "memory:context-219",
+          "sourceVersion": "sha256:3b0ef2f3aa63c90f36b8995231e8f8b0ba784a2397bca91f08d261f3a0d9bb7c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-219",
+            "part": 6,
+            "parts": 6
+          },
+          "text": "1713, still had a significant French-speaking population. Britain also claimed Rupert's Land, where the Hudson's Bay Company traded for furs with local tribes.\n\nDocument 1097:\nIn 1973, Nixon named William E. Simon as the first Administrator of the Federal Energy Office, a short-term organization created to coordinate the response to the embargo. Simon allocated states the same amount of domestic oil for 1974 that each had consumed in 1972, which worked for states whose populations were not increasing",
+          "id": "ev_5c93c0893ae37e7c558907fa",
+          "observedAt": "2026-10-14T04:44:31.095Z"
+        },
+        {
+          "sourceId": "memory:context-162",
+          "sourceVersion": "sha256:eadf99c35ee2c971ee6576aebfb36f1edf384250d3a63300121235f6f0ee4f10",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-162",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In what became known as the St. Bartholomew's Day Massacre of 24 August \u2013 3 October 1572, Catholics killed thousands of Huguenots in Paris. Similar massacres took place in other towns in the weeks following. The main provincial towns and cities experiencing the Massacre were Aix, Bordeaux, Bourges, Lyons, Meaux, Orleans, Rouen, Toulouse, and Troye",
+          "id": "ev_b11185a6816ca377895066fb",
+          "observedAt": "2026-10-14T04:44:31.095Z"
+        },
+        {
+          "sourceId": "memory:context-123",
+          "sourceVersion": "sha256:00b29cf55d8f0e8b61fe386d114a3da7eefbb7bb60690ee2cdb4cb2808bfd671",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-123",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Afterwards, Tugh Tem\u00fcr abdicated in favour of his brother Kusala, who was backed by Chagatai Khan Eljigidey, and announced Kh",
+          "id": "ev_b5a5d66a2efd52c79ad122f2",
+          "observedAt": "2026-10-14T04:44:31.095Z"
+        }
+      ],
+      "sourceIds": [
+        "context-219",
+        "context-162",
+        "context-123"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.4579999999987194,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:40:24.516640+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "According to the retrieved history, King Harold II was killed by Duke William II of Normandy at the Battle of Hastings in 1066.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 521,
+    "completion_tokens": 547,
+    "total_tokens": 1068,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 516,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 297,
+    "completion_tokens": 630,
+    "total_tokens": 927,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 627,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 5955.042415999969,
+  "judgeWallMs": 17432.990666000023,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.25
+  },
+  "ended": "2026-10-14T07:40:47.907434+00:00"
+}

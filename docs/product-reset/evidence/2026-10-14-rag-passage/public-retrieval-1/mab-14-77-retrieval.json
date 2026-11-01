@@ -1,0 +1,274 @@
+{
+  "row": 14,
+  "query": 77,
+  "id": "mab-14-77",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:31:32.747757+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n74. Pascal expressed disbelief at the amount of the treasure.\n75. Davion gave Pascal advice on how to recover the treasure.\n76. Davion thanked Pascal for his companionship.\n77. Davion instructed Pascal on how to escape.\n78. Pascal realized Davion was dead.\n\n\nBelow is a list of possible subsequent events:\n\n['Pascal gasped in shock as the faint whispers of frantic voices echoed from the darkened hallway.', 'Pascal cringed in fear as the loud crash of shattered glass shattered the stillness of the night.', 'Pascal winced in disgust as the pungent aroma of charred wood seeped through the cracks.', 'Pascal felt a chill run down his spine as the echo of anguished screams filled the air.', 'Pascal listened in horror as the smell of burning flesh penetrated the wall.', 'Pascal stared in disbelief as the sight of flickering flames danced ominously beyond the window.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Pascal listened in horror as the smell of burning flesh penetrated the wall."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 48.44783300000006,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1096,
+        "maxInputChars": 1096,
+        "requiredProviderTruncation": false,
+        "promptTokens": 239,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-90",
+        "context-94",
+        "context-81"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) volcanic force from the depth to the surface of the ocean.\n\nPascal drew a plan of the island for Davion, and Davion gave Pascal advice as to the means he should employ to recover the treasure.\n\nBut Pascal was far from being as enthusiastic and confident as the old man.\n\nIt was past a question now that Davion was not a lunatic, and the way in which he had achieved the discovery, which had given rise to the suspicion of his madness, increased Armando's admiration of him; but at the same time Pascal could not believe that the deposit, supposing it had ever existed, still existed; and though he considered the treasure as by no means chimerical, he yet believed it was no longer there.\n\nHowever, as if fate resolved on depriving the prisoners of their last chance, and making them understand that they were condemned to perpetual imprisonment, a new misfortune befell them; the gallery on the sea side, which had long been in ruins, was rebuilt.\n\nThey had repaired it completely, and stopped up with vast masses of stone the hole Pascal had partly filled in.\n  (part 5 of 5, excerpt) For fear the letter might be some day lost or stolen, he compelled Pascal to learn it by heart; and Pascal knew it from the first to the last word.\n\nThen he destroyed the second portion, assured that if the first were seized, no one would be able to discover its real meaning.\n\nWhole hours sometimes passed while Davion was giving instructions to Pascal, -- instructions which we\n- (part 2 of 5, excerpt) \"Here is the brazier, lighted.\" There was a moment's silence, and then was heard the crackling of burning flesh, of which the peculiar and\n- (part 1 of 5, excerpt) quick!\" returned the abbe, \"listen to what I have to say.\" Pascal looked in fear and wonder at the livid countenance of Davio",
+      "evidence": [
+        {
+          "sourceId": "memory:context-90",
+          "sourceVersion": "sha256:beb992cf8625ac12aea4d5cf2ee0409867f9c77e7579c30e447c17a2aa342aee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-90",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "volcanic force from the depth to the surface of the ocean.\n\nPascal drew a plan of the island for Davion, and Davion gave Pascal advice as to the means he should employ to recover the treasure.\n\nBut Pascal was far from being as enthusiastic and confident as the old man.\n\nIt was past a question now that Davion was not a lunatic, and the way in which he had achieved the discovery, which had given rise to the suspicion of his madness, increased Armando's admiration of him; but at the same time Pascal could not believe that the deposit, supposing it had ever existed, still existed; and though he considered the treasure as by no means chimerical, he yet believed it was no longer there.\n\nHowever, as if fate resolved on depriving the prisoners of their last chance, and making them understand that they were condemned to perpetual imprisonment, a new misfortune befell them; the gallery on the sea side, which had long been in ruins, was rebuilt.\n\nThey had repaired it completely, and stopped up with vast masses of stone the hole Pascal had partly filled in.",
+          "id": "ev_8dc82af5c81a6529147948c3",
+          "observedAt": "2026-10-14T15:31:32.801Z"
+        },
+        {
+          "sourceId": "memory:context-90",
+          "sourceVersion": "sha256:beb992cf8625ac12aea4d5cf2ee0409867f9c77e7579c30e447c17a2aa342aee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-90",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "For fear the letter might be some day lost or stolen, he compelled Pascal to learn it by heart; and Pascal knew it from the first to the last word.\n\nThen he destroyed the second portion, assured that if the first were seized, no one would be able to discover its real meaning.\n\nWhole hours sometimes passed while Davion was giving instructions to Pascal, -- instructions which we",
+          "id": "ev_ae9c99b7231fe4d12007896c",
+          "observedAt": "2026-10-14T15:31:32.802Z"
+        },
+        {
+          "sourceId": "memory:context-94",
+          "sourceVersion": "sha256:b4770badc1b1f32c4ee7ae987e4d435394be0adf335d0115cbd72214db4975d1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-94",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\"Here is the brazier, lighted.\" There was a moment's silence, and then was heard the crackling of burning flesh, of which the peculiar and",
+          "id": "ev_f3df348fac70582a6728fb6e",
+          "observedAt": "2026-10-14T15:31:32.802Z"
+        },
+        {
+          "sourceId": "memory:context-81",
+          "sourceVersion": "sha256:cfa01b4d70f7ba0e4fb656cfbb042327865991f6143ec961ac076435e7043413",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-81",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "quick!\" returned the abbe, \"listen to what I have to say.\" Pascal looked in fear and wonder at the livid countenance of Davio",
+          "id": "ev_1ebe1dd6a6698ea9f3f25eb9",
+          "observedAt": "2026-10-14T15:31:32.803Z"
+        }
+      ],
+      "sourceIds": [
+        "context-90",
+        "context-94",
+        "context-81"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.011250000000018,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-90",
+        "context-94",
+        "context-81"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) volcanic force from the depth to the surface of the ocean.\n\nPascal drew a plan of the island for Davion, and Davion gave Pascal advice as to the means he should employ to recover the treasure.\n\nBut Pascal was far from being as enthusiastic and confident as the old man.\n\nIt was past a question now that Davion was not a lunatic, and the way in which he had achieved the discovery, which had given rise to the suspicion of his madness, increased Armando's admiration of him; but at the same time Pascal could not believe that the deposit, supposing it had ever existed, still existed; and though he considered the treasure as by no means chimerical, he yet believed it was no longer there.\n\nHowever, as if fate resolved on depriving the prisoners of their last chance, and making them understand that they were condemned to perpetual imprisonment, a new misfortune befell them; the gallery on the sea side, which had long been in ruins, was rebuilt.\n\nThey had repaired it completely, and stopped up with vast masses of stone the hole Pascal had partly filled in.\n  (part 2 of 5, excerpt) \"You see,\" said the young man, with an air of sorrowful resignation, to Davion, \"that God deems it right to take from me any claim to merit for what you call my devotion to you.\n\nI have promised to remain forever with you, and now I could not break my promise if I would.\n  (part 5 of 5) of ever enjoying it himself.\n\nBut he was continually thinking over some means of escape for his young companion, and anticipating the pleasure he would enjoy.\n\nFor fear the letter might be some day lost or stolen, he compelled Pascal to learn it by heart; and Pascal knew it from the first to the last word.\n\nThen he destroyed the second portion, assured that if the first were seized, no one would be able to discover its real meaning.\n\nWhole hours sometimes passed while Davion was giving instructions to Pascal, -- instructions which we\n- (part 1 of 5, excerpt) t the old man is really dead; for he was a quiet, inoffensive prisoner, happy in his folly, and required no watching.\"\n\n\"Ah,\" added the turnkey, \"there was no occasion for watching him: he would have stayed here fifty years, I'll answer for it, without any attempt to escape.\"\n\n\"Still,\" said the governor, \"I believe it will be requisite, notwithstanding your certainty, and not that I doubt your science, but in discharge of my official duty, that we should be perfectly assured that the prisoner is dead.\"\n\nThere was a moment of complete silence, during which Pascal, still listening, knew that the doctor was examining the corpse a second time.\n\n\"You may make your mind easy,\" said the doctor; \"he is dead.\n\nI will answer for that.\"\n\n\"You know, sir,\" said the governor, persisting, \"that we are not content in such cases as this with such a simple examination.\n  (part 2 of 5) described by law.\"\n\n\"Let the irons be heated,\" said the doctor; \"but really it is a useless precaution.\" This order to heat the irons made Pascal shudder.\n\nHe heard hasty steps, the creaking of a door, people going and coming, and some minutes afterwards a turnkey entered, saying, --\n\n\"Here is the brazier, lighted.\" There was a moment's silence, and then was heard the crackling of burning flesh, of which the peculiar and nauseous smell penetrated even behind the wall where Pascal was listening in horror.\n\nThe perspiration poured forth upon the young man's brow, and he felt as if he should faint.\n\n\"You see, sir, he is really dead,\" said the doctor; \"this burn in the heel is decisive.\n\nThe poor fool is cured of his folly, and delivered from his captivity.\"\n\n\"Wasn't his name Davion?\" inquired one of the officers who accompanied the governor.\n\n\"Yes, sir; and, as he said, it was an ancient name.\n\nHe was, too, very learned, and rational enough on all points which did not relate to his treasure; but on that, indeed, he was intractable.\"\n\n\"It is the sort of malady which we call monomania,\" said the doctor.\n- (part 1 of 5) e;\n\ntheir greatest dread now was lest the stone through which the sentry was doomed to fall should give way before its right time, and this they had in some measure provided against by propping it up with a small beam which they had discovered in the walls through which they had worked their way.\n\nPascal was occupied in arranging this piece of wood when he heard Davion, who had remained in Armando's cell for the purpose of cutting a peg to secure their rope-ladder, call to him in a tone indicative of great suffering.\n\nPascal hastened to his dungeon, where he found him standing in the middle of the room, pale as death, his forehead streaming with perspiration, and his hands clinched tightly together.\n\n\"Gracious heavens!\" exclaimed Pascal, \"what is the matter?\n\nwhat has happened?\"\n\n\"Quick!\n\nquick!\" returned the abbe, \"listen to what I have to say.\" Pascal looked in fear and wonder at the livid countenance of Davion, whose eyes, already dull and sunken, were surrounded by purple circles, while his lips were white as those of a corpse, and his very hair seemed to stand on end.\n\n\"Tell me, I beseech you, what ails you?\" cried Pascal, letting his chisel fall to the floor.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-90",
+          "sourceVersion": "sha256:beb992cf8625ac12aea4d5cf2ee0409867f9c77e7579c30e447c17a2aa342aee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-90",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "volcanic force from the depth to the surface of the ocean.\n\nPascal drew a plan of the island for Davion, and Davion gave Pascal advice as to the means he should employ to recover the treasure.\n\nBut Pascal was far from being as enthusiastic and confident as the old man.\n\nIt was past a question now that Davion was not a lunatic, and the way in which he had achieved the discovery, which had given rise to the suspicion of his madness, increased Armando's admiration of him; but at the same time Pascal could not believe that the deposit, supposing it had ever existed, still existed; and though he considered the treasure as by no means chimerical, he yet believed it was no longer there.\n\nHowever, as if fate resolved on depriving the prisoners of their last chance, and making them understand that they were condemned to perpetual imprisonment, a new misfortune befell them; the gallery on the sea side, which had long been in ruins, was rebuilt.\n\nThey had repaired it completely, and stopped up with vast masses of stone the hole Pascal had partly filled in.",
+          "id": "ev_8dc82af5c81a6529147948c3",
+          "observedAt": "2026-10-14T15:31:32.806Z"
+        },
+        {
+          "sourceId": "memory:context-90",
+          "sourceVersion": "sha256:beb992cf8625ac12aea4d5cf2ee0409867f9c77e7579c30e447c17a2aa342aee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-90",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\"You see,\" said the young man, with an air of sorrowful resignation, to Davion, \"that God deems it right to take from me any claim to merit for what you call my devotion to you.\n\nI have promised to remain forever with you, and now I could not break my promise if I would.",
+          "id": "ev_60e04e8af09de9023a6e048d",
+          "observedAt": "2026-10-14T15:31:32.806Z"
+        },
+        {
+          "sourceId": "memory:context-90",
+          "sourceVersion": "sha256:beb992cf8625ac12aea4d5cf2ee0409867f9c77e7579c30e447c17a2aa342aee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-90",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "of ever enjoying it himself.\n\nBut he was continually thinking over some means of escape for his young companion, and anticipating the pleasure he would enjoy.\n\nFor fear the letter might be some day lost or stolen, he compelled Pascal to learn it by heart; and Pascal knew it from the first to the last word.\n\nThen he destroyed the second portion, assured that if the first were seized, no one would be able to discover its real meaning.\n\nWhole hours sometimes passed while Davion was giving instructions to Pascal, -- instructions which we",
+          "id": "ev_6a9b869eadcd151245331d86",
+          "observedAt": "2026-10-14T15:31:32.806Z"
+        },
+        {
+          "sourceId": "memory:context-94",
+          "sourceVersion": "sha256:b4770badc1b1f32c4ee7ae987e4d435394be0adf335d0115cbd72214db4975d1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-94",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "t the old man is really dead; for he was a quiet, inoffensive prisoner, happy in his folly, and required no watching.\"\n\n\"Ah,\" added the turnkey, \"there was no occasion for watching him: he would have stayed here fifty years, I'll answer for it, without any attempt to escape.\"\n\n\"Still,\" said the governor, \"I believe it will be requisite, notwithstanding your certainty, and not that I doubt your science, but in discharge of my official duty, that we should be perfectly assured that the prisoner is dead.\"\n\nThere was a moment of complete silence, during which Pascal, still listening, knew that the doctor was examining the corpse a second time.\n\n\"You may make your mind easy,\" said the doctor; \"he is dead.\n\nI will answer for that.\"\n\n\"You know, sir,\" said the governor, persisting, \"that we are not content in such cases as this with such a simple examination.",
+          "id": "ev_8170bc1d5fa626eda4a65acf",
+          "observedAt": "2026-10-14T15:31:32.807Z"
+        },
+        {
+          "sourceId": "memory:context-94",
+          "sourceVersion": "sha256:b4770badc1b1f32c4ee7ae987e4d435394be0adf335d0115cbd72214db4975d1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-94",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "described by law.\"\n\n\"Let the irons be heated,\" said the doctor; \"but really it is a useless precaution.\" This order to heat the irons made Pascal shudder.\n\nHe heard hasty steps, the creaking of a door, people going and coming, and some minutes afterwards a turnkey entered, saying, --\n\n\"Here is the brazier, lighted.\" There was a moment's silence, and then was heard the crackling of burning flesh, of which the peculiar and nauseous smell penetrated even behind the wall where Pascal was listening in horror.\n\nThe perspiration poured forth upon the young man's brow, and he felt as if he should faint.\n\n\"You see, sir, he is really dead,\" said the doctor; \"this burn in the heel is decisive.\n\nThe poor fool is cured of his folly, and delivered from his captivity.\"\n\n\"Wasn't his name Davion?\" inquired one of the officers who accompanied the governor.\n\n\"Yes, sir; and, as he said, it was an ancient name.\n\nHe was, too, very learned, and rational enough on all points which did not relate to his treasure; but on that, indeed, he was intractable.\"\n\n\"It is the sort of malady which we call monomania,\" said the doctor.",
+          "id": "ev_87e6bb3b655200bf0934c02b",
+          "observedAt": "2026-10-14T15:31:32.807Z"
+        },
+        {
+          "sourceId": "memory:context-81",
+          "sourceVersion": "sha256:cfa01b4d70f7ba0e4fb656cfbb042327865991f6143ec961ac076435e7043413",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-81",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "e;\n\ntheir greatest dread now was lest the stone through which the sentry was doomed to fall should give way before its right time, and this they had in some measure provided against by propping it up with a small beam which they had discovered in the walls through which they had worked their way.\n\nPascal was occupied in arranging this piece of wood when he heard Davion, who had remained in Armando's cell for the purpose of cutting a peg to secure their rope-ladder, call to him in a tone indicative of great suffering.\n\nPascal hastened to his dungeon, where he found him standing in the middle of the room, pale as death, his forehead streaming with perspiration, and his hands clinched tightly together.\n\n\"Gracious heavens!\" exclaimed Pascal, \"what is the matter?\n\nwhat has happened?\"\n\n\"Quick!\n\nquick!\" returned the abbe, \"listen to what I have to say.\" Pascal looked in fear and wonder at the livid countenance of Davion, whose eyes, already dull and sunken, were surrounded by purple circles, while his lips were white as those of a corpse, and his very hair seemed to stand on end.\n\n\"Tell me, I beseech you, what ails you?\" cried Pascal, letting his chisel fall to the floor.",
+          "id": "ev_b274c6ef417ffa2400cee8a3",
+          "observedAt": "2026-10-14T15:31:32.807Z"
+        }
+      ],
+      "sourceIds": [
+        "context-90",
+        "context-94",
+        "context-81"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.221749999999929,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-90",
+    "context-94",
+    "context-81"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T15:31:32.808611+00:00"
+}

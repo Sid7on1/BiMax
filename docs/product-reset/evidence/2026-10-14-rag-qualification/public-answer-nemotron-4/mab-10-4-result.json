@@ -1,0 +1,273 @@
+{
+  "row": 10,
+  "query": 4,
+  "id": "mab-10-4",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n1. Kayla was born on a Friday at twelve o'clock at night.\n2. Mrs. Kayla sat by the fire, poorly in health and low in spirits.\n3. Miss Rosie approached the house and looked in at the window.\n4. Miss Rosie demanded Kayla to open the door.\n5. Kayla fainted during her visit with Miss Rosie.\n\n\nBelow is a list of possible subsequent events:\n\n['Miss Rosie ordered Bea to bring tea for Kayla.', 'Miss Rosie asked Bea to deliver flowers to Kayla.', 'Miss Rosie told Bea to prepare a snack for Kayla.', 'Miss Rosie requested Bea to find a book for Kayla.', 'Miss Rosie made Bea promise to call Kayla later.', 'Miss Rosie instructed Bea to draft a letter for Kayla.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Miss Rosie ordered Bea to bring tea for Kayla."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 987.9760829999996,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 879,
+        "maxInputChars": 879,
+        "requiredProviderTruncation": false,
+        "promptTokens": 206,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-3",
+        "context-1",
+        "context-2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5, excerpt) Having issued this mandate with as much potentiality as if she had been a recognized authority in the house ever since it had been a house, and having looked out to confront the amazed Bea coming along the passage with a candle at the sound of a strange voice, Miss\n  (part 4 of 5) too much scared by Miss Rosie, too uneasy in herself, and too subdued and bewildered altogether, to observe anything very clearly, or to know what to say.\n\n'And was Tiberius good to you, child?' asked Miss Rosie, when she had been silent for a little while, and these motions of her head had gradually ceased. 'Were you comfortable together?'\n\n'We were very happy,' said my mother. 'Mr. Kayla was only too good to me.'\n\n'What, he spoilt you, I suppose?' returned Miss Rosie.\n\n'For being quite alone and dependent on myself in this rough world again, yes, I fear he did indeed,' sobbed my mother.\n\n'Well! Don't cry!' said Miss Rosie. 'You were not equally matched, child--if any two people can be equally matched--and so I asked the question. You were an orphan, weren't you?' 'Yes.'\n\n'And a governess?'\n\n'I was nursery-governess in a family where Mr. Kayla came to visit. Mr. Kayla was very kind to me, and took a great deal of notice of me, and paid me a good deal of attention, and at last proposed to me. And I accepted him. And so we were married,' said my mother simply.\n\n'Ha! Poor Baby!' mused Miss Rosie, with her frown still bent upon the fire. 'Do you know anything?'\n- (part 4 of 4, excerpt) My mother had left her chair in her agitation, and gone behind it in the corner. Miss Rosie, looking round the room, slowly and inquiring\n- (part 4 of 4, excerpt) When she came to herself, or when Miss Rosie had restored her, whichever it was, she found the latter standing at the window.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-3",
+          "sourceVersion": "sha256:c74608991bcd52b97c4b5c13dc9366629389df0a4cc468e4ec6dbbdc0ae3705e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-3",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Having issued this mandate with as much potentiality as if she had been a recognized authority in the house ever since it had been a house, and having looked out to confront the amazed Bea coming along the passage with a candle at the sound of a strange voice, Miss",
+          "id": "ev_0c48112c16921c600d6fd4ef",
+          "observedAt": "2026-10-14T04:50:39.026Z"
+        },
+        {
+          "sourceId": "memory:context-3",
+          "sourceVersion": "sha256:c74608991bcd52b97c4b5c13dc9366629389df0a4cc468e4ec6dbbdc0ae3705e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-3",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "too much scared by Miss Rosie, too uneasy in herself, and too subdued and bewildered altogether, to observe anything very clearly, or to know what to say.\n\n'And was Tiberius good to you, child?' asked Miss Rosie, when she had been silent for a little while, and these motions of her head had gradually ceased. 'Were you comfortable together?'\n\n'We were very happy,' said my mother. 'Mr. Kayla was only too good to me.'\n\n'What, he spoilt you, I suppose?' returned Miss Rosie.\n\n'For being quite alone and dependent on myself in this rough world again, yes, I fear he did indeed,' sobbed my mother.\n\n'Well! Don't cry!' said Miss Rosie. 'You were not equally matched, child--if any two people can be equally matched--and so I asked the question. You were an orphan, weren't you?' 'Yes.'\n\n'And a governess?'\n\n'I was nursery-governess in a family where Mr. Kayla came to visit. Mr. Kayla was very kind to me, and took a great deal of notice of me, and paid me a good deal of attention, and at last proposed to me. And I accepted him. And so we were married,' said my mother simply.\n\n'Ha! Poor Baby!' mused Miss Rosie, with her frown still bent upon the fire. 'Do you know anything?'",
+          "id": "ev_d77ea1c1fae96434ed35b01c",
+          "observedAt": "2026-10-14T04:50:39.026Z"
+        },
+        {
+          "sourceId": "memory:context-1",
+          "sourceVersion": "sha256:e7baf14d84eff7cdaebc0094ae0626df5fdd5442c9f809a9c3e5fdd095a5586b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-1",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "My mother had left her chair in her agitation, and gone behind it in the corner. Miss Rosie, looking round the room, slowly and inquiring",
+          "id": "ev_9e3034761d1910d0ccacbd19",
+          "observedAt": "2026-10-14T04:50:39.026Z"
+        },
+        {
+          "sourceId": "memory:context-2",
+          "sourceVersion": "sha256:4b22aa978e85773c87195db05f9b822ad06031063cefe237c2d5b538ebbcb8f8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-2",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "When she came to herself, or when Miss Rosie had restored her, whichever it was, she found the latter standing at the window.",
+          "id": "ev_75f63c4154a1eed4f4eeaeb6",
+          "observedAt": "2026-10-14T04:50:39.027Z"
+        }
+      ],
+      "sourceIds": [
+        "context-3",
+        "context-1",
+        "context-2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.6303750000006403,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-3",
+        "context-1",
+        "context-2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5, excerpt) Having issued this mandate with as much potentiality as if she had been a recognized authority in the house ever since it had been a house, and having looked out to confront the amazed Bea coming along the passage with a candle at the sound of a strange voice, Miss\n  (part 4 of 5) too much scared by Miss Rosie, too uneasy in herself, and too subdued and bewildered altogether, to observe anything very clearly, or to know what to say.\n\n'And was Tiberius good to you, child?' asked Miss Rosie, when she had been silent for a little while, and these motions of her head had gradually ceased. 'Were you comfortable together?'\n\n'We were very happy,' said my mother. 'Mr. Kayla was only too good to me.'\n\n'What, he spoilt you, I suppose?' returned Miss Rosie.\n\n'For being quite alone and dependent on myself in this rough world again, yes, I fear he did indeed,' sobbed my mother.\n\n'Well! Don't cry!' said Miss Rosie. 'You were not equally matched, child--if any two people can be equally matched--and so I asked the question. You were an orphan, weren't you?' 'Yes.'\n\n'And a governess?'\n\n'I was nursery-governess in a family where Mr. Kayla came to visit. Mr. Kayla was very kind to me, and took a great deal of notice of me, and paid me a good deal of attention, and at last proposed to me. And I accepted him. And so we were married,' said my mother simply.\n\n'Ha! Poor Baby!' mused Miss Rosie, with her frown still bent upon the fire. 'Do you know anything?'\n- (part 4 of 4, excerpt) My mother had left her chair in her agitation, and gone behind it in the corner. Miss Rosie, looking round the room, slowly and inquiring\n- (part 4 of 4, excerpt) When she came to herself, or when Miss Rosie had restored her, whichever it was, she found the latter standing at the window.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-3",
+          "sourceVersion": "sha256:c74608991bcd52b97c4b5c13dc9366629389df0a4cc468e4ec6dbbdc0ae3705e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-3",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Having issued this mandate with as much potentiality as if she had been a recognized authority in the house ever since it had been a house, and having looked out to confront the amazed Bea coming along the passage with a candle at the sound of a strange voice, Miss",
+          "id": "ev_0c48112c16921c600d6fd4ef",
+          "observedAt": "2026-10-14T04:50:39.030Z"
+        },
+        {
+          "sourceId": "memory:context-3",
+          "sourceVersion": "sha256:c74608991bcd52b97c4b5c13dc9366629389df0a4cc468e4ec6dbbdc0ae3705e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-3",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "too much scared by Miss Rosie, too uneasy in herself, and too subdued and bewildered altogether, to observe anything very clearly, or to know what to say.\n\n'And was Tiberius good to you, child?' asked Miss Rosie, when she had been silent for a little while, and these motions of her head had gradually ceased. 'Were you comfortable together?'\n\n'We were very happy,' said my mother. 'Mr. Kayla was only too good to me.'\n\n'What, he spoilt you, I suppose?' returned Miss Rosie.\n\n'For being quite alone and dependent on myself in this rough world again, yes, I fear he did indeed,' sobbed my mother.\n\n'Well! Don't cry!' said Miss Rosie. 'You were not equally matched, child--if any two people can be equally matched--and so I asked the question. You were an orphan, weren't you?' 'Yes.'\n\n'And a governess?'\n\n'I was nursery-governess in a family where Mr. Kayla came to visit. Mr. Kayla was very kind to me, and took a great deal of notice of me, and paid me a good deal of attention, and at last proposed to me. And I accepted him. And so we were married,' said my mother simply.\n\n'Ha! Poor Baby!' mused Miss Rosie, with her frown still bent upon the fire. 'Do you know anything?'",
+          "id": "ev_d77ea1c1fae96434ed35b01c",
+          "observedAt": "2026-10-14T04:50:39.030Z"
+        },
+        {
+          "sourceId": "memory:context-1",
+          "sourceVersion": "sha256:e7baf14d84eff7cdaebc0094ae0626df5fdd5442c9f809a9c3e5fdd095a5586b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-1",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "My mother had left her chair in her agitation, and gone behind it in the corner. Miss Rosie, looking round the room, slowly and inquiring",
+          "id": "ev_9e3034761d1910d0ccacbd19",
+          "observedAt": "2026-10-14T04:50:39.030Z"
+        },
+        {
+          "sourceId": "memory:context-2",
+          "sourceVersion": "sha256:4b22aa978e85773c87195db05f9b822ad06031063cefe237c2d5b538ebbcb8f8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-2",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "When she came to herself, or when Miss Rosie had restored her, whichever it was, she found the latter standing at the window.",
+          "id": "ev_75f63c4154a1eed4f4eeaeb6",
+          "observedAt": "2026-10-14T04:50:39.031Z"
+        }
+      ],
+      "sourceIds": [
+        "context-3",
+        "context-1",
+        "context-2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.6354170000013255,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:52:49.090087+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Miss Rosie ordered Bea to bring tea for Kayla.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 740,
+    "completion_tokens": 1036,
+    "total_tokens": 1776,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 451,
+    "completion_tokens": 1026,
+    "total_tokens": 1477,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 17694.242208000105,
+  "judgeWallMs": 12174.549124999885,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "ended": "2026-10-14T07:53:20.202556+00:00"
+}

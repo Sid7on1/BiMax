@@ -1,0 +1,293 @@
+{
+  "row": 18,
+  "query": 49,
+  "id": "mab-18-49",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:29:00.235752+00:00",
+  "valid": true,
+  "question": "Current Date: 2023/05/27 (Sat) 17:25,\n\n Now Answer the Question: How long was I in Korea for?",
+  "references": [
+    "You did not mention this information. You mentioned staying in Japan, but not in Korea."
+  ],
+  "kind": "single-session-user",
+  "abstention": true,
+  "date": "2023/05/27 (Sat) 17:25",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 27.510292000000163,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 93,
+        "maxInputChars": 93,
+        "requiredProviderTruncation": false,
+        "promptTokens": 31,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-267",
+        "context-223",
+        "context-227"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) \\n| Instagram | Fri, [Date] | Sneak peek into your weekend plans | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"A day in the life\" vlog | Video | 10:00 AM |\\n| Facebook | Sun, [Date] | Weekly wrap-up (e.g., \"My favorite moments from the week\") | Post | 6:00 PM |\\n\\n**Week 2:**\\n\\n| Platform | Date | Content Theme | Post Type | Time |\\n| --- | --- | --- | --- | --- |\\n| Twitter | Mon, [Date] | Quote related to your favorite TV show/movie | Tweet | 10:00 AM |\\n| Instagram | Tue, [Date] | Hobby-related photo (e.g., a photo you took with your camera) | Post | 3:00 PM |\\n| TikTok | Wed, [Date] | \"Get ready with me\" morning routine | Video | 8:00 AM |\\n| Facebook | Thu, [Date] | Behind-the-scenes look at your daily life (e.g., a photo of your workspace) | Post | 12:00 PM |\\n| Instagram | Fri, [Date] | Sneak peek into a new hobby or interest | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"Q&A\" session (answer questions from followers) | Video | 2:00 PM |\\n| Facebook | Sun, [Date] | Share a personal achievement or milestone | Post | 6:00 PM |\\n\\nThis content calendar offers a mix of:\\n\\n1.\n- (part 4 of 5, excerpt) We can also check your car's maintenance schedule or consult with a mechanic to determine when these services are typically recommended.\\n\\nLet me know if you have any ideas or if you'd like to investigate further!\"}], 'Chat Time: 2023/05/23 (Tue) 06:01', [{'role': 'user', 'content': \"I'm planning a trip to Asia and I'm considering visiting Japan.\n\nCan you recommend some must-see attractions in Kyoto?\"}, {'role': 'assistant', 'content': 'Kyoto!\n\nYou\\'re in for a treat!\n- (part 1 of 4, excerpt) You'll learn about the history of the Korean War and the current situation on the peninsula.\\n2.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-267",
+          "sourceVersion": "sha256:ce37f9c82ee2aa8678841573b03a35b26cd240ad1fcf7b918bc230b5f7c75d13",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-267",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "\\n| Instagram | Fri, [Date] | Sneak peek into your weekend plans | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"A day in the life\" vlog | Video | 10:00 AM |\\n| Facebook | Sun, [Date] | Weekly wrap-up (e.g., \"My favorite moments from the week\") | Post | 6:00 PM |\\n\\n**Week 2:**\\n\\n| Platform | Date | Content Theme | Post Type | Time |\\n| --- | --- | --- | --- | --- |\\n| Twitter | Mon, [Date] | Quote related to your favorite TV show/movie | Tweet | 10:00 AM |\\n| Instagram | Tue, [Date] | Hobby-related photo (e.g., a photo you took with your camera) | Post | 3:00 PM |\\n| TikTok | Wed, [Date] | \"Get ready with me\" morning routine | Video | 8:00 AM |\\n| Facebook | Thu, [Date] | Behind-the-scenes look at your daily life (e.g., a photo of your workspace) | Post | 12:00 PM |\\n| Instagram | Fri, [Date] | Sneak peek into a new hobby or interest | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"Q&A\" session (answer questions from followers) | Video | 2:00 PM |\\n| Facebook | Sun, [Date] | Share a personal achievement or milestone | Post | 6:00 PM |\\n\\nThis content calendar offers a mix of:\\n\\n1.",
+          "id": "ev_56a43df1aa324534cc37d82d",
+          "observedAt": "2026-10-14T15:29:00.275Z"
+        },
+        {
+          "sourceId": "memory:context-223",
+          "sourceVersion": "sha256:23560f796deed8683af6acb5b492eb450207edda6de79f3fafeaf927977148e4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-223",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "We can also check your car's maintenance schedule or consult with a mechanic to determine when these services are typically recommended.\\n\\nLet me know if you have any ideas or if you'd like to investigate further!\"}], 'Chat Time: 2023/05/23 (Tue) 06:01', [{'role': 'user', 'content': \"I'm planning a trip to Asia and I'm considering visiting Japan.\n\nCan you recommend some must-see attractions in Kyoto?\"}, {'role': 'assistant', 'content': 'Kyoto!\n\nYou\\'re in for a treat!",
+          "id": "ev_086c52baea496b5f950e42bd",
+          "observedAt": "2026-10-14T15:29:00.276Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:0f1a4f65d83b825ec05df675d29f6a3d845ec150c3324c7fefc8ddc606426f97",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "You'll learn about the history of the Korean War and the current situation on the peninsula.\\n2.",
+          "id": "ev_13b31715657b916f665df769",
+          "observedAt": "2026-10-14T15:29:00.276Z"
+        }
+      ],
+      "sourceIds": [
+        "context-267",
+        "context-223",
+        "context-227"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 13.631791999999905,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-267",
+        "context-223",
+        "context-227"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) \\n| Instagram | Fri, [Date] | Sneak peek into your weekend plans | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"A day in the life\" vlog | Video | 10:00 AM |\\n| Facebook | Sun, [Date] | Weekly wrap-up (e.g., \"My favorite moments from the week\") | Post | 6:00 PM |\\n\\n**Week 2:**\\n\\n| Platform | Date | Content Theme | Post Type | Time |\\n| --- | --- | --- | --- | --- |\\n| Twitter | Mon, [Date] | Quote related to your favorite TV show/movie | Tweet | 10:00 AM |\\n| Instagram | Tue, [Date] | Hobby-related photo (e.g., a photo you took with your camera) | Post | 3:00 PM |\\n| TikTok | Wed, [Date] | \"Get ready with me\" morning routine | Video | 8:00 AM |\\n| Facebook | Thu, [Date] | Behind-the-scenes look at your daily life (e.g., a photo of your workspace) | Post | 12:00 PM |\\n| Instagram | Fri, [Date] | Sneak peek into a new hobby or interest | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"Q&A\" session (answer questions from followers) | Video | 2:00 PM |\\n| Facebook | Sun, [Date] | Share a personal achievement or milestone | Post | 6:00 PM |\\n\\nThis content calendar offers a mix of:\\n\\n1.\n- (part 1 of 5, excerpt) 10th for $30, I'll add that to the table as well:\\n\\n| Date | Description | Cost |\\n| --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 |\\n| Feb 10 | Gas fill-up | $30 |\\n| Dec 28 | Gas fill-up | unknown |\\n|  |  |  |\\n\\nIf you think of any other car-related expenses or services, just let me know and we'll add them to the table.\"}, {'role': 'user', 'content': 'How about\n  (part 2 of 5, excerpt) was, let's add a note to the table to remind us to investigate further:\\n\\n| Date | Description | Cost |\\n| --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 |\\n| Feb 10 | Gas fill-up | $30 |\\n| Dec 28 | Gas fill-up | unknown |\\n| ???\n  (part 3 of 5, excerpt) Have you had any of those done recently?'}, {'role': 'assistant', 'content': \"Let's add a few more columns to the table to track those regular maintenance tasks:\\n\\n| Date | Description | Cost | Tire Rotation | Brake Pads | Other |\\n| --- | --- | --- | --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 | | | |\\n| Feb 10 | Gas fill-up | $30 | | | |\\n| Dec 28 | Gas fill-up | unknown | | | |\\n| ???\n  (part 4 of 5) | --- | --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 | | | |\\n| Feb 10 | Gas fill-up | $30 | | | |\\n| Dec 28 | Gas fill-up | unknown | | | |\\n| ???\n\n| Oil change (due?) | unknown | | | |\\n|  |  |  |  |  |  |\\n\\nNow, let's think about tire rotations and brake pad replacements.\n\nHave you had either of those done recently?\n\nDo you remember when you last had your tires rotated or brake pads replaced?\\n\\nIf you're not sure, we can assume they might be due soon.\n\nWe can also check your car's maintenance schedule or consult with a mechanic to determine when these services are typically recommended.\\n\\nLet me know if you have any ideas or if you'd like to investigate further!\"}], 'Chat Time: 2023/05/23 (Tue) 06:01', [{'role': 'user', 'content': \"I'm planning a trip to Asia and I'm considering visiting Japan.\n\nCan you recommend some must-see attractions in Kyoto?\"}, {'role': 'assistant', 'content': 'Kyoto!\n\nYou\\'re in for a treat!\n\nKyoto is a city steeped in history, culture, and natural beauty.\n\nHere are some must-see attractions to add to your itinerary:\\n\\n1.\n\n**Fushimi Inari Shrine**: Famous for its thousands of vermilion torii gates that form a tunnel up the mountain.\n- (part 1 of 4) the area?\"}, {'role': 'assistant', 'content': \"Visiting the Demilitarized Zone (DMZ) is a unique and fascinating experience!\n\nThe DMZ is a buffer zone between North and South Korea, and it's a must-visit for anyone interested in history, politics, and international relations.\n\nHere are some recommendations for guided tours and attractions in the area:\\n\\n**Guided Tours:**\\n\\n1.\n\n**DMZ Tour**: This is a popular and highly-rated tour that takes you to the Joint Security Area, the Third Tunnel, and the Dora Observatory.\n\nYou'll learn about the history of the Korean War and the current situation on the peninsula.\\n2.\n\n**Panmunjom Tour**: This tour focuses on the Joint Security Area, where you'll see the border between North and South Korea up close.\n\nYou'll also visit the Panmunjom Museum and the Freedom House.\\n3.\n\n**Imjingak Tour**: This tour takes you to the Imjingak Peace Bell, the Third Tunnel, and the Dora Observatory.\n\nYou'll also visit the War Memorial Museum and the Freedom Bridge.\\n\\n**Attractions:**\\n\\n1.\n\n**Joint Security Area (JSA)**: This is the only portion of the DMZ where North and South Korean forces stand face-to-face.\n  (part 2 of 4, excerpt) **Dora Observatory**: From here, you can see North Korea with your own eyes.\n\nYou'll learn about the history of the observatory and the surrounding area.\\n4.\n  (part 3 of 4) to the area.\\n2.\n\n**Dress modestly**: Avoid wearing provocative or revealing clothing, as you'll be visiting military installations and sensitive areas.\\n3.\n\n**Follow instructions**: Pay attention to your guide and follow instructions carefully, as the DMZ is a sensitive area with strict rules.\\n4.\n\n**Be respectful**: Remember that the DMZ is a symbol of a divided country, and be respectful of the history and people involved.\\n5.\n\n**Bring your passport**: You'll need to bring your passport to enter the DMZ, so make sure you have it with you.\\n\\nI hope this helps you plan your visit to the DMZ!\n\nIt's a unique and thought-provoking experience that will give you a deeper understanding of the Korean Peninsula's history and politics.\"}], 'Chat Time: 2023/05/23 (Tue) 07:04', [{'role': 'user', 'content': \"I've been noticing some interesting trends in the demographics of the people I interact with, and I was wondering if you could help me find some data on the average gender ratio of book clubs.\n\nDo you have any information on that?\n\nBy the way, I've been attending a weekly book club with 10 females, 4 males, and 1 non-binary person, which got me curious about this.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-267",
+          "sourceVersion": "sha256:ce37f9c82ee2aa8678841573b03a35b26cd240ad1fcf7b918bc230b5f7c75d13",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-267",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "\\n| Instagram | Fri, [Date] | Sneak peek into your weekend plans | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"A day in the life\" vlog | Video | 10:00 AM |\\n| Facebook | Sun, [Date] | Weekly wrap-up (e.g., \"My favorite moments from the week\") | Post | 6:00 PM |\\n\\n**Week 2:**\\n\\n| Platform | Date | Content Theme | Post Type | Time |\\n| --- | --- | --- | --- | --- |\\n| Twitter | Mon, [Date] | Quote related to your favorite TV show/movie | Tweet | 10:00 AM |\\n| Instagram | Tue, [Date] | Hobby-related photo (e.g., a photo you took with your camera) | Post | 3:00 PM |\\n| TikTok | Wed, [Date] | \"Get ready with me\" morning routine | Video | 8:00 AM |\\n| Facebook | Thu, [Date] | Behind-the-scenes look at your daily life (e.g., a photo of your workspace) | Post | 12:00 PM |\\n| Instagram | Fri, [Date] | Sneak peek into a new hobby or interest | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"Q&A\" session (answer questions from followers) | Video | 2:00 PM |\\n| Facebook | Sun, [Date] | Share a personal achievement or milestone | Post | 6:00 PM |\\n\\nThis content calendar offers a mix of:\\n\\n1.",
+          "id": "ev_56a43df1aa324534cc37d82d",
+          "observedAt": "2026-10-14T15:29:00.281Z"
+        },
+        {
+          "sourceId": "memory:context-223",
+          "sourceVersion": "sha256:23560f796deed8683af6acb5b492eb450207edda6de79f3fafeaf927977148e4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-223",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "10th for $30, I'll add that to the table as well:\\n\\n| Date | Description | Cost |\\n| --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 |\\n| Feb 10 | Gas fill-up | $30 |\\n| Dec 28 | Gas fill-up | unknown |\\n|  |  |  |\\n\\nIf you think of any other car-related expenses or services, just let me know and we'll add them to the table.\"}, {'role': 'user', 'content': 'How about",
+          "id": "ev_c83d7fbf7753fd7caedce1fa",
+          "observedAt": "2026-10-14T15:29:00.282Z"
+        },
+        {
+          "sourceId": "memory:context-223",
+          "sourceVersion": "sha256:23560f796deed8683af6acb5b492eb450207edda6de79f3fafeaf927977148e4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-223",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "was, let's add a note to the table to remind us to investigate further:\\n\\n| Date | Description | Cost |\\n| --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 |\\n| Feb 10 | Gas fill-up | $30 |\\n| Dec 28 | Gas fill-up | unknown |\\n| ???",
+          "id": "ev_62dbf6412e25a75b2066aa1e",
+          "observedAt": "2026-10-14T15:29:00.282Z"
+        },
+        {
+          "sourceId": "memory:context-223",
+          "sourceVersion": "sha256:23560f796deed8683af6acb5b492eb450207edda6de79f3fafeaf927977148e4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-223",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Have you had any of those done recently?'}, {'role': 'assistant', 'content': \"Let's add a few more columns to the table to track those regular maintenance tasks:\\n\\n| Date | Description | Cost | Tire Rotation | Brake Pads | Other |\\n| --- | --- | --- | --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 | | | |\\n| Feb 10 | Gas fill-up | $30 | | | |\\n| Dec 28 | Gas fill-up | unknown | | | |\\n| ???",
+          "id": "ev_eb46e1556c6ea79c625d020e",
+          "observedAt": "2026-10-14T15:29:00.282Z"
+        },
+        {
+          "sourceId": "memory:context-223",
+          "sourceVersion": "sha256:23560f796deed8683af6acb5b492eb450207edda6de79f3fafeaf927977148e4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-223",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "| --- | --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 | | | |\\n| Feb 10 | Gas fill-up | $30 | | | |\\n| Dec 28 | Gas fill-up | unknown | | | |\\n| ???\n\n| Oil change (due?) | unknown | | | |\\n|  |  |  |  |  |  |\\n\\nNow, let's think about tire rotations and brake pad replacements.\n\nHave you had either of those done recently?\n\nDo you remember when you last had your tires rotated or brake pads replaced?\\n\\nIf you're not sure, we can assume they might be due soon.\n\nWe can also check your car's maintenance schedule or consult with a mechanic to determine when these services are typically recommended.\\n\\nLet me know if you have any ideas or if you'd like to investigate further!\"}], 'Chat Time: 2023/05/23 (Tue) 06:01', [{'role': 'user', 'content': \"I'm planning a trip to Asia and I'm considering visiting Japan.\n\nCan you recommend some must-see attractions in Kyoto?\"}, {'role': 'assistant', 'content': 'Kyoto!\n\nYou\\'re in for a treat!\n\nKyoto is a city steeped in history, culture, and natural beauty.\n\nHere are some must-see attractions to add to your itinerary:\\n\\n1.\n\n**Fushimi Inari Shrine**: Famous for its thousands of vermilion torii gates that form a tunnel up the mountain.",
+          "id": "ev_96be1b619dbc2450ac975e16",
+          "observedAt": "2026-10-14T15:29:00.282Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:0f1a4f65d83b825ec05df675d29f6a3d845ec150c3324c7fefc8ddc606426f97",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "the area?\"}, {'role': 'assistant', 'content': \"Visiting the Demilitarized Zone (DMZ) is a unique and fascinating experience!\n\nThe DMZ is a buffer zone between North and South Korea, and it's a must-visit for anyone interested in history, politics, and international relations.\n\nHere are some recommendations for guided tours and attractions in the area:\\n\\n**Guided Tours:**\\n\\n1.\n\n**DMZ Tour**: This is a popular and highly-rated tour that takes you to the Joint Security Area, the Third Tunnel, and the Dora Observatory.\n\nYou'll learn about the history of the Korean War and the current situation on the peninsula.\\n2.\n\n**Panmunjom Tour**: This tour focuses on the Joint Security Area, where you'll see the border between North and South Korea up close.\n\nYou'll also visit the Panmunjom Museum and the Freedom House.\\n3.\n\n**Imjingak Tour**: This tour takes you to the Imjingak Peace Bell, the Third Tunnel, and the Dora Observatory.\n\nYou'll also visit the War Memorial Museum and the Freedom Bridge.\\n\\n**Attractions:**\\n\\n1.\n\n**Joint Security Area (JSA)**: This is the only portion of the DMZ where North and South Korean forces stand face-to-face.",
+          "id": "ev_9f33c3fb6687af869731d524",
+          "observedAt": "2026-10-14T15:29:00.282Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:0f1a4f65d83b825ec05df675d29f6a3d845ec150c3324c7fefc8ddc606426f97",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "**Dora Observatory**: From here, you can see North Korea with your own eyes.\n\nYou'll learn about the history of the observatory and the surrounding area.\\n4.",
+          "id": "ev_26405491dbe717f32069bc4c",
+          "observedAt": "2026-10-14T15:29:00.282Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:0f1a4f65d83b825ec05df675d29f6a3d845ec150c3324c7fefc8ddc606426f97",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 3,
+            "parts": 4
+          },
+          "text": "to the area.\\n2.\n\n**Dress modestly**: Avoid wearing provocative or revealing clothing, as you'll be visiting military installations and sensitive areas.\\n3.\n\n**Follow instructions**: Pay attention to your guide and follow instructions carefully, as the DMZ is a sensitive area with strict rules.\\n4.\n\n**Be respectful**: Remember that the DMZ is a symbol of a divided country, and be respectful of the history and people involved.\\n5.\n\n**Bring your passport**: You'll need to bring your passport to enter the DMZ, so make sure you have it with you.\\n\\nI hope this helps you plan your visit to the DMZ!\n\nIt's a unique and thought-provoking experience that will give you a deeper understanding of the Korean Peninsula's history and politics.\"}], 'Chat Time: 2023/05/23 (Tue) 07:04', [{'role': 'user', 'content': \"I've been noticing some interesting trends in the demographics of the people I interact with, and I was wondering if you could help me find some data on the average gender ratio of book clubs.\n\nDo you have any information on that?\n\nBy the way, I've been attending a weekly book club with 10 females, 4 males, and 1 non-binary person, which got me curious about this.",
+          "id": "ev_1fd06f1415f26f175ff3770f",
+          "observedAt": "2026-10-14T15:29:00.282Z"
+        }
+      ],
+      "sourceIds": [
+        "context-267",
+        "context-223",
+        "context-227"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.781624999999849,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-267",
+    "context-223",
+    "context-227"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T15:29:00.284224+00:00"
+}

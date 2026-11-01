@@ -1,0 +1,164 @@
+{
+  "row": 0,
+  "query": 6,
+  "id": "mab-0-6",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:41:11.842648+00:00",
+  "valid": true,
+  "question": "Who ruled the duchy of Normandy",
+  "references": [
+    "Richard I",
+    "Richard I",
+    "Richard I"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-202",
+    "context-238",
+    "context-203"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:41:34.959785+00:00",
+  "rag": {
+    "ids": [
+      "context-202",
+      "context-238",
+      "context-203"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) Document 1007:\nIn September 1760, and before any hostilities erupted, Governor Vaudreuil negotiated from Montreal a capitulation with General Amherst. Amherst granted Vaudreuil's request that any French residents who chose to remain in the colony would be given freedom to continue worshiping in their Roman Catholic tradition, continued ownership of their property, and the right to remain undisturbed in their homes. The British provided medical treatment for the sick and wounded French soldiers and French regular troops were returned to France aboard British ships with an agreement that they were not to serve again in the present war.\n  (part 5 of 5) maintain their legitimacy. At the same time, their popularity is such that no government can call itself democratic that excludes mainstream Islamist groups.\n\nDocument 1011:\nIn the course of the 10th century, the initially destructive incursions of Norse war bands into the rivers of France evolved into more permanent encampments that included local women and personal property. The Duchy of Normandy, which began in 911 as a fiefdom, was established by the treaty of Saint-Clair-sur-Epte between King Charles III of West Francia and the famed Viking ruler Rollo, and was situated in the former Frankish kingdom of Neustria. The treaty offered Rollo and his men the French lands between the river Epte and the Atlantic coast in exchange for their pro\n- (part 2 of 5, excerpt) In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church\n- (part 1 of 5, excerpt) tection against further Viking incursions. The area corresponded to the northern part of present-day Upper Normandy down to th",
+    "evidence": [
+      {
+        "sourceId": "memory:context-202",
+        "sourceVersion": "sha256:4fd23721be4626a705fa81c91811c5ce111e77aca3b7189dc52e5a4b23774031",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-202",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Document 1007:\nIn September 1760, and before any hostilities erupted, Governor Vaudreuil negotiated from Montreal a capitulation with General Amherst. Amherst granted Vaudreuil's request that any French residents who chose to remain in the colony would be given freedom to continue worshiping in their Roman Catholic tradition, continued ownership of their property, and the right to remain undisturbed in their homes. The British provided medical treatment for the sick and wounded French soldiers and French regular troops were returned to France aboard British ships with an agreement that they were not to serve again in the present war.",
+        "id": "ev_a7a3849727a8840d52b74ee4",
+        "observedAt": "2026-10-14T08:38:04.578Z"
+      },
+      {
+        "sourceId": "memory:context-202",
+        "sourceVersion": "sha256:4fd23721be4626a705fa81c91811c5ce111e77aca3b7189dc52e5a4b23774031",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-202",
+          "part": 5,
+          "parts": 5
+        },
+        "text": "maintain their legitimacy. At the same time, their popularity is such that no government can call itself democratic that excludes mainstream Islamist groups.\n\nDocument 1011:\nIn the course of the 10th century, the initially destructive incursions of Norse war bands into the rivers of France evolved into more permanent encampments that included local women and personal property. The Duchy of Normandy, which began in 911 as a fiefdom, was established by the treaty of Saint-Clair-sur-Epte between King Charles III of West Francia and the famed Viking ruler Rollo, and was situated in the former Frankish kingdom of Neustria. The treaty offered Rollo and his men the French lands between the river Epte and the Atlantic coast in exchange for their pro",
+        "id": "ev_77ae4522e1ba04ac5240a5d2",
+        "observedAt": "2026-10-14T08:38:04.578Z"
+      },
+      {
+        "sourceId": "memory:context-238",
+        "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-238",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church",
+        "id": "ev_457c7a45ab9769ab9cd28cb6",
+        "observedAt": "2026-10-14T08:38:04.578Z"
+      },
+      {
+        "sourceId": "memory:context-203",
+        "sourceVersion": "sha256:d30626130eee535ba6d456687a511e458ba3c3dfeadc4bdf18e1cc015e84a789",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-203",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "tection against further Viking incursions. The area corresponded to the northern part of present-day Upper Normandy down to th",
+        "id": "ev_7a3802570d910df0928202b6",
+        "observedAt": "2026-10-14T08:38:04.578Z"
+      }
+    ],
+    "sourceIds": [
+      "context-202",
+      "context-238",
+      "context-203"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 1.74629200000345,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "According to the retrieved history, the Duchy of Normandy was established in 911 by the treaty of Saint-Clair-sur-Epte between King Charles III of West Francia and the Viking ruler Rollo, who became its first ruler.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 496,
+    "completion_tokens": 819,
+    "total_tokens": 1315,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 769,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 285,
+    "completion_tokens": 577,
+    "total_tokens": 862,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 574,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 16258.741083000132,
+  "judgeWallMs": 6856.8748329998925
+}

@@ -1,0 +1,235 @@
+{
+  "row": 1,
+  "query": 75,
+  "id": "mab-1-75",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "question": "What American professional Hawaiian surfer born 18 October 1992 won the Rip Curl Pro Portugal?",
+  "references": [
+    "John John Florence"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 643.8608749999985,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 94,
+        "maxInputChars": 94,
+        "requiredProviderTruncation": false,
+        "promptTokens": 18,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-30",
+        "context-82",
+        "context-41"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) He has also provided voice-over work for video games, such as \"Icewind Dale\", \"Fallout\", \"\", \"Baldur's Gate\", \"Mass Effect 2\", \"\", \"\", \"\", and \"Splatterhouse\".\n\nDocument 219:\nMEO Rip Curl Pro Portugal\nMEO Rip Curl Pro Portugal formerly known as \"Moche Rip Curl Pro Portugal\" or \"Rip Curl Pro Portugal\" is a professional surfing competition of the ASP World Tour held every year in October at the Supertubos beach in Peniche, Portugal. The event was first founded in 2009 as \"Rip Curl Search Portugal\". The defending champion is the 2016 WSL champion, John John Florence who won the event in 2016.\n\nDocument 220:\nJerry Leger\nJerry Leger (born April 19, 1985 Toronto, Ontario) is a Canadian singer-songwriter. Since 2005, he has released 8 acclaimed albums (4 solo, 3 credited to Jerry Leger & The Situation and 1 with his side project, The Del Fi's) and toured extensively playing shows with acts such as Ron Sexsmith, The Sadies, Jesse Winchester, Fred Eaglesmith, Danny Michel, Jill Barber, Justin Townes Earle, Deer Tick, Skydiggers, Jim Lauderdale, Dawes, Tift Merritt, Doug Paisley, among others.\n- (part 6 of 6, excerpt) Document 610:\nAndy Irons\nPhilip Andrew Irons (July 24, 1978November 2, 2010) was an American professional surfer. Irons learned to surf on the dangerous and shallow reefs of the North Shore in Kauai, Hawaii. Over the course of his professional career, he won three world titles (2002, 2003, 2004), three Quiksilver Pro France titles (2003, 2004, 2005), two Rip Curl Pro Search titles (2006 and 2007) and 20 elite tour victories including the Vans Triple Crown of Surfi\n- (part 5 of 5, excerpt) Moche Rip Curl Pro Portugal 2015\nThe Moche Rip Curl Pro Portugal 2015 was an event of the Association of Surfing Professionals for 2015 ASP World Tour.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-30",
+          "sourceVersion": "sha256:11fa06f596b357c197c001694676a240b81186b1df1774887a7dd0342f8089c7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-30",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "He has also provided voice-over work for video games, such as \"Icewind Dale\", \"Fallout\", \"\", \"Baldur's Gate\", \"Mass Effect 2\", \"\", \"\", \"\", and \"Splatterhouse\".\n\nDocument 219:\nMEO Rip Curl Pro Portugal\nMEO Rip Curl Pro Portugal formerly known as \"Moche Rip Curl Pro Portugal\" or \"Rip Curl Pro Portugal\" is a professional surfing competition of the ASP World Tour held every year in October at the Supertubos beach in Peniche, Portugal. The event was first founded in 2009 as \"Rip Curl Search Portugal\". The defending champion is the 2016 WSL champion, John John Florence who won the event in 2016.\n\nDocument 220:\nJerry Leger\nJerry Leger (born April 19, 1985 Toronto, Ontario) is a Canadian singer-songwriter. Since 2005, he has released 8 acclaimed albums (4 solo, 3 credited to Jerry Leger & The Situation and 1 with his side project, The Del Fi's) and toured extensively playing shows with acts such as Ron Sexsmith, The Sadies, Jesse Winchester, Fred Eaglesmith, Danny Michel, Jill Barber, Justin Townes Earle, Deer Tick, Skydiggers, Jim Lauderdale, Dawes, Tift Merritt, Doug Paisley, among others.",
+          "id": "ev_5b530d2e128637afd110d541",
+          "observedAt": "2026-10-14T04:49:00.147Z"
+        },
+        {
+          "sourceId": "memory:context-82",
+          "sourceVersion": "sha256:8d646b9813ef38e3b0648fd9597ce5cdf7dcc21297cef79c8837a81bd429f888",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-82",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Document 610:\nAndy Irons\nPhilip Andrew Irons (July 24, 1978November 2, 2010) was an American professional surfer. Irons learned to surf on the dangerous and shallow reefs of the North Shore in Kauai, Hawaii. Over the course of his professional career, he won three world titles (2002, 2003, 2004), three Quiksilver Pro France titles (2003, 2004, 2005), two Rip Curl Pro Search titles (2006 and 2007) and 20 elite tour victories including the Vans Triple Crown of Surfi",
+          "id": "ev_91b16bf9afffa29b3d2932c8",
+          "observedAt": "2026-10-14T04:49:00.148Z"
+        },
+        {
+          "sourceId": "memory:context-41",
+          "sourceVersion": "sha256:de2c88b8736997ef317b33e500a84d3d28df38a311db809df86dcb51ad76efdd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-41",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Moche Rip Curl Pro Portugal 2015\nThe Moche Rip Curl Pro Portugal 2015 was an event of the Association of Surfing Professionals for 2015 ASP World Tour.",
+          "id": "ev_2beb7c71ac597dcf20d5acb1",
+          "observedAt": "2026-10-14T04:49:00.148Z"
+        }
+      ],
+      "sourceIds": [
+        "context-30",
+        "context-82",
+        "context-41"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.910166999994544,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-30",
+        "context-82",
+        "context-41"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) He has also provided voice-over work for video games, such as \"Icewind Dale\", \"Fallout\", \"\", \"Baldur's Gate\", \"Mass Effect 2\", \"\", \"\", \"\", and \"Splatterhouse\".\n\nDocument 219:\nMEO Rip Curl Pro Portugal\nMEO Rip Curl Pro Portugal formerly known as \"Moche Rip Curl Pro Portugal\" or \"Rip Curl Pro Portugal\" is a professional surfing competition of the ASP World Tour held every year in October at the Supertubos beach in Peniche, Portugal. The event was first founded in 2009 as \"Rip Curl Search Portugal\". The defending champion is the 2016 WSL champion, John John Florence who won the event in 2016.\n\nDocument 220:\nJerry Leger\nJerry Leger (born April 19, 1985 Toronto, Ontario) is a Canadian singer-songwriter. Since 2005, he has released 8 acclaimed albums (4 solo, 3 credited to Jerry Leger & The Situation and 1 with his side project, The Del Fi's) and toured extensively playing shows with acts such as Ron Sexsmith, The Sadies, Jesse Winchester, Fred Eaglesmith, Danny Michel, Jill Barber, Justin Townes Earle, Deer Tick, Skydiggers, Jim Lauderdale, Dawes, Tift Merritt, Doug Paisley, among others.\n- (part 6 of 6, excerpt) Document 610:\nAndy Irons\nPhilip Andrew Irons (July 24, 1978November 2, 2010) was an American professional surfer. Irons learned to surf on the dangerous and shallow reefs of the North Shore in Kauai, Hawaii. Over the course of his professional career, he won three world titles (2002, 2003, 2004), three Quiksilver Pro France titles (2003, 2004, 2005), two Rip Curl Pro Search titles (2006 and 2007) and 20 elite tour victories including the Vans Triple Crown of Surfi\n- (part 5 of 5, excerpt) Moche Rip Curl Pro Portugal 2015\nThe Moche Rip Curl Pro Portugal 2015 was an event of the Association of Surfing Professionals for 2015 ASP World Tour.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-30",
+          "sourceVersion": "sha256:11fa06f596b357c197c001694676a240b81186b1df1774887a7dd0342f8089c7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-30",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "He has also provided voice-over work for video games, such as \"Icewind Dale\", \"Fallout\", \"\", \"Baldur's Gate\", \"Mass Effect 2\", \"\", \"\", \"\", and \"Splatterhouse\".\n\nDocument 219:\nMEO Rip Curl Pro Portugal\nMEO Rip Curl Pro Portugal formerly known as \"Moche Rip Curl Pro Portugal\" or \"Rip Curl Pro Portugal\" is a professional surfing competition of the ASP World Tour held every year in October at the Supertubos beach in Peniche, Portugal. The event was first founded in 2009 as \"Rip Curl Search Portugal\". The defending champion is the 2016 WSL champion, John John Florence who won the event in 2016.\n\nDocument 220:\nJerry Leger\nJerry Leger (born April 19, 1985 Toronto, Ontario) is a Canadian singer-songwriter. Since 2005, he has released 8 acclaimed albums (4 solo, 3 credited to Jerry Leger & The Situation and 1 with his side project, The Del Fi's) and toured extensively playing shows with acts such as Ron Sexsmith, The Sadies, Jesse Winchester, Fred Eaglesmith, Danny Michel, Jill Barber, Justin Townes Earle, Deer Tick, Skydiggers, Jim Lauderdale, Dawes, Tift Merritt, Doug Paisley, among others.",
+          "id": "ev_5b530d2e128637afd110d541",
+          "observedAt": "2026-10-14T04:49:00.154Z"
+        },
+        {
+          "sourceId": "memory:context-82",
+          "sourceVersion": "sha256:8d646b9813ef38e3b0648fd9597ce5cdf7dcc21297cef79c8837a81bd429f888",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-82",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Document 610:\nAndy Irons\nPhilip Andrew Irons (July 24, 1978November 2, 2010) was an American professional surfer. Irons learned to surf on the dangerous and shallow reefs of the North Shore in Kauai, Hawaii. Over the course of his professional career, he won three world titles (2002, 2003, 2004), three Quiksilver Pro France titles (2003, 2004, 2005), two Rip Curl Pro Search titles (2006 and 2007) and 20 elite tour victories including the Vans Triple Crown of Surfi",
+          "id": "ev_91b16bf9afffa29b3d2932c8",
+          "observedAt": "2026-10-14T04:49:00.154Z"
+        },
+        {
+          "sourceId": "memory:context-41",
+          "sourceVersion": "sha256:de2c88b8736997ef317b33e500a84d3d28df38a311db809df86dcb51ad76efdd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-41",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Moche Rip Curl Pro Portugal 2015\nThe Moche Rip Curl Pro Portugal 2015 was an event of the Association of Surfing Professionals for 2015 ASP World Tour.",
+          "id": "ev_2beb7c71ac597dcf20d5acb1",
+          "observedAt": "2026-10-14T04:49:00.154Z"
+        }
+      ],
+      "sourceIds": [
+        "context-30",
+        "context-82",
+        "context-41"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.097375000012107,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:58:07.740961+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "John John Florence (born 18 October 1992) is the American professional Hawaiian surfer who won the Rip Curl Pro Portugal, as noted in the retrieved history: \"The defending champion is the 2016 WSL champion, John John Florence who won the event in 2016.\"",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 658,
+    "completion_tokens": 853,
+    "total_tokens": 1511,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 784,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 321,
+    "completion_tokens": 460,
+    "total_tokens": 781,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 457,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 12142.787582999972,
+  "judgeWallMs": 9368.95533300003,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.15
+  },
+  "ended": "2026-10-14T07:58:31.048794+00:00"
+}

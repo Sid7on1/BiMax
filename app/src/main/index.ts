@@ -1,12 +1,24 @@
+import { OutputsStore } from './outputs.store';
+import { outputBinding, combineBindings } from './outputs.service';
+import { OutputPreview } from './outputs.preview';
 import { CapabilityReplay } from './capability.replay';
 import { app, BrowserWindow, clipboard, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage, safeStorage, webContents as electronWebContents } from 'electron';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { ThreadManager } from './thread.manager';
+import type { RealEngineAdapter } from './responder/adapter';
 import { threadCapabilityEnvironment, threadIndexEnvironment, threadVoiceEnvironment, workerCapacityEnvironment, spendLedgerEnvironment } from './thread.environment';
 import { ThreadStorage } from './thread.storage';
+import { recoveryExportAction } from './thread.recovery.export';
 import { ThreadBinRecovery, BIN_UNDO_MS } from './thread.bin.recovery';
 import { threadBinActions } from './thread.bin.actions';
+import { ComputerRecipes } from './computer/recipes';
+import { ComputerUseService } from './computer.use';
+import { prepareComputerInput, computerTurnActive, claimComputerRoute } from './computer/route';
+import { ComputerTargetPicker } from './computer/targets';
+import { ComputerUseTransport } from './computer/transport';
+import { computerRequest, isComputerRoute } from '../shared/computer';
 import { createThreadBroker } from './thread.broker';
 import { finderContext } from './finder.context';
 import type { QuickAttachment, QuickContext, QuickThread, ThreadApproval, ThreadSummary } from '../shared/threads';
@@ -69,6 +81,7 @@ import { availableBytes, type SystemMemorySample } from './supervisor/resources'
 import { watchProject, ProjectWatch } from './files';
 import { killAllPtys } from './pty';
 import { registerWorkspaceIpc } from './workspace.ipc';
+import { ProjectFiles, configureProjectFileHelper } from './project.files';
 import { pickInitialProject, loadSettings, recordProject, recentProjects, isRealProject, saveSettings } from './settings';
 import {
   REQUIRED_WEB_PREFERENCES, RENDERER_CSP, InvalidPayloadError,
@@ -127,6 +140,10 @@ let supervisor: EngineSupervisor | null = null;
 let threads: ThreadManager;
 let threadStorage: ThreadStorage;
 let binRecovery: ThreadBinRecovery;
+let mobileAdapter: RealEngineAdapter | null = null;
+let stopMobileResponder: (() => Promise<void>) | null = null;
+let computerUse: ComputerUseService | undefined;
+let computerTargets: ComputerTargetPicker | undefined;
 let threadBroker: Awaited<ReturnType<typeof createThreadBroker>>;
 let quickWindow: BrowserWindow | null = null;
 let approvalWindow: BrowserWindow | null = null;
@@ -141,16 +158,20 @@ const shortcutRegistry = {
 let listTimer: ReturnType<typeof setTimeout> | undefined;
 // The ⌘2 bar's own conversation, where the user last put it, and how tall it currently is.
 let quickThreadId: string | null = null;
+let quickDraftGeneration = 0;
 let quickAnchor: { x: number; y: number } | null = null;
 let quickHeight: number = QUICK_BAR.collapsedHeight;
 let quickMoving = false;
 // A folder picker opened from the bar takes focus; that blur must not hide the bar it was opened from.
 let quickPicking = false;
 function threadList() {
+  const undoBin = binRecovery?.latest();
   return {
     activeId: threads?.activeId ?? null, threads: threads?.list() ?? [], shortcutAvailable, shortcut: shortcutLabel(wantedShortcut),
     archivedCount: threadStorage?.archivedCount() ?? 0,
-    undoBin: binRecovery?.latest(),
+    recovery: threadStorage?.recoverable() ?? [],
+    savingError: threadStorage?.lastError() ?? null,
+    undoBin,
   };
 }
 function threadChanged(): void {
@@ -158,6 +179,7 @@ function threadChanged(): void {
   listTimer = setTimeout(() => {
     listTimer = undefined;
     broadcast('threads:list', threadList());
+    void mobileAdapter?.notifyStatusChanged().catch(() => {});
     updateTray();
     const finished = notchDeck?.update(threads.list());
     if (finished?.length) dockFinished(finished);
@@ -254,7 +276,7 @@ function quickThreadSnapshot(): QuickThread | null {
     const activity = quickActivity();
     return { id: summary.id, title: summary.title, root: summary.root, state, queued: activity?.queued ?? 0, notice: activity?.notice ?? null };
   } catch {
-    quickThreadId = null;
+    quickThreadId = null; quickDraftGeneration++;
     return null;
   }
 }
@@ -773,7 +795,7 @@ function outcomeMenu(): Electron.MenuItemConstructorOptions[] {
 let outcomeEditingRoot: string | null = null;
 async function openOutcomeEditor(root: string): Promise<void> {
   outcomeEditingRoot = root;
-  if (!quickWindow?.isVisible() || (quickThreadSnapshot()?.root ?? quickContext.root) !== root) { quickThreadId = null; await showQuickBar({ root, source: 'Selected folder' }); }
+  if (!quickWindow?.isVisible() || (quickThreadSnapshot()?.root ?? quickContext.root) !== root) { quickThreadId = null; quickDraftGeneration++; await showQuickBar({ root, source: 'Selected folder' }); }
   quickWindow?.webContents.send('threads:open-outcome');
 }
 async function pickOutcomeFolder(): Promise<void> {
@@ -926,6 +948,12 @@ function installAppMenu(): void {
       win.webContents.send('menu:command', command);
     },
     openQuickBar: () => { void showQuickBar(); },
+    computerUse: () => {
+      void dialog.showMessageBox({ title: 'Bimax Computer Use', message: 'Use your Mac apps with Bimax',
+        detail: 'Start your message with @CU and describe the task. Bimax finds the app and window. Bimax asks before reading that app and before every input. Stop ends the operation.',
+        buttons: ['Start a Task', 'Cancel'], defaultId: 0, cancelId: 1,
+      }).then(answer => { if (answer.response === 0) void showQuickBar({ ...quickContext, prompt: '@CU ' }); });
+    },
     quickShortcut: shortcutLabel(wantedShortcut),
   })));
 }
@@ -977,7 +1005,7 @@ function updateTray(): void {
     ...scheduleMenu(),
     ...outcomeMenu(),
     ...triggerMenu(),
-    { label: 'New ⌘2 Task', click: () => { quickThreadId = null; if (quickWindow?.isVisible()) sendQuickThread(); else void showQuickBar(); } },
+    { label: 'New ⌘2 Task', click: () => { quickThreadId = null; quickDraftGeneration++; if (quickWindow?.isVisible()) sendQuickThread(); else void showQuickBar(); } },
     { label: `Keyboard shortcut: ${shortcutLabel(wantedShortcut)}`, submenu: [
       ...(shortcutAvailable ? [] : [{ label: `${shortcutLabel(wantedShortcut)} is used by another app. Choose another:`, enabled: false }]),
       ...SHORTCUT_CHOICES.map((choice): Electron.MenuItemConstructorOptions => ({
@@ -1128,7 +1156,7 @@ async function openFilesInBar(files: string[], prompt?: string): Promise<void> {
   // A one-tap action from the notch (God's Land stage 7) arrives with its request already written.
   const context = { ...(await openedFilesContext(files, os.homedir())), ...(prompt ? { prompt } : {}) };
   if (talkOwner === 'quick') talk.end();
-  quickThreadId = null;
+  quickThreadId = null; quickDraftGeneration++;
   app.focus({ steal: true });
   await showQuickBar(context);
 }
@@ -1192,7 +1220,7 @@ const pushTalk = new PushToTalk({
       tellPushTalk((error as Error).message);
     }
   },
-  openBar: (words) => { quickThreadId = null; void showQuickBar({ root: null, source: 'Choose a folder', error: 'Choose the folder for what you said.', prompt: words }); },
+  openBar: (words) => { quickThreadId = null; quickDraftGeneration++; void showQuickBar({ root: null, source: 'Choose a folder', error: 'Choose the folder for what you said.', prompt: words }); },
   indicate: (listening) => { pushTalkListening = listening; updateTray(); },
   tell: tellPushTalk,
 });
@@ -1374,6 +1402,7 @@ function trustedRenderer(): TrustedRenderer {
       ...[organizeWebContentsId()].filter((id): id is number => id !== null),
     ],
     devServerUrl: process.env.ELECTRON_RENDERER_URL,
+    packagedRendererUrls: [pathToFileURL(path.join(__dirname, '../renderer/index.html')).href],
   };
 }
 
@@ -1396,7 +1425,7 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
       'threads:undo-info', 'threads:undo', 'threads:history', 'threads:bookmark-set', 'threads:where', 'threads:undo-change', 'threads:undo-back-to', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
       'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick', 'threads:screenshot', 'threads:paste-picture', 'threads:teach', 'threads:outcome-get', 'threads:outcome-set', 'threads:outcome-clear', 'threads:night-start', 'threads:skill-save',
       'voice:available', 'voice:start', 'voice:stop', 'voice:cancel', 'talk:start', 'talk:end', 'talk:interrupt', 'talk:current',
-      'clipboard:write-text']
+      'clipboard:write-text', 'computer:targets', 'computer:cancel-targets', 'computer:state', 'computer:control', 'computer:save', 'computer:recipes']
     : event.sender.id === organizeWebContentsId()
       ? ['organize:current', 'organize:move', 'organize:move-group', 'organize:keep', 'organize:include', 'organize:apply', 'organize:cancel']
       : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
@@ -1415,14 +1444,30 @@ function refuse(channel: string, reason: string): void {
  * provider; the renderer only ever reads a derived timeline. Bounded and user-deletable, per §2.4.
  */
 const evidenceStore = new DesktopEvidenceStore();
+let outputsStore: OutputsStore;
+let presentationRequestId = 1_500_000_000;
+const presentationWaiters = new Map<number,{owner:string;resolve:(value:any)=>void}>();
+async function presentationRequest(owner:string, request:unknown): Promise<any> {
+  const engine = threads.engine(owner) as EngineSupervisor | undefined;
+  if (!engine || !['ready','degraded'].includes(engine.status().phase)) throw new Error('The producing engine is stopped. Text and saved outputs remain available.');
+  const id=++presentationRequestId;
+  return new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>{presentationWaiters.delete(id);reject(new Error('Tool UI request timed out; it was not replayed.'));},35_000);
+    presentationWaiters.set(id,{owner,resolve:value=>{clearTimeout(timer);presentationWaiters.delete(id);value?.error?reject(new Error(value.error)):resolve(value?.result);}});
+    engine.sendFromRenderer({t:'query',id,text:'\u0000presentation:'+JSON.stringify(request)});
+  });
+}
+const outputPreview = new OutputPreview(event => broadcast('outputs:preview-event', event));
+secureHandle('outputs:app-call', null as unknown, (event, name, args) => outputPreview.callApp(event, name, args), event => outputPreview.acceptsAppSender(event));
 
 function secureHandle<T>(
   channel: string,
   fallback: T,
   fn: (event: IpcMainInvokeEvent, ...args: unknown[]) => T | Promise<T>,
+  authorize?: (event: IpcMainInvokeEvent) => boolean,
 ): void {
   ipcMain.handle(channel, async (event, ...args: unknown[]) => {
-    if (!isTrustedSender(senderIdentity(event), trustedRenderer()) || !auxiliaryChannelAllowed(event, channel)) {
+    if (authorize ? !authorize(event) : (!isTrustedSender(senderIdentity(event), trustedRenderer()) || !auxiliaryChannelAllowed(event, channel))) {
       refuse(channel, 'untrusted sender');
       return fallback;
     }
@@ -1485,6 +1530,8 @@ function createSupervisor(threadId?: string): EngineSupervisor {
   return new EngineSupervisor({
     spawn: (project, extraEnv, callbacks) => {
       const adaptive = adaptiveSnapshot();
+      const brokerEnv = threadId ? threadBroker.environment(threadId) : {};
+      if (threadId) computerUse?.end(threadId);
       return spawnEngine(project, {
         ...extraEnv,
         ...adaptivePolicy.engineEnvironment(adaptive.decision),
@@ -1501,7 +1548,7 @@ function createSupervisor(threadId?: string): EngineSupervisor {
         // renderer or the engine protocol and are not written to diagnostics.
         ...providerCredentialEnvironment(),
         // BIMAX_WAKES: this app keeps and delivers the task's wakes (F4), so the engine's WakeTool may promise one.
-        ...(threadId ? { ...threadBroker.environment(threadId), BIMAX_THREAD_ROOT: project, WORKSPACE_ROOT: project, BIMAX_WAKES: '1',
+        ...(threadId ? { ...brokerEnv, BIMAX_THREAD_ROOT: project, WORKSPACE_ROOT: project, BIMAX_WAKES: '1',
           // Which optional subsystems this thread may run, by origin — see threadCapabilityEnvironment.
           // These four used to be pinned off here for every thread, which silenced codebase memory and
           // the drives boot across the whole product once every conversation became a thread.
@@ -1513,7 +1560,14 @@ function createSupervisor(threadId?: string): EngineSupervisor {
           ...threadVoiceEnvironment(threads.talkState(threadId).voice),
           ...(threads.talkState(threadId).model ? { BIMAX_THREAD_MODEL: threads.talkState(threadId).model } : {}),
         } : {}),
-      }, callbacks);
+      }, callbacks, threadId ? combineBindings(
+        !isNightShift(threadId) ? computerUse?.binding(threadId) : undefined,
+        outputBinding(outputsStore, threadId, () => {
+          const items = threads.get(threadId).state.items;
+          const user = [...items].reverse().find((item: any) => item.kind === 'msg' && item.msg?.role === 'user') as any;
+          return user?.msg?.id || `engine:${threadId}`;
+        }, () => broadcast('outputs:changed', null)),
+      ) : undefined);
     },
     now: () => Date.now(),
     setTimeout: (fn, ms) => setTimeout(fn, ms),
@@ -1534,6 +1588,11 @@ function createSupervisor(threadId?: string): EngineSupervisor {
       if (legacy) broadcast('engine:state', legacy.state, legacy.detail, threadId);
     },
     onMessage: (msg: any) => {
+      if(msg?.t==='queryResult' && presentationWaiters.get(msg.id)?.owner===threadId) {
+        const value=msg.items?.find((item:any)=>item.label==='presentation')?.value;
+        try { presentationWaiters.get(msg.id)?.resolve(JSON.parse(value || '{"error":"Tool UI is unavailable."}')); } catch { presentationWaiters.get(msg.id)?.resolve({error:'Invalid tool UI reply.'}); }
+        return;
+      }
       if (threadId) { threads.receive(threadId, msg); return; }
       capabilityReplay.accept(msg);
       if (msg?.t === 'event' && msg.name === 'ui_snapshot') latestUiSnapshot = msg;
@@ -1553,10 +1612,16 @@ function createSupervisor(threadId?: string): EngineSupervisor {
   });
 }
 
+let selectedProjectFiles: ProjectFiles | null = null;
 function selectThread(id: string): void {
+  outputPreview.stop();
   // Talking in the main window follows the conversation on screen: moving to another one ends it.
   if (talkOwner === 'main' && talk.threadId && talk.threadId !== id) { talkLog('ending: the main window moved to another conversation'); talk.end(); }
   const root = threads.get(id).summary.root;
+  const files = new ProjectFiles(root);
+  const previousFiles = selectedProjectFiles;
+  selectedProjectFiles = files;
+  void previousFiles?.close();
   capabilityReplay.clear();
   latestUiSnapshot = null;
   latestReviewSnapshot = null;
@@ -1671,6 +1736,9 @@ function createWindow(): void {
   // The window may only ever be on its own renderer document. A markdown link, a redirect, or a
   // file dropped onto the window cannot navigate the shell out of its own origin — an http: target
   // goes to the system browser instead, exactly like window.open above.
+  win.webContents.on('will-redirect', (event, url) => {
+    if (!isAllowedNavigation(url, trustedRenderer())) event.preventDefault();
+  });
   win.webContents.on('will-navigate', (event, url) => {
     if (isAllowedNavigation(url, trustedRenderer())) return;
     event.preventDefault();
@@ -1723,6 +1791,10 @@ function hardenSession(): void {
 }
 
 app.whenReady().then(async () => {
+  configureProjectFileHelper(app.isPackaged
+    ? path.join(process.resourcesPath, 'project-files/bimax-project-files')
+    : path.join(app.getAppPath(), 'project-files/bimax-project-files'));
+  outputsStore = new OutputsStore(path.join(app.getPath('userData'), 'outputs'));
   hardenSession();
   // safeStorage can consult Keychain only after ready. Load before constructing the supervisor so
   // the first engine generation receives the selected provider and its credential.
@@ -1740,6 +1812,7 @@ app.whenReady().then(async () => {
   threadStorage = new ThreadStorage(path.join(app.getPath('userData'), 'threads'), {
     // A thread that cannot be saved is said out loud once, not left to be discovered after a restart (backlog F12).
     onFailure: (message) => {
+      threadChanged();
       if (message === null) { storageNoticeShown = false; console.info('[threads] saving works again'); return; }
       console.warn(`[threads] could not save thread history: ${message}`);
       if (!storageNoticeShown && Notification.isSupported()) {
@@ -1748,9 +1821,14 @@ app.whenReady().then(async () => {
       }
     },
   });
-  binRecovery = new ThreadBinRecovery(path.join(app.getPath('userData'), 'threads'), macBin);
+  binRecovery = new ThreadBinRecovery(path.join(app.getPath('userData'), 'threads'), macBin, Date.now, id => threadStorage.noteRecoveryBackup(id));
   threads = new ThreadManager({
     engine: id => createSupervisor(id), changed: threadChanged,
+    ended: id => computerUse?.end(id),
+    prepareInput: (id, input) => {
+      if (input.route && isNightShift(id)) throw new Error('Computer Use is unavailable for unattended tasks.');
+      return prepareComputerInput(id, input, computerUse, computerTargets);
+    },
     wakesChanged: () => wakes?.sync(threads.wakeEntries()),
     // F6: what a turn cut off by a crash or quit had already done, from the thread's undo journal, checked on disk.
     madeSince: (summary, since) => changesSince(threadStateRoot(app.getPath('userData'), summary.root, summary.origin), since),
@@ -1761,6 +1839,9 @@ app.whenReady().then(async () => {
     onScreen: () => [quickThreadId],
     selected: value => broadcast('threads:selected', value),
     message: (id, msg) => {
+      mobileAdapter?.notifyConversationChanged(id);
+      if (msg.t === 'event' && msg.name === 'stream_token' && typeof msg.args[0] === 'string')
+        mobileAdapter?.handleStreamToken(id, msg.args[0]);
       // A model list this process asked for (the ⌘2 model menu) is answered here, not shown in a window.
       if (msg.t === 'catalogResult' && catalogWaiters.has(msg.id)) {
         const done = catalogWaiters.get(msg.id)!;
@@ -1778,6 +1859,7 @@ app.whenReady().then(async () => {
     // The ⌘2 bar answers its own task's questions inline while it is on screen, and the main window those of the
     // thread it shows; everything else gets the popup.
     approval: (value) => {
+      mobileAdapter?.handleThreadApproval(value);
       if (value.threadId === quickThreadId && quickWindow?.isVisible()) return;
       showThreadApproval();
       // Away from Bimax: say so where the person will see it; the popup is already waiting when they come back.
@@ -1823,6 +1905,8 @@ app.whenReady().then(async () => {
       saveOutcomes(all);
     },
     finished: (id, tookMs) => {
+      const outcome = threads.summary(id).outcome;
+      mobileAdapter?.handleTurnFinished(id, outcome === 'completed' ? undefined : `Thread ${outcome ?? 'ended'}`);
       recordModelTime(id, tookMs);
       const spoken = pushTalkThreads.get(id);
       // A night shift (FL5) is continued or briefed, not announced after every milestone.
@@ -1865,6 +1949,11 @@ app.whenReady().then(async () => {
   wakes.sync(threads.wakeEntries());
   // Repeating ⌘2 tasks (schedule.runner.ts): checked every minute, shortly after launch, and when the Mac wakes.
   setScheduleRunnerHost({ threads: () => threads, quickModel: () => quickModel(), openThread: (id) => openThread(id), updateTray: () => updateTray() });
+  const { MobileConnection, registerMobileConnection } = await import('./responder/mobile.connection');
+  const phoneConnection = new MobileConnection({threads,knownWorkspaceRoots:recentProjects,onAdapter:adapter=>{mobileAdapter=adapter;}});
+  registerMobileConnection(secureHandle,phoneConnection);
+  stopMobileResponder=()=>phoneConnection.close();
+  await phoneConnection.restore();
   setInterval(() => void runSchedules(), 60_000);
   setTimeout(() => void runSchedules(), 15_000);
   powerMonitor.on('resume', () => { setTimeout(() => void runSchedules(), 5_000); });
@@ -1913,6 +2002,36 @@ app.whenReady().then(async () => {
     },
   });
   void folderTriggers.sync(loadTriggers());
+  const cuRuntime = app.isPackaged ? path.join(process.resourcesPath, 'cu-runtime') : path.join(app.getAppPath(), 'cu-runtime');
+  const computerRecipes = new ComputerRecipes(path.join(app.getPath('userData'), 'computer-workflows'));
+  computerUse = new ComputerUseService({
+    changed: (id, state) => {
+      for (const window of [win, quickWindow]) if (window && !window.isDestroyed()) window.webContents.send('computer:state', { id, state });
+    },
+    saveRecipe: (name, text) => computerRecipes.save(name, text),
+    runtime: cuRuntime,
+    requireTarget: true,
+    tools: JSON.parse(readFileSync(path.join(cuRuntime, 'operations.json'), 'utf8')),
+    active: (id, input) => {
+      try {
+        const current = threads.get(id);
+        return computerTurnActive(current, input, isNightShift(id));
+      } catch { return false; }
+    },
+    accessibility: prompt => systemPreferences.isTrustedAccessibilityClient(prompt === true),
+    approve: (id, application, operation, signal) => computerUse!.requestApproval(id, application, operation, signal),
+  });
+  computerTargets = new ComputerTargetPicker({
+    driver: () => new ComputerUseTransport(path.join(cuRuntime, 'bimax-cu', 'bimax-cu')),
+    accessibility: () => systemPreferences.isTrustedAccessibilityClient(true),
+    approve: async (application, signal) => {
+      const result = await dialog.showMessageBox({ type: 'question', title: 'Choose Computer Use target',
+        message: `Read window names in ${application}?`,
+        detail: 'This permission lists windows for the picker only. Your task will ask separately before reading this app and before each input.',
+        buttons: ['Cancel', 'Allow once'], defaultId: 0, cancelId: 0, signal });
+      return !signal.aborted && result.response === 1;
+    },
+  });
   threadBroker = await createThreadBroker(threads, async (from, to) => {
     const a = threads.get(from).summary, b = threads.get(to).summary;
     const result = await dialog.showMessageBox({ type: 'question', title: 'Link Bimax threads?',
@@ -1994,17 +2113,103 @@ app.whenReady().then(async () => {
     if (result.canceled || !result.filePaths[0]) return false;
     const root = await fsp.realpath(result.filePaths[0]);
     if (talkOwner === 'quick') talk.end();
-    quickThreadId = null;
+    quickThreadId = null; quickDraftGeneration++;
     await showQuickBar({ root, source: 'Selected folder' });
     return true;
   });
+  const computerOwner = (event: IpcMainInvokeEvent, expected: unknown): string => {
+    const id = event.sender.id === win?.webContents.id ? threads.activeId : quickThreadId;
+    if ((expected ?? null) !== (id ?? null)) throw new InvalidPayloadError('This conversation changed. Choose the Computer Use target again.');
+    return `${event.sender.id}:${id || `draft:${quickDraftGeneration}:${quickContext.root || ''}`}`;
+  };
+  const outputOwner = (event: IpcMainInvokeEvent, expected: unknown): string => {
+    computerOwner(event, expected);
+    if (typeof expected !== 'string' || !threads.get(expected)) throw new InvalidPayloadError('Select a conversation before saving an output.');
+    return expected;
+  };
+  secureHandle('outputs:list', [], () => outputsStore.list());
+  secureHandle('outputs:read', null as any, (_event, id, version) => outputsStore.read(String(id), typeof version === 'string' ? version : undefined));
+  secureHandle('outputs:save', null as any, async (event, expected, input) => {
+    const owner = outputOwner(event, expected);
+    const document = await outputsStore.publish(owner, `manual:${owner}`, input);
+    broadcast('outputs:changed', null); return document;
+  });
+  secureHandle('outputs:export', false, async (event, id, version) => {
+    const document = await outputsStore.read(String(id), String(version));
+    if (document.state !== 'available') throw new Error('Saved output bytes are missing or changed.');
+    const host = BrowserWindow.fromWebContents(event.sender);
+    if (!host) return false;
+    const extensions: Record<string,string> = { markdown:'md', document:'html', html:'html', react:'tsx', code:document.record.language || 'txt', 'vega-lite':'json', table:'json', form:'json', mermaid:'mmd' };
+    const result = await dialog.showSaveDialog(host, { title: 'Export saved output', defaultPath: `${document.record.title.replace(/[/\\:]/g, '-')}.${extensions[document.record.format] || 'txt'}` });
+    if (result.canceled || !result.filePath) return false;
+    await fsp.writeFile(result.filePath, document.content, { mode: 0o600 }); return true;
+  });
+  secureHandle('outputs:app-start', null as string|null, async(event, expected, grant, bounds) => {
+    const owner=outputOwner(event,expected), host=BrowserWindow.fromWebContents(event.sender);
+    if(!host || host!==win || typeof grant!=='string' || grant.length>200) throw new InvalidPayloadError('Invalid tool UI.');
+    const ticket=outputPreview.reserve();
+    const data=await presentationRequest(owner,{grant,operation:'read'});
+    if(ticket!==outputPreview.revision())throw new Error('Tool UI was closed.');
+    outputOwner(event,expected);
+    return outputPreview.startApp(host,owner,data,bounds,(name,args)=>presentationRequest(owner,{grant,operation:'call',name,args}),()=>{void presentationRequest(owner,{grant,operation:'cancel'}).catch(()=>{});});
+  });
+  secureHandle('outputs:preview-start', null as string | null, async (event, expected, id, version, bounds) => {
+    const owner = outputOwner(event, expected), ticket=outputPreview.reserve(), document = await outputsStore.read(String(id), String(version));
+    if(ticket!==outputPreview.revision())throw new Error('Preview was closed.');
+    const host = BrowserWindow.fromWebContents(event.sender);
+    if (!host || host !== win) throw new InvalidPayloadError('Open this output in the main window.');
+    outputOwner(event, expected);
+    return outputPreview.start(host, owner, document, bounds);
+  });
+  secureHandle('outputs:preview-resize', false, (event, expected, token, bounds) => outputPreview.resize(String(token), outputOwner(event, expected), bounds));
+  secureHandle('outputs:preview-cancel', false, (event, expected) => {outputOwner(event,expected);return outputPreview.stop();});
+  secureHandle('outputs:preview-stop', false, (event, expected, token) => outputPreview.stop(String(token), outputOwner(event, expected)));
+  secureHandle('computer:state', null, (event, expected: unknown) => {
+    computerOwner(event, expected); return typeof expected === 'string' ? computerUse?.state(expected) : null;
+  });
+  secureHandle('computer:control', false, (event, expected: unknown, revision: unknown, action: unknown, candidate: unknown) => {
+    computerOwner(event, expected);
+    if (typeof expected !== 'string' || typeof revision !== 'string' || typeof action !== 'string' || !['pause', 'takeover', 'resume', 'check', 'correct', 'stop', 'allow', 'deny'].includes(action)
+      || (candidate !== undefined && (!Number.isInteger(candidate) || Number(candidate) < 0 || Number(candidate) >= 8))) return false;
+    return computerUse?.control(expected, revision, action as import('../shared/computer').ComputerControl, candidate as number | undefined) || false;
+  });
+  secureHandle('computer:save', false, (event, expected: unknown, revision: unknown, name: unknown) => {
+    computerOwner(event, expected);
+    return typeof expected === 'string' && typeof revision === 'string' && typeof name === 'string' ? computerUse?.saveRecipe(expected, revision, name) : false;
+  });
+  secureHandle('computer:recipes', [], (event, expected: unknown) => { computerOwner(event, expected); return computerRecipes.list(); });
+  secureHandle('computer:targets', { ok: false, error: 'Computer Use is unavailable.' }, async (event, expected: unknown, pid: unknown) => {
+    const owner = computerOwner(event, expected);
+    if (pid !== undefined && (!Number.isSafeInteger(pid) || Number(pid) <= 0)) throw new InvalidPayloadError('Invalid app target');
+    const result = await computerTargets?.discover(owner, pid as number | undefined, () => { try { return computerOwner(event, expected) === owner; } catch { return false; } });
+    if (computerOwner(event, expected) !== owner) return { ok: false, error: 'Conversation changed. Choose again.' };
+    return result;
+  });
+  secureHandle('computer:cancel-targets', false, (event, expected: unknown) => { if (expected !== undefined && (typeof expected !== 'string' || expected.length > 80)) return false; computerTargets?.cancelSender(`${event.sender.id}:`); return true; });
+  secureHandle<{ ok: boolean; error?: string }>('computer:submit', { ok: false, error: 'Computer Use is unavailable.' }, (event, expected: unknown, display: unknown, engineText: unknown, rawRoute: unknown) => {
+    const owner = computerOwner(event, expected);
+    if (typeof expected !== 'string' || event.sender.id !== win?.webContents.id || !isComputerRoute(rawRoute)
+      || typeof display !== 'string' || display.length > 200_000 || typeof engineText !== 'string' || engineText.length > 200_000) throw new InvalidPayloadError('Invalid Computer Use message');
+    const request = computerRequest(engineText);
+    if (!request || computerRequest(display) === null) throw new InvalidPayloadError('Start this message with @CU and describe the task.');
+    const route = claimComputerRoute(computerTargets!, owner, rawRoute, expected);
+    threads.submit(expected, request, display, true, route);
+    return { ok: true };
+  });
   secureHandle('threads:quick-submit', { ok: false } as any, async (_e, prompt: unknown, options: unknown) => {
     if (typeof prompt !== 'string' || !prompt.trim() || prompt.length > 200000) return { ok: false, error: 'Enter a prompt.' };
-    const opts = (options && typeof options === 'object' ? options : {}) as { attachments?: unknown; root?: unknown };
+    const opts = (options && typeof options === 'object' ? options : {}) as { attachments?: unknown; root?: unknown; route?: unknown; threadId?: unknown };
     try {
-      // What was open or dropped reaches the engine ahead of the words (quick.context.ts); the bar has already
-      // painted the words alone, so the thread records them without echoing them back (thread.manager.ts).
+      // Attachments provide engine context (quick.context.ts); the host echoes the person's words when
+      // the queued turn starts, so the floating bar and saved conversation share one visible message.
+      const owner = computerOwner(_e, opts.threadId);
+      const request = computerRequest(prompt);
+      if (opts.route !== undefined && !isComputerRoute(opts.route)) throw new Error('Invalid Computer Use target.');
+      if (request !== null && !request) throw new Error('Describe the task after @CU.');
+      if (opts.route && request === null) throw new Error('Start a Computer Use message with @CU.');
       const attachments = await validAttachments(opts.attachments);
+      if (computerOwner(_e, opts.threadId) !== owner) throw new Error('Conversation changed before sending.');
+      const routed = isComputerRoute(opts.route) ? opts.route : request !== null ? { kind: 'computer-use' as const } : undefined;
       if (quickThreadId && quickThreadSnapshot()) {
         const { root } = threads.get(quickThreadId).summary;
         const outside = attachments.find((item) => item.path && needsFolder(item) && !insideFolder(root, item.path));
@@ -2013,7 +2218,10 @@ app.whenReady().then(async () => {
         // FL3: "Actually, by project" after a plan was applied here: tell the task to revise from the current state.
         const applied = isRevision(prompt) ? loadOrganizeHistory()[root] : undefined;
         const revision = applied && Date.now() - applied.at < 24 * 60 * 60 * 1000 ? `\n\n${revisionHint(applied)}` : '';
-        threads.steer(quickThreadId, `${withContext(prompt, attachments)}${revision}`, prompt, false);
+        if (routed) {
+          const route = claimComputerRoute(computerTargets!, owner, routed, quickThreadId);
+          threads.submit(quickThreadId, withContext(request!, attachments), prompt, true, route);
+        } else threads.steer(quickThreadId, `${withContext(prompt, attachments)}${revision}`, prompt, true);
         offerRule(root, prompt);
         return { ok: true, id: quickThreadId };
       }
@@ -2024,10 +2232,14 @@ app.whenReady().then(async () => {
       if (root === '/' || root === os.homedir()) return { ok: false, error: 'Choose a specific folder rather than your whole home folder.' };
       const outside = attachments.find((item) => item.path && needsFolder(item) && !insideFolder(root, item.path));
       if (outside) return { ok: false, error: `“${outside.label}” is outside ${path.basename(root)}. Choose its folder instead.` };
+      if (computerOwner(_e, opts.threadId) !== owner) throw new Error('Conversation changed before sending.');
       const id = threads.create(root, '', 'quick', quickModel());
       quickThreadId = id;
       noteNotchTask(id, attachments);
-      threads.submit(id, withContext(prompt, attachments), prompt, false);
+      if (routed) {
+        const route = claimComputerRoute(computerTargets!, owner, routed, id);
+        threads.submit(id, withContext(request!, attachments), prompt, true, route);
+      } else threads.submit(id, withContext(prompt, attachments), prompt, true);
       sendQuickThread();
       offerRule(root, prompt);
       return { ok: true, id };
@@ -2393,7 +2605,7 @@ app.whenReady().then(async () => {
       return `Undid ${result.undone.length} change${result.undone.length === 1 ? '' : 's'}.`;
     }));
   secureOn('threads:quick-resize', (_e, height: unknown) => { if (typeof height === 'number') applyQuickBounds(height); });
-  secureOn('threads:quick-reset', () => { if (talkOwner === 'quick') talk.end(); quickThreadId = null; sendQuickThread(); });
+  secureOn('threads:quick-reset', () => { if (talkOwner === 'quick') talk.end(); quickThreadId = null; quickDraftGeneration++; sendQuickThread(); });
   secureOn('threads:quick-interrupt', () => { if (quickThreadId) threads.send(quickThreadId, { t: 'interrupt' }); });
   secureOn('threads:quick-open', () => {
     if (!quickThreadId) return;
@@ -2449,7 +2661,7 @@ app.whenReady().then(async () => {
   const refused = (error: unknown): ThreadAction => ({ ok: false, error: (error as Error).message });
   const onScreen = 'This thread is open in the main window. Open another thread first.';
   /** The ⌘2 bar was showing a thread that just left the list: it moves on to a new task. */
-  const leftBar = (id: string): void => { if (id === quickThreadId) { quickThreadId = null; sendQuickThread(); } };
+  const leftBar = (id: string): void => { if (id === quickThreadId) { quickThreadId = null; quickDraftGeneration++; sendQuickThread(); } };
   secureHandle('threads:rename', { ok: false } as ThreadAction, (_e, id: unknown, title: unknown) => {
     if (typeof id !== 'string' || typeof title !== 'string') return { ok: false, error: 'No thread was given.' };
     try {
@@ -2461,7 +2673,20 @@ app.whenReady().then(async () => {
     }
   });
   secureHandle('threads:search', [] as string[], (_e, query: unknown) => (typeof query === 'string' ? threads.search(query.slice(0, 200)) : []));
-  secureHandle('threads:archived', [] as ThreadSummary[], () => threadStorage.archived());
+  secureHandle('threads:archived', [] as ThreadSummary[], async () => {
+    const history = await threadStorage.archived();
+    threadChanged();
+    return history;
+  });
+  const exportRecovery = recoveryExportAction(threadStorage, async id => {
+    if (!win) return null;
+    const result = await dialog.showSaveDialog(win, {
+      title: 'Export conversation recovery copy', defaultPath: `Bimax recovery ${id}.json`,
+      filters: [{ name: 'Saved conversation', extensions: ['json'] }],
+    });
+    return result.canceled ? null : result.filePath ?? null;
+  });
+  secureHandle('threads:export-recovery', { ok: false }, (_e, id, archived, backup) => exportRecovery(id, archived, backup));
   secureHandle('threads:archive', { ok: false } as ThreadAction, async (_e, id: unknown) => {
     if (typeof id !== 'string') return { ok: false, error: 'No thread was given.' };
     if (id === threads.activeId) return { ok: false, error: onScreen };
@@ -2670,6 +2895,7 @@ app.whenReady().then(async () => {
   // Review (git), Files, editor save, Sessions and the Terminal: workspace.ipc.ts.
   registerWorkspaceIpc({ handle: secureHandle, on: secureOn }, {
     projectDir: () => projectDir(),
+    projectFiles: () => { if (!selectedProjectFiles) throw new InvalidPayloadError('No project is open.'); return selectedProjectFiles; },
     projectGeneration: () => projectGeneration,
     broadcast,
     window: () => (win && !win.isDestroyed() ? win : null),
@@ -2741,6 +2967,7 @@ app.on('window-all-closed', () => {
 
 let quitCleanupDone = false;
 app.on('before-quit', (event) => {
+  void selectedProjectFiles?.close();
   if (quitCleanupDone) return;
   quitCleanupDone = true;
   talk.end();
@@ -2748,12 +2975,14 @@ app.on('before-quit', (event) => {
   notchDeck?.stop();
   globalShortcut.unregisterAll();
   quickWindow?.destroy(); approvalWindow?.destroy();
-  threads?.dispose(); threadBroker?.close();
+  threads?.dispose(); computerUse?.close(); computerTargets?.close(); threadBroker?.close();
   if (threadStorage) {
     // Wait for the last thread writes (backlog F12), but never hold quitting for more than three seconds.
     event.preventDefault();
     const storage = threadStorage;
-    void Promise.race([storage.flush(), new Promise((resolve) => setTimeout(resolve, 3000))]).finally(() => app.quit());
+    const remoteStopped = stopMobileResponder?.().catch(() => {}) ?? Promise.resolve();
+    mobileAdapter = null;
+    void Promise.race([Promise.all([storage.flush(), remoteStopped]), new Promise((resolve) => setTimeout(resolve, 3000))]).finally(() => app.quit());
   }
   supervisor?.dispose();
   supervisor = null;

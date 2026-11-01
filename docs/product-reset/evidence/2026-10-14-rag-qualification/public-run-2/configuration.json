@@ -1,0 +1,21 @@
+{
+  "reader": "openai/gpt-oss-20b",
+  "judge": "openai/gpt-oss-20b",
+  "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "embedding": "preinstalled Ollama all-minilm:latest, real 384-dimensional vectors, digest recorded per corpus",
+  "reranker": null,
+  "recallLimit": 3,
+  "recallMaxChars": 1800,
+  "readerMaxTokens": 2048,
+  "judgeMaxTokens": 512,
+  "temperature": 0,
+  "rpm": 40,
+  "workers": 2,
+  "scope": "100 balanced LongMemEval_S questions and 100 balanced MemoryAgentBench Accurate_Retrieval questions; not full-suite scores",
+  "selectionSha256": "7574e4ac67eaa0e9b19cd3915a5160c1892d92bb32a6aa346193437046164c4a",
+  "promptSourceSha256": "ecce9c4c79dc89d99534ac17b383a5cbb5b9f0c69ee98adaf0684742e3d95251",
+  "modelDifference": "Configured NVIDIA gpt-oss-20b reader/judge; not the benchmark reference models or official leaderboard",
+  "baselineComparison": "Frozen record-95 source must produce identical source IDs/prompt. The same reader response is shared for these identical inputs; no independent accuracy-gain claim.",
+  "protocol": "Fixed 100 + 100 questions before inference, all attempts preserved, no quality tuning on this selection",
+  "started": "2026-10-14T04:08:53.401435+00:00"
+}

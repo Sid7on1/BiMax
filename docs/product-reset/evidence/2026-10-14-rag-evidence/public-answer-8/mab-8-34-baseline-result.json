@@ -1,0 +1,162 @@
+{
+  "row": 8,
+  "query": 34,
+  "id": "mab-8-34",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T12:30:23.753836+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n31. The man was chased out of the dog kennel by a ferocious dog.\n32. The man expressed despair, saying he was not even a dog.\n33. The man resumed his walk out of the town in search of shelter.\n34. The man shook his fist at the church as he passed through Cathedral Square.\n35. The man lay down on a stone bench outside a printing office.\n\n\nBelow is a list of possible subsequent events:\n\n['The man received four sous from Madame de R\u2014\u2014.', 'The scholar presented seven books to Humphrey Waylon during the lecture.', 'The neighbor borrowed six eggs from Humphrey Waylon last week.', 'The artist gifted two paintings to Humphrey Waylon at the gala.', 'The woman delivered five francs to Humphrey Waylon.', \"The child found three marbles from Humphrey Waylon's collection.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "The man received four sous from Madame de R\u2014\u2014."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-47",
+    "context-37",
+    "context-60"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T12:33:12.646715+00:00",
+  "rag": {
+    "ids": [
+      "context-47",
+      "context-37",
+      "context-60"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) These poor living beings, these creatures of God, henceforth without support, without guide, without refuge, wandered away at random,\u2014who even knows?\u2014each in his own direction perhaps, and little by little buried themselves in that cold mist which engulfs solitary destinies; gloomy shades, into which disappear in succession so many unlucky heads, in the sombre march of the human race.\n\nThey quitted the country.\n  (part 4 of 5) fourth year of his captivity.\n\nI know not through what channels the news reached him.\n\nSome one who had known them in their own country had seen his sister.\n\nShe was in Paris.\n\nShe lived in a poor street near Saint-Sulpice, in the Rue du Gindre.\n\nShe had with her only one child, a little boy, the youngest.\n\nWhere were the other six?\n\nPerhaps she did not know herself.\n\nEvery morning she went to a printing office, No.\n\n3 Rue du Sabot, where she was a folder and stitcher.\n\nShe was obliged to be there at six o\u2019clock in the morning\u2014long before daylight in winter.\n\nIn the same building with the printing office there was a school, and to this school she took her little boy, who was seven years old.\n\nBut as she entered the printing office at six, and the school only opened at seven, the child had to wait in the courtyard, for the school to open, for an hour\u2014one hour of a winter night in the open air!\n\nThey would not allow the child to come into the printing office, because he was in the way, they said.\n- (part 3 of 4, excerpt) When he had, not without difficulty, repassed the fence, and found himself once more in the street, alone, without refuge, without shelter, without a roof\n- (part 3 of 4, excerpt) He gazed at the child, in a sort of amazement, then he stretched out his hand towards his cudgel and cried in a terrible voice",
+    "evidence": [
+      {
+        "sourceId": "memory:context-47",
+        "sourceVersion": "sha256:0426a2611b2e4e72a118d928b8b87cd0fe11bbef57175f9de831ce273b59b28b",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-47",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "These poor living beings, these creatures of God, henceforth without support, without guide, without refuge, wandered away at random,\u2014who even knows?\u2014each in his own direction perhaps, and little by little buried themselves in that cold mist which engulfs solitary destinies; gloomy shades, into which disappear in succession so many unlucky heads, in the sombre march of the human race.\n\nThey quitted the country.",
+        "id": "ev_a5bb1df8f617fa42eb8324e6",
+        "observedAt": "2026-10-14T08:59:35.804Z"
+      },
+      {
+        "sourceId": "memory:context-47",
+        "sourceVersion": "sha256:0426a2611b2e4e72a118d928b8b87cd0fe11bbef57175f9de831ce273b59b28b",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-47",
+          "part": 4,
+          "parts": 5
+        },
+        "text": "fourth year of his captivity.\n\nI know not through what channels the news reached him.\n\nSome one who had known them in their own country had seen his sister.\n\nShe was in Paris.\n\nShe lived in a poor street near Saint-Sulpice, in the Rue du Gindre.\n\nShe had with her only one child, a little boy, the youngest.\n\nWhere were the other six?\n\nPerhaps she did not know herself.\n\nEvery morning she went to a printing office, No.\n\n3 Rue du Sabot, where she was a folder and stitcher.\n\nShe was obliged to be there at six o\u2019clock in the morning\u2014long before daylight in winter.\n\nIn the same building with the printing office there was a school, and to this school she took her little boy, who was seven years old.\n\nBut as she entered the printing office at six, and the school only opened at seven, the child had to wait in the courtyard, for the school to open, for an hour\u2014one hour of a winter night in the open air!\n\nThey would not allow the child to come into the printing office, because he was in the way, they said.",
+        "id": "ev_3f0bb3032006a312bbe3bf20",
+        "observedAt": "2026-10-14T08:59:35.805Z"
+      },
+      {
+        "sourceId": "memory:context-37",
+        "sourceVersion": "sha256:0dd0a25b1217dd36cc1f3cdd3f97516e01a15d0899ccb8f8e7961dbc19da1f95",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-37",
+          "part": 3,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "When he had, not without difficulty, repassed the fence, and found himself once more in the street, alone, without refuge, without shelter, without a roof",
+        "id": "ev_120aa15997447cd7f2f1aa99",
+        "observedAt": "2026-10-14T08:59:35.805Z"
+      },
+      {
+        "sourceId": "memory:context-60",
+        "sourceVersion": "sha256:51ad7085ea3e0608e6129ef2da50cf0ff174279dec98a0c526be83ac175f44e3",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-60",
+          "part": 3,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "He gazed at the child, in a sort of amazement, then he stretched out his hand towards his cudgel and cried in a terrible voice",
+        "id": "ev_87fcdeb43f9a0c65a5cd15ea",
+        "observedAt": "2026-10-14T08:59:35.806Z"
+      }
+    ],
+    "sourceIds": [
+      "context-47",
+      "context-37",
+      "context-60"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 5.7777500000001965,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7",
+  "prediction": "The man lay down on a stone bench outside a printing office.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.11764705882352941
+  },
+  "readerUsage": {
+    "prompt_tokens": 735,
+    "completion_tokens": 1038,
+    "total_tokens": 1773,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 470,
+    "completion_tokens": 387,
+    "total_tokens": 857,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 384,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 99232.33904199969,
+  "judgeWallMs": 69658.3169999999
+}

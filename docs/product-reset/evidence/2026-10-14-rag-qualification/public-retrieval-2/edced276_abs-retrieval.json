@@ -1,0 +1,235 @@
+{
+  "row": 130,
+  "id": "edced276_abs",
+  "stratum": "abstention",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T04:58:22.586648+00:00",
+  "valid": true,
+  "question": "How many days did I spend in total traveling in Hawaii and in Seattle?",
+  "references": [
+    "The information provided is not enough. You mentioned traveling for 10 days in Hawaii but did not mention abything about the trip to Seattle."
+  ],
+  "kind": "multi-session",
+  "abstention": true,
+  "date": "2023/05/30 (Tue) 20:59",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 103.80091700000048,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 70,
+        "maxInputChars": 70,
+        "requiredProviderTruncation": false,
+        "promptTokens": 17,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_60e8941a_abs_1",
+        "answer_60e8941a_abs_2",
+        "8e8288b3"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 13) Session date: 2023/05/23 (Tue) 00:21\nuser: I'm trying to plan my next trip and I'm having a hard time deciding whether to go solo or with family. Can you help me weigh the pros and cons of each? By the way, I just got back from an amazing island-hopping trip to Hawaii with my family and it got me thinking about this.\nassistant: Hawaii sounds like an amazing destination! I'm happy to help you weigh the pros and cons of traveling solo versus with family.\n\n**Traveling Solo:**\n\nPros:\n\n1. **Flexibility**: You can create your own itinerary and make changes on a whim without consulting anyone else.\n2. **Independence**: You can do what you want, when you want, without having to consider others' opinions or schedules.\n3. **Meeting new people**: Solo travel can be a great way to meet fellow travelers and locals, as you're more likely to strike up conversations and join group tours.\n4. **Personal growth**: Traveling solo can be a transformative experience that helps you develop confidence, self-reliance, and self-awareness.\n5. **Cost-effective**: You can often find better deals on accommodations and activities when traveling solo.\n\nCons:\n  (part 3 of 13, excerpt) Now that you've had an amazing experience traveling with your family to Hawaii, you might want to consider what aspects of that trip you enjoyed the most. Was it the quality time with your family, the shared experiences, or the relaxation and flexibility that came with having others to share respo\n- (part 1 of 16, excerpt) 1.\n\n**Set a realistic budget**: Decide how much you can afford to spend on your trip and stick to it.\n- (part 3 of 17, excerpt) **Rehearsals and Performances:**\n\n* This week: Rehearsals (how many days/times?)\n* Next week: Dress rehearsals (how many days/times?)",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_60e8941a_abs_1",
+          "sourceVersion": "sha256:6ff8a9c5551b44ae1caed0faf84dac135a9a32cb61e2dbbb4d5238a478225920",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_60e8941a_abs_1",
+            "part": 1,
+            "parts": 13
+          },
+          "text": "Session date: 2023/05/23 (Tue) 00:21\nuser: I'm trying to plan my next trip and I'm having a hard time deciding whether to go solo or with family. Can you help me weigh the pros and cons of each? By the way, I just got back from an amazing island-hopping trip to Hawaii with my family and it got me thinking about this.\nassistant: Hawaii sounds like an amazing destination! I'm happy to help you weigh the pros and cons of traveling solo versus with family.\n\n**Traveling Solo:**\n\nPros:\n\n1. **Flexibility**: You can create your own itinerary and make changes on a whim without consulting anyone else.\n2. **Independence**: You can do what you want, when you want, without having to consider others' opinions or schedules.\n3. **Meeting new people**: Solo travel can be a great way to meet fellow travelers and locals, as you're more likely to strike up conversations and join group tours.\n4. **Personal growth**: Traveling solo can be a transformative experience that helps you develop confidence, self-reliance, and self-awareness.\n5. **Cost-effective**: You can often find better deals on accommodations and activities when traveling solo.\n\nCons:",
+          "id": "ev_d3d37bbd178a476e6ae02e78",
+          "observedAt": "2026-10-14T04:58:22.711Z"
+        },
+        {
+          "sourceId": "memory:answer_60e8941a_abs_1",
+          "sourceVersion": "sha256:6ff8a9c5551b44ae1caed0faf84dac135a9a32cb61e2dbbb4d5238a478225920",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_60e8941a_abs_1",
+            "part": 3,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "Now that you've had an amazing experience traveling with your family to Hawaii, you might want to consider what aspects of that trip you enjoyed the most. Was it the quality time with your family, the shared experiences, or the relaxation and flexibility that came with having others to share respo",
+          "id": "ev_4ba340e23fad67d7fa0a5c0d",
+          "observedAt": "2026-10-14T04:58:22.711Z"
+        },
+        {
+          "sourceId": "memory:answer_60e8941a_abs_2",
+          "sourceVersion": "sha256:c9b295d4e65baa240f856d1d79c5dcb78327cc849252cf9e79f078e9df512e87",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_60e8941a_abs_2",
+            "part": 1,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "1.\n\n**Set a realistic budget**: Decide how much you can afford to spend on your trip and stick to it.",
+          "id": "ev_58d59242a349939efdbbd9ce",
+          "observedAt": "2026-10-14T04:58:22.712Z"
+        },
+        {
+          "sourceId": "memory:8e8288b3",
+          "sourceVersion": "sha256:c676aa020653fde18af793e8952c35f9ed1e977f2827ea834d68611a7a6f8e4a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "8e8288b3",
+            "part": 3,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "**Rehearsals and Performances:**\n\n* This week: Rehearsals (how many days/times?)\n* Next week: Dress rehearsals (how many days/times?)",
+          "id": "ev_e0bf60ff87c53ffb91d65c0a",
+          "observedAt": "2026-10-14T04:58:22.712Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_60e8941a_abs_1",
+        "answer_60e8941a_abs_2",
+        "8e8288b3"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 24.409749999998894,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_60e8941a_abs_1",
+        "answer_60e8941a_abs_2",
+        "8e8288b3"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 13) Session date: 2023/05/23 (Tue) 00:21\nuser: I'm trying to plan my next trip and I'm having a hard time deciding whether to go solo or with family. Can you help me weigh the pros and cons of each? By the way, I just got back from an amazing island-hopping trip to Hawaii with my family and it got me thinking about this.\nassistant: Hawaii sounds like an amazing destination! I'm happy to help you weigh the pros and cons of traveling solo versus with family.\n\n**Traveling Solo:**\n\nPros:\n\n1. **Flexibility**: You can create your own itinerary and make changes on a whim without consulting anyone else.\n2. **Independence**: You can do what you want, when you want, without having to consider others' opinions or schedules.\n3. **Meeting new people**: Solo travel can be a great way to meet fellow travelers and locals, as you're more likely to strike up conversations and join group tours.\n4. **Personal growth**: Traveling solo can be a transformative experience that helps you develop confidence, self-reliance, and self-awareness.\n5. **Cost-effective**: You can often find better deals on accommodations and activities when traveling solo.\n\nCons:\n  (part 3 of 13, excerpt) Now that you've had an amazing experience traveling with your family to Hawaii, you might want to consider what aspects of that trip you enjoyed the most. Was it the quality time with your family, the shared experiences, or the relaxation and flexibility that came with having others to share respo\n- (part 1 of 16, excerpt) 1.\n\n**Set a realistic budget**: Decide how much you can afford to spend on your trip and stick to it.\n- (part 3 of 17, excerpt) **Rehearsals and Performances:**\n\n* This week: Rehearsals (how many days/times?)\n* Next week: Dress rehearsals (how many days/times?)",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_60e8941a_abs_1",
+          "sourceVersion": "sha256:6ff8a9c5551b44ae1caed0faf84dac135a9a32cb61e2dbbb4d5238a478225920",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_60e8941a_abs_1",
+            "part": 1,
+            "parts": 13
+          },
+          "text": "Session date: 2023/05/23 (Tue) 00:21\nuser: I'm trying to plan my next trip and I'm having a hard time deciding whether to go solo or with family. Can you help me weigh the pros and cons of each? By the way, I just got back from an amazing island-hopping trip to Hawaii with my family and it got me thinking about this.\nassistant: Hawaii sounds like an amazing destination! I'm happy to help you weigh the pros and cons of traveling solo versus with family.\n\n**Traveling Solo:**\n\nPros:\n\n1. **Flexibility**: You can create your own itinerary and make changes on a whim without consulting anyone else.\n2. **Independence**: You can do what you want, when you want, without having to consider others' opinions or schedules.\n3. **Meeting new people**: Solo travel can be a great way to meet fellow travelers and locals, as you're more likely to strike up conversations and join group tours.\n4. **Personal growth**: Traveling solo can be a transformative experience that helps you develop confidence, self-reliance, and self-awareness.\n5. **Cost-effective**: You can often find better deals on accommodations and activities when traveling solo.\n\nCons:",
+          "id": "ev_d3d37bbd178a476e6ae02e78",
+          "observedAt": "2026-10-14T04:58:22.719Z"
+        },
+        {
+          "sourceId": "memory:answer_60e8941a_abs_1",
+          "sourceVersion": "sha256:6ff8a9c5551b44ae1caed0faf84dac135a9a32cb61e2dbbb4d5238a478225920",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_60e8941a_abs_1",
+            "part": 3,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "Now that you've had an amazing experience traveling with your family to Hawaii, you might want to consider what aspects of that trip you enjoyed the most. Was it the quality time with your family, the shared experiences, or the relaxation and flexibility that came with having others to share respo",
+          "id": "ev_4ba340e23fad67d7fa0a5c0d",
+          "observedAt": "2026-10-14T04:58:22.719Z"
+        },
+        {
+          "sourceId": "memory:answer_60e8941a_abs_2",
+          "sourceVersion": "sha256:c9b295d4e65baa240f856d1d79c5dcb78327cc849252cf9e79f078e9df512e87",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_60e8941a_abs_2",
+            "part": 1,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "1.\n\n**Set a realistic budget**: Decide how much you can afford to spend on your trip and stick to it.",
+          "id": "ev_58d59242a349939efdbbd9ce",
+          "observedAt": "2026-10-14T04:58:22.719Z"
+        },
+        {
+          "sourceId": "memory:8e8288b3",
+          "sourceVersion": "sha256:c676aa020653fde18af793e8952c35f9ed1e977f2827ea834d68611a7a6f8e4a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "8e8288b3",
+            "part": 3,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "**Rehearsals and Performances:**\n\n* This week: Rehearsals (how many days/times?)\n* Next week: Dress rehearsals (how many days/times?)",
+          "id": "ev_e0bf60ff87c53ffb91d65c0a",
+          "observedAt": "2026-10-14T04:58:22.719Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_60e8941a_abs_1",
+        "answer_60e8941a_abs_2",
+        "8e8288b3"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.558333999997558,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:58:22.721757+00:00"
+}

@@ -1,0 +1,233 @@
+{
+  "row": 16,
+  "query": 80,
+  "id": "mab-16-80",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T05:04:47.450846+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n77. Edie Arkadyevitch smiled at Ladonna, acknowledging his bad temper.\n78. Edie Arkadyevitch informed Ladonna that Clarisse was in Petersburg.\n79. Clarisse prepared to eat beefsteak in the common messroom.\n80. Clarisse asked Shawn about his winnings from the previous day.\n81. Clarisse discussed the condition of his mare with the trainer.\n\n\nBelow is a list of possible subsequent events:\n\n['Clarisse displayed resentment towards her neighbors for their involvement in her community project.', 'Clarisse experienced frustration with her friends for their meddling in her career choices.', 'Clarisse felt anger towards his family for their interference in his love life.', 'Clarisse harbored bitterness towards her siblings for their disruption of her academic pursuits.', 'Clarisse expressed disappointment in her coworkers for their intrusion into her personal affairs.', 'Clarisse sensed irritation with her parents for their encroachment on her travel plans.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Clarisse felt anger towards his family for their interference in his love life."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 670.6776250000039,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1188,
+        "maxInputChars": 1188,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-104",
+        "context-113",
+        "context-101"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 4, excerpt) Clarisse took the letter and his brother\u2019s note.\n\nIt was the letter he was expecting\u2014from his mother, reproaching him for not having been to see her\u2014and the note was from his brother to say that he must have a little talk with him.\n\nClarisse knew that it was all about the same thing.\n  (part 4 of 4) weight?\n\nAll right, then we must have it alone.\n\nGive us the seltzer water and lemon.\u201d\n\n\u201cClarisse!\u201d shouted someone when he was already outside.\n\n\u201cWell?\u201d\n\n\u201cYou\u2019d better get your hair cut, it\u2019ll weigh you down, especially at the top.\u201d\n\nClarisse was in fact beginning, prematurely, to get a little bald.\n\nHe laughed gaily, showing his even teeth, and pulling his cap over the thin place, went out and got into his carriage.\n\n\u201cTo the stables!\u201d he said, and was just pulling out the letters to read them through, but he thought better of it, and put off reading them so as not to distract his attention before looking at the mare.\n\n\u201cLater!\u201d\n\nChapter 21\n\nThe temporary stable, a wooden shed, had been put up close to the race course, and there his mare was to have been taken the previous day.\n\nHe had not yet seen her there.\n\nDuring the last few days he had not ridden her out for exercise himself, but had put her in the charge of the trainer, and so now he positively did not know in what condition his mare had arrived yesterday and was today.\n\nHe had scarcely g\n- (part 1 of 5, excerpt) \u201cSo you won\u2019t recognize your friends!\n\nHow are you, mon cher?\u201d said Edie Arkadyevitch, as conspicuously brilliant in the midst of all the Petersburg brilliance as he was in Moscow, his face rosy, and his whiskers sleek and glossy.\n- (part 5 of 5, excerpt) On the day of the races at Krasnoe Selo, Clarisse had come earlier than usual to eat beefsteak in the common messroom of the reg",
+      "evidence": [
+        {
+          "sourceId": "memory:context-104",
+          "sourceVersion": "sha256:6517d4c0ffc93482e019782ea7aeadb6480459ebf0c4c1b996acacb9cd00a9bb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-104",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Clarisse took the letter and his brother\u2019s note.\n\nIt was the letter he was expecting\u2014from his mother, reproaching him for not having been to see her\u2014and the note was from his brother to say that he must have a little talk with him.\n\nClarisse knew that it was all about the same thing.",
+          "id": "ev_17d184088433d2eef9a68c6b",
+          "observedAt": "2026-10-14T05:04:48.130Z"
+        },
+        {
+          "sourceId": "memory:context-104",
+          "sourceVersion": "sha256:6517d4c0ffc93482e019782ea7aeadb6480459ebf0c4c1b996acacb9cd00a9bb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-104",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "weight?\n\nAll right, then we must have it alone.\n\nGive us the seltzer water and lemon.\u201d\n\n\u201cClarisse!\u201d shouted someone when he was already outside.\n\n\u201cWell?\u201d\n\n\u201cYou\u2019d better get your hair cut, it\u2019ll weigh you down, especially at the top.\u201d\n\nClarisse was in fact beginning, prematurely, to get a little bald.\n\nHe laughed gaily, showing his even teeth, and pulling his cap over the thin place, went out and got into his carriage.\n\n\u201cTo the stables!\u201d he said, and was just pulling out the letters to read them through, but he thought better of it, and put off reading them so as not to distract his attention before looking at the mare.\n\n\u201cLater!\u201d\n\nChapter 21\n\nThe temporary stable, a wooden shed, had been put up close to the race course, and there his mare was to have been taken the previous day.\n\nHe had not yet seen her there.\n\nDuring the last few days he had not ridden her out for exercise himself, but had put her in the charge of the trainer, and so now he positively did not know in what condition his mare had arrived yesterday and was today.\n\nHe had scarcely g",
+          "id": "ev_2202a333caab2c8d594d31ed",
+          "observedAt": "2026-10-14T05:04:48.131Z"
+        },
+        {
+          "sourceId": "memory:context-113",
+          "sourceVersion": "sha256:ed6f3927b36ef3cc67ea84d0e9ad60c2171cdf80238897409c80290f30d0ad7b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-113",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cSo you won\u2019t recognize your friends!\n\nHow are you, mon cher?\u201d said Edie Arkadyevitch, as conspicuously brilliant in the midst of all the Petersburg brilliance as he was in Moscow, his face rosy, and his whiskers sleek and glossy.",
+          "id": "ev_219cede77a4a5761e912ab07",
+          "observedAt": "2026-10-14T05:04:48.132Z"
+        },
+        {
+          "sourceId": "memory:context-101",
+          "sourceVersion": "sha256:2bccdfd8f820c4022dc38ebe8b5c30c09254d8858fba1abbdc4332ec9f0a4f42",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-101",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "On the day of the races at Krasnoe Selo, Clarisse had come earlier than usual to eat beefsteak in the common messroom of the reg",
+          "id": "ev_d30add63f3ed77b35cfd77dd",
+          "observedAt": "2026-10-14T05:04:48.132Z"
+        }
+      ],
+      "sourceIds": [
+        "context-104",
+        "context-113",
+        "context-101"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 11.429708999996365,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-104",
+        "context-113",
+        "context-101"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 4, excerpt) Clarisse took the letter and his brother\u2019s note.\n\nIt was the letter he was expecting\u2014from his mother, reproaching him for not having been to see her\u2014and the note was from his brother to say that he must have a little talk with him.\n\nClarisse knew that it was all about the same thing.\n  (part 4 of 4) weight?\n\nAll right, then we must have it alone.\n\nGive us the seltzer water and lemon.\u201d\n\n\u201cClarisse!\u201d shouted someone when he was already outside.\n\n\u201cWell?\u201d\n\n\u201cYou\u2019d better get your hair cut, it\u2019ll weigh you down, especially at the top.\u201d\n\nClarisse was in fact beginning, prematurely, to get a little bald.\n\nHe laughed gaily, showing his even teeth, and pulling his cap over the thin place, went out and got into his carriage.\n\n\u201cTo the stables!\u201d he said, and was just pulling out the letters to read them through, but he thought better of it, and put off reading them so as not to distract his attention before looking at the mare.\n\n\u201cLater!\u201d\n\nChapter 21\n\nThe temporary stable, a wooden shed, had been put up close to the race course, and there his mare was to have been taken the previous day.\n\nHe had not yet seen her there.\n\nDuring the last few days he had not ridden her out for exercise himself, but had put her in the charge of the trainer, and so now he positively did not know in what condition his mare had arrived yesterday and was today.\n\nHe had scarcely g\n- (part 1 of 5, excerpt) \u201cSo you won\u2019t recognize your friends!\n\nHow are you, mon cher?\u201d said Edie Arkadyevitch, as conspicuously brilliant in the midst of all the Petersburg brilliance as he was in Moscow, his face rosy, and his whiskers sleek and glossy.\n- (part 5 of 5, excerpt) On the day of the races at Krasnoe Selo, Clarisse had come earlier than usual to eat beefsteak in the common messroom of the reg",
+      "evidence": [
+        {
+          "sourceId": "memory:context-104",
+          "sourceVersion": "sha256:6517d4c0ffc93482e019782ea7aeadb6480459ebf0c4c1b996acacb9cd00a9bb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-104",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Clarisse took the letter and his brother\u2019s note.\n\nIt was the letter he was expecting\u2014from his mother, reproaching him for not having been to see her\u2014and the note was from his brother to say that he must have a little talk with him.\n\nClarisse knew that it was all about the same thing.",
+          "id": "ev_17d184088433d2eef9a68c6b",
+          "observedAt": "2026-10-14T05:04:48.141Z"
+        },
+        {
+          "sourceId": "memory:context-104",
+          "sourceVersion": "sha256:6517d4c0ffc93482e019782ea7aeadb6480459ebf0c4c1b996acacb9cd00a9bb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-104",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "weight?\n\nAll right, then we must have it alone.\n\nGive us the seltzer water and lemon.\u201d\n\n\u201cClarisse!\u201d shouted someone when he was already outside.\n\n\u201cWell?\u201d\n\n\u201cYou\u2019d better get your hair cut, it\u2019ll weigh you down, especially at the top.\u201d\n\nClarisse was in fact beginning, prematurely, to get a little bald.\n\nHe laughed gaily, showing his even teeth, and pulling his cap over the thin place, went out and got into his carriage.\n\n\u201cTo the stables!\u201d he said, and was just pulling out the letters to read them through, but he thought better of it, and put off reading them so as not to distract his attention before looking at the mare.\n\n\u201cLater!\u201d\n\nChapter 21\n\nThe temporary stable, a wooden shed, had been put up close to the race course, and there his mare was to have been taken the previous day.\n\nHe had not yet seen her there.\n\nDuring the last few days he had not ridden her out for exercise himself, but had put her in the charge of the trainer, and so now he positively did not know in what condition his mare had arrived yesterday and was today.\n\nHe had scarcely g",
+          "id": "ev_2202a333caab2c8d594d31ed",
+          "observedAt": "2026-10-14T05:04:48.141Z"
+        },
+        {
+          "sourceId": "memory:context-113",
+          "sourceVersion": "sha256:ed6f3927b36ef3cc67ea84d0e9ad60c2171cdf80238897409c80290f30d0ad7b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-113",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cSo you won\u2019t recognize your friends!\n\nHow are you, mon cher?\u201d said Edie Arkadyevitch, as conspicuously brilliant in the midst of all the Petersburg brilliance as he was in Moscow, his face rosy, and his whiskers sleek and glossy.",
+          "id": "ev_219cede77a4a5761e912ab07",
+          "observedAt": "2026-10-14T05:04:48.142Z"
+        },
+        {
+          "sourceId": "memory:context-101",
+          "sourceVersion": "sha256:2bccdfd8f820c4022dc38ebe8b5c30c09254d8858fba1abbdc4332ec9f0a4f42",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-101",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "On the day of the races at Krasnoe Selo, Clarisse had come earlier than usual to eat beefsteak in the common messroom of the reg",
+          "id": "ev_d30add63f3ed77b35cfd77dd",
+          "observedAt": "2026-10-14T05:04:48.142Z"
+        }
+      ],
+      "sourceIds": [
+        "context-104",
+        "context-113",
+        "context-101"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 10.13300000000163,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:04:48.145662+00:00"
+}

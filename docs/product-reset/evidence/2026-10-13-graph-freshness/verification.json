@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "date": "2026-10-13",
+  "baseline_commit": "7d1346dd9f428ce780871a652ce2f3a27b5388f6",
+  "scope": "Offline non-CU/non-UI graph/compiler/cache correctness and lint; rejected heap experiment. Not full installed/release/competitive qualification.",
+  "checks": [
+    {
+      "command": "node node_modules/jest/bin/jest.js --coverage=false --maxWorkers=2",
+      "exit_code": 0,
+      "tests_passed": 4250,
+      "suites_passed": 445,
+      "existing_skipped_tests": 19,
+      "existing_skipped_suites": 1,
+      "receipt": "full-jest.log"
+    },
+    {
+      "command": "npm run test:bun",
+      "exit_code": 0,
+      "tests_passed": 133,
+      "receipt": "full-bun.log"
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_code": 0,
+      "tests_passed": 3,
+      "receipt": "node-scripts.log"
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "receipt": "build.log"
+    },
+    {
+      "command": "tsc --noEmit -p app/tsconfig.json",
+      "exit_code": 0,
+      "receipt": "app-typecheck.log"
+    },
+    {
+      "command": "npm run lint",
+      "exit_code": 0,
+      "errors": 0,
+      "warnings": 1822,
+      "previous_known_errors": 19,
+      "receipt": "lint-after.log"
+    },
+    {
+      "command": "python3 scripts/prove-graph-freshness.py",
+      "exit_code": 0,
+      "assertion_caught_source_faults": 14,
+      "restored_tests_passed": 20,
+      "receipt": "mutations/results.json"
+    },
+    {
+      "command": "Jest: ten corrected original-source reproductions in isolated tree",
+      "exit_code": 1,
+      "expected_failure": true,
+      "assertion_failures": 10,
+      "invalid_setup_failures": 0,
+      "receipt": "original-reproductions.log"
+    },
+    {
+      "command": "node --expose-gc heap-benchmark.cjs",
+      "exit_code": 0,
+      "paired_cases": 16,
+      "repetitions": 11,
+      "discard_count": 0,
+      "decision": "candidate rejected; production heap unchanged",
+      "receipt": "heap-benchmark.json"
+    },
+    {
+      "command": "npm run build:engine",
+      "exit_code": 0,
+      "receipt": "engine-build.log"
+    },
+    {
+      "command": "npm --prefix app run verify:engine",
+      "exit_code": 0,
+      "real_message_port_exchanges": 7,
+      "outbound_bytes": 46637,
+      "receipt": "engine-smoke.log"
+    },
+    {
+      "command": "npm --prefix app run build",
+      "exit_code": 0,
+      "receipt": "app-build.log"
+    }
+  ],
+  "new_tests": 20,
+  "actual_process_kill": "One owned Node process killed with SIGKILL after graph COMMIT before hash publication; fresh store reload and replay exactly equal independent fresh AST graph with no duplicate edges.",
+  "remaining_target": [
+    "Exhaustive semantic inventory review",
+    "Ordered-input bounded heap cost",
+    "Installed full C01/C04/R02 and live providers",
+    "Hosted CI and release",
+    "Concurrent refresh/root changes, caller reanalysis, full-index failures and sustained resource costs"
+  ],
+  "mutation_source_faults": 14,
+  "installed_app_changed": false,
+  "new_commit_or_push": false
+}

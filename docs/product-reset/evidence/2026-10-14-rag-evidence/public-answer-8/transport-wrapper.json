@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-14T13:11:30.109747+00:00",
+  "wrapperSha256": "4bd610ee688eb420675809203bfaa763776de1862ca46fcfa98f855c29b7423a",
+  "driverSha256": "4c5708248cc9f7a1ff30c481efd02e19764e69965ed7520fd87431f201907f73",
+  "maximumRPM": 3,
+  "maximumConcurrentHTTP": 1,
+  "driverPacingCeilingRPM": 10,
+  "cooldown": "60 seconds doubling for consecutive429, capped300s; honor a longer supplied Retry-After.",
+  "checkpointSha256": "a71560df381b8fbeeecc2f509626207568ea3807547dfbb66c5a88b259159d6e",
+  "checkpoint": "Create-only atomic link after JSON/file fsync, followed by directory fsync. Progress is best-effort; completed result files are authoritative. Not a hardware power-loss guarantee.",
+  "semantics": "Only benchmark checkpoint publication and HTTP admission/cooldown change. Model, prompt, reasoning, output cap, keys and frozen driver are unchanged. Existing valid answers are reused regardless of correctness."
+}

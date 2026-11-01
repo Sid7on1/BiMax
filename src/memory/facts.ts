@@ -149,7 +149,7 @@ export function factsFromSegment(
   for (const line of lines) {
     const subjectMatch = /\b([A-Z]{1,4}-\d{2,5}[A-Z]?)\b/.exec(line.toUpperCase());
     if (!subjectMatch) continue;
-    const measurement = /([A-Za-z][A-Za-z \-]{2,40}?)\s+(-?\d+(?:\.\d+)?)\s*([A-Za-zµ°%/]{1,8})\b/.exec(line);
+    const measurement = /([A-Za-z][A-Za-z -]{2,40}?)\s+(-?\d+(?:\.\d+)?)\s*([A-Za-zµ°%/]{1,8})\b/.exec(line);
     if (!measurement) continue;
     const value = parseNumber(measurement[2]);
     if (value === null) continue;

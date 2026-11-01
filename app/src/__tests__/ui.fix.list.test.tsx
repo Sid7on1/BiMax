@@ -480,7 +480,7 @@ describe('item 34 — every control takes clicks over at least 24×24', () => {
   });
 
   test('the small glyphs wear the ring: "Thought for", a tab’s ×, find’s toggles and chevron', () => {
-    expect(read('app/src/renderer/src/components/Transcript.tsx')).toContain("cn('hit-24 flex items-center gap-1 text-xs text-faint italic'");
+    expect(read('app/src/renderer/src/components/ConversationMessage.tsx')).toContain('conversation-thought-toggle hit-24');
     expect(read('app/src/renderer/src/components/Inspector.tsx')).toContain('className="workbench-tab-close hit-24"');
     const find = read('app/src/renderer/src/components/FindWidget.tsx');
     expect(find).toContain('className="find-toggle hit-24"');
@@ -512,12 +512,13 @@ describe('item 38 — text a comfortable width, numbers that hold still, the cod
     expect(capped.split(',').map((s) => s.trim()).sort()).toEqual(['.md-h', 'blockquote', 'ol', 'p', 'ul']);
     // What the rule reaches in a real reply: the prose is a <p>, the snippet a <pre> the rule does not name.
     const reply = renderToStaticMarkup(<Markdown text={'A sentence of prose.\n\n```ts\nconst a = 1;\n```'} />);
-    expect(reply).toMatch(/^<div class="md"><p>A sentence of prose\.<\/p>/);
+    expect(reply).toMatch(/^<div class="md" data-classic-markdown="true">/);
+    expect(reply).toContain('<p>A sentence of prose.</p>');
     expect(reply).toContain('<pre');
   });
 
   test('your own message wraps at the same width', () => {
-    expect(read('app/src/renderer/src/components/Transcript.tsx')).toContain('max-w-[min(78%,calc(34em+32px))]');
+    expect(read('app/src/renderer/src/components/conversation-message.css')).toMatch(/max-width:\s*min\(78%,\s*calc\(34em \+ 32px\)\)/);
   });
 
   test('times, percentages, counts and key badges use the interface face, with digits that hold their width', () => {

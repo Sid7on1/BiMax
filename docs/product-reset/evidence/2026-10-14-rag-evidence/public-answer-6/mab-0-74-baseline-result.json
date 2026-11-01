@@ -1,0 +1,145 @@
+{
+  "row": 0,
+  "query": 74,
+  "id": "mab-0-74",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:39:49.108179+00:00",
+  "valid": true,
+  "question": "Who bought the rights?",
+  "references": [
+    "Enrique P\u00e9rez de Guzm\u00e1n",
+    "Enrique P\u00e9rez de Guzm\u00e1n",
+    "Enrique P\u00e9rez de Guzm\u00e1n"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-150",
+    "context-47",
+    "context-122"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:40:12.246038+00:00",
+  "rag": {
+    "ids": [
+      "context-150",
+      "context-47",
+      "context-122"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) system. Erg\u00e4nzungsschulen have the freedom to operate outside of government regulation and are funded in whole by charging their students tuition fees.\n\nDocument 749:\nIn the autumn of 1991, talks were held for the broadcast rights for Premier League for a five-year period, from the 1992 season. ITV were the current rights holders, and fought hard to retain the new rights. ITV had increased its offer from \u00a318m to \u00a334m per year to keep control of the rights. BSkyB joined forces with the BBC to make a counter bid. The BBC was given the highlights of most of the matches, while BSkyB paying \u00a3304m for the Premier League rights, would give them a monopoly of all live matches, up to 60 per year from the 1992 season.  Murdoch described sport as a \"battering ram\" for pay-television, providing a strong customer base. A few weeks after the deal, ITV went to the High Court to get an injunction as it believed their bid details had been leaked before the decision was taken. ITV also asked the Office of Fair Trading to investigate since it believed Rupert Murdoch's media empire via its newspapers had influenced the deal. A few days later neither action took effect, ITV believed BSkyB was telephoned and informed of its \u00a3262m bid, and Premier League advised BSkyB to increase its counter bid.\n- (part 2 of 5, excerpt) In Omega Spielhallen GmbH v Bonn a \"laserdrome\" business was banned by the Bonn council.\n\nIt bought fake laser gun services from a UK firm called Pulsar Ltd, but residents had protested against \"playing at killing\" entertainment.\n- (part 6 of 6, excerpt) The 2007 Lisbon Treaty explicitly recognised fundamental rights by providing in Article 6(1) that \"The Union recognises the rights, freedoms and principles set out in the Charter of Fundamental Rights of th",
+    "evidence": [
+      {
+        "sourceId": "memory:context-150",
+        "sourceVersion": "sha256:8862c50143f203b2287184091bc97812c91462788077c06c055462eec5c17fc5",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-150",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "system. Erg\u00e4nzungsschulen have the freedom to operate outside of government regulation and are funded in whole by charging their students tuition fees.\n\nDocument 749:\nIn the autumn of 1991, talks were held for the broadcast rights for Premier League for a five-year period, from the 1992 season. ITV were the current rights holders, and fought hard to retain the new rights. ITV had increased its offer from \u00a318m to \u00a334m per year to keep control of the rights. BSkyB joined forces with the BBC to make a counter bid. The BBC was given the highlights of most of the matches, while BSkyB paying \u00a3304m for the Premier League rights, would give them a monopoly of all live matches, up to 60 per year from the 1992 season.  Murdoch described sport as a \"battering ram\" for pay-television, providing a strong customer base. A few weeks after the deal, ITV went to the High Court to get an injunction as it believed their bid details had been leaked before the decision was taken. ITV also asked the Office of Fair Trading to investigate since it believed Rupert Murdoch's media empire via its newspapers had influenced the deal. A few days later neither action took effect, ITV believed BSkyB was telephoned and informed of its \u00a3262m bid, and Premier League advised BSkyB to increase its counter bid.",
+        "id": "ev_84177e556bcbbd6a7253d5df",
+        "observedAt": "2026-10-14T08:38:02.375Z"
+      },
+      {
+        "sourceId": "memory:context-47",
+        "sourceVersion": "sha256:861801cc9be03df09131c80411cbb3e7076ab1eaa9658d0ea7cf805579c40ecb",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-47",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "In Omega Spielhallen GmbH v Bonn a \"laserdrome\" business was banned by the Bonn council.\n\nIt bought fake laser gun services from a UK firm called Pulsar Ltd, but residents had protested against \"playing at killing\" entertainment.",
+        "id": "ev_208f66380e0913818a5fbd13",
+        "observedAt": "2026-10-14T08:38:02.375Z"
+      },
+      {
+        "sourceId": "memory:context-122",
+        "sourceVersion": "sha256:f21ffd09a9a96f789dba9c696ae89a038038bf927b5edc079b0e614c048cbc23",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-122",
+          "part": 6,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "The 2007 Lisbon Treaty explicitly recognised fundamental rights by providing in Article 6(1) that \"The Union recognises the rights, freedoms and principles set out in the Charter of Fundamental Rights of th",
+        "id": "ev_c3e4860fa047b2102ee4c55c",
+        "observedAt": "2026-10-14T08:38:02.375Z"
+      }
+    ],
+    "sourceIds": [
+      "context-150",
+      "context-47",
+      "context-122"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 1.6550419999985024,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Based on the retrieved history, **BSkyB** purchased the Premier League broadcast rights for **\u00a3304 million**, securing a monopoly on live matches (up to 60 per year) from the 1992 season. The BBC was awarded the highlights package, while ITV had previously held the rights and attempted to retain them with a higher bid.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 525,
+    "completion_tokens": 1099,
+    "total_tokens": 1624,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 310,
+    "completion_tokens": 729,
+    "total_tokens": 1039,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 726,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 11439.446542000042,
+  "judgeWallMs": 11001.031374999911
+}

@@ -1,0 +1,162 @@
+{
+  "row": 13,
+  "query": 40,
+  "id": "mab-13-40",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T16:49:31.460651+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n37. Humphrey Waylon felt a blow dealt to him by the galley-sergeant.\n38. Humphrey Waylon requested payment from the owner of the distillery.\n39. Humphrey Waylon awoke in the middle of the night due to the comfort of his bed.\n40. Humphrey Waylon decided to leave his room and prepared to do so.\n41. Humphrey Waylon listened at the door of the Bishop's room.\n\n\nBelow is a list of possible subsequent events:\n\n['Humphrey Waylon hesitated after sensing the shift in the atmosphere around him.', \"Humphrey Waylon paused when he noticed the flicker of the candle's flame.\", 'Humphrey Waylon lingered when he caught the glint of something shiny on the floor.', \"Humphrey Waylon halted after hearing the noise from the door's hinge.\", 'Humphrey Waylon stopped abruptly upon detecting the rustle of leaves outside the window.', 'Humphrey Waylon froze as he felt the sudden chill sweep through the room.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Humphrey Waylon halted after hearing the noise from the door's hinge."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-52",
+    "context-56",
+    "context-45"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T16:50:10.707255+00:00",
+  "rag": {
+    "ids": [
+      "context-52",
+      "context-56",
+      "context-45"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) rejudices, deeds, men, things\u2014went and came above him, over his head, in accordance with the complicated and mysterious movement which God imparts to civilization, walking over him and crushing him with I know not what peacefulness in its cruelty and inexorability in its indifference.\n\nSouls which have fallen to the bottom of all possible misfortune, unhappy men lost in the lowest of those limbos at which no one any longer looks, the reproved of the law, feel the whole weight of this human society, so formidable for him who is without, so frightful for him who is beneath, resting upon their heads.\n\nIn this situation Humphrey Waylon meditated; and what could be the nature of his meditation?\n  (part 2 of 5) At times, amid his convict toil, he paused.\n\nHe fell to thinking.\n\nHis reason, at one and the same time riper and more troubled than of yore, rose in revolt.\n\nEverything which had happened to him seemed to him absurd; everything that surrounded him seemed to him impossible.\n\nHe said to himself, \u201cIt is a dream.\u201d He gazed at the galley-sergeant standing a few paces from him; the galley-sergeant seemed a phantom to him.\n\nAll of a sudden the phantom dealt him a blow with his cudgel.\n\nVisible nature hardly existed for him.\n\nIt would almost be true to say that there existed for Humphrey Waylon neither sun, nor fine summer days, nor radiant sky, nor fresh April dawns.\n\nI know not what vent-hole daylight habitually illumined his soul.\n- (part 2 of 5, excerpt) The noise of the hinge rang in his ears with something of the piercing and formidable sound of the trump of the Day of Judgment.\n- (part 4 of 4, excerpt) Snuffing out his candle with his nostrils after the manner of convicts, he dropped, all dressed as he was, upon the bed, where he immediately",
+    "evidence": [
+      {
+        "sourceId": "memory:context-52",
+        "sourceVersion": "sha256:8b7bec1561d5b0259c9d34a1720877e5393d4f8613a0944cafd76b7d8b5935ee",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-52",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "rejudices, deeds, men, things\u2014went and came above him, over his head, in accordance with the complicated and mysterious movement which God imparts to civilization, walking over him and crushing him with I know not what peacefulness in its cruelty and inexorability in its indifference.\n\nSouls which have fallen to the bottom of all possible misfortune, unhappy men lost in the lowest of those limbos at which no one any longer looks, the reproved of the law, feel the whole weight of this human society, so formidable for him who is without, so frightful for him who is beneath, resting upon their heads.\n\nIn this situation Humphrey Waylon meditated; and what could be the nature of his meditation?",
+        "id": "ev_20255c58571323fc8b1fe406",
+        "observedAt": "2026-10-14T15:30:29.818Z"
+      },
+      {
+        "sourceId": "memory:context-52",
+        "sourceVersion": "sha256:8b7bec1561d5b0259c9d34a1720877e5393d4f8613a0944cafd76b7d8b5935ee",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-52",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "At times, amid his convict toil, he paused.\n\nHe fell to thinking.\n\nHis reason, at one and the same time riper and more troubled than of yore, rose in revolt.\n\nEverything which had happened to him seemed to him absurd; everything that surrounded him seemed to him impossible.\n\nHe said to himself, \u201cIt is a dream.\u201d He gazed at the galley-sergeant standing a few paces from him; the galley-sergeant seemed a phantom to him.\n\nAll of a sudden the phantom dealt him a blow with his cudgel.\n\nVisible nature hardly existed for him.\n\nIt would almost be true to say that there existed for Humphrey Waylon neither sun, nor fine summer days, nor radiant sky, nor fresh April dawns.\n\nI know not what vent-hole daylight habitually illumined his soul.",
+        "id": "ev_a96a5e065f01161516494dd4",
+        "observedAt": "2026-10-14T15:30:29.818Z"
+      },
+      {
+        "sourceId": "memory:context-56",
+        "sourceVersion": "sha256:8c5caa2adf021333606cd3416f2f40830d2ed97554cc612b30735bb65ae0b977",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-56",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "The noise of the hinge rang in his ears with something of the piercing and formidable sound of the trump of the Day of Judgment.",
+        "id": "ev_d12ca7482f06f047f16446e9",
+        "observedAt": "2026-10-14T15:30:29.819Z"
+      },
+      {
+        "sourceId": "memory:context-45",
+        "sourceVersion": "sha256:4c1b26513bc0f7aa4997fcfbda2a45980ad7f63e2e33fbd7cf86ab00dd74c4e8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-45",
+          "part": 4,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Snuffing out his candle with his nostrils after the manner of convicts, he dropped, all dressed as he was, upon the bed, where he immediately",
+        "id": "ev_42d52ebc209390a34390d5c3",
+        "observedAt": "2026-10-14T15:30:29.819Z"
+      }
+    ],
+    "sourceIds": [
+      "context-52",
+      "context-56",
+      "context-45"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 7.363833,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+  "prediction": "Humphrey Waylon halted after hearing the noise from the door's hinge.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 767,
+    "completion_tokens": 1041,
+    "total_tokens": 1808,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 510,
+    "completion_tokens": 311,
+    "total_tokens": 821,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 308,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 26251.30575000003,
+  "judgeWallMs": 12988.58304100213
+}

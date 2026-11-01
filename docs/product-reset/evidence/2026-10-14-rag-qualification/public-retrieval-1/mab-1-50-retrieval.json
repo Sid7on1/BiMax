@@ -1,0 +1,233 @@
+{
+  "row": 1,
+  "query": 50,
+  "id": "mab-1-50",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:49:03.801081+00:00",
+  "valid": true,
+  "question": "Which year and which conference was the 14th season for this conference as part of the NCAA Division that the Colorado Buffaloes played in with a record of 2-6 in conference play?",
+  "references": [
+    "2009 Big 12 Conference"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 10.87516599999799,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 179,
+        "maxInputChars": 179,
+        "requiredProviderTruncation": false,
+        "promptTokens": 38,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-76",
+        "context-366",
+        "context-56"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) with bands of this genre, the Youth gradually acquired a cult status as is evidenced by their reuniting recently for festivals in both the U.S. and Europe.\n\nDocument 560:\n2011 Colorado Buffaloes football team\nThe 2011 Colorado Buffaloes football team represented the University of Colorado at Boulder in the 2011 NCAA Division I FBS football season. Led by first-year head coach and alumnus Jon Embree, the Buffaloes played their home games on-campus at Folsom Field in Boulder and were first-year members of the newly expanded Pac-12 Conference. They finished with a record of 3\u201310, 2\u20137 in Pac-12 play, in a tie for last place in the South Division.\n  (part 3 of 5, excerpt) members of the newly expanded Pac-12 Conference. They finished with a record of 3\u201310, 2\u20137 in Pac-12 play, in a tie for last place in the South Division.\n\nDocument 561:\nVoom HD Networks\n- (part 3 of 5, excerpt) Document 2645:\n2014\u201315 Colorado Buffaloes men's basketball team\nThe 2014\u201315 Colorado Buffaloes men's basketball team represented the University of Colorado in the 2014\u201315 NCAA Division I men's basketball season. This was Tad Boyle's fifth year as head coach at Colorado. The Buffaloes played their home games at the Coors Events Center in Boulder, Colorado as members of the Pac-12 Conference. They finished the season 16\u201318, 7\u201311 in Pac-12 play to finish in a three way tie for eighth place. They advanced to the quarterfinals of the Pac-12 Tournament where they lost to Oregon. They were invited to the College Basketball Invitational where they defeated Gardner\u2013Webb in the first round before losing in the second round to Seattle.\n- (part 1 of 5, excerpt) The 2014 Colorado Buffaloes football team represented the University of Colorado at Boulder during the 2014 NCAA Division I FBS footbal",
+      "evidence": [
+        {
+          "sourceId": "memory:context-76",
+          "sourceVersion": "sha256:2fe70787ab078f1d1fc57c6c9dacb46b2ba18ffc4ac83e3746cb612191a0d69f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-76",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "with bands of this genre, the Youth gradually acquired a cult status as is evidenced by their reuniting recently for festivals in both the U.S. and Europe.\n\nDocument 560:\n2011 Colorado Buffaloes football team\nThe 2011 Colorado Buffaloes football team represented the University of Colorado at Boulder in the 2011 NCAA Division I FBS football season. Led by first-year head coach and alumnus Jon Embree, the Buffaloes played their home games on-campus at Folsom Field in Boulder and were first-year members of the newly expanded Pac-12 Conference. They finished with a record of 3\u201310, 2\u20137 in Pac-12 play, in a tie for last place in the South Division.",
+          "id": "ev_269af7ce818aeaa13cec548c",
+          "observedAt": "2026-10-14T04:49:03.816Z"
+        },
+        {
+          "sourceId": "memory:context-76",
+          "sourceVersion": "sha256:2fe70787ab078f1d1fc57c6c9dacb46b2ba18ffc4ac83e3746cb612191a0d69f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-76",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "members of the newly expanded Pac-12 Conference. They finished with a record of 3\u201310, 2\u20137 in Pac-12 play, in a tie for last place in the South Division.\n\nDocument 561:\nVoom HD Networks",
+          "id": "ev_03db1fbe4cb7246afe4a7524",
+          "observedAt": "2026-10-14T04:49:03.816Z"
+        },
+        {
+          "sourceId": "memory:context-366",
+          "sourceVersion": "sha256:49bb099b57f5a0e06999dffef8253de2a68e375ecaa21e24dde16c174cac03d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-366",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 2645:\n2014\u201315 Colorado Buffaloes men's basketball team\nThe 2014\u201315 Colorado Buffaloes men's basketball team represented the University of Colorado in the 2014\u201315 NCAA Division I men's basketball season. This was Tad Boyle's fifth year as head coach at Colorado. The Buffaloes played their home games at the Coors Events Center in Boulder, Colorado as members of the Pac-12 Conference. They finished the season 16\u201318, 7\u201311 in Pac-12 play to finish in a three way tie for eighth place. They advanced to the quarterfinals of the Pac-12 Tournament where they lost to Oregon. They were invited to the College Basketball Invitational where they defeated Gardner\u2013Webb in the first round before losing in the second round to Seattle.",
+          "id": "ev_356a744c57f441f30fdd75f4",
+          "observedAt": "2026-10-14T04:49:03.816Z"
+        },
+        {
+          "sourceId": "memory:context-56",
+          "sourceVersion": "sha256:9425d01b989eb0459e3246a5b5d045f04795f61ef84d330a565002f25f252010",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-56",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The 2014 Colorado Buffaloes football team represented the University of Colorado at Boulder during the 2014 NCAA Division I FBS footbal",
+          "id": "ev_28a65b4ca9c2e26bbecefe91",
+          "observedAt": "2026-10-14T04:49:03.816Z"
+        }
+      ],
+      "sourceIds": [
+        "context-76",
+        "context-366",
+        "context-56"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.839125000013155,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-76",
+        "context-366",
+        "context-56"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) with bands of this genre, the Youth gradually acquired a cult status as is evidenced by their reuniting recently for festivals in both the U.S. and Europe.\n\nDocument 560:\n2011 Colorado Buffaloes football team\nThe 2011 Colorado Buffaloes football team represented the University of Colorado at Boulder in the 2011 NCAA Division I FBS football season. Led by first-year head coach and alumnus Jon Embree, the Buffaloes played their home games on-campus at Folsom Field in Boulder and were first-year members of the newly expanded Pac-12 Conference. They finished with a record of 3\u201310, 2\u20137 in Pac-12 play, in a tie for last place in the South Division.\n  (part 3 of 5, excerpt) members of the newly expanded Pac-12 Conference. They finished with a record of 3\u201310, 2\u20137 in Pac-12 play, in a tie for last place in the South Division.\n\nDocument 561:\nVoom HD Networks\n- (part 3 of 5, excerpt) Document 2645:\n2014\u201315 Colorado Buffaloes men's basketball team\nThe 2014\u201315 Colorado Buffaloes men's basketball team represented the University of Colorado in the 2014\u201315 NCAA Division I men's basketball season. This was Tad Boyle's fifth year as head coach at Colorado. The Buffaloes played their home games at the Coors Events Center in Boulder, Colorado as members of the Pac-12 Conference. They finished the season 16\u201318, 7\u201311 in Pac-12 play to finish in a three way tie for eighth place. They advanced to the quarterfinals of the Pac-12 Tournament where they lost to Oregon. They were invited to the College Basketball Invitational where they defeated Gardner\u2013Webb in the first round before losing in the second round to Seattle.\n- (part 1 of 5, excerpt) The 2014 Colorado Buffaloes football team represented the University of Colorado at Boulder during the 2014 NCAA Division I FBS footbal",
+      "evidence": [
+        {
+          "sourceId": "memory:context-76",
+          "sourceVersion": "sha256:2fe70787ab078f1d1fc57c6c9dacb46b2ba18ffc4ac83e3746cb612191a0d69f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-76",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "with bands of this genre, the Youth gradually acquired a cult status as is evidenced by their reuniting recently for festivals in both the U.S. and Europe.\n\nDocument 560:\n2011 Colorado Buffaloes football team\nThe 2011 Colorado Buffaloes football team represented the University of Colorado at Boulder in the 2011 NCAA Division I FBS football season. Led by first-year head coach and alumnus Jon Embree, the Buffaloes played their home games on-campus at Folsom Field in Boulder and were first-year members of the newly expanded Pac-12 Conference. They finished with a record of 3\u201310, 2\u20137 in Pac-12 play, in a tie for last place in the South Division.",
+          "id": "ev_269af7ce818aeaa13cec548c",
+          "observedAt": "2026-10-14T04:49:03.821Z"
+        },
+        {
+          "sourceId": "memory:context-76",
+          "sourceVersion": "sha256:2fe70787ab078f1d1fc57c6c9dacb46b2ba18ffc4ac83e3746cb612191a0d69f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-76",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "members of the newly expanded Pac-12 Conference. They finished with a record of 3\u201310, 2\u20137 in Pac-12 play, in a tie for last place in the South Division.\n\nDocument 561:\nVoom HD Networks",
+          "id": "ev_03db1fbe4cb7246afe4a7524",
+          "observedAt": "2026-10-14T04:49:03.821Z"
+        },
+        {
+          "sourceId": "memory:context-366",
+          "sourceVersion": "sha256:49bb099b57f5a0e06999dffef8253de2a68e375ecaa21e24dde16c174cac03d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-366",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 2645:\n2014\u201315 Colorado Buffaloes men's basketball team\nThe 2014\u201315 Colorado Buffaloes men's basketball team represented the University of Colorado in the 2014\u201315 NCAA Division I men's basketball season. This was Tad Boyle's fifth year as head coach at Colorado. The Buffaloes played their home games at the Coors Events Center in Boulder, Colorado as members of the Pac-12 Conference. They finished the season 16\u201318, 7\u201311 in Pac-12 play to finish in a three way tie for eighth place. They advanced to the quarterfinals of the Pac-12 Tournament where they lost to Oregon. They were invited to the College Basketball Invitational where they defeated Gardner\u2013Webb in the first round before losing in the second round to Seattle.",
+          "id": "ev_356a744c57f441f30fdd75f4",
+          "observedAt": "2026-10-14T04:49:03.821Z"
+        },
+        {
+          "sourceId": "memory:context-56",
+          "sourceVersion": "sha256:9425d01b989eb0459e3246a5b5d045f04795f61ef84d330a565002f25f252010",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-56",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The 2014 Colorado Buffaloes football team represented the University of Colorado at Boulder during the 2014 NCAA Division I FBS footbal",
+          "id": "ev_28a65b4ca9c2e26bbecefe91",
+          "observedAt": "2026-10-14T04:49:03.821Z"
+        }
+      ],
+      "sourceIds": [
+        "context-76",
+        "context-366",
+        "context-56"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.284459000002244,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:49:03.822748+00:00"
+}

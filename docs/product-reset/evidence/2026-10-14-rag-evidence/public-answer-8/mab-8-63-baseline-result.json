@@ -1,0 +1,162 @@
+{
+  "row": 8,
+  "query": 63,
+  "id": "mab-8-63",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T14:17:40.817997+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n60. Humphrey Waylon attempted to escape from the galleys.\n61. Humphrey Waylon was captured after two days of freedom.\n62. Humphrey Waylon was condemned to three additional years for his escape.\n63. Humphrey Waylon's comrades assisted him in his escape attempt.\n64. Humphrey Waylon was punished with five extra years for resisting arrest.\n\n\nBelow is a list of possible subsequent events:\n\n['Humphrey Waylon plotted yet another escape attempt on the tenth year of his wrongful imprisonment.', 'Humphrey Waylon devised a cunning plan for his getaway while celebrating the ninth year of his detention.', 'Humphrey Waylon attempted to escape again during his sixth year of captivity.', 'Humphrey Waylon initiated a daring bid for freedom during the eleventh year of his unjust captivity.', 'Humphrey Waylon renewed his efforts to evade capture as he marked his eighth anniversary of confinement.', 'Humphrey Waylon orchestrated an elaborate scheme to break free during his seventh year of imprisonment.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Humphrey Waylon attempted to escape again during his sixth year of captivity."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-48",
+    "context-51",
+    "context-52"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T14:23:52.815219+00:00",
+  "rag": {
+    "ids": [
+      "context-48",
+      "context-51",
+      "context-52"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) Towards the end of this fourth year Humphrey Waylon\u2019s turn to escape arrived.\n\nHis comrades assisted him, as is the custom in that sad place.\n\nHe escaped.\n  (part 2 of 4) a galloping horse, of a striking clock, of the day because one can see, of the night because one cannot see, of the highway, of the path, of a bush, of sleep.\n\nOn the evening of the second day he was captured.\n\nHe had neither eaten nor slept for thirty-six hours.\n\nThe maritime tribunal condemned him, for this crime, to a prolongation of his term for three years, which made eight years.\n\nIn the sixth year his turn to escape occurred again; he availed himself of it, but could not accomplish his flight fully.\n\nHe was missing at roll-call.\n\nThe cannon were fired, and at night the patrol found him hidden under the keel of a vessel in process of construction; he resisted the galley guards who seized him.\n\nEscape and rebellion.\n\nThis case, provided for by a special code, was punished by an addition of five years, two of them in the double chain.\n\nThirteen years.\n\nIn the tenth year his turn came round again; he again profited by it; he succeeded no better.\n\nThree years for this fresh attempt.\n\nSixteen years.\n\nFinally, I think it was during his thirteenth year, he made a last attempt, and only succeeded in getting retaken at the end of four hours of absence.\n- (part 1 of 5, excerpt) Humphrey Waylon would have renewed these attempts, utterly useless and foolish as they were, as often as the opportunity had presented itself, without reflecting for an instant on the result, nor on the experiences which he had already gone through.\n- (part 3 of 5, excerpt) To sum up, in conclusion, that which can be summed up and translated into positive results in all that we have just pointed out, we w",
+    "evidence": [
+      {
+        "sourceId": "memory:context-48",
+        "sourceVersion": "sha256:6b23d2e1899dda9238420f436caba561f8aead65bc476f0ca68813b1c2f63586",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-48",
+          "part": 1,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Towards the end of this fourth year Humphrey Waylon\u2019s turn to escape arrived.\n\nHis comrades assisted him, as is the custom in that sad place.\n\nHe escaped.",
+        "id": "ev_0fbaca44b8473a30d142be3d",
+        "observedAt": "2026-10-14T08:59:33.446Z"
+      },
+      {
+        "sourceId": "memory:context-48",
+        "sourceVersion": "sha256:6b23d2e1899dda9238420f436caba561f8aead65bc476f0ca68813b1c2f63586",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-48",
+          "part": 2,
+          "parts": 4
+        },
+        "text": "a galloping horse, of a striking clock, of the day because one can see, of the night because one cannot see, of the highway, of the path, of a bush, of sleep.\n\nOn the evening of the second day he was captured.\n\nHe had neither eaten nor slept for thirty-six hours.\n\nThe maritime tribunal condemned him, for this crime, to a prolongation of his term for three years, which made eight years.\n\nIn the sixth year his turn to escape occurred again; he availed himself of it, but could not accomplish his flight fully.\n\nHe was missing at roll-call.\n\nThe cannon were fired, and at night the patrol found him hidden under the keel of a vessel in process of construction; he resisted the galley guards who seized him.\n\nEscape and rebellion.\n\nThis case, provided for by a special code, was punished by an addition of five years, two of them in the double chain.\n\nThirteen years.\n\nIn the tenth year his turn came round again; he again profited by it; he succeeded no better.\n\nThree years for this fresh attempt.\n\nSixteen years.\n\nFinally, I think it was during his thirteenth year, he made a last attempt, and only succeeded in getting retaken at the end of four hours of absence.",
+        "id": "ev_befc233f8a4fee340de876a6",
+        "observedAt": "2026-10-14T08:59:33.447Z"
+      },
+      {
+        "sourceId": "memory:context-51",
+        "sourceVersion": "sha256:ca1adf6aa99db66142502fd8121832eccd8c57f74972dac6921956bb10c159dd",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-51",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Humphrey Waylon would have renewed these attempts, utterly useless and foolish as they were, as often as the opportunity had presented itself, without reflecting for an instant on the result, nor on the experiences which he had already gone through.",
+        "id": "ev_b2ee853298a66583b9347729",
+        "observedAt": "2026-10-14T08:59:33.448Z"
+      },
+      {
+        "sourceId": "memory:context-52",
+        "sourceVersion": "sha256:8b7bec1561d5b0259c9d34a1720877e5393d4f8613a0944cafd76b7d8b5935ee",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-52",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "To sum up, in conclusion, that which can be summed up and translated into positive results in all that we have just pointed out, we w",
+        "id": "ev_1dc22042864efa252bbba557",
+        "observedAt": "2026-10-14T08:59:33.449Z"
+      }
+    ],
+    "sourceIds": [
+      "context-48",
+      "context-51",
+      "context-52"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 14.678416000000198,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8",
+  "prediction": "Humphrey Waylon attempted to escape again during his sixth year of captivity.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 758,
+    "completion_tokens": 1041,
+    "total_tokens": 1799,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 512,
+    "completion_tokens": 346,
+    "total_tokens": 858,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 343,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 147397.87083299962,
+  "judgeWallMs": 109359.94441600087
+}

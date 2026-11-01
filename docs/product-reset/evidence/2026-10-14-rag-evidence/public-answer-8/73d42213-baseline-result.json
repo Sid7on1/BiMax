@@ -1,0 +1,164 @@
+{
+  "row": 207,
+  "id": "73d42213",
+  "stratum": "multi-session",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T14:10:49.329638+00:00",
+  "valid": true,
+  "question": "What time did I reach the clinic on Monday?",
+  "references": [
+    "9:00 AM"
+  ],
+  "kind": "multi-session",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 22:10",
+  "benchmarkSessionIds": [
+    "answer_1881e7db_2",
+    "answer_1881e7db_1",
+    "sharegpt_ab6IEma_0"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T14:13:59.194547+00:00",
+  "rag": {
+    "ids": [
+      "answer_1881e7db_2",
+      "answer_1881e7db_1",
+      "sharegpt_ab6IEma_0"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 11, excerpt) 1. Your current location or zip code?\n2. The type of doctor or specialist you need to see (e.g., primary care, specialist, urgent care)?\n3. Your availability for the follow-up appointment (e.g., specific days, morning/afternoon, etc.)?\n4. What is your preferred distance or travel time from your home to the clinic?\n  (part 3 of 11) radius of the 12345 zip code. Please note that availability and wait times may vary, and it's always best to call ahead to confirm.\n\nHere are a few options:\n\n1. **Family Care Medical Center** - 30 miles, 45-minute drive\n\t* Address: 123 Main St, Anytown, CA 12345\n\t* Phone: 555-555-1234\n\t* Available morning slots: Monday, Wednesday, Friday (8:00 am - 12:00 pm)\n2. **Urgent Care and Primary Care** - 20 miles, 30-minute drive\n\t* Address: 456 Elm St, Othertown, CA 12345\n\t* Phone: 555-555-5678\n\t* Available morning slots: Tuesday, Thursday (8:30 am - 11:30 am)\n3. **Community Health Clinic** - 40 miles, 50-minute drive\n\t* Address: 789 Oak St, Thistown, CA 12345\n\t* Phone: 555-555-9012\n\t* Available morning slots: Monday, Wednesday (9:00 am - 12:00 pm)\n\nBefore reaching out to these clinics, you may want to check their websites or call them to:\n\n* Confirm their hours and availability\n* Check if they accept your insurance\n* Get an estimate of the wait time for new patients\n\nRemember to also ask about their policies regarding rescheduling appointments and any necessary documentation you may need to bring.\n- (part 4 of 16, excerpt) Remember, we'll take it one step at a time, and before you know it, you'll be back on track and feeling more in control of your project.\n- (part 7 of 11, excerpt) When you are ready, reach out to each perspective participant.\n\nThe most common way to do this is via email.",
+    "evidence": [
+      {
+        "sourceId": "memory:answer_1881e7db_2",
+        "sourceVersion": "sha256:a5521d1e54c51772a3cde5b9939e361388f6b3f0c20e1c947aa09fc9efc19a8d",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_1881e7db_2",
+          "part": 1,
+          "parts": 11,
+          "partial": true
+        },
+        "text": "1. Your current location or zip code?\n2. The type of doctor or specialist you need to see (e.g., primary care, specialist, urgent care)?\n3. Your availability for the follow-up appointment (e.g., specific days, morning/afternoon, etc.)?\n4. What is your preferred distance or travel time from your home to the clinic?",
+        "id": "ev_9707f76eb7abb4a0a88e8764",
+        "observedAt": "2026-10-14T08:57:40.526Z"
+      },
+      {
+        "sourceId": "memory:answer_1881e7db_2",
+        "sourceVersion": "sha256:a5521d1e54c51772a3cde5b9939e361388f6b3f0c20e1c947aa09fc9efc19a8d",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_1881e7db_2",
+          "part": 3,
+          "parts": 11
+        },
+        "text": "radius of the 12345 zip code. Please note that availability and wait times may vary, and it's always best to call ahead to confirm.\n\nHere are a few options:\n\n1. **Family Care Medical Center** - 30 miles, 45-minute drive\n\t* Address: 123 Main St, Anytown, CA 12345\n\t* Phone: 555-555-1234\n\t* Available morning slots: Monday, Wednesday, Friday (8:00 am - 12:00 pm)\n2. **Urgent Care and Primary Care** - 20 miles, 30-minute drive\n\t* Address: 456 Elm St, Othertown, CA 12345\n\t* Phone: 555-555-5678\n\t* Available morning slots: Tuesday, Thursday (8:30 am - 11:30 am)\n3. **Community Health Clinic** - 40 miles, 50-minute drive\n\t* Address: 789 Oak St, Thistown, CA 12345\n\t* Phone: 555-555-9012\n\t* Available morning slots: Monday, Wednesday (9:00 am - 12:00 pm)\n\nBefore reaching out to these clinics, you may want to check their websites or call them to:\n\n* Confirm their hours and availability\n* Check if they accept your insurance\n* Get an estimate of the wait time for new patients\n\nRemember to also ask about their policies regarding rescheduling appointments and any necessary documentation you may need to bring.",
+        "id": "ev_ca7e4729f273699e4780d3eb",
+        "observedAt": "2026-10-14T08:57:40.528Z"
+      },
+      {
+        "sourceId": "memory:answer_1881e7db_1",
+        "sourceVersion": "sha256:b55bf86fc56d9d4e1ac5618ff993858f6738008995833807bbcec7f211e5b540",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_1881e7db_1",
+          "part": 4,
+          "parts": 16,
+          "partial": true
+        },
+        "text": "Remember, we'll take it one step at a time, and before you know it, you'll be back on track and feeling more in control of your project.",
+        "id": "ev_6de8a512aa28ed1e2dcad507",
+        "observedAt": "2026-10-14T08:57:40.528Z"
+      },
+      {
+        "sourceId": "memory:sharegpt_ab6IEma_0",
+        "sourceVersion": "sha256:c60fae250aab1c0455f166a19388caa1db6ccc54179dcc2384c45c074f02135f",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "sharegpt_ab6IEma_0",
+          "part": 7,
+          "parts": 11,
+          "partial": true
+        },
+        "text": "When you are ready, reach out to each perspective participant.\n\nThe most common way to do this is via email.",
+        "id": "ev_4c21826982e4f8319dae5d4e",
+        "observedAt": "2026-10-14T08:57:40.529Z"
+      }
+    ],
+    "sourceIds": [
+      "answer_1881e7db_2",
+      "answer_1881e7db_1",
+      "sharegpt_ab6IEma_0"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 29.005166999999346,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8",
+  "prediction": "I do not know. The retrieved history contains no records of your clinic arrival times or visit history.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 662,
+    "completion_tokens": 805,
+    "total_tokens": 1467,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 783,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 263,
+    "completion_tokens": 612,
+    "total_tokens": 875,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 609,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 70891.02400000047,
+  "judgeWallMs": 118971.00087500075
+}

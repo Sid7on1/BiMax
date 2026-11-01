@@ -88,6 +88,12 @@ and version 3 scores are not compared with each other.
   in under 1,000 characters.
 - **Continuity (L5).** A context manager rebuilt mid-task, as on a model switch, must still carry the user's constraint.
 
+## Version 4 (2026-10-13)
+
+[Record 93](../../docs/product-reset/93_CONTEXT_ORCHESTRATION.md) strengthens R1 to grade the actual configured reply allowance and the 3% margin alongside all input tokens. The boundary fixture now declares a realistic output limit for a 3k context window; it previously inherited the engine's 4,096-token fallback while grading only input. All old assertions remain. R3 separately declares a 2,000-token output allowance above 15% of that window: the fixed request must be refused.
+
+The original version-3 run (42/42) and version-4 run on the same pre-change production code (42/43, R3 fails) are retained. Compare improvements against version 4 only; its final local run passes 43/43 with no family count falling. Three resource measurements are ungraded, and these fixture results establish prompt mechanics, not model-answer quality. Direct source faults also test false-residency, late commit, Stop and tool-exchange retention.
+
 ## How later stages use it
 
 A later stage counts as better only when the number of passing cases rises and **no family's pass count

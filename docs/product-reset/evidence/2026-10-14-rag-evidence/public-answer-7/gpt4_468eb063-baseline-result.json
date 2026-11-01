@@ -1,0 +1,164 @@
+{
+  "row": 254,
+  "id": "gpt4_468eb063",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T09:03:43.603625+00:00",
+  "valid": true,
+  "question": "How many days ago did I meet Emma?",
+  "references": [
+    "9 days ago. 10 days (including the last day) is also acceptable."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/04/20 (Thu) 10:12",
+  "benchmarkSessionIds": [
+    "e60a93ff_2",
+    "sharegpt_Sf51OjE_8",
+    "sharegpt_gfhUw40_17"
+  ],
+  "sources": {
+    "recallAt3": 0.0,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T09:04:05.109319+00:00",
+  "rag": {
+    "ids": [
+      "e60a93ff_2",
+      "sharegpt_Sf51OjE_8",
+      "sharegpt_gfhUw40_17"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 14, excerpt) user: I'm planning to volunteer at another charity event this weekend and I was wondering if you could help me come up with some conversation starters to break the ice with the other volunteers. I recall that a few months ago, I volunteered at a chari\n  (part 10 of 14) an invitation without putting pressure on her to commit. If she's interested, she'll let you know, and if not, you can still enjoy your coffee and catch-up.\n\nRemember to respect her decision either way, and don't be discouraged if she declines. The goal is to spend time together and introduce her to the charity, not to obligate her to volunteer.\nuser: I'll ask her to meet up for a quick coffee before my shift and introduce her to the charity event. If she's interested, I can ask her if she'd like to volunteer with me, but I'll make sure to keep it casual and non-committal. By the way, I've been meaning to follow up with Sophia, a woman I met at a networking event a couple of weeks ago, to discuss a potential collaboration. Do you think it's a good idea to send her a follow-up email this week?\nassistant: It's great that you're thinking of following up with Sophia about the potential collaboration.\n\nIn general, it's a good idea to follow up with people you've met at networking events, especially if you discussed a specific opportunity or collaboration. A follow-up email can help keep the conversation going and show that you're interested in exploring the opportunity further.\n- (part 1 of 6, excerpt) Source: https://www.goodreads.com/book/show/1069510.I\\_Know\\_What\\_You\\_Did\\_Last\\_Wednesday\n- (part 3 of 13, excerpt) This will return the number of distinct `user_id`s that have a `state` of `'paid'` and were created within the last 7 days (including today) as `subscribers_last_7_da",
+    "evidence": [
+      {
+        "sourceId": "memory:e60a93ff_2",
+        "sourceVersion": "sha256:648ec2c4ac48e9cb558d41a9549a51191227f9ed6da7acf7de1b96251657c460",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "e60a93ff_2",
+          "part": 1,
+          "parts": 14,
+          "partial": true
+        },
+        "text": "user: I'm planning to volunteer at another charity event this weekend and I was wondering if you could help me come up with some conversation starters to break the ice with the other volunteers. I recall that a few months ago, I volunteered at a chari",
+        "id": "ev_46927761f8b60bd6c6a22bff",
+        "observedAt": "2026-10-14T08:51:00.405Z"
+      },
+      {
+        "sourceId": "memory:e60a93ff_2",
+        "sourceVersion": "sha256:648ec2c4ac48e9cb558d41a9549a51191227f9ed6da7acf7de1b96251657c460",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "e60a93ff_2",
+          "part": 10,
+          "parts": 14
+        },
+        "text": "an invitation without putting pressure on her to commit. If she's interested, she'll let you know, and if not, you can still enjoy your coffee and catch-up.\n\nRemember to respect her decision either way, and don't be discouraged if she declines. The goal is to spend time together and introduce her to the charity, not to obligate her to volunteer.\nuser: I'll ask her to meet up for a quick coffee before my shift and introduce her to the charity event. If she's interested, I can ask her if she'd like to volunteer with me, but I'll make sure to keep it casual and non-committal. By the way, I've been meaning to follow up with Sophia, a woman I met at a networking event a couple of weeks ago, to discuss a potential collaboration. Do you think it's a good idea to send her a follow-up email this week?\nassistant: It's great that you're thinking of following up with Sophia about the potential collaboration.\n\nIn general, it's a good idea to follow up with people you've met at networking events, especially if you discussed a specific opportunity or collaboration. A follow-up email can help keep the conversation going and show that you're interested in exploring the opportunity further.",
+        "id": "ev_33f49b5cade78446fdaa901b",
+        "observedAt": "2026-10-14T08:51:00.406Z"
+      },
+      {
+        "sourceId": "memory:sharegpt_Sf51OjE_8",
+        "sourceVersion": "sha256:4b8e1f1649d403e9d29d0dbd9e0329b5d287674207235f2b1a678053c3e9da1c",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "sharegpt_Sf51OjE_8",
+          "part": 1,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "Source: https://www.goodreads.com/book/show/1069510.I\\_Know\\_What\\_You\\_Did\\_Last\\_Wednesday",
+        "id": "ev_3395f32110a47244d550f7bb",
+        "observedAt": "2026-10-14T08:51:00.406Z"
+      },
+      {
+        "sourceId": "memory:sharegpt_gfhUw40_17",
+        "sourceVersion": "sha256:5c7e45524bdc57926fe326fd92d4feaf371f1925cd37edee60e7054dddd97b36",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "sharegpt_gfhUw40_17",
+          "part": 3,
+          "parts": 13,
+          "partial": true
+        },
+        "text": "This will return the number of distinct `user_id`s that have a `state` of `'paid'` and were created within the last 7 days (including today) as `subscribers_last_7_da",
+        "id": "ev_da28edb6c6f62978b933d463",
+        "observedAt": "2026-10-14T08:51:00.407Z"
+      }
+    ],
+    "sourceIds": [
+      "e60a93ff_2",
+      "sharegpt_Sf51OjE_8",
+      "sharegpt_gfhUw40_17"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 22.768332999999984,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "I don't have any record of you meeting Emma or a date associated with that meeting in the retrieved history. The available excerpts mention volunteering, conversation starters, and following up with Sophia at a networking event, but nothing about Emma. Therefore, I can't determine how many days ago you met her.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.06896551724137931
+  },
+  "readerUsage": {
+    "prompt_tokens": 550,
+    "completion_tokens": 586,
+    "total_tokens": 1136,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 520,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 446,
+    "completion_tokens": 1026,
+    "total_tokens": 1472,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 5626.1410830002205,
+  "judgeWallMs": 11688.3993750007
+}

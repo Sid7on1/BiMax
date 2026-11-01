@@ -1,0 +1,315 @@
+{
+  "row": 13,
+  "query": 18,
+  "id": "mab-13-18",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:56:48.854132+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n15. The peasant expressed distrust towards the man.\n16. The man was chased out of the dog kennel by a ferocious dog.\n17. The man resumed his walk out of the town in search of shelter.\n18. The man lay down on a stone bench outside a printing office.\n19. Madame de R\u2014\u2014 suggested the man knock at a different house for help.\n\n\nBelow is a list of possible subsequent events:\n\n['The Bishop hosted Humphrey Waylon in the garden and presented him with a selection of fine wines.', 'The Bishop invited Humphrey Waylon to his study and shared an evening of conversation.', 'The Bishop accompanied Humphrey Waylon to the town hall and introduced him to the community leaders.', 'The Bishop arranged a luncheon for Humphrey Waylon at the rectory and served an exquisite homemade meal.', 'The Bishop welcomed Humphrey Waylon into his home and offered him supper.', 'The Bishop engaged Humphrey Waylon at the local caf\u00e9 and treated him to coffee and pastries.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "The Bishop welcomed Humphrey Waylon into his home and offered him supper."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 88.93841600000087,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1173,
+        "maxInputChars": 1173,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-38",
+        "context-40",
+        "context-10"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 4, excerpt) Worn out with fatigue, and no longer entertaining any hope, he lay down on a stone bench which stands at the doorway of this printing office.\n\nAt that moment an old woman came out of the church.\n\nShe saw the man stretched out in the shadow.\n  (part 3 of 4) cannot obtain lodgings in an inn for so small a sum.\n\nBut have you tried?\n\nIt is impossible for you to pass the night thus.\n\nYou are cold and hungry, no doubt.\n\nSome one might have given you a lodging out of charity.\u201d\n\n\u201cI have knocked at all doors.\u201d\n\n\u201cWell?\u201d\n\n\u201cI have been driven away everywhere.\u201d\n\nThe \u201cgood woman\u201d touched the man\u2019s arm, and pointed out to him on the other side of the street a small, low house, which stood beside the Bishop\u2019s palace.\n\n\u201cYou have knocked at all doors?\u201d\n\n\u201cYes.\u201d\n\n\u201cHave you knocked at that one?\u201d\n\n\u201cNo.\u201d\n\n\u201cKnock there.\u201d\n\nCHAPTER II\u2014PRUDENCE COUNSELLED TO WISDOM.\n\nThat evening, the Bishop of D\u2014\u2014, after his promenade through the town, remained shut up rather late in his room.\n\nHe was busy over a great work on Duties, which was never completed, unfortunately.\n\nHe was carefully compiling everything that the Fathers and the doctors have said on this important subject.\n\nHis book was divided into two parts: firstly, the duties of all; secondly, the duties of each individual, according to the class to which he belongs.\n\nThe duties of all are the great duties.\n\nThere are four of these.\n\nSaint Matthew points them out: duties towards God (Matt.\n- (part 4 of 5, excerpt) As he opened his mouth, doubtless to ask the newcomer what he desired, the man rested both hands on his staff, directed his gaze at the old man and the two women\n- (part 3 of 5, excerpt) The Bishop offered this bed to country curates whom business or the requirements of their parishes brought to D\u2014\u2014 The pharmac",
+      "evidence": [
+        {
+          "sourceId": "memory:context-38",
+          "sourceVersion": "sha256:afd14a2775fb5d33ff8cfbb19cc2ff6f09ee4e8d059276d8965e4cd579e36077",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-38",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Worn out with fatigue, and no longer entertaining any hope, he lay down on a stone bench which stands at the doorway of this printing office.\n\nAt that moment an old woman came out of the church.\n\nShe saw the man stretched out in the shadow.",
+          "id": "ev_8ee9dbdbf9179542ee83af19",
+          "observedAt": "2026-10-14T08:56:48.952Z"
+        },
+        {
+          "sourceId": "memory:context-38",
+          "sourceVersion": "sha256:afd14a2775fb5d33ff8cfbb19cc2ff6f09ee4e8d059276d8965e4cd579e36077",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-38",
+            "part": 3,
+            "parts": 4
+          },
+          "text": "cannot obtain lodgings in an inn for so small a sum.\n\nBut have you tried?\n\nIt is impossible for you to pass the night thus.\n\nYou are cold and hungry, no doubt.\n\nSome one might have given you a lodging out of charity.\u201d\n\n\u201cI have knocked at all doors.\u201d\n\n\u201cWell?\u201d\n\n\u201cI have been driven away everywhere.\u201d\n\nThe \u201cgood woman\u201d touched the man\u2019s arm, and pointed out to him on the other side of the street a small, low house, which stood beside the Bishop\u2019s palace.\n\n\u201cYou have knocked at all doors?\u201d\n\n\u201cYes.\u201d\n\n\u201cHave you knocked at that one?\u201d\n\n\u201cNo.\u201d\n\n\u201cKnock there.\u201d\n\nCHAPTER II\u2014PRUDENCE COUNSELLED TO WISDOM.\n\nThat evening, the Bishop of D\u2014\u2014, after his promenade through the town, remained shut up rather late in his room.\n\nHe was busy over a great work on Duties, which was never completed, unfortunately.\n\nHe was carefully compiling everything that the Fathers and the doctors have said on this important subject.\n\nHis book was divided into two parts: firstly, the duties of all; secondly, the duties of each individual, according to the class to which he belongs.\n\nThe duties of all are the great duties.\n\nThere are four of these.\n\nSaint Matthew points them out: duties towards God (Matt.",
+          "id": "ev_ba6af45ca34bebb77aa03e47",
+          "observedAt": "2026-10-14T08:56:48.953Z"
+        },
+        {
+          "sourceId": "memory:context-40",
+          "sourceVersion": "sha256:4dfc7bea6f934a14c630fc96bbc8ea8a55a92751f5cc18f4d837061ecc7e4e08",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-40",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "As he opened his mouth, doubtless to ask the newcomer what he desired, the man rested both hands on his staff, directed his gaze at the old man and the two women",
+          "id": "ev_1d0a050bcf3bf3d58fdc7997",
+          "observedAt": "2026-10-14T08:56:48.954Z"
+        },
+        {
+          "sourceId": "memory:context-10",
+          "sourceVersion": "sha256:e50a2c43730b416f096464b23365676c6cc42158a57d78038a93eea6e908c3d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-10",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The Bishop offered this bed to country curates whom business or the requirements of their parishes brought to D\u2014\u2014 The pharmac",
+          "id": "ev_5c6f1dd8746fefe9dc99ddb5",
+          "observedAt": "2026-10-14T08:56:48.955Z"
+        }
+      ],
+      "sourceIds": [
+        "context-38",
+        "context-40",
+        "context-10"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 13.228875000000698,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-38",
+        "context-40",
+        "context-10"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 4, excerpt) of the Emperor and of the Imperial Guard to the army, brought from the Island of Elba and dictated by Napoleon himself, were printed for the first time.\n\nWorn out with fatigue, and no longer entertaining any hope, he lay down on a stone bench which stands at the doorway of this printing office.\n\nAt that moment an old woman came out of the church.\n\nShe saw the man stretched out in the shadow.\n\n\u201cWhat are you doing there, my friend?\u201d said she.\n\nHe answered harshly and angrily: \u201cAs you see, my good woman, I am sleeping.\u201d The good woman, who was well worthy the name, in fact, was the Marquise de R\u2014\u2014 \u201cOn this bench?\u201d she went on.\n\n\u201cI have had a mattress of wood for nineteen years,\u201d said the man; \u201cto-day I have a mattress of stone.\u201d\n\n\u201cYou have been a soldier?\u201d\n\n\u201cYes, my good woman, a soldier.\u201d\n\n\u201cWhy do you not go to the inn?\u201d\n\n\u201cBecause I have no money.\u201d\n\n\u201cAlas!\u201d said Madame de R\u2014\u2014, \u201cI have only four sous in my purse.\u201d\n\n\u201cGive it to me all the same.\u201d\n\nThe man took the four sous.\n  (part 3 of 4, excerpt) cannot obtain lodgings in an inn for so small a sum.\n\nBut have you tried?\n\nIt is impossible for you to pass the night thus.\n\nYou are cold and hungry, no doubt.\n\nSome one might have given you a lodging out of charity.\u201d\n\n\u201cI have knocked at all doors.\u201d\n\n\u201cWell?\u201d\n\n\u201cI have been driven away everywhere.\u201d\n\nThe \u201cgood woman\u201d touched the man\u2019s arm, and pointed out to him on the other side of the street a small, low house, which stood beside the Bishop\u2019s palace.\n\n\u201cYou have knocked at all doors?\u201d\n\n\u201cYes.\u201d\n\n\u201cHave you knocked at that one?\u201d\n\n\u201cNo.\u201d\n\n\u201cKnock there.\u201d\n\nCHAPTER II\u2014PRUDENCE COUNSELLED TO WISDOM.\n\nThat evening, the Bishop of D\u2014\u2014, after his promenade through the town, remained shut up rather late in his room.\n\nHe was busy over a great work on Duties, which was never completed, unfortunately.\n\nHe was carefully compiling everything that the Fathers and the doctors have said on this important subject.\n- (part 1 of 5, excerpt) \u201cI have heard something of it in a vague way,\u201d replied the Bishop.\n\nThen half-turning in his chair, placing his hands on his knees, and raising towards the old servant woman his cordial face, which so easily grew joyous, and which was illuminated from below by the firelight,\u2014\u201cCome, what is the matter?\n\nWhat is the matter?\n\nAre we in any great danger?\u201d\n\nThen Madame Magloire began the whole story afresh, exaggerating it a little without being aware of the fact.\n  (part 3 of 5, excerpt) Madame Magloire continued as though there had been no protest:\u2014 \u201cWe say that this house is not safe at all; that if Monseigneur will permit, I will go and tell Paulin Musebois, the locksmith, to come and replace the ancient locks on the doors; we have them, and it is only the work of a moment; for I say that nothing is more terrible than a door which can be opened from the outside with a latch by the first passer-by; and I say that we need bolts, Monseigneur, if only for this night; moreover, Monseigneur has the\n  (part 4 of 5, excerpt) The Bishop fixed a tranquil eye on the man.\n\nAs he opened his mouth, doubtless to ask the newcomer what he desired, the man rested both hands on his staff, directed his gaze at the old man and the two women, and without waiting for the Bishop to speak, he said, in a loud voice:\u2014 \u201cSee here.\n\nMy name is Humphrey Waylon.\n\nI am a convict from the galleys.\n  (part 5 of 5) two women, and without waiting for the Bishop to speak, he said, in a loud voice:\u2014 \u201cSee here.\n\nMy name is Humphrey Waylon.\n\nI am a convict from the galleys.\n\nI have passed nineteen years in the galleys.\n\nI was liberated four days ago, and am on my way to Pontarlier, which is my destination.\n\nI have been walking for four days sinc\n- (part 2 of 5, excerpt) Versailles, Poin\u00e7ot, book-seller; and Paris, Pissot, bookseller, Quai des Augustins.\n\nHere is the note:\u2014\n\n\u201cOh, you who are!\n\n\u201cEcclesiastes calls you the All-powerful; the Maccabees call you the Creator; the Epistle to the Ephesians calls you liberty; Baruch calls you Immensity; the Psalms call you Wisdom and Truth; John calls you Light; the Books of Kings call you Lord; Exodus calls you Providence; Leviticus, Sanctity; Esdras, Justice; the creation calls you God; man calls you Father; but Solomon calls you Compassion, and that is the most beautiful of all your names.\u201d\n\nToward nine o\u2019clock in the evening the two women retired and betook themselves to their chambers on the first floor, leaving him alone until morning on the ground floor.\n\nIt is necessary that we should, in this place, give an exact idea of the dwelling of the Bishop of D\u2014\u2014\n\nCHAPTER VI\u2014WHO GUARDED HIS HOUSE FOR HIM\n\nThe house in which he lived consisted, as we have said, of a ground floor, and one story above; three rooms on the ground floor, three chambers on the first, and an attic above.\n\nBehind the house was a garden, a quarter of an acre in extent.\n  (part 3 of 5, excerpt) Behind the house was a garden, a quarter of an acre in extent.\n\nThe two women occupied the first floor; the Bishop was lodged below.\n\nThe first room, opening on the street, served him as dining-room, the second was his bedroom, and the third his oratory.\n\nThere was no exit possible from this oratory, except by passing through the bedroom, nor from the bedroom, without passing through the dining-room.\n\nAt the end of the suite, in the oratory, there was a detached alcove with a bed, for use in cases of hospitality.\n\nThe Bishop offered this bed to country curates whom business or the requirements of their parishes brought to D\u2014\u2014 The pharmacy of the hospital, a small building which had been added to the house, and abutted on the garden, had been transformed into a kitchen and cellar.\n\nIn addition to this, there was in the garden a stable, which had formerly been the kitchen of the hospital, and in which the Bishop kept two cows.\n\nNo matter what the quantity of milk they gave, he invariably sent half of it every morning to the sick people in the hospital.\n\n\u201cI am paying my tithes,\u201d he said.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-38",
+          "sourceVersion": "sha256:afd14a2775fb5d33ff8cfbb19cc2ff6f09ee4e8d059276d8965e4cd579e36077",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-38",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "of the Emperor and of the Imperial Guard to the army, brought from the Island of Elba and dictated by Napoleon himself, were printed for the first time.\n\nWorn out with fatigue, and no longer entertaining any hope, he lay down on a stone bench which stands at the doorway of this printing office.\n\nAt that moment an old woman came out of the church.\n\nShe saw the man stretched out in the shadow.\n\n\u201cWhat are you doing there, my friend?\u201d said she.\n\nHe answered harshly and angrily: \u201cAs you see, my good woman, I am sleeping.\u201d The good woman, who was well worthy the name, in fact, was the Marquise de R\u2014\u2014 \u201cOn this bench?\u201d she went on.\n\n\u201cI have had a mattress of wood for nineteen years,\u201d said the man; \u201cto-day I have a mattress of stone.\u201d\n\n\u201cYou have been a soldier?\u201d\n\n\u201cYes, my good woman, a soldier.\u201d\n\n\u201cWhy do you not go to the inn?\u201d\n\n\u201cBecause I have no money.\u201d\n\n\u201cAlas!\u201d said Madame de R\u2014\u2014, \u201cI have only four sous in my purse.\u201d\n\n\u201cGive it to me all the same.\u201d\n\nThe man took the four sous.",
+          "id": "ev_336b004e02db7248f2169cbe",
+          "observedAt": "2026-10-14T08:56:48.963Z"
+        },
+        {
+          "sourceId": "memory:context-38",
+          "sourceVersion": "sha256:afd14a2775fb5d33ff8cfbb19cc2ff6f09ee4e8d059276d8965e4cd579e36077",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-38",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "cannot obtain lodgings in an inn for so small a sum.\n\nBut have you tried?\n\nIt is impossible for you to pass the night thus.\n\nYou are cold and hungry, no doubt.\n\nSome one might have given you a lodging out of charity.\u201d\n\n\u201cI have knocked at all doors.\u201d\n\n\u201cWell?\u201d\n\n\u201cI have been driven away everywhere.\u201d\n\nThe \u201cgood woman\u201d touched the man\u2019s arm, and pointed out to him on the other side of the street a small, low house, which stood beside the Bishop\u2019s palace.\n\n\u201cYou have knocked at all doors?\u201d\n\n\u201cYes.\u201d\n\n\u201cHave you knocked at that one?\u201d\n\n\u201cNo.\u201d\n\n\u201cKnock there.\u201d\n\nCHAPTER II\u2014PRUDENCE COUNSELLED TO WISDOM.\n\nThat evening, the Bishop of D\u2014\u2014, after his promenade through the town, remained shut up rather late in his room.\n\nHe was busy over a great work on Duties, which was never completed, unfortunately.\n\nHe was carefully compiling everything that the Fathers and the doctors have said on this important subject.",
+          "id": "ev_e12d790a308e282f95998c26",
+          "observedAt": "2026-10-14T08:56:48.963Z"
+        },
+        {
+          "sourceId": "memory:context-40",
+          "sourceVersion": "sha256:4dfc7bea6f934a14c630fc96bbc8ea8a55a92751f5cc18f4d837061ecc7e4e08",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-40",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cI have heard something of it in a vague way,\u201d replied the Bishop.\n\nThen half-turning in his chair, placing his hands on his knees, and raising towards the old servant woman his cordial face, which so easily grew joyous, and which was illuminated from below by the firelight,\u2014\u201cCome, what is the matter?\n\nWhat is the matter?\n\nAre we in any great danger?\u201d\n\nThen Madame Magloire began the whole story afresh, exaggerating it a little without being aware of the fact.",
+          "id": "ev_2cebf758318b75c1e0b2adad",
+          "observedAt": "2026-10-14T08:56:48.967Z"
+        },
+        {
+          "sourceId": "memory:context-40",
+          "sourceVersion": "sha256:4dfc7bea6f934a14c630fc96bbc8ea8a55a92751f5cc18f4d837061ecc7e4e08",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-40",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Madame Magloire continued as though there had been no protest:\u2014 \u201cWe say that this house is not safe at all; that if Monseigneur will permit, I will go and tell Paulin Musebois, the locksmith, to come and replace the ancient locks on the doors; we have them, and it is only the work of a moment; for I say that nothing is more terrible than a door which can be opened from the outside with a latch by the first passer-by; and I say that we need bolts, Monseigneur, if only for this night; moreover, Monseigneur has the",
+          "id": "ev_b0c2cbbcb0578fbbc6a4fbb0",
+          "observedAt": "2026-10-14T08:56:48.967Z"
+        },
+        {
+          "sourceId": "memory:context-40",
+          "sourceVersion": "sha256:4dfc7bea6f934a14c630fc96bbc8ea8a55a92751f5cc18f4d837061ecc7e4e08",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-40",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The Bishop fixed a tranquil eye on the man.\n\nAs he opened his mouth, doubtless to ask the newcomer what he desired, the man rested both hands on his staff, directed his gaze at the old man and the two women, and without waiting for the Bishop to speak, he said, in a loud voice:\u2014 \u201cSee here.\n\nMy name is Humphrey Waylon.\n\nI am a convict from the galleys.",
+          "id": "ev_64d3a464cf954a99a4996ed5",
+          "observedAt": "2026-10-14T08:56:48.967Z"
+        },
+        {
+          "sourceId": "memory:context-40",
+          "sourceVersion": "sha256:4dfc7bea6f934a14c630fc96bbc8ea8a55a92751f5cc18f4d837061ecc7e4e08",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-40",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "two women, and without waiting for the Bishop to speak, he said, in a loud voice:\u2014 \u201cSee here.\n\nMy name is Humphrey Waylon.\n\nI am a convict from the galleys.\n\nI have passed nineteen years in the galleys.\n\nI was liberated four days ago, and am on my way to Pontarlier, which is my destination.\n\nI have been walking for four days sinc",
+          "id": "ev_f243729d379972f00a81a676",
+          "observedAt": "2026-10-14T08:56:48.967Z"
+        },
+        {
+          "sourceId": "memory:context-10",
+          "sourceVersion": "sha256:e50a2c43730b416f096464b23365676c6cc42158a57d78038a93eea6e908c3d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-10",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Versailles, Poin\u00e7ot, book-seller; and Paris, Pissot, bookseller, Quai des Augustins.\n\nHere is the note:\u2014\n\n\u201cOh, you who are!\n\n\u201cEcclesiastes calls you the All-powerful; the Maccabees call you the Creator; the Epistle to the Ephesians calls you liberty; Baruch calls you Immensity; the Psalms call you Wisdom and Truth; John calls you Light; the Books of Kings call you Lord; Exodus calls you Providence; Leviticus, Sanctity; Esdras, Justice; the creation calls you God; man calls you Father; but Solomon calls you Compassion, and that is the most beautiful of all your names.\u201d\n\nToward nine o\u2019clock in the evening the two women retired and betook themselves to their chambers on the first floor, leaving him alone until morning on the ground floor.\n\nIt is necessary that we should, in this place, give an exact idea of the dwelling of the Bishop of D\u2014\u2014\n\nCHAPTER VI\u2014WHO GUARDED HIS HOUSE FOR HIM\n\nThe house in which he lived consisted, as we have said, of a ground floor, and one story above; three rooms on the ground floor, three chambers on the first, and an attic above.\n\nBehind the house was a garden, a quarter of an acre in extent.",
+          "id": "ev_39d70400ea1eb7c222177e57",
+          "observedAt": "2026-10-14T08:56:48.969Z"
+        },
+        {
+          "sourceId": "memory:context-10",
+          "sourceVersion": "sha256:e50a2c43730b416f096464b23365676c6cc42158a57d78038a93eea6e908c3d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-10",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Behind the house was a garden, a quarter of an acre in extent.\n\nThe two women occupied the first floor; the Bishop was lodged below.\n\nThe first room, opening on the street, served him as dining-room, the second was his bedroom, and the third his oratory.\n\nThere was no exit possible from this oratory, except by passing through the bedroom, nor from the bedroom, without passing through the dining-room.\n\nAt the end of the suite, in the oratory, there was a detached alcove with a bed, for use in cases of hospitality.\n\nThe Bishop offered this bed to country curates whom business or the requirements of their parishes brought to D\u2014\u2014 The pharmacy of the hospital, a small building which had been added to the house, and abutted on the garden, had been transformed into a kitchen and cellar.\n\nIn addition to this, there was in the garden a stable, which had formerly been the kitchen of the hospital, and in which the Bishop kept two cows.\n\nNo matter what the quantity of milk they gave, he invariably sent half of it every morning to the sick people in the hospital.\n\n\u201cI am paying my tithes,\u201d he said.",
+          "id": "ev_ab3208a8fd24a25bd2381394",
+          "observedAt": "2026-10-14T08:56:48.969Z"
+        }
+      ],
+      "sourceIds": [
+        "context-38",
+        "context-40",
+        "context-10"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 13.663542000002053,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-38",
+    "context-40",
+    "context-10"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:56:48.972929+00:00"
+}

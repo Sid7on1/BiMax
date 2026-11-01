@@ -1,0 +1,60 @@
+{
+  "scope": "implementation mutants only; not model/provider qualification",
+  "faults": [
+    {
+      "fault": "guide-native-input",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "Guide rejects direct"
+    },
+    {
+      "fault": "guide-workflow-mutation",
+      "assertionCaught": false,
+      "exitCode": 1,
+      "test": "Guide checks two"
+    },
+    {
+      "fault": "stale-revision",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "Take over revokes"
+    },
+    {
+      "fault": "no-pause-authority",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "Actual panel approval can pause"
+    },
+    {
+      "fault": "trust-driver-done",
+      "assertionCaught": false,
+      "exitCode": 1,
+      "test": "No-op done remains"
+    },
+    {
+      "fault": "no-independent-read",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "Twenty distinct ordered"
+    },
+    {
+      "fault": "duplicate-save",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "Twenty distinct ordered"
+    },
+    {
+      "fault": "guide-bypass-concurrency",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "Concurrent model input"
+    },
+    {
+      "fault": "save-before-verified",
+      "assertionCaught": false,
+      "exitCode": 1,
+      "test": "Teach save is host-owned"
+    }
+  ],
+  "sourceRestored": true
+}

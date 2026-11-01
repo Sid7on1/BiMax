@@ -1,0 +1,465 @@
+--- before/app/src/main/thread.storage.ts
++++ app/src/main/thread.storage.ts
+@@ -2,7 +2,67 @@
+ import fsp from 'node:fs/promises';
+ import path from 'node:path';
+ import type { SavedThread } from './thread.manager';
+-import type { ThreadSummary } from '../shared/threads';
++import type { ThreadSummary, ThreadRecoveryEntry } from '../shared/threads';
++
++/** Encoded snapshot bytes, shared by every writer and reader. Not a renderer/engine memory budget. */
++export const THREAD_SNAPSHOT_MAX_BYTES = 32 * 1024 * 1024;
++/** Space for the Bin undo envelope, including the largest safe integer timestamp. */
++export const THREAD_RECOVERY_MAX_BYTES = THREAD_SNAPSHOT_MAX_BYTES + Buffer.byteLength(JSON.stringify({ value: null, archived: false, at: Number.MAX_SAFE_INTEGER })) - 4;
++const HISTORY_LIMIT_MESSAGE = 'Conversation history exceeds the 32 MiB saved-history limit. Export this conversation and start a new one. The previous saved copy is unchanged.';
++
++function historySize(info: fs.Stats, maxBytes: number): number {
++  if (!info.isFile() || info.nlink !== 1) throw new Error('Saved history is not a regular private file.');
++  if (info.size > maxBytes) throw new Error(HISTORY_LIMIT_MESSAGE);
++  return info.size;
++}
++function unchangedHistory(before: fs.Stats, after: fs.Stats): void {
++  if (after.size !== before.size || after.mtimeMs !== before.mtimeMs || after.ctimeMs !== before.ctimeMs)
++    throw new Error('Saved history changed while reading.');
++}
++const parseHistory = (bytes: Buffer): unknown => JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
++
++/** Descriptor-bound, bounded reads; growing/special files cannot bypass the snapshot byte limit. */
++export function readBoundedHistoryJson(file: string, maxBytes = THREAD_SNAPSHOT_MAX_BYTES): unknown {
++  const fd = fs.openSync(file, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK);
++  try {
++    const info = fs.fstatSync(fd);
++    const bytes = Buffer.alloc(historySize(info, maxBytes));
++    let read = 0;
++    while (read < bytes.length) {
++      const n = fs.readSync(fd, bytes, read, bytes.length - read, read);
++      if (!n) throw new Error('Saved history changed while reading.');
++      read += n;
++    }
++    unchangedHistory(info, fs.fstatSync(fd));
++    return parseHistory(bytes);
++  } finally { fs.closeSync(fd); }
++}
++
++function threadSnapshot(raw: unknown, id: string): SavedThread {
++  const value = raw as SavedThread;
++  if (value?.summary?.id !== id || !path.isAbsolute(value.summary.root ?? '') || !Array.isArray(value.state?.items))
++    throw new Error('Saved conversation cannot be read.');
++  return value;
++}
++export function readThreadSnapshot(file: string, id: string): SavedThread {
++  return threadSnapshot(readBoundedHistoryJson(file), id);
++}
++/** Interactive archive/restore retains async I/O; only the bounded JSON parse runs in main. */
++async function readThreadSnapshotAsync(file: string, id: string): Promise<SavedThread> {
++  const handle = await fsp.open(file, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK);
++  try {
++    const info = await handle.stat();
++    const bytes = Buffer.alloc(historySize(info, THREAD_SNAPSHOT_MAX_BYTES));
++    let read = 0;
++    while (read < bytes.length) {
++      const { bytesRead } = await handle.read(bytes, read, bytes.length - read, read);
++      if (!bytesRead) throw new Error('Saved history changed while reading.');
++      read += bytesRead;
++    }
++    unchangedHistory(info, await handle.stat());
++    return threadSnapshot(parseHistory(bytes), id);
++  } finally { await handle.close(); }
++}
+ 
+ /**
+  * Serialized atomic snapshots; streamed updates coalesce, completed history survives relaunch.
+@@ -27,6 +87,7 @@
+   private failures = 0;
+   private failure: string | null = null;
+   private retryScheduled = false;
++  private recovery = new Map<string, ThreadRecoveryEntry>();
+   constructor(private dir: string, private options: ThreadStorageOptions = {}) { fs.mkdirSync(dir, { recursive: true, mode: 0o700 }); }
+ 
+   /** How many threads have changes not yet on disk. */
+@@ -34,15 +95,39 @@
+ 
+   /** The last write error, or null while saving works. */
+   lastError(): string | null { return this.failure; }
++  private recoveryKey(id: string, archived: boolean, backup = false): string { return `${backup ? 'bin/' : archived ? 'archive/' : ''}${id}`; }
++  private reportRecovery(file: string, id: string, archived: boolean, reason?: ThreadRecoveryEntry['reason'], backup = false): void {
++    let bytes = 0;
++    try { bytes = fs.lstatSync(file).size; } catch { /* retain a visible unreadable entry */ }
++    this.recovery.set(this.recoveryKey(id, archived, backup), { id, archived, ...(backup ? { backup: true } : {}), bytes, reason: reason ?? (bytes > (backup ? THREAD_RECOVERY_MAX_BYTES : THREAD_SNAPSHOT_MAX_BYTES) ? 'oversized' : 'unreadable') });
++  }
++  noteRecoveryBackup(id: string): void {
++    if (/^[\w-]{1,80}$/.test(id)) this.reportRecovery(path.join(this.dir, '.bin-recovery', `${id}.json`), id, false, undefined, true);
++  }
++  recoverable(): ThreadRecoveryEntry[] { return [...this.recovery.values()].map(entry => ({ ...entry })); }
++  /** Resolve only a catalogued retained record. The renderer supplies an id and location, never a path. */
++  recoveryFile(id: string, archived: boolean, backup = false): string {
++    if (!/^[\w-]{1,80}$/.test(id) || (archived && backup) || !this.recovery.has(this.recoveryKey(id, archived, backup))) throw new Error('Recovery copy not found.');
++    return path.join(this.dir, ...(backup ? ['.bin-recovery'] : archived ? ['archive'] : []), `${id}.json`);
++  }
++  recoveryRoot(): string { return this.dir; }
+   load(): SavedThread[] {
+-    return fs.readdirSync(this.dir).filter(n => /^[\w-]+\.json$/.test(n)).slice(0, 200).flatMap(n => {
++    for (const [key, value] of this.recovery) if (!value.archived && !value.backup) this.recovery.delete(key);
++    const loaded: SavedThread[] = [];
++    for (const n of fs.readdirSync(this.dir).filter(n => /^[\w-]{1,80}\.json$/.test(n))) {
++      const file = path.join(this.dir, n), id = n.slice(0, -5);
+       try {
+-        const file = path.join(this.dir,n);
+-        if (fs.statSync(file).size > 32 * 1024 * 1024) return [];
+-        const value = JSON.parse(fs.readFileSync(file,'utf8'));
+-        return value.summary && Array.isArray(value.state?.items) ? [value] : [];
+-      } catch { return []; }
+-    });
++        if (loaded.length >= 200) { this.reportRecovery(file, id, false, 'capacity'); continue; }
++        loaded.push(readThreadSnapshot(file, id));
++      } catch { this.reportRecovery(file, id, false); }
++    }
++    // Discover oversized archived files by metadata only, even before Archived is opened.
++    if (fs.existsSync(this.archiveDir())) for (const n of fs.readdirSync(this.archiveDir()).filter(n => /^[\w-]{1,80}\.json$/.test(n))) {
++      const file = path.join(this.archiveDir(), n);
++      try { if (fs.lstatSync(file).size > THREAD_SNAPSHOT_MAX_BYTES) this.reportRecovery(file, n.slice(0, -5), true); }
++      catch { this.reportRecovery(file, n.slice(0, -5), true); }
++    }
++    return loaded;
+   }
+   private archiveDir(): string { return path.join(this.dir, 'archive'); }
+ 
+@@ -58,12 +143,13 @@
+   async writeFinal(value: SavedThread): Promise<string> {
+     const id = value.summary.id;
+     if (!/^[\w-]{1,80}$/.test(id)) throw new Error('Thread not found');
++    const text = this.text(this.copy(value));
+     // From here every save of it (pending, in flight, or retried after a failed write) is skipped when its batch runs.
+     this.written.set(id, Number.MAX_SAFE_INTEGER);
+     await this.writes;
+     const file = path.join(this.dir, `${id}.json`);
+     const temporary = `${file}.final.tmp`;
+-    await fsp.writeFile(temporary, this.text(this.copy(value)), { mode: 0o600 });
++    await fsp.writeFile(temporary, text, { mode: 0o600 });
+     await fsp.rename(temporary, file);
+     return file;
+   }
+@@ -91,15 +177,17 @@
+     const files = await Promise.all(names.filter((n) => /^[\w-]+\.json$/.test(n)).map(async (n) => {
+       const file = path.join(this.archiveDir(), n);
+       const stat = await fsp.stat(file).catch(() => null);
+-      return stat && stat.size <= 32 * 1024 * 1024 ? { file, name: n, mtimeMs: stat.mtimeMs } : null;
++      if (stat && stat.size > THREAD_SNAPSHOT_MAX_BYTES) this.reportRecovery(file, n.slice(0, -5), true);
++      return stat && stat.size <= THREAD_SNAPSHOT_MAX_BYTES ? { file, name: n, mtimeMs: stat.mtimeMs } : null;
+     }));
+     const newest = files.filter((f): f is NonNullable<typeof f> => !!f).sort((a, b) => b.mtimeMs - a.mtimeMs).slice(0, limit);
+     const out: ThreadSummary[] = [];
+     for (const { file, name } of newest) {
+       try {
+-        const value = JSON.parse(await fsp.readFile(file, 'utf8'));
++        const value = await readThreadSnapshotAsync(file, name.slice(0, -5));
+         if (value?.summary && `${value.summary.id}.json` === name) out.push({ ...value.summary, status: 'stopped', peers: [] });
+-      } catch { /* unreadable: not listed */ }
++        this.recovery.delete(this.recoveryKey(name.slice(0, -5), true));
++      } catch { this.reportRecovery(file, name.slice(0, -5), true); }
+     }
+     return out;
+   }
+@@ -114,7 +202,7 @@
+   /** Move an archived thread back into the list's folder and return it. */
+   async unarchive(id: string): Promise<SavedThread> {
+     const source = this.archivedFile(id);
+-    const value = JSON.parse(await fsp.readFile(source, 'utf8'));
++    const value = await readThreadSnapshotAsync(source, id);
+     if (!value?.summary || value.summary.id !== id || !Array.isArray(value.state?.items)) throw new Error('That archived thread cannot be read.');
+     const target = path.join(this.dir, `${id}.json`);
+     if (fs.existsSync(target)) throw new Error('That thread is already in the list.');
+@@ -128,8 +216,11 @@
+   }
+ 
+   private text(value: SavedThread): string {
++    if (this.recovery.has(this.recoveryKey(value.summary.id, false))) throw new Error('Export the recovery copy before replacing this unreadable saved conversation.');
+     // Secrets entered in approval dialogs are never stored in this transcript snapshot.
+-    return JSON.stringify({ ...value, state: { ...value.state, request: null } });
++    const text = JSON.stringify({ ...value, state: { ...value.state, request: null } });
++    if (Buffer.byteLength(text, 'utf8') > THREAD_SNAPSHOT_MAX_BYTES) throw new Error(HISTORY_LIMIT_MESSAGE);
++    return text;
+   }
+ 
+   save(value: SavedThread): void {
+--- before/app/src/main/thread.manager.ts
++++ app/src/main/thread.manager.ts
+@@ -60,6 +60,7 @@
+   holdInputs?: boolean;
+   /** Dispatch is paused after a failed acceptance/sent-state save until an explicit user retry. */
+   storageBlocked?: boolean;
++  storageError?: string;
+   /** The previous engine's process is still exiting: nothing else may write in this folder yet (backlog F11). */
+   draining?: Promise<unknown>;
+   /** The person interrupted the current turn, so it ends "interrupted", not "completed" (backlog N12). */
+@@ -1121,7 +1122,7 @@
+   /** Keep an unexecuted message visible, but do not mistake a deferred retry for dispatch admission. */
+   private blockForStorage(r: LiveThread): void {
+     r.storageBlocked = true;
+-    this.appendNote(r, 'Your message has not been sent because Bimax could not save it. It is kept in this open conversation, but may not survive quitting. Free disk space or fix storage access, then send a message to retry the queue, or Stop to discard it.', 'warning', true);
++    this.appendNote(r, `Your message has not been sent because Bimax could not save it. ${r.storageError ? `${r.storageError.slice(0, 240)} ` : ''}It is kept in this open conversation, but may not survive quitting. Resolve the saving problem, then send a message to retry the queue, or Stop to discard it.`, 'warning', true);
+     this.persist(r);
+   }
+ 
+@@ -1138,9 +1139,11 @@
+     if (now && this.deps.saveNow) {
+       try {
+         this.deps.saveNow(value);
++        r.storageError = undefined;
+       } catch (error) {
+         // A deferred retry preserves work when possible, but cannot authorize executing it now.
+         console.warn(`[threads] could not save thread ${r.summary.id} at once: ${(error as Error).message}`);
++        r.storageError = (error as Error).message;
+         this.deps.save(value);
+         this.deps.changed();
+         return false;
+--- before/app/src/main/thread.bin.recovery.ts
++++ app/src/main/thread.bin.recovery.ts
+@@ -4,6 +4,7 @@
+ import type { SavedThread } from './thread.manager';
+ import type { BinOps } from './thread.undo';
+ import type { ThreadBinUndo } from '../shared/threads';
++import { readBoundedHistoryJson, readThreadSnapshot, THREAD_RECOVERY_MAX_BYTES, THREAD_SNAPSHOT_MAX_BYTES } from './thread.storage';
+ 
+ /** A bounded private safety copy for Bimax Thread Bin undo, including the system API's unknown-trash-path fallback. */
+ export const BIN_UNDO_MS = 5 * 60_000;
+@@ -12,7 +13,7 @@
+ export class ThreadBinRecovery {
+   private busy = new Set<string>();
+   private dir: string;
+-  constructor(private root: string, private bin: Pick<BinOps, 'moveToBin'>, private now = Date.now) {
++  constructor(private root: string, private bin: Pick<BinOps, 'moveToBin'>, private now = Date.now, private unreadable?: (id: string) => void) {
+     this.dir = path.join(root, '.bin-recovery');
+     fs.mkdirSync(this.dir, { recursive: true, mode: 0o700 });
+     this.prune();
+@@ -30,15 +31,15 @@
+   private target(id: string, archived: boolean): string { this.id(id); return path.join(this.root, ...(archived ? ['archive'] : []), `${id}.json`); }
+   private read(id: string): Recovery {
+     const file = this.backup(id);
+-    if (fs.statSync(file).size > 32 * 1024 * 1024) throw new Error('Recovery is too large.');
+-    const r: Recovery = JSON.parse(fs.readFileSync(file, 'utf8'));
++    const r = readBoundedHistoryJson(file, THREAD_RECOVERY_MAX_BYTES) as Recovery;
+     if (r.value?.summary?.id !== id || !Array.isArray(r.value.state?.items) || typeof r.archived !== 'boolean' || !Number.isFinite(r.at)) throw new Error('Recovery cannot be read.');
++    if (Buffer.byteLength(JSON.stringify(r.value)) > THREAD_SNAPSHOT_MAX_BYTES) throw new Error('Recovery history exceeds the saved-history limit.');
+     return r;
+   }
+   private records(): Recovery[] {
+     return fs.readdirSync(this.dir).filter(n => /^[\w-]{1,80}\.json$/.test(n)).flatMap(n => {
+       const id=n.slice(0,-5);
+-      try { return [this.read(id)]; } catch { fs.rmSync(this.backup(id), { force: true }); return []; }
++      try { return [this.read(id)]; } catch { this.unreadable?.(id); return []; }
+     }).sort((a,b)=>b.at-a.at);
+   }
+   prune(): void {
+@@ -62,12 +63,13 @@
+     this.busy.add(id);
+     const target=this.target(id,archived);
+     try {
+-      if (fs.statSync(target).size > 32 * 1024 * 1024) throw new Error('Conversation is too large.');
+-      const value: SavedThread=JSON.parse(fs.readFileSync(target,'utf8'));
++      const value = readThreadSnapshot(target, id);
+       if (value.summary?.id !== id || !Array.isArray(value.state?.items)) throw new Error('Conversation cannot be read.');
+       const r: Recovery={ value:{...value,state:{...value.state,request:null}},archived,at:this.now() };
+       const temporary=`${this.backup(id)}.tmp`;
+-      try { fs.writeFileSync(temporary,JSON.stringify(r),{mode:0o600}); fs.renameSync(temporary,this.backup(id)); }
++      const text = JSON.stringify(r);
++      if (Buffer.byteLength(text) > THREAD_RECOVERY_MAX_BYTES) throw new Error('Recovery history exceeds the saved-history limit.');
++      try { fs.writeFileSync(temporary,text,{mode:0o600}); fs.renameSync(temporary,this.backup(id)); }
+       finally { fs.rmSync(temporary,{force:true}); }
+       await this.bin.moveToBin(target);
+       if (fs.existsSync(target)) throw new Error('The conversation did not move to the Bin.');
+--- before/app/src/main/index.ts
++++ app/src/main/index.ts
+@@ -10,6 +10,7 @@
+ import type { RealEngineAdapter } from './responder/adapter';
+ import { threadCapabilityEnvironment, threadIndexEnvironment, threadVoiceEnvironment, workerCapacityEnvironment, spendLedgerEnvironment } from './thread.environment';
+ import { ThreadStorage } from './thread.storage';
++import { recoveryExportAction } from './thread.recovery.export';
+ import { ThreadBinRecovery, BIN_UNDO_MS } from './thread.bin.recovery';
+ import { threadBinActions } from './thread.bin.actions';
+ import { ComputerRecipes } from './computer/recipes';
+@@ -164,10 +165,13 @@
+ // A folder picker opened from the bar takes focus; that blur must not hide the bar it was opened from.
+ let quickPicking = false;
+ function threadList() {
++  const undoBin = binRecovery?.latest();
+   return {
+     activeId: threads?.activeId ?? null, threads: threads?.list() ?? [], shortcutAvailable, shortcut: shortcutLabel(wantedShortcut),
+     archivedCount: threadStorage?.archivedCount() ?? 0,
+-    undoBin: binRecovery?.latest(),
++    recovery: threadStorage?.recoverable() ?? [],
++    savingError: threadStorage?.lastError() ?? null,
++    undoBin,
+   };
+ }
+ function threadChanged(): void {
+@@ -1808,6 +1812,7 @@
+   threadStorage = new ThreadStorage(path.join(app.getPath('userData'), 'threads'), {
+     // A thread that cannot be saved is said out loud once, not left to be discovered after a restart (backlog F12).
+     onFailure: (message) => {
++      threadChanged();
+       if (message === null) { storageNoticeShown = false; console.info('[threads] saving works again'); return; }
+       console.warn(`[threads] could not save thread history: ${message}`);
+       if (!storageNoticeShown && Notification.isSupported()) {
+@@ -1816,7 +1821,7 @@
+       }
+     },
+   });
+-  binRecovery = new ThreadBinRecovery(path.join(app.getPath('userData'), 'threads'), macBin);
++  binRecovery = new ThreadBinRecovery(path.join(app.getPath('userData'), 'threads'), macBin, Date.now, id => threadStorage.noteRecoveryBackup(id));
+   threads = new ThreadManager({
+     engine: id => createSupervisor(id), changed: threadChanged,
+     ended: id => computerUse?.end(id),
+@@ -2668,7 +2673,20 @@
+     }
+   });
+   secureHandle('threads:search', [] as string[], (_e, query: unknown) => (typeof query === 'string' ? threads.search(query.slice(0, 200)) : []));
+-  secureHandle('threads:archived', [] as ThreadSummary[], () => threadStorage.archived());
++  secureHandle('threads:archived', [] as ThreadSummary[], async () => {
++    const history = await threadStorage.archived();
++    threadChanged();
++    return history;
++  });
++  const exportRecovery = recoveryExportAction(threadStorage, async id => {
++    if (!win) return null;
++    const result = await dialog.showSaveDialog(win, {
++      title: 'Export conversation recovery copy', defaultPath: `Bimax recovery ${id}.json`,
++      filters: [{ name: 'Saved conversation', extensions: ['json'] }],
++    });
++    return result.canceled ? null : result.filePath ?? null;
++  });
++  secureHandle('threads:export-recovery', { ok: false }, (_e, id, archived, backup) => exportRecovery(id, archived, backup));
+   secureHandle('threads:archive', { ok: false } as ThreadAction, async (_e, id: unknown) => {
+     if (typeof id !== 'string') return { ok: false, error: 'No thread was given.' };
+     if (id === threads.activeId) return { ok: false, error: onScreen };
+--- before/app/src/preload/index.ts
++++ app/src/preload/index.ts
+@@ -121,6 +121,7 @@
+     rename: (id: string, title: string) => ipcRenderer.invoke('threads:rename', id, title),
+     search: (query: string) => ipcRenderer.invoke('threads:search', query),
+     archived: () => ipcRenderer.invoke('threads:archived'),
++    exportRecovery: (id: string, archived: boolean, backup = false): Promise<{ ok: boolean; error?: string; cancelled?: boolean }> => ipcRenderer.invoke('threads:export-recovery', id, archived, backup),
+     archive: (id: string) => ipcRenderer.invoke('threads:archive', id),
+     unarchive: (id: string) => ipcRenderer.invoke('threads:unarchive', id),
+     moveToBin: (id: string, archived: boolean) => ipcRenderer.invoke('threads:bin', id, archived),
+--- before/app/src/shared/threads.ts
++++ app/src/shared/threads.ts
+@@ -53,7 +53,17 @@
+ export const QUICK_BAR_MAX_HEIGHT_SHARE = 0.72;
+ /** Most recent of at most five binned conversations, recoverable privately for five minutes. */
+ export interface ThreadBinUndo { id: string; title: string; expiresAt: number }
++/** A retained snapshot that cannot safely be opened; no filesystem path crosses the bridge. */
++export interface ThreadRecoveryEntry {
++  id: string;
++  archived: boolean;
++  backup?: boolean;
++  bytes: number;
++  reason: 'oversized' | 'unreadable' | 'capacity';
++}
+ export interface ThreadList {
++  savingError?: string | null;
++  recovery?: ThreadRecoveryEntry[];
+   undoBin?: ThreadBinUndo;
+   activeId: string | null;
+   threads: ThreadSummary[];
+--- before/app/src/renderer/src/components/ThreadsList.tsx
++++ app/src/renderer/src/components/ThreadsList.tsx
+@@ -5,6 +5,7 @@
+ import { isQuickThread, threadActivity, type ThreadList, type ThreadSummary } from '../../../shared/threads';
+ import { visibleThreads } from '../threads.list.model';
+ import { cn } from '../lib/cn';
++import { ThreadRecoveryList } from './ThreadRecoveryList';
+ import { SeedMenu, SeedMenuItem, SeedMenuLabel, SeedMenuSeparator } from './ui/morph/SeedMenu';
+ 
+ /** What a thread action answers: a refusal says why; a cancelled confirmation says nothing. */
+@@ -48,7 +49,7 @@
+   const quick = data.threads.filter(isQuickThread);
+   // Search runs in the main process, over each thread's name, folder and conversation (backlog N11).
+   useEffect(() => {
+-    if (!query.trim()) { setMatches(null); return; }
++    if (!query.trim()) { setMatches(null); return undefined; }
+     let live = true;
+     const timer = setTimeout(() => {
+       void window.bimax.threads.search(query).then((ids: string[]) => { if (live) setMatches(new Set(ids)); });
+@@ -57,7 +58,7 @@
+   },[query, quick.length]);
+   const archivedCount = data.archivedCount ?? 0;
+   useEffect(() => {
+-    if (!showArchived) return;
++    if (!showArchived) return undefined;
+     let live = true;
+     void window.bimax.threads.archived().then((list: ThreadSummary[]) => { if (live) setArchived(list); });
+     return () => { live = false; };
+@@ -91,6 +92,8 @@
+     if (title && title !== data.threads.find(t => t.id === current.id)?.title) void action(() => window.bimax.threads.rename(current.id, title));
+   }
+   return <div className="space-y-px pb-1">
++    {data.savingError && <p role="alert" className="px-2.5 py-2 text-[12px] text-rust">Conversation changes are not saved. {data.savingError}</p>}
++    <ThreadRecoveryList entries={data.recovery ?? []} exportCopy={(id, archived, backup) => window.bimax.threads.exportRecovery(id, archived, backup)} />
+     {(quick.length > 5 || archivedCount > 0) && <label className="mx-1 mb-1 flex items-center gap-1.5 rounded-md bg-hover px-2 py-1 text-[11px] text-dim">
+       <Search size={11} className="shrink-0" aria-hidden/>
+       <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search threads" aria-label="Search threads" className="min-w-0 flex-1 bg-transparent text-ink outline-none"/>
+--- before/scripts/prove-thread-persistence.py
++++ scripts/prove-thread-persistence.py
+@@ -4,11 +4,13 @@
+ from pathlib import Path
+ import shutil
+ import subprocess
++import sys
+ import tempfile
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ OUT = ROOT / 'docs/product-reset/evidence/2026-10-31-persistence-repair'
+ NODE = os.environ.get('BIMAX_TEST_NODE', shutil.which('node') or 'node')
++TEST_FILES = ['app/src/__tests__/thread.persistence.sprint.test.ts']
+ 
+ 
+ def replace_once(text, old, new):
+@@ -37,6 +39,37 @@
+      "this.threads.create(this.defaultWorkspaceDir!, input.instruction, 'project')"),
+ ]
+ 
++if '--history' in sys.argv:
++    OUT = ROOT / 'docs/product-reset/evidence/2026-10-31-history-recovery'
++    TEST_FILES = ['app/src/__tests__/thread.history.storage.test.ts', 'app/src/__tests__/thread.history.recovery.test.tsx']
++    MUTANTS = [
++        ('writer-limit', 'app/src/main/thread.storage.ts',
++         "    if (Buffer.byteLength(text, 'utf8') > THREAD_SNAPSHOT_MAX_BYTES) throw new Error(HISTORY_LIMIT_MESSAGE);", ''),
++        ('silent-discovery', 'app/src/main/thread.storage.ts',
++         '} catch { this.reportRecovery(file, id, false); }', '} catch { /* fault: silently omit */ }'),
++        ('tombstone-before-admission', 'app/src/main/thread.storage.ts',
++         '    const text = this.text(this.copy(value));',
++         '    const text = (this.written.set(id, Number.MAX_SAFE_INTEGER), this.text(this.copy(value)));'),
++        ('unbounded-unarchive', 'app/src/main/thread.storage.ts',
++         '    const value = await readThreadSnapshotAsync(source, id);', "    const value = JSON.parse(await fsp.readFile(source, 'utf8'));"),
++        ('bin-envelope-limit', 'app/src/main/thread.storage.ts',
++         'THREAD_SNAPSHOT_MAX_BYTES + Buffer.byteLength(JSON.stringify({ value: null, archived: false, at: Number.MAX_SAFE_INTEGER })) - 4',
++         'THREAD_SNAPSHOT_MAX_BYTES'),
++        ('delete-unreadable-backup', 'app/src/main/thread.bin.recovery.ts',
++         'catch { this.unreadable?.(id); return []; }',
++         'catch { fs.rmSync(this.backup(id), { force: true }); return []; }'),
++        ('skip-source-identity', 'app/src/main/thread.recovery.export.ts',
++         'if (after.size !== before.size || after.mtimeMs !== before.mtimeMs || after.ctimeMs !== before.ctimeMs ||\n        current.ino !== before.ino || current.dev !== before.dev || current.isSymbolicLink())', 'if (false)'),
++        ('skip-byte-verification', 'app/src/main/thread.recovery.export.ts',
++         "if (copy.digest('hex') !== digest.digest('hex'))", 'if (false)'),
++        ('overwrite-recovery', 'app/src/main/thread.storage.ts',
++         "    if (this.recovery.has(this.recoveryKey(value.summary.id, false))) throw new Error('Export the recovery copy before replacing this unreadable saved conversation.');", ''),
++    ]
++
++
++if '--out-dir' in sys.argv:
++    OUT = Path(sys.argv[sys.argv.index('--out-dir') + 1]).resolve()
++
+ 
+ def main():
+     version = subprocess.check_output([NODE, '--version'], text=True).strip()
+@@ -63,8 +96,7 @@
+             (target / name).write_text(replace_once(files[name], old, new))
+             result_file = OUT / f'mutant-{label}.json'
+             args = [NODE, str(ROOT / 'node_modules/jest/bin/jest.js'), '--config', str(target / 'jest.config.ts'),
+-                    '--runInBand', '--coverage=false', '--runTestsByPath',
+-                    str(target / 'app/src/__tests__/thread.persistence.sprint.test.ts'),
++                    '--runInBand', '--coverage=false', '--runTestsByPath', *[str(target / test) for test in TEST_FILES],
+                     '--json', '--outputFile', str(result_file)]
+             with (OUT / f'mutant-{label}.log').open('w') as log:
+                 run = subprocess.run(args, cwd=target, stdout=log, stderr=subprocess.STDOUT, timeout=90)

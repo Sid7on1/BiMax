@@ -1,0 +1,217 @@
+{
+  "row": 1,
+  "query": 37,
+  "id": "mab-1-37",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:41:07.604116+00:00",
+  "valid": true,
+  "question": "The Livesey Hal War Memorial commemorates the fallen of which war, that had over 60 million casualties?",
+  "references": [
+    "World War II"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 672.8992910000088,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 103,
+        "maxInputChars": 103,
+        "requiredProviderTruncation": false,
+        "promptTokens": 22,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-101",
+        "context-77",
+        "context-347"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) selected by the San Francisco 49ers in the first round of the 2004 NFL Draft, and played professionally for the NFL's 49ers and the CFL's Toronto Argonauts.\n\nDocument 750:\nLivesey Hall War Memorial\nThe Livesey Hall War Memorial commemorates the fallen of World War I and World War II who had been employed by the South Suburban Gas Company of London. It is also a tribute to those employees who served in the wars. The monument was designed and executed by British sculptor Sydney March, of the March family of artists.\n\nDocument 751:\nValerie Lloyd-Chandos\nPauline Valerie Lloyd-Chandos (born 24 May 1933) is a British diver, who ranked 12th in the Women's 10m platform event at the 1952 Summer Olympics. In July 1950, she competed in the National Diving Championship at Morecambe and Heysham. Part of her practice for this event involved diving into a sand pit in her back garden in Teddington.\n- (part 4 of 5, excerpt) Document 571:\nAlamein Memorial\nThe Alamein Memorial is a Commonwealth War Graves Commission war memorial in the El Alamein War Cemetery, El Alamein, Egypt. The memorial commemorates 11,866 Commonwealth forces members who died during World War II. The memorial was designed by Hubert Worthington and unveiled by Viscount Montgomery of Alamein on 24 October 1954.\n- (part 3 of 6, excerpt) World War II was the deadliest military conflict in history in absolute terms of total casualties. Over 60 million people were killed, which was about 3% of the 1940 world population (est. 2.3 billion). The tables below give a detailed country-by-country count of human losses. World War II fatality statistics vary, with estimates of total deaths ranging from 50 million to more than 80 million. The higher figure of over 80 million includes deaths from war-related diseas",
+      "evidence": [
+        {
+          "sourceId": "memory:context-101",
+          "sourceVersion": "sha256:b575485cfb0d1aa4f72ca7f339e130d9b82a1d8a9712dd9628ceac7a3e815626",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-101",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "selected by the San Francisco 49ers in the first round of the 2004 NFL Draft, and played professionally for the NFL's 49ers and the CFL's Toronto Argonauts.\n\nDocument 750:\nLivesey Hall War Memorial\nThe Livesey Hall War Memorial commemorates the fallen of World War I and World War II who had been employed by the South Suburban Gas Company of London. It is also a tribute to those employees who served in the wars. The monument was designed and executed by British sculptor Sydney March, of the March family of artists.\n\nDocument 751:\nValerie Lloyd-Chandos\nPauline Valerie Lloyd-Chandos (born 24 May 1933) is a British diver, who ranked 12th in the Women's 10m platform event at the 1952 Summer Olympics. In July 1950, she competed in the National Diving Championship at Morecambe and Heysham. Part of her practice for this event involved diving into a sand pit in her back garden in Teddington.",
+          "id": "ev_4a005aca01fbf86021040af6",
+          "observedAt": "2026-10-14T08:41:08.281Z"
+        },
+        {
+          "sourceId": "memory:context-77",
+          "sourceVersion": "sha256:c466a6f6b6e4579578e2855885ade92a8bea3e759ac2ce0a6d3f4ef73037683f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-77",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 571:\nAlamein Memorial\nThe Alamein Memorial is a Commonwealth War Graves Commission war memorial in the El Alamein War Cemetery, El Alamein, Egypt. The memorial commemorates 11,866 Commonwealth forces members who died during World War II. The memorial was designed by Hubert Worthington and unveiled by Viscount Montgomery of Alamein on 24 October 1954.",
+          "id": "ev_1912e221b71cf793e3888619",
+          "observedAt": "2026-10-14T08:41:08.282Z"
+        },
+        {
+          "sourceId": "memory:context-347",
+          "sourceVersion": "sha256:4e321769df6683ce4ff54de8ed572c350700d1af3c2a66f4b1acb5ab24474004",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-347",
+            "part": 3,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "World War II was the deadliest military conflict in history in absolute terms of total casualties. Over 60 million people were killed, which was about 3% of the 1940 world population (est. 2.3 billion). The tables below give a detailed country-by-country count of human losses. World War II fatality statistics vary, with estimates of total deaths ranging from 50 million to more than 80 million. The higher figure of over 80 million includes deaths from war-related diseas",
+          "id": "ev_b062478b79fe16016c7d37d5",
+          "observedAt": "2026-10-14T08:41:08.282Z"
+        }
+      ],
+      "sourceIds": [
+        "context-101",
+        "context-77",
+        "context-347"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.259167000011075,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-101",
+        "context-77",
+        "context-347"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) selected by the San Francisco 49ers in the first round of the 2004 NFL Draft, and played professionally for the NFL's 49ers and the CFL's Toronto Argonauts.\n\nDocument 750:\nLivesey Hall War Memorial\nThe Livesey Hall War Memorial commemorates the fallen of World War I and World War II who had been employed by the South Suburban Gas Company of London. It is also a tribute to those employees who served in the wars. The monument was designed and executed by British sculptor Sydney March, of the March family of artists.\n\nDocument 751:\nValerie Lloyd-Chandos\nPauline Valerie Lloyd-Chandos (born 24 May 1933) is a British diver, who ranked 12th in the Women's 10m platform event at the 1952 Summer Olympics. In July 1950, she competed in the National Diving Championship at Morecambe and Heysham. Part of her practice for this event involved diving into a sand pit in her back garden in Teddington.\n- (part 4 of 5) that houses both PNI and the Department of Psychology. The building is 248,00 square feet, and was designed by Rafael Moneo to meet LEED Silver certification.\n\nDocument 570:\nUnited States Deputy Secretary of State\nThe Deputy Secretary of State of the United States is the principal deputy to the Secretary of State. If the Secretary of State resigns or dies, the Deputy Secretary of State becomes Acting Secretary of State until the President nominates and the Senate confirms a replacement. The position was created in 1972. Prior to July 13, 1972, the Under Secretary of State had been the second ranking officer of the Department of State. The position is held by John J. Sullivan.\n\nDocument 571:\nAlamein Memorial\nThe Alamein Memorial is a Commonwealth War Graves Commission war memorial in the El Alamein War Cemetery, El Alamein, Egypt. The memorial commemorates 11,866 Commonwealth forces members who died during World War II. The memorial was designed by Hubert Worthington and unveiled by Viscount Montgomery of Alamein on 24 October 1954.\n- (part 3 of 6) one of the few accelerated three-year pharmacy programs in the country, and is one of 2 pharmacy schools in the country with a distance education program.\n\nDocument 2509:\nWorld War II casualties\nWorld War II was the deadliest military conflict in history in absolute terms of total casualties. Over 60 million people were killed, which was about 3% of the 1940 world population (est. 2.3 billion). The tables below give a detailed country-by-country count of human losses. World War II fatality statistics vary, with estimates of total deaths ranging from 50 million to more than 80 million. The higher figure of over 80 million includes deaths from war-related disease and famine. Civilians killed totalled 50 to 55 million, including 19 to 28 million from war-related disease and famine. Military deaths from all causes totalled 21 to 25 million, including deaths in captivity of about 5 million prisoners of war.\n  (part 4 of 6) war-related disease and famine. Military deaths from all causes totalled 21 to 25 million, including deaths in captivity of about 5 million prisoners of war.\n\nDocument 2510:\nRubicon Drinks\nRubicon Drinks Ltd (formerly Rubicon Products Ltd) is a soft drink manufacturer based in Milton Keynes, UK. The company specialises in exotic soft drinks, and produces a variety of different flavours of drink, many of which contain sugar or artificial sweeteners, and which come in both still and sparkling varieties. In the United Kingdom, their drinks are bottled and distributed by A.G. Barr plc.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-101",
+          "sourceVersion": "sha256:b575485cfb0d1aa4f72ca7f339e130d9b82a1d8a9712dd9628ceac7a3e815626",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-101",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "selected by the San Francisco 49ers in the first round of the 2004 NFL Draft, and played professionally for the NFL's 49ers and the CFL's Toronto Argonauts.\n\nDocument 750:\nLivesey Hall War Memorial\nThe Livesey Hall War Memorial commemorates the fallen of World War I and World War II who had been employed by the South Suburban Gas Company of London. It is also a tribute to those employees who served in the wars. The monument was designed and executed by British sculptor Sydney March, of the March family of artists.\n\nDocument 751:\nValerie Lloyd-Chandos\nPauline Valerie Lloyd-Chandos (born 24 May 1933) is a British diver, who ranked 12th in the Women's 10m platform event at the 1952 Summer Olympics. In July 1950, she competed in the National Diving Championship at Morecambe and Heysham. Part of her practice for this event involved diving into a sand pit in her back garden in Teddington.",
+          "id": "ev_4a005aca01fbf86021040af6",
+          "observedAt": "2026-10-14T08:41:08.286Z"
+        },
+        {
+          "sourceId": "memory:context-77",
+          "sourceVersion": "sha256:c466a6f6b6e4579578e2855885ade92a8bea3e759ac2ce0a6d3f4ef73037683f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-77",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "that houses both PNI and the Department of Psychology. The building is 248,00 square feet, and was designed by Rafael Moneo to meet LEED Silver certification.\n\nDocument 570:\nUnited States Deputy Secretary of State\nThe Deputy Secretary of State of the United States is the principal deputy to the Secretary of State. If the Secretary of State resigns or dies, the Deputy Secretary of State becomes Acting Secretary of State until the President nominates and the Senate confirms a replacement. The position was created in 1972. Prior to July 13, 1972, the Under Secretary of State had been the second ranking officer of the Department of State. The position is held by John J. Sullivan.\n\nDocument 571:\nAlamein Memorial\nThe Alamein Memorial is a Commonwealth War Graves Commission war memorial in the El Alamein War Cemetery, El Alamein, Egypt. The memorial commemorates 11,866 Commonwealth forces members who died during World War II. The memorial was designed by Hubert Worthington and unveiled by Viscount Montgomery of Alamein on 24 October 1954.",
+          "id": "ev_e299c8a951af775eb34fd1f1",
+          "observedAt": "2026-10-14T08:41:08.286Z"
+        },
+        {
+          "sourceId": "memory:context-347",
+          "sourceVersion": "sha256:4e321769df6683ce4ff54de8ed572c350700d1af3c2a66f4b1acb5ab24474004",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-347",
+            "part": 3,
+            "parts": 6
+          },
+          "text": "one of the few accelerated three-year pharmacy programs in the country, and is one of 2 pharmacy schools in the country with a distance education program.\n\nDocument 2509:\nWorld War II casualties\nWorld War II was the deadliest military conflict in history in absolute terms of total casualties. Over 60 million people were killed, which was about 3% of the 1940 world population (est. 2.3 billion). The tables below give a detailed country-by-country count of human losses. World War II fatality statistics vary, with estimates of total deaths ranging from 50 million to more than 80 million. The higher figure of over 80 million includes deaths from war-related disease and famine. Civilians killed totalled 50 to 55 million, including 19 to 28 million from war-related disease and famine. Military deaths from all causes totalled 21 to 25 million, including deaths in captivity of about 5 million prisoners of war.",
+          "id": "ev_3d1fb66be9bbacb241b41d20",
+          "observedAt": "2026-10-14T08:41:08.286Z"
+        },
+        {
+          "sourceId": "memory:context-347",
+          "sourceVersion": "sha256:4e321769df6683ce4ff54de8ed572c350700d1af3c2a66f4b1acb5ab24474004",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-347",
+            "part": 4,
+            "parts": 6
+          },
+          "text": "war-related disease and famine. Military deaths from all causes totalled 21 to 25 million, including deaths in captivity of about 5 million prisoners of war.\n\nDocument 2510:\nRubicon Drinks\nRubicon Drinks Ltd (formerly Rubicon Products Ltd) is a soft drink manufacturer based in Milton Keynes, UK. The company specialises in exotic soft drinks, and produces a variety of different flavours of drink, many of which contain sugar or artificial sweeteners, and which come in both still and sparkling varieties. In the United Kingdom, their drinks are bottled and distributed by A.G. Barr plc.",
+          "id": "ev_b6ba8f23697f0c77c37b21c1",
+          "observedAt": "2026-10-14T08:41:08.286Z"
+        }
+      ],
+      "sourceIds": [
+        "context-101",
+        "context-77",
+        "context-347"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.5795840000064345,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-101",
+    "context-77",
+    "context-347"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:41:08.288199+00:00"
+}

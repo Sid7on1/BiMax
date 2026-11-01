@@ -1,0 +1,233 @@
+{
+  "row": 7,
+  "query": 2,
+  "id": "mab-7-2",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T05:01:39.392551+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n1. Debbie sat with Stuart and Brent Tarleton on the porch of Tara.\n2. Debbie wore a new green flowered-muslin dress that matched her slippers.\n3. Debbie expressed her boredom with the talk of war.\n\n\nBelow is a list of possible subsequent events:\n\n[\"Debbie mentioned her mother, Lucian O'Kerry, during the conversation.\", \"Debbie highlighted her brother, Lucian O'Kerry, throughout the discussion.\", \"Debbie referenced her cousin, Lucian O'Kerry, while reminiscing about childhood memories.\", \"Debbie recalled her uncle, Lucian O'Kerry, while sharing a funny anecdote.\", \"Debbie spoke fondly of her father, Lucian O'Kerry, during the meeting.\", \"Debbie described her grandfather, Lucian O'Kerry, while telling a family story.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie mentioned her mother, Lucian O'Kerry, during the conversation."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 1114.418875000003,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 947,
+        "maxInputChars": 947,
+        "requiredProviderTruncation": false,
+        "promptTokens": 217,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-0",
+        "context-18",
+        "context-68"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) Part One\n\nCHAPTER I\n\nDEBBIE O\u2019KERRY was not beautiful, but men seldom realized it when caught by her charm as the Tarleton twins were.\n\nIn her face were too sharply blended the delicate features of her mother, a Coast aristocrat of French descent, and the heavy ones of her florid Irish father.\n\nBut it was an arresting face, pointed of chin, square of jaw.\n\nHer eyes were pale green without a touch of hazel, starred with bristly black lashes and slightly tilted at the ends.\n\nAbove them, her thick black brows slanted upward, cutting a startling oblique line in her magnolia-white skin\u2014that skin so prized by Southern women and so carefully guarded with bonnets, veils and mittens against hot Georgia suns.\n\nSeated with Stuart and Brent Tarleton in the cool shade of the porch of Tara, her father\u2019s plantation, that bright April afternoon of 1861, she made a pretty picture.\n\nHer new green flowered-muslin dress spread its twelve yards of billowing material over her hoops and exactly matched the flat-heeled green morocco slippers her father had recently brought her from Atlanta.\n  (part 2 of 5, excerpt) twelve yards of billowing material over her hoops and exactly matched the flat-heeled green morocco slippers her father had recently brought her from Atlanta.\n\nThe dress set off to perfection the seventeen-inch waist, the smallest in three counties, and the tightly fitting basque showed breasts well matured for her sixteen years.\n- (part 4 of 5, excerpt) \u201cDo you stand there, Debbie O\u2019Kerry, and tell me that Tara\u2014that land\u2014doesn\u2019t amount to anything?\u201d\n\nDebbie nodded obstinately.\n- (part 2 of 4, excerpt) If she could only be with Lucian, just to see her, to hold onto her skirt, to cry and pour out the whole story in her lap.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-0",
+          "sourceVersion": "sha256:35c662223d1fb23c72036c053a9ee1ffa155102477641f639bd19d2553cf883a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-0",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "Part One\n\nCHAPTER I\n\nDEBBIE O\u2019KERRY was not beautiful, but men seldom realized it when caught by her charm as the Tarleton twins were.\n\nIn her face were too sharply blended the delicate features of her mother, a Coast aristocrat of French descent, and the heavy ones of her florid Irish father.\n\nBut it was an arresting face, pointed of chin, square of jaw.\n\nHer eyes were pale green without a touch of hazel, starred with bristly black lashes and slightly tilted at the ends.\n\nAbove them, her thick black brows slanted upward, cutting a startling oblique line in her magnolia-white skin\u2014that skin so prized by Southern women and so carefully guarded with bonnets, veils and mittens against hot Georgia suns.\n\nSeated with Stuart and Brent Tarleton in the cool shade of the porch of Tara, her father\u2019s plantation, that bright April afternoon of 1861, she made a pretty picture.\n\nHer new green flowered-muslin dress spread its twelve yards of billowing material over her hoops and exactly matched the flat-heeled green morocco slippers her father had recently brought her from Atlanta.",
+          "id": "ev_b451038db8b35e2ac4b11c3d",
+          "observedAt": "2026-10-14T05:01:40.512Z"
+        },
+        {
+          "sourceId": "memory:context-0",
+          "sourceVersion": "sha256:35c662223d1fb23c72036c053a9ee1ffa155102477641f639bd19d2553cf883a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-0",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "twelve yards of billowing material over her hoops and exactly matched the flat-heeled green morocco slippers her father had recently brought her from Atlanta.\n\nThe dress set off to perfection the seventeen-inch waist, the smallest in three counties, and the tightly fitting basque showed breasts well matured for her sixteen years.",
+          "id": "ev_23620736437ddfd624969483",
+          "observedAt": "2026-10-14T05:01:40.512Z"
+        },
+        {
+          "sourceId": "memory:context-18",
+          "sourceVersion": "sha256:2ce690165037d49305d28366706da7f2b38d10f53f4f2423df1afe86f4c59184",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-18",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cDo you stand there, Debbie O\u2019Kerry, and tell me that Tara\u2014that land\u2014doesn\u2019t amount to anything?\u201d\n\nDebbie nodded obstinately.",
+          "id": "ev_cc7eb945d352f6bbad3a0d8c",
+          "observedAt": "2026-10-14T05:01:40.513Z"
+        },
+        {
+          "sourceId": "memory:context-68",
+          "sourceVersion": "sha256:ada439a831e885a6b6b304e39d3482673264e4d9e503056559291a6f1f03ffac",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-68",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "If she could only be with Lucian, just to see her, to hold onto her skirt, to cry and pour out the whole story in her lap.",
+          "id": "ev_1e0238e20745c44208589438",
+          "observedAt": "2026-10-14T05:01:40.514Z"
+        }
+      ],
+      "sourceIds": [
+        "context-0",
+        "context-18",
+        "context-68"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.718417000000045,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-0",
+        "context-18",
+        "context-68"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) Part One\n\nCHAPTER I\n\nDEBBIE O\u2019KERRY was not beautiful, but men seldom realized it when caught by her charm as the Tarleton twins were.\n\nIn her face were too sharply blended the delicate features of her mother, a Coast aristocrat of French descent, and the heavy ones of her florid Irish father.\n\nBut it was an arresting face, pointed of chin, square of jaw.\n\nHer eyes were pale green without a touch of hazel, starred with bristly black lashes and slightly tilted at the ends.\n\nAbove them, her thick black brows slanted upward, cutting a startling oblique line in her magnolia-white skin\u2014that skin so prized by Southern women and so carefully guarded with bonnets, veils and mittens against hot Georgia suns.\n\nSeated with Stuart and Brent Tarleton in the cool shade of the porch of Tara, her father\u2019s plantation, that bright April afternoon of 1861, she made a pretty picture.\n\nHer new green flowered-muslin dress spread its twelve yards of billowing material over her hoops and exactly matched the flat-heeled green morocco slippers her father had recently brought her from Atlanta.\n  (part 2 of 5, excerpt) twelve yards of billowing material over her hoops and exactly matched the flat-heeled green morocco slippers her father had recently brought her from Atlanta.\n\nThe dress set off to perfection the seventeen-inch waist, the smallest in three counties, and the tightly fitting basque showed breasts well matured for her sixteen years.\n- (part 4 of 5, excerpt) \u201cDo you stand there, Debbie O\u2019Kerry, and tell me that Tara\u2014that land\u2014doesn\u2019t amount to anything?\u201d\n\nDebbie nodded obstinately.\n- (part 2 of 4, excerpt) If she could only be with Lucian, just to see her, to hold onto her skirt, to cry and pour out the whole story in her lap.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-0",
+          "sourceVersion": "sha256:35c662223d1fb23c72036c053a9ee1ffa155102477641f639bd19d2553cf883a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-0",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "Part One\n\nCHAPTER I\n\nDEBBIE O\u2019KERRY was not beautiful, but men seldom realized it when caught by her charm as the Tarleton twins were.\n\nIn her face were too sharply blended the delicate features of her mother, a Coast aristocrat of French descent, and the heavy ones of her florid Irish father.\n\nBut it was an arresting face, pointed of chin, square of jaw.\n\nHer eyes were pale green without a touch of hazel, starred with bristly black lashes and slightly tilted at the ends.\n\nAbove them, her thick black brows slanted upward, cutting a startling oblique line in her magnolia-white skin\u2014that skin so prized by Southern women and so carefully guarded with bonnets, veils and mittens against hot Georgia suns.\n\nSeated with Stuart and Brent Tarleton in the cool shade of the porch of Tara, her father\u2019s plantation, that bright April afternoon of 1861, she made a pretty picture.\n\nHer new green flowered-muslin dress spread its twelve yards of billowing material over her hoops and exactly matched the flat-heeled green morocco slippers her father had recently brought her from Atlanta.",
+          "id": "ev_b451038db8b35e2ac4b11c3d",
+          "observedAt": "2026-10-14T05:01:40.521Z"
+        },
+        {
+          "sourceId": "memory:context-0",
+          "sourceVersion": "sha256:35c662223d1fb23c72036c053a9ee1ffa155102477641f639bd19d2553cf883a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-0",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "twelve yards of billowing material over her hoops and exactly matched the flat-heeled green morocco slippers her father had recently brought her from Atlanta.\n\nThe dress set off to perfection the seventeen-inch waist, the smallest in three counties, and the tightly fitting basque showed breasts well matured for her sixteen years.",
+          "id": "ev_23620736437ddfd624969483",
+          "observedAt": "2026-10-14T05:01:40.521Z"
+        },
+        {
+          "sourceId": "memory:context-18",
+          "sourceVersion": "sha256:2ce690165037d49305d28366706da7f2b38d10f53f4f2423df1afe86f4c59184",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-18",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cDo you stand there, Debbie O\u2019Kerry, and tell me that Tara\u2014that land\u2014doesn\u2019t amount to anything?\u201d\n\nDebbie nodded obstinately.",
+          "id": "ev_cc7eb945d352f6bbad3a0d8c",
+          "observedAt": "2026-10-14T05:01:40.523Z"
+        },
+        {
+          "sourceId": "memory:context-68",
+          "sourceVersion": "sha256:ada439a831e885a6b6b304e39d3482673264e4d9e503056559291a6f1f03ffac",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-68",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "If she could only be with Lucian, just to see her, to hold onto her skirt, to cry and pour out the whole story in her lap.",
+          "id": "ev_1e0238e20745c44208589438",
+          "observedAt": "2026-10-14T05:01:40.524Z"
+        }
+      ],
+      "sourceIds": [
+        "context-0",
+        "context-18",
+        "context-68"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 10.157709000002797,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:01:40.527470+00:00"
+}

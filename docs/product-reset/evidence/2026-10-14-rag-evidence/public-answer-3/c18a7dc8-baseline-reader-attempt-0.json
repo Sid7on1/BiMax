@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T09:07:09.712192+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 0,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/30 (Tue) 23:37\nQuestion: How many years older am I than when I graduated from college?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 14) Session date: 2023/05/25 (Thu) 19:59\nuser: I am currently preparing for my clinical informatics board examination, which will consist of multiple-choice questions. I am going to ask you 86 multiple-choice questions. When I present a question and its corresponding answer options to you, please respond with the letter of the answer you believe to be correct, along with an explanation of why you think that answer is correct. Additionally, please provide an explanation for why the other answer options are not correct. For each question, please also indicate which level of Bloom's Taxonomy it corresponds to (e.g., Knowledge, Comprehension, Application, Analysis, Synthesis, Evaluation)\n  (part 11 of 14, excerpt) Level of Bloom's Taxonomy: Knowledge/Comprehension\nuser: I am currently preparing for my clinical informatics board examination, which will consist of multiple-choice questions. I am going to ask you 86 multiple-choice questions. When I present a question and its corresponding answer options to you, please respond with the letter of the answer you believe to be correct, along with an explanation of why you think that answer is correct. Additionally, please provide an explanation for why the other answer options are not correct. For each question, please also indicate which level of Bloom's Taxonomy it corresponds to (e.g., Knowledge, Comprehension, Application, Analysis, Synthesis, Evaluation)\n- (part 1 of 9, excerpt) 1. **Count the number of tickets you have**: Check how many tickets you've been allocated for the graduation ceremony.\n- (part 24 of 25, excerpt) To maintain certification, you'll need to complete 60 hours of professional development every 3 years.\n\n**Certified Marketing Professional (CMP):**\n\n1. **Prerequisites**:"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 224.06462499930058
+}

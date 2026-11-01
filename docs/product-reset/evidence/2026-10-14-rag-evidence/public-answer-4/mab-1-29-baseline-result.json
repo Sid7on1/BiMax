@@ -1,0 +1,143 @@
+{
+  "row": 1,
+  "query": 29,
+  "id": "mab-1-29",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:48:47.436901+00:00",
+  "valid": true,
+  "question": "What is the name for the adventure in \"Tunnels and Trolls\", a game designed by Ken St. Andre?",
+  "references": [
+    "Arena of Khazan"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-253",
+    "context-59",
+    "context-224"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:49:06.703388+00:00",
+  "rag": {
+    "ids": [
+      "context-253",
+      "context-59",
+      "context-224"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) the third focuses on a fallen priest who is stalked by a pickup truck from hell; and the last follows a suburban family battling a giant rat in their home.\n\nDocument 1809:\nTunnels &amp; Trolls\nTunnels & Trolls (abbreviated \"T&T\") is a fantasy role-playing game designed by Ken St. Andre and first published in 1975 by Flying Buffalo. The second modern role-playing game published, it was written by Ken St. Andre to be a more accessible alternative to \"Dungeons & Dragons\" and is suitable for solitaire, group, and play-by-mail gameplay.\n\nDocument 1810:\nMiddle Rasen\nMiddle Rasen is a village and civil parish in the West Lindsey district of Lincolnshire, England, located about 1.5 mi west from the town of Market Rasen. The population of the civil parish at the 2011 census was 2,043. Today the village consists of two villages which have merged to become one; they were called Middle Rasen Drax and Middle Rasen Tupholme.\n- (part 4 of 5, excerpt) Highway 15\u2013501 (also known as Tobacco Road) or eight miles apart in straight-line distance.\n\nIn addition, both Duke and Carolina are considered highly prestigious universities, which, coupled with their vastly different funding structures and cultures\u2014Carolina is a public school while Duke is private\u2014contributes to the ferocity of the rivalry.\n\nDocument 443:\nKen St. Andre\nKenneth Eugene St. Andre (born on April 28, 1947 in Ogden, Utah) is an American fantasy author and game designer, best known for his work with \"Tunnels & Trolls\" and \"Wasteland\". He has been an active member of \"The Science Fiction and Fantasy Writers of America\" since 1989.\n- (part 3 of 5, excerpt) Crusaders of Khazan is a computer adaptation of the tabletop role-playing game \"Tunnels and Trolls\", developed and published by New World Computing in 1990",
+    "evidence": [
+      {
+        "sourceId": "memory:context-253",
+        "sourceVersion": "sha256:d8a08cba3f812416dd298adf46d00373e462883b5d8575bdeeaffb2b79d29d02",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-253",
+          "part": 3,
+          "parts": 5
+        },
+        "text": "the third focuses on a fallen priest who is stalked by a pickup truck from hell; and the last follows a suburban family battling a giant rat in their home.\n\nDocument 1809:\nTunnels &amp; Trolls\nTunnels & Trolls (abbreviated \"T&T\") is a fantasy role-playing game designed by Ken St. Andre and first published in 1975 by Flying Buffalo. The second modern role-playing game published, it was written by Ken St. Andre to be a more accessible alternative to \"Dungeons & Dragons\" and is suitable for solitaire, group, and play-by-mail gameplay.\n\nDocument 1810:\nMiddle Rasen\nMiddle Rasen is a village and civil parish in the West Lindsey district of Lincolnshire, England, located about 1.5 mi west from the town of Market Rasen. The population of the civil parish at the 2011 census was 2,043. Today the village consists of two villages which have merged to become one; they were called Middle Rasen Drax and Middle Rasen Tupholme.",
+        "id": "ev_e623ee20674d24504ec1cb5d",
+        "observedAt": "2026-10-14T08:41:12.270Z"
+      },
+      {
+        "sourceId": "memory:context-59",
+        "sourceVersion": "sha256:f1843d13fe9b9f1b82d8a22780907a9e520e8a3af0fc127c1ad66dcea719b4f2",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-59",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Highway 15\u2013501 (also known as Tobacco Road) or eight miles apart in straight-line distance.\n\nIn addition, both Duke and Carolina are considered highly prestigious universities, which, coupled with their vastly different funding structures and cultures\u2014Carolina is a public school while Duke is private\u2014contributes to the ferocity of the rivalry.\n\nDocument 443:\nKen St. Andre\nKenneth Eugene St. Andre (born on April 28, 1947 in Ogden, Utah) is an American fantasy author and game designer, best known for his work with \"Tunnels & Trolls\" and \"Wasteland\". He has been an active member of \"The Science Fiction and Fantasy Writers of America\" since 1989.",
+        "id": "ev_3ac73e79fbc72f55eceb0c69",
+        "observedAt": "2026-10-14T08:41:12.270Z"
+      },
+      {
+        "sourceId": "memory:context-224",
+        "sourceVersion": "sha256:23978f6d1c3dd2fadd57b914c5030e0d4067f080356f5fa380ea31f8e077b032",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-224",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Crusaders of Khazan is a computer adaptation of the tabletop role-playing game \"Tunnels and Trolls\", developed and published by New World Computing in 1990",
+        "id": "ev_9a7da35a7455262a34dd9607",
+        "observedAt": "2026-10-14T08:41:12.270Z"
+      }
+    ],
+    "sourceIds": [
+      "context-253",
+      "context-59",
+      "context-224"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 4.644791999991867,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "The retrieved history does not contain the name of a specific adventure in *Tunnels & Trolls*. It provides general information about the game's design, publication, and one computer adaptation (*Crusaders of Khazan*), but no adventure titles or naming conventions are listed. Based on the given evidence, I cannot determine the answer.\n\nI do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0784313725490196
+  },
+  "readerUsage": {
+    "prompt_tokens": 583,
+    "completion_tokens": 1097,
+    "total_tokens": 1680,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 328,
+    "completion_tokens": 649,
+    "total_tokens": 977,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 646,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10852.856041999985,
+  "judgeWallMs": 8411.322166999526
+}

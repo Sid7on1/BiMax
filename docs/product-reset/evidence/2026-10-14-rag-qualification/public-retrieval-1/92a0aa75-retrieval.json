@@ -1,0 +1,235 @@
+{
+  "row": 195,
+  "id": "92a0aa75",
+  "stratum": "multi-session",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T04:46:14.797180+00:00",
+  "valid": true,
+  "question": "How long have I been working in my current role?",
+  "references": [
+    "1 year and 5 months"
+  ],
+  "kind": "multi-session",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 21:25",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 608.1705829999992,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 48,
+        "maxInputChars": 48,
+        "requiredProviderTruncation": false,
+        "promptTokens": 13,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "fdf7e3e7",
+        "ultrachat_178564",
+        "answer_6cb8f792_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 9 of 19, excerpt) user: I'm also trying to figure out how to display my model once it's complete. I have a few diorama projects in the works, but I'm not sure which one to focus on. Do you have any advice on how to decide which project to prioritize?\n  (part 16 of 19) this project, you'll not only have a stunning diorama to display but also gain valuable experience, skills, and confidence to tackle your next projects.\n\nHow do you feel about revisiting this project? Is there a particular aspect of the diorama that's been holding you back or causing uncertainty?\nuser: Yeah, I think you're right. I've been putting it off for too long, and it's time to get back to it. I remember when I started the project, I was really excited about it, and I think that's what I need to get back to - that initial enthusiasm and energy. I'll take your advice and break it down into smaller tasks, set some deadlines, and just get started again. Thanks for the motivation!\n\nBy the way, I started this F-15E project about three weeks ago, and it's been a fun build so far. I've been working on it in short sessions, and I'm really happy with how it's coming along.\nassistant: I'm thrilled to hear that! It's great that you're feeling motivated to get back to your desert diorama project, and I'm confident that breaking it down into smaller tasks and setting deadlines will help you make progress.\n- (part 3 of 13, excerpt) - Licensing: Pharmacists must have a current and valid license to practice pharmacy in their state.\n- (part 14 of 18, excerpt) I'm impressed that you're also thinking about measurement and tracking key metrics. It's essential to have a clear understanding of what's working and what's not, so you can optimize your campaigns and make data-driven decisions. Lead generation, conve",
+      "evidence": [
+        {
+          "sourceId": "memory:fdf7e3e7",
+          "sourceVersion": "sha256:d342a18edf5202ba204907c397830cfdb0a9caf80f6d4165f88b4672b08f33b1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "fdf7e3e7",
+            "part": 9,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "user: I'm also trying to figure out how to display my model once it's complete. I have a few diorama projects in the works, but I'm not sure which one to focus on. Do you have any advice on how to decide which project to prioritize?",
+          "id": "ev_058b8c1f8a3a8369a4524761",
+          "observedAt": "2026-10-14T04:46:15.421Z"
+        },
+        {
+          "sourceId": "memory:fdf7e3e7",
+          "sourceVersion": "sha256:d342a18edf5202ba204907c397830cfdb0a9caf80f6d4165f88b4672b08f33b1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "fdf7e3e7",
+            "part": 16,
+            "parts": 19
+          },
+          "text": "this project, you'll not only have a stunning diorama to display but also gain valuable experience, skills, and confidence to tackle your next projects.\n\nHow do you feel about revisiting this project? Is there a particular aspect of the diorama that's been holding you back or causing uncertainty?\nuser: Yeah, I think you're right. I've been putting it off for too long, and it's time to get back to it. I remember when I started the project, I was really excited about it, and I think that's what I need to get back to - that initial enthusiasm and energy. I'll take your advice and break it down into smaller tasks, set some deadlines, and just get started again. Thanks for the motivation!\n\nBy the way, I started this F-15E project about three weeks ago, and it's been a fun build so far. I've been working on it in short sessions, and I'm really happy with how it's coming along.\nassistant: I'm thrilled to hear that! It's great that you're feeling motivated to get back to your desert diorama project, and I'm confident that breaking it down into smaller tasks and setting deadlines will help you make progress.",
+          "id": "ev_3003c9daa8698196eb5cae7d",
+          "observedAt": "2026-10-14T04:46:15.422Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_178564",
+          "sourceVersion": "sha256:20477e4515c1a528d01288a1feec3897df691365a5c85bba7407d53bb36030ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_178564",
+            "part": 3,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "- Licensing: Pharmacists must have a current and valid license to practice pharmacy in their state.",
+          "id": "ev_69e1df3fdb37f403325baef4",
+          "observedAt": "2026-10-14T04:46:15.422Z"
+        },
+        {
+          "sourceId": "memory:answer_6cb8f792_1",
+          "sourceVersion": "sha256:425040ba36e72371b234eba49d3512f1647ccd85a1514db9b10095c5985b9757",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_6cb8f792_1",
+            "part": 14,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "I'm impressed that you're also thinking about measurement and tracking key metrics. It's essential to have a clear understanding of what's working and what's not, so you can optimize your campaigns and make data-driven decisions. Lead generation, conve",
+          "id": "ev_e99eb53864f216cb4c4f8aa8",
+          "observedAt": "2026-10-14T04:46:15.422Z"
+        }
+      ],
+      "sourceIds": [
+        "fdf7e3e7",
+        "ultrachat_178564",
+        "answer_6cb8f792_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 17.70587499999965,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "fdf7e3e7",
+        "ultrachat_178564",
+        "answer_6cb8f792_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 9 of 19, excerpt) user: I'm also trying to figure out how to display my model once it's complete. I have a few diorama projects in the works, but I'm not sure which one to focus on. Do you have any advice on how to decide which project to prioritize?\n  (part 16 of 19) this project, you'll not only have a stunning diorama to display but also gain valuable experience, skills, and confidence to tackle your next projects.\n\nHow do you feel about revisiting this project? Is there a particular aspect of the diorama that's been holding you back or causing uncertainty?\nuser: Yeah, I think you're right. I've been putting it off for too long, and it's time to get back to it. I remember when I started the project, I was really excited about it, and I think that's what I need to get back to - that initial enthusiasm and energy. I'll take your advice and break it down into smaller tasks, set some deadlines, and just get started again. Thanks for the motivation!\n\nBy the way, I started this F-15E project about three weeks ago, and it's been a fun build so far. I've been working on it in short sessions, and I'm really happy with how it's coming along.\nassistant: I'm thrilled to hear that! It's great that you're feeling motivated to get back to your desert diorama project, and I'm confident that breaking it down into smaller tasks and setting deadlines will help you make progress.\n- (part 3 of 13, excerpt) - Licensing: Pharmacists must have a current and valid license to practice pharmacy in their state.\n- (part 14 of 18, excerpt) I'm impressed that you're also thinking about measurement and tracking key metrics. It's essential to have a clear understanding of what's working and what's not, so you can optimize your campaigns and make data-driven decisions. Lead generation, conve",
+      "evidence": [
+        {
+          "sourceId": "memory:fdf7e3e7",
+          "sourceVersion": "sha256:d342a18edf5202ba204907c397830cfdb0a9caf80f6d4165f88b4672b08f33b1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "fdf7e3e7",
+            "part": 9,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "user: I'm also trying to figure out how to display my model once it's complete. I have a few diorama projects in the works, but I'm not sure which one to focus on. Do you have any advice on how to decide which project to prioritize?",
+          "id": "ev_058b8c1f8a3a8369a4524761",
+          "observedAt": "2026-10-14T04:46:15.425Z"
+        },
+        {
+          "sourceId": "memory:fdf7e3e7",
+          "sourceVersion": "sha256:d342a18edf5202ba204907c397830cfdb0a9caf80f6d4165f88b4672b08f33b1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "fdf7e3e7",
+            "part": 16,
+            "parts": 19
+          },
+          "text": "this project, you'll not only have a stunning diorama to display but also gain valuable experience, skills, and confidence to tackle your next projects.\n\nHow do you feel about revisiting this project? Is there a particular aspect of the diorama that's been holding you back or causing uncertainty?\nuser: Yeah, I think you're right. I've been putting it off for too long, and it's time to get back to it. I remember when I started the project, I was really excited about it, and I think that's what I need to get back to - that initial enthusiasm and energy. I'll take your advice and break it down into smaller tasks, set some deadlines, and just get started again. Thanks for the motivation!\n\nBy the way, I started this F-15E project about three weeks ago, and it's been a fun build so far. I've been working on it in short sessions, and I'm really happy with how it's coming along.\nassistant: I'm thrilled to hear that! It's great that you're feeling motivated to get back to your desert diorama project, and I'm confident that breaking it down into smaller tasks and setting deadlines will help you make progress.",
+          "id": "ev_3003c9daa8698196eb5cae7d",
+          "observedAt": "2026-10-14T04:46:15.425Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_178564",
+          "sourceVersion": "sha256:20477e4515c1a528d01288a1feec3897df691365a5c85bba7407d53bb36030ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_178564",
+            "part": 3,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "- Licensing: Pharmacists must have a current and valid license to practice pharmacy in their state.",
+          "id": "ev_69e1df3fdb37f403325baef4",
+          "observedAt": "2026-10-14T04:46:15.425Z"
+        },
+        {
+          "sourceId": "memory:answer_6cb8f792_1",
+          "sourceVersion": "sha256:425040ba36e72371b234eba49d3512f1647ccd85a1514db9b10095c5985b9757",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_6cb8f792_1",
+            "part": 14,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "I'm impressed that you're also thinking about measurement and tracking key metrics. It's essential to have a clear understanding of what's working and what's not, so you can optimize your campaigns and make data-driven decisions. Lead generation, conve",
+          "id": "ev_e99eb53864f216cb4c4f8aa8",
+          "observedAt": "2026-10-14T04:46:15.425Z"
+        }
+      ],
+      "sourceIds": [
+        "fdf7e3e7",
+        "ultrachat_178564",
+        "answer_6cb8f792_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.4490829999995185,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 0.5,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:46:15.426123+00:00"
+}

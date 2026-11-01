@@ -1,0 +1,372 @@
+{
+  "row": 64,
+  "id": "0862e8bf_abs",
+  "stratum": "abstention",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T08:41:47.781431+00:00",
+  "valid": true,
+  "question": "What is the name of my hamster?",
+  "references": [
+    "You did not mention this information. You mentioned your cat Luna but not your hamster."
+  ],
+  "kind": "single-session-user",
+  "abstention": true,
+  "date": "2023/05/30 (Tue) 21:39",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 485.8736250000002,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 31,
+        "maxInputChars": 31,
+        "requiredProviderTruncation": false,
+        "promptTokens": 11,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_c6fd8ebd_abs",
+        "ultrachat_460804",
+        "sharegpt_8T6d65A_83"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 12 of 15, excerpt) 2. **American Veterinary Medical Association (AVMA)**: The AVMA website allows you to search for veterinarians by location, name, or specialty.\n  (part 15 of 15) Ensure your cat is wearing a collar with up-to-date identification tags or consider using a breakaway collar with a safety release mechanism.\n\nBy taking these precautions and microchipping your cat, you'll be doing everything you can to keep them safe and secure.\n\nRemember, it's always better to be safe than sorry when it comes to your cat's safety and well-being.\nuser: By the way, my cat's name is Luna, and she's been such a sweetie throughout all the changes we've been making to her environment. I'm just glad I can provide her with a happy and healthy home.\nassistant: That's wonderful! I'm so glad to hear that Luna is adjusting well to the changes and that you're providing her with a loving and comfortable home.\n\nIt's clear that you care deeply about Luna's well-being, and that's truly heartwarming. As a responsible and caring cat parent, you're making a huge difference in her life.\n\nLuna is one lucky cat to have you as her human! I'm sure she appreciates all the love, care, and attention you're giving her.\n\nKeep up the great work, and I'm sure Luna will thrive in her happy and healthy home. If you have any more questions or concerns, feel free to ask. I'm always here to help!\n- (part 5 of 5, excerpt) These attractions and landmarks are just a few examples of what you can do near Kew Gardens. There is something for everyone in this diverse and vibrant part of London.\n- (part 3 of 13, excerpt) user: I just found a suspicious looking eye. what does that do?",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_c6fd8ebd_abs",
+          "sourceVersion": "sha256:b0d0d4264ab4b0bec79dc060d5e0f185f0c55ec40a11eca60705546af252a51f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c6fd8ebd_abs",
+            "part": 12,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "2. **American Veterinary Medical Association (AVMA)**: The AVMA website allows you to search for veterinarians by location, name, or specialty.",
+          "id": "ev_9a39d9bb335f8512a9579474",
+          "observedAt": "2026-10-14T08:41:48.285Z"
+        },
+        {
+          "sourceId": "memory:answer_c6fd8ebd_abs",
+          "sourceVersion": "sha256:b0d0d4264ab4b0bec79dc060d5e0f185f0c55ec40a11eca60705546af252a51f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c6fd8ebd_abs",
+            "part": 15,
+            "parts": 15
+          },
+          "text": "Ensure your cat is wearing a collar with up-to-date identification tags or consider using a breakaway collar with a safety release mechanism.\n\nBy taking these precautions and microchipping your cat, you'll be doing everything you can to keep them safe and secure.\n\nRemember, it's always better to be safe than sorry when it comes to your cat's safety and well-being.\nuser: By the way, my cat's name is Luna, and she's been such a sweetie throughout all the changes we've been making to her environment. I'm just glad I can provide her with a happy and healthy home.\nassistant: That's wonderful! I'm so glad to hear that Luna is adjusting well to the changes and that you're providing her with a loving and comfortable home.\n\nIt's clear that you care deeply about Luna's well-being, and that's truly heartwarming. As a responsible and caring cat parent, you're making a huge difference in her life.\n\nLuna is one lucky cat to have you as her human! I'm sure she appreciates all the love, care, and attention you're giving her.\n\nKeep up the great work, and I'm sure Luna will thrive in her happy and healthy home. If you have any more questions or concerns, feel free to ask. I'm always here to help!",
+          "id": "ev_abdb938a5c2a1671a628ff16",
+          "observedAt": "2026-10-14T08:41:48.285Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_460804",
+          "sourceVersion": "sha256:3370417aed78d5cf017bd57214c60ceda91e33b64ee1c930180015dbe6d2ccfa",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_460804",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "These attractions and landmarks are just a few examples of what you can do near Kew Gardens. There is something for everyone in this diverse and vibrant part of London.",
+          "id": "ev_6ac0541b6086be996c590d29",
+          "observedAt": "2026-10-14T08:41:48.285Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_8T6d65A_83",
+          "sourceVersion": "sha256:cedfd4aa560acc5f0516177f4089b8861c303cf7329ad6bda7f048099087f88a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_8T6d65A_83",
+            "part": 3,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "user: I just found a suspicious looking eye. what does that do?",
+          "id": "ev_d3c8cfd0271bf8e47d41fcc0",
+          "observedAt": "2026-10-14T08:41:48.286Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_c6fd8ebd_abs",
+        "ultrachat_460804",
+        "sharegpt_8T6d65A_83"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 19.25995899999907,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_c6fd8ebd_abs",
+        "ultrachat_460804",
+        "sharegpt_8T6d65A_83"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 15) Session date: 2023/05/24 (Wed) 11:29\nuser: I'm having some issues with my cat's digestive health and I was wondering if you could recommend some good probiotic supplements for cats.\nassistant: I'm happy to help! Probiotics can be a wonderful addition to your cat's diet to support their digestive health. Here are some tips and recommendations for choosing a good probiotic supplement for your feline friend:\n\n**What to Look for in a Probiotic Supplement for Cats:**\n  (part 8 of 15, excerpt) low dust levels.\n3. **Odor-Absorbing**: If you're concerned about odor control, look for litters that are specifically designed to absorb and eliminate odors.\n\nRemember to always transition your cat to a new litter gradually to prevent any digestive upset or litter box avoidance. Start by mixing a small amount of the new litter with their current litter and gradually increase the ratio over time.\n\nI hope this helps you find the purrfect litter for your feline friend!\nuser: I've been having some issues with my cat's litte\n  (part 12 of 15, excerpt) 1. **American Animal Hospital Association (AAHA)**: Visit the AAHA website to find accredited veterinary hospitals in your area.\n2. **American Veterinary Medical Association (AVMA)**: The AVMA website allows you to search for veterinarians by location, name, or specialty.\n3. **Online Review Sites**: Check review sites like Yelp, Google, or Facebook to find highly-rated veterinarians in your area.\n  (part 15 of 15, excerpt) Remember, it's always better to be safe than sorry when it comes to your cat's safety and well-being.\nuser: By the way, my cat's name is Luna, and she's been such a sweetie throughout all the changes we've been making to her environment. I'm just glad I can provide her with a happy and healthy home.\nassistant: That's wonderful! I'm so glad to hear that Luna is adjusting well to the changes and that you're providing her with a loving and comfortable home.\n- (part 1 of 5, excerpt) Session date: 2023/05/23 (Tue) 07:19\nuser: Can you recommend some popular parks or gardens in London, and what is unique about each one?\nassistant: 1. Hyde Park: One of London's largest and most famous parks, it boasts the Serpentine Lake, the Diana Memorial Fountain, and Speaker's Corner.\n\n2. Kew Gardens: Also known as the Royal Botanic Gardens, Kew is a stunning botanical garden featuring over 30,000 plant species and several glasshouses, including the iconic Palm House.\n\n3. Greenwich Park: This park offers panoramic views of London and is home to the Royal Observatory, the Prime Meridian Line, and the National Maritime Museum.\n\n4. Regent's Park: Another large and popular park in London, Regent's Park has formal gardens, a lake, and the London Zoo.\n  (part 2 of 5, excerpt) views.\n\n6. St. James's Park: A favorite among locals and tourists alike, St. James's Park features a lake, a small island, and views of Buckingham Palace.\n\n7. Holland Park: A smaller, quieter park in London, Holland Park has a Japanese garden, a mini Kyoto garden, a theater, and several peacocks roaming around.\n\n8. Battersea Park: Known for its outdoor sports facilities and views of the Thames, Battersea Park also has a boating lake, a children's zoo, and an impressive Victorian Peace Pagoda.\n\n9. Alexandra Palace Park: Home to the famous Palace building, Alexandra Palace Park offers stunning views of the city, a boating lake, an ice skating rink, and regular events and concerts.\n\n10.\n\nHampstead Heath: A large, natural park in North London, Hampstead Heath has swimming ponds,\n  (part 5 of 5) shopping mall is located in nearby Shepherd's Bush and is one of the largest in Europe, offering a wide range of shops, restaurants, and entertainment options.\n\nThese attractions and landmarks are just a few examples of what you can do near Kew Gardens. There is something for everyone in this diverse and vibrant part of London.\n- (part 1 of 13) Session date: 2023/05/30 (Tue) 09:07\nassistant: The Merchant is one of the NPCs that you can obtain in Terraria, and he offers a variety of items for sale that can be useful for progressing through the game. Some of the items that you may want to consider purchasing from the Merchant include:\n  (part 3 of 13, excerpt) user: I just found a suspicious looking eye. what does that do?\nassistant: The suspicious looking eye you found in Terraria is most likely the Eye of Cthulhu. It is a boss that can be summoned by using a Suspicious Looking Eye item. The Suspicious Looking Eye can be crafted using 6 Lens, which drop from the Demon Eye enemy or purchased from the merchant NPC.\n  (part 8 of 13, excerpt) bees that will become aggressive and attack you. It's best to be well-prepared with good equipment, weapons, and accessories before harvesting the beehive.\n\nKeep in mind that the game has many features and layers, and the further you go underground, the more dangerous it becomes. It's best to be well-prepared with good equipment, weapons, and accessories before venturing into these areas.\nuser: i just found a skeleton with a bag on him in the underground jungle. his names is billy marrows. who is he?\nassistant: The skeleton yo\n  (part 9 of 13, excerpt) It seems that the developers of Terraria have included this Easter egg as a fun nod to the show, and the character serves no actual purpose in the game.\n\nKeep in mind that the game has many features and layers, and the further you go underground, the more dangerous it becomes. It's best to be well-prepared with good equipment, weapons, and accessories before venturing into these areas.\nuser: got any good tips for the eye of Cthulhu?\nassistant: The Eye of Cthulhu is one of the first bosses that can be fought in Terraria and it",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_c6fd8ebd_abs",
+          "sourceVersion": "sha256:b0d0d4264ab4b0bec79dc060d5e0f185f0c55ec40a11eca60705546af252a51f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c6fd8ebd_abs",
+            "part": 1,
+            "parts": 15
+          },
+          "text": "Session date: 2023/05/24 (Wed) 11:29\nuser: I'm having some issues with my cat's digestive health and I was wondering if you could recommend some good probiotic supplements for cats.\nassistant: I'm happy to help! Probiotics can be a wonderful addition to your cat's diet to support their digestive health. Here are some tips and recommendations for choosing a good probiotic supplement for your feline friend:\n\n**What to Look for in a Probiotic Supplement for Cats:**",
+          "id": "ev_336833907ced4de5ff0076b3",
+          "observedAt": "2026-10-14T08:41:48.289Z"
+        },
+        {
+          "sourceId": "memory:answer_c6fd8ebd_abs",
+          "sourceVersion": "sha256:b0d0d4264ab4b0bec79dc060d5e0f185f0c55ec40a11eca60705546af252a51f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c6fd8ebd_abs",
+            "part": 8,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "low dust levels.\n3. **Odor-Absorbing**: If you're concerned about odor control, look for litters that are specifically designed to absorb and eliminate odors.\n\nRemember to always transition your cat to a new litter gradually to prevent any digestive upset or litter box avoidance. Start by mixing a small amount of the new litter with their current litter and gradually increase the ratio over time.\n\nI hope this helps you find the purrfect litter for your feline friend!\nuser: I've been having some issues with my cat's litte",
+          "id": "ev_829b45e1f6658d04dbe4169f",
+          "observedAt": "2026-10-14T08:41:48.289Z"
+        },
+        {
+          "sourceId": "memory:answer_c6fd8ebd_abs",
+          "sourceVersion": "sha256:b0d0d4264ab4b0bec79dc060d5e0f185f0c55ec40a11eca60705546af252a51f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c6fd8ebd_abs",
+            "part": 12,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "1. **American Animal Hospital Association (AAHA)**: Visit the AAHA website to find accredited veterinary hospitals in your area.\n2. **American Veterinary Medical Association (AVMA)**: The AVMA website allows you to search for veterinarians by location, name, or specialty.\n3. **Online Review Sites**: Check review sites like Yelp, Google, or Facebook to find highly-rated veterinarians in your area.",
+          "id": "ev_2b9812b84e5889d0b0477412",
+          "observedAt": "2026-10-14T08:41:48.289Z"
+        },
+        {
+          "sourceId": "memory:answer_c6fd8ebd_abs",
+          "sourceVersion": "sha256:b0d0d4264ab4b0bec79dc060d5e0f185f0c55ec40a11eca60705546af252a51f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c6fd8ebd_abs",
+            "part": 15,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "Remember, it's always better to be safe than sorry when it comes to your cat's safety and well-being.\nuser: By the way, my cat's name is Luna, and she's been such a sweetie throughout all the changes we've been making to her environment. I'm just glad I can provide her with a happy and healthy home.\nassistant: That's wonderful! I'm so glad to hear that Luna is adjusting well to the changes and that you're providing her with a loving and comfortable home.",
+          "id": "ev_0bab87bf5efb521d9f80ec05",
+          "observedAt": "2026-10-14T08:41:48.289Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_460804",
+          "sourceVersion": "sha256:3370417aed78d5cf017bd57214c60ceda91e33b64ee1c930180015dbe6d2ccfa",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_460804",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Session date: 2023/05/23 (Tue) 07:19\nuser: Can you recommend some popular parks or gardens in London, and what is unique about each one?\nassistant: 1. Hyde Park: One of London's largest and most famous parks, it boasts the Serpentine Lake, the Diana Memorial Fountain, and Speaker's Corner.\n\n2. Kew Gardens: Also known as the Royal Botanic Gardens, Kew is a stunning botanical garden featuring over 30,000 plant species and several glasshouses, including the iconic Palm House.\n\n3. Greenwich Park: This park offers panoramic views of London and is home to the Royal Observatory, the Prime Meridian Line, and the National Maritime Museum.\n\n4. Regent's Park: Another large and popular park in London, Regent's Park has formal gardens, a lake, and the London Zoo.",
+          "id": "ev_118a91272a2dcaed15eefce1",
+          "observedAt": "2026-10-14T08:41:48.289Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_460804",
+          "sourceVersion": "sha256:3370417aed78d5cf017bd57214c60ceda91e33b64ee1c930180015dbe6d2ccfa",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_460804",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "views.\n\n6. St. James's Park: A favorite among locals and tourists alike, St. James's Park features a lake, a small island, and views of Buckingham Palace.\n\n7. Holland Park: A smaller, quieter park in London, Holland Park has a Japanese garden, a mini Kyoto garden, a theater, and several peacocks roaming around.\n\n8. Battersea Park: Known for its outdoor sports facilities and views of the Thames, Battersea Park also has a boating lake, a children's zoo, and an impressive Victorian Peace Pagoda.\n\n9. Alexandra Palace Park: Home to the famous Palace building, Alexandra Palace Park offers stunning views of the city, a boating lake, an ice skating rink, and regular events and concerts.\n\n10.\n\nHampstead Heath: A large, natural park in North London, Hampstead Heath has swimming ponds,",
+          "id": "ev_f785f9837996a105486d8a62",
+          "observedAt": "2026-10-14T08:41:48.289Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_460804",
+          "sourceVersion": "sha256:3370417aed78d5cf017bd57214c60ceda91e33b64ee1c930180015dbe6d2ccfa",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_460804",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "shopping mall is located in nearby Shepherd's Bush and is one of the largest in Europe, offering a wide range of shops, restaurants, and entertainment options.\n\nThese attractions and landmarks are just a few examples of what you can do near Kew Gardens. There is something for everyone in this diverse and vibrant part of London.",
+          "id": "ev_4683ac826ba65fb016ddde66",
+          "observedAt": "2026-10-14T08:41:48.289Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_8T6d65A_83",
+          "sourceVersion": "sha256:cedfd4aa560acc5f0516177f4089b8861c303cf7329ad6bda7f048099087f88a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_8T6d65A_83",
+            "part": 1,
+            "parts": 13
+          },
+          "text": "Session date: 2023/05/30 (Tue) 09:07\nassistant: The Merchant is one of the NPCs that you can obtain in Terraria, and he offers a variety of items for sale that can be useful for progressing through the game. Some of the items that you may want to consider purchasing from the Merchant include:",
+          "id": "ev_3d6a027b2214b47cb1a3da19",
+          "observedAt": "2026-10-14T08:41:48.289Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_8T6d65A_83",
+          "sourceVersion": "sha256:cedfd4aa560acc5f0516177f4089b8861c303cf7329ad6bda7f048099087f88a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_8T6d65A_83",
+            "part": 3,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "user: I just found a suspicious looking eye. what does that do?\nassistant: The suspicious looking eye you found in Terraria is most likely the Eye of Cthulhu. It is a boss that can be summoned by using a Suspicious Looking Eye item. The Suspicious Looking Eye can be crafted using 6 Lens, which drop from the Demon Eye enemy or purchased from the merchant NPC.",
+          "id": "ev_8c9189dbe2380827f56f524b",
+          "observedAt": "2026-10-14T08:41:48.289Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_8T6d65A_83",
+          "sourceVersion": "sha256:cedfd4aa560acc5f0516177f4089b8861c303cf7329ad6bda7f048099087f88a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_8T6d65A_83",
+            "part": 8,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "bees that will become aggressive and attack you. It's best to be well-prepared with good equipment, weapons, and accessories before harvesting the beehive.\n\nKeep in mind that the game has many features and layers, and the further you go underground, the more dangerous it becomes. It's best to be well-prepared with good equipment, weapons, and accessories before venturing into these areas.\nuser: i just found a skeleton with a bag on him in the underground jungle. his names is billy marrows. who is he?\nassistant: The skeleton yo",
+          "id": "ev_6bf373845329a1278e6008d1",
+          "observedAt": "2026-10-14T08:41:48.289Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_8T6d65A_83",
+          "sourceVersion": "sha256:cedfd4aa560acc5f0516177f4089b8861c303cf7329ad6bda7f048099087f88a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_8T6d65A_83",
+            "part": 9,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "It seems that the developers of Terraria have included this Easter egg as a fun nod to the show, and the character serves no actual purpose in the game.\n\nKeep in mind that the game has many features and layers, and the further you go underground, the more dangerous it becomes. It's best to be well-prepared with good equipment, weapons, and accessories before venturing into these areas.\nuser: got any good tips for the eye of Cthulhu?\nassistant: The Eye of Cthulhu is one of the first bosses that can be fought in Terraria and it",
+          "id": "ev_95e4804de656b336426d80f8",
+          "observedAt": "2026-10-14T08:41:48.289Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_c6fd8ebd_abs",
+        "ultrachat_460804",
+        "sharegpt_8T6d65A_83"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.266292000000249,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "answer_c6fd8ebd_abs",
+    "ultrachat_460804",
+    "sharegpt_8T6d65A_83"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:41:48.292127+00:00"
+}

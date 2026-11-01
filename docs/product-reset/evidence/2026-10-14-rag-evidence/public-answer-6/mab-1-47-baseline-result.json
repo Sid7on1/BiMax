@@ -1,0 +1,162 @@
+{
+  "row": 1,
+  "query": 47,
+  "id": "mab-1-47",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:47:32.593475+00:00",
+  "valid": true,
+  "question": "What type of forum did a former Soviet statesman initiate?",
+  "references": [
+    "Organizations could come together to address global issues"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-282",
+    "context-24",
+    "context-458"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:47:54.482624+00:00",
+  "rag": {
+    "ids": [
+      "context-282",
+      "context-24",
+      "context-458"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) MS Excelsior Neptune\nMS \"Excelsior Neptune\" (originally, the \"Feliks Dzerzhinskiy\") was an ocean liner owned by the Soviet Union's Black Sea Shipping Company. She was built in 1958 by VEB Mathias-Thesen Werft, Wismar, East Germany, as one of the Mikhail Kalinin series of ships. It was named after Felix Dzerzhinsky, a Soviet statesman and founder of the Soviet secret police (Cheka).\n  (part 4 of 5) as one of the Mikhail Kalinin series of ships. It was named after Felix Dzerzhinsky, a Soviet statesman and founder of the Soviet secret police (Cheka).\n\nDocument 2038:\nAndrei Kirilenko (politician)\nAndrei Pavlovich Kirilenko (Russian: \u0410\u043d\u0434\u0440\u0435\u0301\u0439 \u041f\u0430\u0301\u0432\u043b\u043e\u0432\u0438\u0447 \u041a\u0438\u0440\u0438\u043b\u0435\u0301\u043d\u043a\u043e ; ] ; 8 September\u00a0[O.S. 26 August]\u00a01906 \u2013 12 May 1990) was a Soviet statesman from the start to the end of the Cold War. In 1906, Kirilenko was born at Alexeyevka in Belgorod Oblast to a Ukrainian working-class family. He graduated in the 1920s from a local vocational school, and again in the mid-to-late 1930s from the Rybinsk Aviation Technology Institute. He became a member of the All-Union Communist Party (bolsheviks) in 1930. As many like him, Kirilenko climbed up the Soviet hierarchy through the \"industrial ladder\"; by the 1960s, he was Vice-Chairman of the Bureau of the Central Committee of the Russian Soviet Federative Socialist Republic (RSFSR). After Nikita Khrushchev's forced resignation, Kirilenko became Leonid Brezhnev's \"chief lieutenant\" within the Central Committee.\n- (part 2 of 4, excerpt) Mikhail Sergeyevich Gorbachev, ( ; Russian: \u041c\u0438\u0445\u0430\u0438\u0301\u043b \u0421\u0435\u0440\u0433\u0435\u0301\u0435\u0432\u0438\u0447 \u0413\u043e\u0440\u0431\u0430\u0447\u0451\u0432 ; ] ; born 2 March 1931) is a former Soviet statesman. He was the\n- (part 4 of 6, excerpt) Nikolai Viktorovich Podgorny (Russian: \u041d\u0438\u043a\u043e\u043b\u0430\u0301\u0439 \u0412\u0438\u0301\u043a\u0442\u043e\u0440\u043e\u0432\u0438\u0447 \u041f\u043e\u0434\u0433\u043e\u0301\u0440\u043d\u044b\u0439 ; ] , Ukrainian: \u041c\u0438\u043a\u043e\u043b\u0430 \u0412\u0456\u043a\u0442\u043e\u0440\u043e\u0432\u0438\u0447 \u041f\u0456\u0434\u0433\u043e\u0440\u043d\u0438\u0439 ; 18 Febru",
+    "evidence": [
+      {
+        "sourceId": "memory:context-282",
+        "sourceVersion": "sha256:fb0845bffac0e944c6437d98b0e7927e8f64278a7ddfbbaa62bc2db3e36c4b0a",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-282",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "MS Excelsior Neptune\nMS \"Excelsior Neptune\" (originally, the \"Feliks Dzerzhinskiy\") was an ocean liner owned by the Soviet Union's Black Sea Shipping Company. She was built in 1958 by VEB Mathias-Thesen Werft, Wismar, East Germany, as one of the Mikhail Kalinin series of ships. It was named after Felix Dzerzhinsky, a Soviet statesman and founder of the Soviet secret police (Cheka).",
+        "id": "ev_a10f58ed63757c4adf091df9",
+        "observedAt": "2026-10-14T08:41:11.801Z"
+      },
+      {
+        "sourceId": "memory:context-282",
+        "sourceVersion": "sha256:fb0845bffac0e944c6437d98b0e7927e8f64278a7ddfbbaa62bc2db3e36c4b0a",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-282",
+          "part": 4,
+          "parts": 5
+        },
+        "text": "as one of the Mikhail Kalinin series of ships. It was named after Felix Dzerzhinsky, a Soviet statesman and founder of the Soviet secret police (Cheka).\n\nDocument 2038:\nAndrei Kirilenko (politician)\nAndrei Pavlovich Kirilenko (Russian: \u0410\u043d\u0434\u0440\u0435\u0301\u0439 \u041f\u0430\u0301\u0432\u043b\u043e\u0432\u0438\u0447 \u041a\u0438\u0440\u0438\u043b\u0435\u0301\u043d\u043a\u043e ; ] ; 8 September\u00a0[O.S. 26 August]\u00a01906 \u2013 12 May 1990) was a Soviet statesman from the start to the end of the Cold War. In 1906, Kirilenko was born at Alexeyevka in Belgorod Oblast to a Ukrainian working-class family. He graduated in the 1920s from a local vocational school, and again in the mid-to-late 1930s from the Rybinsk Aviation Technology Institute. He became a member of the All-Union Communist Party (bolsheviks) in 1930. As many like him, Kirilenko climbed up the Soviet hierarchy through the \"industrial ladder\"; by the 1960s, he was Vice-Chairman of the Bureau of the Central Committee of the Russian Soviet Federative Socialist Republic (RSFSR). After Nikita Khrushchev's forced resignation, Kirilenko became Leonid Brezhnev's \"chief lieutenant\" within the Central Committee.",
+        "id": "ev_c2598ab44150617c12261b05",
+        "observedAt": "2026-10-14T08:41:11.801Z"
+      },
+      {
+        "sourceId": "memory:context-24",
+        "sourceVersion": "sha256:c466224bc3395a41719f1c1749f1075bc124769aba2fe0324e741fd0e44a0555",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-24",
+          "part": 2,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Mikhail Sergeyevich Gorbachev, ( ; Russian: \u041c\u0438\u0445\u0430\u0438\u0301\u043b \u0421\u0435\u0440\u0433\u0435\u0301\u0435\u0432\u0438\u0447 \u0413\u043e\u0440\u0431\u0430\u0447\u0451\u0432 ; ] ; born 2 March 1931) is a former Soviet statesman. He was the",
+        "id": "ev_e5c46dccd4c6f090f70f94f6",
+        "observedAt": "2026-10-14T08:41:11.801Z"
+      },
+      {
+        "sourceId": "memory:context-458",
+        "sourceVersion": "sha256:842e5fae30748fd8b2f0f927ed5b69b28faf8388cef3613204bee7edd8018bd8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-458",
+          "part": 4,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "Nikolai Viktorovich Podgorny (Russian: \u041d\u0438\u043a\u043e\u043b\u0430\u0301\u0439 \u0412\u0438\u0301\u043a\u0442\u043e\u0440\u043e\u0432\u0438\u0447 \u041f\u043e\u0434\u0433\u043e\u0301\u0440\u043d\u044b\u0439 ; ] , Ukrainian: \u041c\u0438\u043a\u043e\u043b\u0430 \u0412\u0456\u043a\u0442\u043e\u0440\u043e\u0432\u0438\u0447 \u041f\u0456\u0434\u0433\u043e\u0440\u043d\u0438\u0439 ; 18 Febru",
+        "id": "ev_c2a42b27d2876b74408f9cd4",
+        "observedAt": "2026-10-14T08:41:11.802Z"
+      }
+    ],
+    "sourceIds": [
+      "context-282",
+      "context-24",
+      "context-458"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 4.933208000002196,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "I do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 642,
+    "completion_tokens": 1017,
+    "total_tokens": 1659,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1010,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 252,
+    "completion_tokens": 729,
+    "total_tokens": 981,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 726,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 11905.405790999794,
+  "judgeWallMs": 7678.598833000251
+}

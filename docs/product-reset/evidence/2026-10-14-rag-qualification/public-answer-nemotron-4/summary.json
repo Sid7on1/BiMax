@@ -1,0 +1,91 @@
+{
+  "scope": "100 balanced LongMemEval_S questions and 100 balanced MemoryAgentBench Accurate_Retrieval questions; not full-suite scores",
+  "reader": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "attemptedQuestions": 200,
+  "expectedQuestions": 200,
+  "validQuestions": 200,
+  "invalidQuestions": [],
+  "datasets": {
+    "longmemeval": {
+      "valid": 100,
+      "correct": 40,
+      "judgeAccuracy": 0.4,
+      "wilson95": [
+        0.3093997461136029,
+        0.4979992153815976
+      ],
+      "exactMatch": 0.03,
+      "tokenF1": 0.14761968008215764,
+      "strata": {
+        "abstention": {
+          "valid": 15,
+          "correct": 14
+        },
+        "knowledge-update": {
+          "valid": 15,
+          "correct": 3
+        },
+        "multi-session": {
+          "valid": 14,
+          "correct": 2
+        },
+        "single-session-assistant": {
+          "valid": 14,
+          "correct": 12
+        },
+        "single-session-preference": {
+          "valid": 14,
+          "correct": 2
+        },
+        "single-session-user": {
+          "valid": 14,
+          "correct": 6
+        },
+        "temporal-reasoning": {
+          "valid": 14,
+          "correct": 1
+        }
+      }
+    },
+    "memoryagentbench": {
+      "valid": 100,
+      "correct": 39,
+      "judgeAccuracy": 0.39,
+      "wilson95": [
+        0.300167219319702,
+        0.4879716383250184
+      ],
+      "exactMatch": 0.22,
+      "tokenF1": 0.35399583334246765,
+      "strata": {
+        "eventqa_131072": {
+          "valid": 17,
+          "correct": 7
+        },
+        "eventqa_65536": {
+          "valid": 17,
+          "correct": 9
+        },
+        "eventqa_full": {
+          "valid": 17,
+          "correct": 4
+        },
+        "longmemeval_s*": {
+          "valid": 17,
+          "correct": 3
+        },
+        "ruler_qa1_197K": {
+          "valid": 16,
+          "correct": 9
+        },
+        "ruler_qa2_421K": {
+          "valid": 16,
+          "correct": 7
+        }
+      }
+    }
+  },
+  "secretFileUnchanged": true,
+  "ended": "2026-10-14T08:00:30.422143+00:00"
+}

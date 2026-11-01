@@ -1,0 +1,47 @@
+{
+  "faults": [
+    {
+      "fault": "missing-admission",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "ordinary turn cannot guess CU"
+    },
+    {
+      "fault": "guessed-pid",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "direct route refuses guessed"
+    },
+    {
+      "fault": "guessed-window",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "direct route refuses guessed"
+    },
+    {
+      "fault": "foreign-native-window",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "direct native read cannot return"
+    },
+    {
+      "fault": "changed-executable",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "direct executable replacement"
+    },
+    {
+      "fault": "foreign-ticket",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "direct tickets are single use"
+    },
+    {
+      "fault": "required-picker-ui",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "renderer"
+    }
+  ],
+  "sourceRestored": true
+}

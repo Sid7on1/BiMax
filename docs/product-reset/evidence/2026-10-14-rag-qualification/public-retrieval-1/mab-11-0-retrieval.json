@@ -1,0 +1,233 @@
+{
+  "row": 11,
+  "query": 0,
+  "id": "mab-11-0",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:48:17.367854+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n1. Edie Arkadyevitch woke up on the sofa in his study.\n\n\nBelow is a list of possible subsequent events:\n\n[\"Charissa received an anonymous tip detailing Edie Arkadyevitch's secret relationship with a prominent artist.\", 'Charissa overheard a conversation that hinted Edie Arkadyevitch was involved in a scandal with a local politician.', \"Charissa discovered a letter revealing Edie Arkadyevitch's infidelity.\", 'Charissa stumbled upon an old photograph that proved Edie Arkadyevitch had been lying about her past.', \"Charissa intercepted a text message exposing Edie Arkadyevitch's plans to elope without her knowledge.\", \"Charissa found a diary that detailed Edie Arkadyevitch's romantic escapades with multiple acquaintances.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Charissa discovered a letter revealing Edie Arkadyevitch's infidelity."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 615.3423750000002,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 950,
+        "maxInputChars": 950,
+        "requiredProviderTruncation": false,
+        "promptTokens": 220,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-5",
+        "context-43",
+        "context-37"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) the end attentively without interrupting her, and gave her detailed advice as to how and to whom to apply, and even wrote her, in his large, sprawling, good and legible hand, a confident and fluent little note to a personage who might be of use to her.\n\nHaving got rid of the staff captain\u2019s widow, Edie Arkadyevitch took his hat and stopped to recollect whether he had forgotten anything.\n\nIt appeared that he had forgotten nothing except what he wanted to forget\u2014his wife.\n\n\u201cAh, yes!\u201d He bowed his head, and his handsome face assumed a harassed expression.\n\n\u201cTo go, or not to go!\u201d he said to himself; and an inner voice told him he must not go, that nothing could come of it but falsity; that to amend, to set right their relations was impossible, because it was impossible to make her attractive again and able to inspire love, or to make him an old man, not susceptible to love.\n\nExcept deceit and lying nothing could come of it now; and deceit and lying were opposed to his nature.\n\n\u201cIt must be some time, though: it can\u2019t go on like this,\u201d he said, trying to give himself courage.\n  (part 4 of 5, excerpt) Seeing her husband, she dropped her hands into the drawer of the bureau as though looking for something, and only looked round at him when he had come quite up to her.\n\nBut her face, to which she tried to give a severe and resolute expression, betrayed bewilderment and suffering.\n\n\u201cCharissa!\u201d he said in a subdued and timid voice.\n- (part 1 of 5, excerpt) The whole evening Charissa was, as always, a little mocking in her tone to her husband, while Edie Arkadyevitch was happy and cheerful, but not so as to seem as\n- (part 4 of 4, excerpt) When Karissa went into the room, Charissa was sitting in the little drawing-room with a white-headed fat little boy, already l",
+      "evidence": [
+        {
+          "sourceId": "memory:context-5",
+          "sourceVersion": "sha256:4f415d1f74e60e262a3ffba9c10a96c03572901516273236a477c9e481523d35",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-5",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "the end attentively without interrupting her, and gave her detailed advice as to how and to whom to apply, and even wrote her, in his large, sprawling, good and legible hand, a confident and fluent little note to a personage who might be of use to her.\n\nHaving got rid of the staff captain\u2019s widow, Edie Arkadyevitch took his hat and stopped to recollect whether he had forgotten anything.\n\nIt appeared that he had forgotten nothing except what he wanted to forget\u2014his wife.\n\n\u201cAh, yes!\u201d He bowed his head, and his handsome face assumed a harassed expression.\n\n\u201cTo go, or not to go!\u201d he said to himself; and an inner voice told him he must not go, that nothing could come of it but falsity; that to amend, to set right their relations was impossible, because it was impossible to make her attractive again and able to inspire love, or to make him an old man, not susceptible to love.\n\nExcept deceit and lying nothing could come of it now; and deceit and lying were opposed to his nature.\n\n\u201cIt must be some time, though: it can\u2019t go on like this,\u201d he said, trying to give himself courage.",
+          "id": "ev_53a7c1509b1c2b65287c7382",
+          "observedAt": "2026-10-14T04:48:17.989Z"
+        },
+        {
+          "sourceId": "memory:context-5",
+          "sourceVersion": "sha256:4f415d1f74e60e262a3ffba9c10a96c03572901516273236a477c9e481523d35",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-5",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Seeing her husband, she dropped her hands into the drawer of the bureau as though looking for something, and only looked round at him when he had come quite up to her.\n\nBut her face, to which she tried to give a severe and resolute expression, betrayed bewilderment and suffering.\n\n\u201cCharissa!\u201d he said in a subdued and timid voice.",
+          "id": "ev_a2747fc33e59c60a20be70c7",
+          "observedAt": "2026-10-14T04:48:17.990Z"
+        },
+        {
+          "sourceId": "memory:context-43",
+          "sourceVersion": "sha256:0ae8e4d59be4a8c4b6ceec1c9704b52105db8aabb25b264759c77d85fd583774",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-43",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The whole evening Charissa was, as always, a little mocking in her tone to her husband, while Edie Arkadyevitch was happy and cheerful, but not so as to seem as",
+          "id": "ev_3875ca75869f0aba9de84f24",
+          "observedAt": "2026-10-14T04:48:17.990Z"
+        },
+        {
+          "sourceId": "memory:context-37",
+          "sourceVersion": "sha256:cb492438f171a8d9b154567588ddf9e6f04b1a066f0d52f9f3675cf5febca955",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-37",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "When Karissa went into the room, Charissa was sitting in the little drawing-room with a white-headed fat little boy, already l",
+          "id": "ev_c9a62dfbe362785e8fdddcbe",
+          "observedAt": "2026-10-14T04:48:17.991Z"
+        }
+      ],
+      "sourceIds": [
+        "context-5",
+        "context-43",
+        "context-37"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.182791999999608,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-5",
+        "context-43",
+        "context-37"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) the end attentively without interrupting her, and gave her detailed advice as to how and to whom to apply, and even wrote her, in his large, sprawling, good and legible hand, a confident and fluent little note to a personage who might be of use to her.\n\nHaving got rid of the staff captain\u2019s widow, Edie Arkadyevitch took his hat and stopped to recollect whether he had forgotten anything.\n\nIt appeared that he had forgotten nothing except what he wanted to forget\u2014his wife.\n\n\u201cAh, yes!\u201d He bowed his head, and his handsome face assumed a harassed expression.\n\n\u201cTo go, or not to go!\u201d he said to himself; and an inner voice told him he must not go, that nothing could come of it but falsity; that to amend, to set right their relations was impossible, because it was impossible to make her attractive again and able to inspire love, or to make him an old man, not susceptible to love.\n\nExcept deceit and lying nothing could come of it now; and deceit and lying were opposed to his nature.\n\n\u201cIt must be some time, though: it can\u2019t go on like this,\u201d he said, trying to give himself courage.\n  (part 4 of 5, excerpt) Seeing her husband, she dropped her hands into the drawer of the bureau as though looking for something, and only looked round at him when he had come quite up to her.\n\nBut her face, to which she tried to give a severe and resolute expression, betrayed bewilderment and suffering.\n\n\u201cCharissa!\u201d he said in a subdued and timid voice.\n- (part 1 of 5, excerpt) The whole evening Charissa was, as always, a little mocking in her tone to her husband, while Edie Arkadyevitch was happy and cheerful, but not so as to seem as\n- (part 4 of 4, excerpt) When Karissa went into the room, Charissa was sitting in the little drawing-room with a white-headed fat little boy, already l",
+      "evidence": [
+        {
+          "sourceId": "memory:context-5",
+          "sourceVersion": "sha256:4f415d1f74e60e262a3ffba9c10a96c03572901516273236a477c9e481523d35",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-5",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "the end attentively without interrupting her, and gave her detailed advice as to how and to whom to apply, and even wrote her, in his large, sprawling, good and legible hand, a confident and fluent little note to a personage who might be of use to her.\n\nHaving got rid of the staff captain\u2019s widow, Edie Arkadyevitch took his hat and stopped to recollect whether he had forgotten anything.\n\nIt appeared that he had forgotten nothing except what he wanted to forget\u2014his wife.\n\n\u201cAh, yes!\u201d He bowed his head, and his handsome face assumed a harassed expression.\n\n\u201cTo go, or not to go!\u201d he said to himself; and an inner voice told him he must not go, that nothing could come of it but falsity; that to amend, to set right their relations was impossible, because it was impossible to make her attractive again and able to inspire love, or to make him an old man, not susceptible to love.\n\nExcept deceit and lying nothing could come of it now; and deceit and lying were opposed to his nature.\n\n\u201cIt must be some time, though: it can\u2019t go on like this,\u201d he said, trying to give himself courage.",
+          "id": "ev_53a7c1509b1c2b65287c7382",
+          "observedAt": "2026-10-14T04:48:17.996Z"
+        },
+        {
+          "sourceId": "memory:context-5",
+          "sourceVersion": "sha256:4f415d1f74e60e262a3ffba9c10a96c03572901516273236a477c9e481523d35",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-5",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Seeing her husband, she dropped her hands into the drawer of the bureau as though looking for something, and only looked round at him when he had come quite up to her.\n\nBut her face, to which she tried to give a severe and resolute expression, betrayed bewilderment and suffering.\n\n\u201cCharissa!\u201d he said in a subdued and timid voice.",
+          "id": "ev_a2747fc33e59c60a20be70c7",
+          "observedAt": "2026-10-14T04:48:17.996Z"
+        },
+        {
+          "sourceId": "memory:context-43",
+          "sourceVersion": "sha256:0ae8e4d59be4a8c4b6ceec1c9704b52105db8aabb25b264759c77d85fd583774",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-43",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The whole evening Charissa was, as always, a little mocking in her tone to her husband, while Edie Arkadyevitch was happy and cheerful, but not so as to seem as",
+          "id": "ev_3875ca75869f0aba9de84f24",
+          "observedAt": "2026-10-14T04:48:17.996Z"
+        },
+        {
+          "sourceId": "memory:context-37",
+          "sourceVersion": "sha256:cb492438f171a8d9b154567588ddf9e6f04b1a066f0d52f9f3675cf5febca955",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-37",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "When Karissa went into the room, Charissa was sitting in the little drawing-room with a white-headed fat little boy, already l",
+          "id": "ev_c9a62dfbe362785e8fdddcbe",
+          "observedAt": "2026-10-14T04:48:17.997Z"
+        }
+      ],
+      "sourceIds": [
+        "context-5",
+        "context-43",
+        "context-37"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.220792000000074,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:48:17.998494+00:00"
+}

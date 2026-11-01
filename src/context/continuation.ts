@@ -121,6 +121,7 @@ export class ContinuationState {
   private commands: Command[] = [];
   /** The user's messages that fell out of `instructions`, oldest first, bounded by MAX_EVICTED_CHARS. */
   private evicted: string[] = [];
+  private evictedChars = 0;
   private evictedTotal = 0;
   /**
    * How many more messages the entries of `evicted` stand for than their number: an adopted archived list is one entry
@@ -175,6 +176,7 @@ export class ContinuationState {
           const held = total - Number(archived[3] ?? 0);
           const entry = `(${held} earlier message${held === 1 ? '' : 's'}, archived as ${archived[2]})`;
           this.evicted.push(entry);
+          this.evictedChars += entry.length;
           this.evictedTotal += total;
           this.grouped.set(entry, Math.max(0, held - 1));
           this.evictedGrouped += Math.max(0, held - 1);
@@ -215,7 +217,7 @@ export class ContinuationState {
     let commands = [...this.commands];
     let omitted = 0;
     const placeholder = (): string => `archive:${'0'.repeat(32)}`;
-    const build = (listHandle: (list: string) => string | null): string => {
+    const build = (listHandle: () => string | null): string => {
       const lines = [
         `${CONTINUATION_PREFIX} — kept from messages that compaction removed. It is not a summary: the user's messages are quoted exactly, commands are what the engine ran, and what the assistant said is a claim, not a verified fact.`,
       ];
@@ -223,7 +225,7 @@ export class ContinuationState {
         lines.push('', '## What the user said');
         for (const entry of instructions) lines.push(`- "${entry.text}"${entry.handle ? ` (whole message: ${entry.handle})` : ''}`);
         if (evicted.length) {
-          const handle = listHandle(`Earlier messages from the user, oldest first:\n${evicted.map((text) => `- ${text}`).join('\n')}`);
+          const handle = listHandle();
           const dropped = evictedTotal - evicted.length - evictedGrouped;
           const where = handle ? `archived together as ${handle} (read with ContextArchiveTool)` : 'not shown here, and could not be archived';
           lines.push(`- ${evictedTotal} earlier message${evictedTotal === 1 ? '' : 's'} from the user, ${where}${dropped ? `; the oldest ${dropped} are no longer kept` : ''}.`);
@@ -252,7 +254,7 @@ export class ContinuationState {
         evictedTotal++;
       } else break;
     }
-    return build(archive);
+    return build(() => archive(`Earlier messages from the user, oldest first:\n${evicted.map((text) => `- ${text}`).join('\n')}`));
   }
 
   private addInstruction(text: string, archive: Archiver): void {
@@ -263,12 +265,13 @@ export class ContinuationState {
     // archived and named.
     while (this.instructions.length > MAX_INSTRUCTIONS) {
       const [evicted] = this.instructions.splice(evictionIndex(this.instructions), 1);
-      this.evicted.push(evicted.handle ? `${evicted.text} (whole message: ${evicted.handle})` : evicted.text);
+      const entry = evicted.handle ? `${evicted.text} (whole message: ${evicted.handle})` : evicted.text;
+      this.evicted.push(entry);
+      this.evictedChars += entry.length;
       this.evictedTotal++;
-      let chars = this.evicted.reduce((sum, text) => sum + text.length, 0);
-      while (chars > MAX_EVICTED_CHARS && this.evicted.length > 1) {
+      while (this.evictedChars > MAX_EVICTED_CHARS && this.evicted.length > 1) {
         const dropped = this.evicted.shift()!;
-        chars -= dropped.length;
+        this.evictedChars -= dropped.length;
         this.evictedGrouped -= this.grouped.get(dropped) ?? 0;
       }
     }

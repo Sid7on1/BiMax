@@ -1,0 +1,273 @@
+{
+  "row": 19,
+  "query": 34,
+  "id": "mab-19-34",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "question": "Current Date: 2023/04/22 (Sat) 02:00,\n\n Now Answer the Question: What is the order of the concerts and musical events I attended in the past two months, starting from the earliest?",
+  "references": [
+    "The order of the concerts I attended is: 1. Billie Eilish concert at the Wells Fargo Center in Philly, 2. Free outdoor concert series in the park, 3. Music festival in Brooklyn, 4. Jazz night at a local bar, 5. Queen + Adam Lambert concert at the Prudential Center in Newark, NJ."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/04/22 (Sat) 02:00",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 1030.7809159999888,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 180,
+        "maxInputChars": 180,
+        "requiredProviderTruncation": false,
+        "promptTokens": 46,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-99",
+        "context-89",
+        "context-100"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) Are there any popular indie rock festivals or concerts happening in the coming months that I should check out?\"}, {'role': 'assistant', 'content': 'The current indie rock scene is thriving, with a wide range of festivals and concerts happenin\n  (part 4 of 5) dates in the US and Europe through May.\\n2.\n\n**The Regrettes**: The LA-based band is on their \"How Do You Love?\" tour, with dates in the US through June.\\n3.\n\n**Pale Waves**: The Manchester-based indie rock band is on their \"Who Am I?\" tour, with dates in the US and Europe through May.\\n\\nThese are just a few examples of the many amazing indie rock festivals and concerts happening in the coming months.\n\nBe sure to check out local listings and music blogs for more information on upcoming events in your area.'}, {'role': 'user', 'content': \"I've been to a music festival in Brooklyn recently, featuring some of my favorite indie bands, and I'm always on the lookout for new sounds.\n\nI'd love to know more about the current indie rock scene.\n\nAre there any popular indie rock festivals or concerts happening in the coming months that I should check out?\"}, {'role': 'assistant', 'content': 'You\\'re already a fan of indie rock and have been to a festival in Brooklyn!\n\nThat\\'s awesome!\n\nThe current indie rock scene is thriving, and there are plenty of exciting festivals and concerts happening in the coming months.\n\nHere are some popular ones you might want to check out:\\n\\n**Festivals:**\\n\\n1.\n- (part 4 of 5, excerpt) **Follow up**: Keep an eye on the artists' social media accounts to stay updated on their future performances.\\n\\nBy following these tip\n- (part 3 of 5, excerpt) in the US and Europe through August.\\n\\nThese are just a few examples of the many amazing indie rock festivals and concerts h",
+      "evidence": [
+        {
+          "sourceId": "memory:context-99",
+          "sourceVersion": "sha256:af6d1764424e41e5b76587691775481fc1ea50adb1739ef34901ae1c4d9125c7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-99",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Are there any popular indie rock festivals or concerts happening in the coming months that I should check out?\"}, {'role': 'assistant', 'content': 'The current indie rock scene is thriving, with a wide range of festivals and concerts happenin",
+          "id": "ev_d31dac5871c7cc2c3d2bd5b2",
+          "observedAt": "2026-10-14T05:09:01.883Z"
+        },
+        {
+          "sourceId": "memory:context-99",
+          "sourceVersion": "sha256:af6d1764424e41e5b76587691775481fc1ea50adb1739ef34901ae1c4d9125c7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-99",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "dates in the US and Europe through May.\\n2.\n\n**The Regrettes**: The LA-based band is on their \"How Do You Love?\" tour, with dates in the US through June.\\n3.\n\n**Pale Waves**: The Manchester-based indie rock band is on their \"Who Am I?\" tour, with dates in the US and Europe through May.\\n\\nThese are just a few examples of the many amazing indie rock festivals and concerts happening in the coming months.\n\nBe sure to check out local listings and music blogs for more information on upcoming events in your area.'}, {'role': 'user', 'content': \"I've been to a music festival in Brooklyn recently, featuring some of my favorite indie bands, and I'm always on the lookout for new sounds.\n\nI'd love to know more about the current indie rock scene.\n\nAre there any popular indie rock festivals or concerts happening in the coming months that I should check out?\"}, {'role': 'assistant', 'content': 'You\\'re already a fan of indie rock and have been to a festival in Brooklyn!\n\nThat\\'s awesome!\n\nThe current indie rock scene is thriving, and there are plenty of exciting festivals and concerts happening in the coming months.\n\nHere are some popular ones you might want to check out:\\n\\n**Festivals:**\\n\\n1.",
+          "id": "ev_55b30734f277a162be289096",
+          "observedAt": "2026-10-14T05:09:01.883Z"
+        },
+        {
+          "sourceId": "memory:context-89",
+          "sourceVersion": "sha256:be096ab269637c90ff364786cc751cc1c18bc0edd0dbbbca309868dc30f83845",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-89",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "**Follow up**: Keep an eye on the artists' social media accounts to stay updated on their future performances.\\n\\nBy following these tip",
+          "id": "ev_45f93702043ae44064be7c4e",
+          "observedAt": "2026-10-14T05:09:01.884Z"
+        },
+        {
+          "sourceId": "memory:context-100",
+          "sourceVersion": "sha256:9918c4614e47ec9cdfc92f510919ab3146ad74ebbb678a7b8e17aa0ac5723286",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-100",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "in the US and Europe through August.\\n\\nThese are just a few examples of the many amazing indie rock festivals and concerts h",
+          "id": "ev_b9b316dea9e8a28ef4e72aaa",
+          "observedAt": "2026-10-14T05:09:01.885Z"
+        }
+      ],
+      "sourceIds": [
+        "context-99",
+        "context-89",
+        "context-100"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 16.77704200000153,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-99",
+        "context-89",
+        "context-100"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) Are there any popular indie rock festivals or concerts happening in the coming months that I should check out?\"}, {'role': 'assistant', 'content': 'The current indie rock scene is thriving, with a wide range of festivals and concerts happenin\n  (part 4 of 5) dates in the US and Europe through May.\\n2.\n\n**The Regrettes**: The LA-based band is on their \"How Do You Love?\" tour, with dates in the US through June.\\n3.\n\n**Pale Waves**: The Manchester-based indie rock band is on their \"Who Am I?\" tour, with dates in the US and Europe through May.\\n\\nThese are just a few examples of the many amazing indie rock festivals and concerts happening in the coming months.\n\nBe sure to check out local listings and music blogs for more information on upcoming events in your area.'}, {'role': 'user', 'content': \"I've been to a music festival in Brooklyn recently, featuring some of my favorite indie bands, and I'm always on the lookout for new sounds.\n\nI'd love to know more about the current indie rock scene.\n\nAre there any popular indie rock festivals or concerts happening in the coming months that I should check out?\"}, {'role': 'assistant', 'content': 'You\\'re already a fan of indie rock and have been to a festival in Brooklyn!\n\nThat\\'s awesome!\n\nThe current indie rock scene is thriving, and there are plenty of exciting festivals and concerts happening in the coming months.\n\nHere are some popular ones you might want to check out:\\n\\n**Festivals:**\\n\\n1.\n- (part 4 of 5, excerpt) **Follow up**: Keep an eye on the artists' social media accounts to stay updated on their future performances.\\n\\nBy following these tip\n- (part 3 of 5, excerpt) in the US and Europe through August.\\n\\nThese are just a few examples of the many amazing indie rock festivals and concerts h",
+      "evidence": [
+        {
+          "sourceId": "memory:context-99",
+          "sourceVersion": "sha256:af6d1764424e41e5b76587691775481fc1ea50adb1739ef34901ae1c4d9125c7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-99",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Are there any popular indie rock festivals or concerts happening in the coming months that I should check out?\"}, {'role': 'assistant', 'content': 'The current indie rock scene is thriving, with a wide range of festivals and concerts happenin",
+          "id": "ev_d31dac5871c7cc2c3d2bd5b2",
+          "observedAt": "2026-10-14T05:09:01.900Z"
+        },
+        {
+          "sourceId": "memory:context-99",
+          "sourceVersion": "sha256:af6d1764424e41e5b76587691775481fc1ea50adb1739ef34901ae1c4d9125c7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-99",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "dates in the US and Europe through May.\\n2.\n\n**The Regrettes**: The LA-based band is on their \"How Do You Love?\" tour, with dates in the US through June.\\n3.\n\n**Pale Waves**: The Manchester-based indie rock band is on their \"Who Am I?\" tour, with dates in the US and Europe through May.\\n\\nThese are just a few examples of the many amazing indie rock festivals and concerts happening in the coming months.\n\nBe sure to check out local listings and music blogs for more information on upcoming events in your area.'}, {'role': 'user', 'content': \"I've been to a music festival in Brooklyn recently, featuring some of my favorite indie bands, and I'm always on the lookout for new sounds.\n\nI'd love to know more about the current indie rock scene.\n\nAre there any popular indie rock festivals or concerts happening in the coming months that I should check out?\"}, {'role': 'assistant', 'content': 'You\\'re already a fan of indie rock and have been to a festival in Brooklyn!\n\nThat\\'s awesome!\n\nThe current indie rock scene is thriving, and there are plenty of exciting festivals and concerts happening in the coming months.\n\nHere are some popular ones you might want to check out:\\n\\n**Festivals:**\\n\\n1.",
+          "id": "ev_55b30734f277a162be289096",
+          "observedAt": "2026-10-14T05:09:01.901Z"
+        },
+        {
+          "sourceId": "memory:context-89",
+          "sourceVersion": "sha256:be096ab269637c90ff364786cc751cc1c18bc0edd0dbbbca309868dc30f83845",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-89",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "**Follow up**: Keep an eye on the artists' social media accounts to stay updated on their future performances.\\n\\nBy following these tip",
+          "id": "ev_45f93702043ae44064be7c4e",
+          "observedAt": "2026-10-14T05:09:01.901Z"
+        },
+        {
+          "sourceId": "memory:context-100",
+          "sourceVersion": "sha256:9918c4614e47ec9cdfc92f510919ab3146ad74ebbb678a7b8e17aa0ac5723286",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-100",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "in the US and Europe through August.\\n\\nThese are just a few examples of the many amazing indie rock festivals and concerts h",
+          "id": "ev_b9b316dea9e8a28ef4e72aaa",
+          "observedAt": "2026-10-14T05:09:01.902Z"
+        }
+      ],
+      "sourceIds": [
+        "context-99",
+        "context-89",
+        "context-100"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 15.428457999994862,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:49:08.714243+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Based on the retrieved history, there is no information about concerts or musical events you attended in the past two months. The available records only reference upcoming indie rock festivals and general music discussions, not your personal attendance history. I do not know the order of events you attended.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 588,
+    "completion_tokens": 656,
+    "total_tokens": 1244,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 600,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 533,
+    "completion_tokens": 802,
+    "total_tokens": 1335,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 799,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 9836.764374999802,
+  "judgeWallMs": 8462.15841700041,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.17777777777777778
+  },
+  "ended": "2026-10-14T07:49:27.015675+00:00"
+}

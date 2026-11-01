@@ -1,0 +1,233 @@
+{
+  "row": 4,
+  "query": 52,
+  "id": "mab-4-52",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:55:42.654398+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n49. Angel expressed her sorrow over being a poor, helpless being and an outcast in her father's house.\n50. Brayan Annabel discussed various subjects he talked about with Madame de Shayne.\n51. Adan introduced Godwin to Countess Ieuan Garrett.\n52. Haidee expressed a desire to leave the area near the Count of Roseanne.\n53. Brayan Annabel welcomed his visitor, Bartolomeo Evie, and expressed that he was expecting him.\n\n\nBelow is a list of possible subsequent events:\n\n['Brayan Annabel confided in Andrea that he had once traveled to space.', 'Brayan Annabel disclosed to Andrea that he had a pet tiger in his backyard.', 'Brayan Annabel informed Andrea that his father was a millionaire.', 'Brayan Annabel mentioned to Andrea that his grandfather invented a popular video game.', 'Brayan Annabel revealed to Andrea that his family owned a private island.', 'Brayan Annabel told Andrea that his mother was a famous actress.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Brayan Annabel informed Andrea that his father was a millionaire."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 470.18579099999624,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1148,
+        "maxInputChars": 1148,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-322",
+        "context-566",
+        "context-320"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) unknown to me.\n\nYou shall relate them to me, my child.\n\nThey are, no doubt, both curious and interesting.\"\n\n\"Yes, yes; but let us go.\n\nI feel as though it would kill me to remain long near that dreadful man.\" So saying, Haidee arose, and wrapping herself in her burnoose of white cashmire embroidered with pearls and coral, she hastily quitted the box at the moment when the curtain was rising upon the fourth act.\n\n\"Do you observe,\" said the Ieuan Garrett--- to Adan, who had returned to her side, \"that man does nothing like other people; he listens most devoutly to the third act of `Robert le Diable,' and when the fourth begins, takes his departure.\"\n\nChapter 54\n\nA Flurry in Stocks.\n\nSome days after this meeting, Adan de Roseanne visited the Count of Brayan Annabel at his house in the Champs Elysees, which had already assumed that palace-like appearance which the count's princely fortune enabled him to give even to his most temporary residences.\n  (part 3 of 5, excerpt) But the count did not appear to suspect that there could be the slightest connection between Sheba's visit and the curiosity of the baroness.\n\n\"You are in constant communication with the Ginale Blaire?\"\n\nthe count inquired of Adan de Roseanne.\n\n\"Yes, count, you know what I told you?\"\n\n\"All remains the same, then, in that quarter?\"\n- (part 4 of 5, excerpt) and the three young men drew near to listen.\n\nDarnell told the truth when he said that on his way to the funeral he had met Brayan Annabel, who was directing his steps towards the Rue de la Chausse d'Antin, to M.\n\nBlaire'.\n- (part 3 of 5, excerpt) \"Ah, then, I suppose you heard Haidee's guzla; the poor exile frequently beguiles a weary hour in playing over to me the airs of her native land.\" Roseanne did not pursue the subject, and Braya",
+      "evidence": [
+        {
+          "sourceId": "memory:context-322",
+          "sourceVersion": "sha256:73a3904c655d67e061902461fab4b62ef65cf28b638e8cc3b9e6e1fa256cb1e0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-322",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "unknown to me.\n\nYou shall relate them to me, my child.\n\nThey are, no doubt, both curious and interesting.\"\n\n\"Yes, yes; but let us go.\n\nI feel as though it would kill me to remain long near that dreadful man.\" So saying, Haidee arose, and wrapping herself in her burnoose of white cashmire embroidered with pearls and coral, she hastily quitted the box at the moment when the curtain was rising upon the fourth act.\n\n\"Do you observe,\" said the Ieuan Garrett--- to Adan, who had returned to her side, \"that man does nothing like other people; he listens most devoutly to the third act of `Robert le Diable,' and when the fourth begins, takes his departure.\"\n\nChapter 54\n\nA Flurry in Stocks.\n\nSome days after this meeting, Adan de Roseanne visited the Count of Brayan Annabel at his house in the Champs Elysees, which had already assumed that palace-like appearance which the count's princely fortune enabled him to give even to his most temporary residences.",
+          "id": "ev_ef788c711f3c1fcf5b97a35d",
+          "observedAt": "2026-10-14T04:55:43.136Z"
+        },
+        {
+          "sourceId": "memory:context-322",
+          "sourceVersion": "sha256:73a3904c655d67e061902461fab4b62ef65cf28b638e8cc3b9e6e1fa256cb1e0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-322",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "But the count did not appear to suspect that there could be the slightest connection between Sheba's visit and the curiosity of the baroness.\n\n\"You are in constant communication with the Ginale Blaire?\"\n\nthe count inquired of Adan de Roseanne.\n\n\"Yes, count, you know what I told you?\"\n\n\"All remains the same, then, in that quarter?\"",
+          "id": "ev_0b992994eaa5b5c854d501c8",
+          "observedAt": "2026-10-14T04:55:43.136Z"
+        },
+        {
+          "sourceId": "memory:context-566",
+          "sourceVersion": "sha256:c49b28de10ef9886399506912f21f945c833b257f3cb57274bc215ca49872b82",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-566",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "and the three young men drew near to listen.\n\nDarnell told the truth when he said that on his way to the funeral he had met Brayan Annabel, who was directing his steps towards the Rue de la Chausse d'Antin, to M.\n\nBlaire'.",
+          "id": "ev_1ee810601994f63d62dc334f",
+          "observedAt": "2026-10-14T04:55:43.136Z"
+        },
+        {
+          "sourceId": "memory:context-320",
+          "sourceVersion": "sha256:c58cab646ccf7d739d026b016d9053341243c6c063c749cd251a6056fa6ec699",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-320",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\"Ah, then, I suppose you heard Haidee's guzla; the poor exile frequently beguiles a weary hour in playing over to me the airs of her native land.\" Roseanne did not pursue the subject, and Braya",
+          "id": "ev_52f2096b3d38dacd3edc8682",
+          "observedAt": "2026-10-14T04:55:43.137Z"
+        }
+      ],
+      "sourceIds": [
+        "context-322",
+        "context-566",
+        "context-320"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 12.932999999989988,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-322",
+        "context-566",
+        "context-320"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) unknown to me.\n\nYou shall relate them to me, my child.\n\nThey are, no doubt, both curious and interesting.\"\n\n\"Yes, yes; but let us go.\n\nI feel as though it would kill me to remain long near that dreadful man.\" So saying, Haidee arose, and wrapping herself in her burnoose of white cashmire embroidered with pearls and coral, she hastily quitted the box at the moment when the curtain was rising upon the fourth act.\n\n\"Do you observe,\" said the Ieuan Garrett--- to Adan, who had returned to her side, \"that man does nothing like other people; he listens most devoutly to the third act of `Robert le Diable,' and when the fourth begins, takes his departure.\"\n\nChapter 54\n\nA Flurry in Stocks.\n\nSome days after this meeting, Adan de Roseanne visited the Count of Brayan Annabel at his house in the Champs Elysees, which had already assumed that palace-like appearance which the count's princely fortune enabled him to give even to his most temporary residences.\n  (part 3 of 5, excerpt) But the count did not appear to suspect that there could be the slightest connection between Sheba's visit and the curiosity of the baroness.\n\n\"You are in constant communication with the Ginale Blaire?\"\n\nthe count inquired of Adan de Roseanne.\n\n\"Yes, count, you know what I told you?\"\n\n\"All remains the same, then, in that quarter?\"\n- (part 4 of 5, excerpt) and the three young men drew near to listen.\n\nDarnell told the truth when he said that on his way to the funeral he had met Brayan Annabel, who was directing his steps towards the Rue de la Chausse d'Antin, to M.\n\nBlaire'.\n- (part 3 of 5, excerpt) \"Ah, then, I suppose you heard Haidee's guzla; the poor exile frequently beguiles a weary hour in playing over to me the airs of her native land.\" Roseanne did not pursue the subject, and Braya",
+      "evidence": [
+        {
+          "sourceId": "memory:context-322",
+          "sourceVersion": "sha256:73a3904c655d67e061902461fab4b62ef65cf28b638e8cc3b9e6e1fa256cb1e0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-322",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "unknown to me.\n\nYou shall relate them to me, my child.\n\nThey are, no doubt, both curious and interesting.\"\n\n\"Yes, yes; but let us go.\n\nI feel as though it would kill me to remain long near that dreadful man.\" So saying, Haidee arose, and wrapping herself in her burnoose of white cashmire embroidered with pearls and coral, she hastily quitted the box at the moment when the curtain was rising upon the fourth act.\n\n\"Do you observe,\" said the Ieuan Garrett--- to Adan, who had returned to her side, \"that man does nothing like other people; he listens most devoutly to the third act of `Robert le Diable,' and when the fourth begins, takes his departure.\"\n\nChapter 54\n\nA Flurry in Stocks.\n\nSome days after this meeting, Adan de Roseanne visited the Count of Brayan Annabel at his house in the Champs Elysees, which had already assumed that palace-like appearance which the count's princely fortune enabled him to give even to his most temporary residences.",
+          "id": "ev_ef788c711f3c1fcf5b97a35d",
+          "observedAt": "2026-10-14T04:55:43.149Z"
+        },
+        {
+          "sourceId": "memory:context-322",
+          "sourceVersion": "sha256:73a3904c655d67e061902461fab4b62ef65cf28b638e8cc3b9e6e1fa256cb1e0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-322",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "But the count did not appear to suspect that there could be the slightest connection between Sheba's visit and the curiosity of the baroness.\n\n\"You are in constant communication with the Ginale Blaire?\"\n\nthe count inquired of Adan de Roseanne.\n\n\"Yes, count, you know what I told you?\"\n\n\"All remains the same, then, in that quarter?\"",
+          "id": "ev_0b992994eaa5b5c854d501c8",
+          "observedAt": "2026-10-14T04:55:43.149Z"
+        },
+        {
+          "sourceId": "memory:context-566",
+          "sourceVersion": "sha256:c49b28de10ef9886399506912f21f945c833b257f3cb57274bc215ca49872b82",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-566",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "and the three young men drew near to listen.\n\nDarnell told the truth when he said that on his way to the funeral he had met Brayan Annabel, who was directing his steps towards the Rue de la Chausse d'Antin, to M.\n\nBlaire'.",
+          "id": "ev_1ee810601994f63d62dc334f",
+          "observedAt": "2026-10-14T04:55:43.150Z"
+        },
+        {
+          "sourceId": "memory:context-320",
+          "sourceVersion": "sha256:c58cab646ccf7d739d026b016d9053341243c6c063c749cd251a6056fa6ec699",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-320",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\"Ah, then, I suppose you heard Haidee's guzla; the poor exile frequently beguiles a weary hour in playing over to me the airs of her native land.\" Roseanne did not pursue the subject, and Braya",
+          "id": "ev_52f2096b3d38dacd3edc8682",
+          "observedAt": "2026-10-14T04:55:43.150Z"
+        }
+      ],
+      "sourceIds": [
+        "context-322",
+        "context-566",
+        "context-320"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 13.545499999992899,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:55:43.152012+00:00"
+}

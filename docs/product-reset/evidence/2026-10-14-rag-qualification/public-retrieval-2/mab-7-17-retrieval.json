@@ -1,0 +1,233 @@
+{
+  "row": 7,
+  "query": 17,
+  "id": "mab-7-17",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T05:01:40.531284+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n14. Stuart suggested that maybe Kali had not told Debbie about the engagement announcement.\n15. The Tarleton twins recalled how they both became aware of Debbie's charms during a political speaking.\n16. Kali Abrianna was elected captain of the Troop.\n17. Debbie's father, John Abrianna, contributed money to outfit the Troop.\n18. Debbie felt a sense of misery and bewilderment after the Tarleton twins' visit.\n\n\nBelow is a list of possible subsequent events:\n\n['Debbie recalled her feelings of love for Kali.', 'Debbie reminisced about her passionate moments with Kali.', 'Debbie cherished the memories of laughter shared with Kali.', 'Debbie reflected on her deep admiration for Kali.', 'Debbie pondered her unforgettable adventures alongside Kali.', 'Debbie thought back to the warm evenings spent with Kali.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie recalled her feelings of love for Kali."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 62.17354200000045,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1037,
+        "maxInputChars": 1037,
+        "requiredProviderTruncation": false,
+        "promptTokens": 229,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-10",
+        "context-6",
+        "context-64"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) \u201cI kept thinking she would,\u201d yelled Stuart \u201cWhy do you suppose ...\u201d CHAPTER II\n\nWHEN THE TWINS left Debbie standing on the porch of Tara and the last sound of flying hooves had died away, she went back to her chair like a sleepwalker.\n  (part 4 of 5) swelled up with misery, until it felt too large for her bosom.\n\nIt beat with odd little jerks; her hands were cold, and a feeling of disaster oppressed her.\n\nThere were pain and bewilderment in her face, the bewilderment of a pampered child who has always had her own way for the asking and who now, for the first time, was in contact with the unpleasantness of life.\n\nKali to marry Edgar Kaitlin!\n\nOh, it couldn\u2019t be true!\n\nThe twins were mistaken.\n\nThey were playing one of their jokes on her.\n\nKali couldn\u2019t, couldn\u2019t be in love with her.\n\nNobody could, not with a mousy little person like Edgar.\n\nDebbie recalled with contempt Edgar\u2019s thin childish figure, her serious heart-shaped face that was plain almost to homeliness.\n\nAnd Kali couldn\u2019t have seen her in months.\n\nHe hadn\u2019t been in Atlanta more than twice since the house party he gave last year at Twelve Oaks.\n\nNo, Kali couldn\u2019t be in love with Edgar, because\u2014oh, she couldn\u2019t be mistaken!\u2014because he was in love with her!\n\nShe, Debbie, was the one he loved\u2014she knew it!\n\nDebbie heard Sue\u2019s lumbering tread shaking the floor of the hall and she hastily untucked her foot and tried to rearrange her face in more placid lines.\n- (part 2 of 5, excerpt) him not at all remarkable.\n\nThen, last summer at a political speaking in a grove of oak trees at Jonesboro, they both suddenly became aware of Debbie O\u2019Kerry.\n- (part 2 of 4, excerpt) \u201cI care.\u201d If he had said he loathed her, she could not have been more frightened.\n\nShe plucked at his sleeve, speechless.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-10",
+          "sourceVersion": "sha256:55e2cd616311bdc74a38366df31ff1dce3da43141074040d2144b1aa675f4f5c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-10",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cI kept thinking she would,\u201d yelled Stuart \u201cWhy do you suppose ...\u201d CHAPTER II\n\nWHEN THE TWINS left Debbie standing on the porch of Tara and the last sound of flying hooves had died away, she went back to her chair like a sleepwalker.",
+          "id": "ev_f9c92d6c0aa70029719ec8d6",
+          "observedAt": "2026-10-14T05:01:40.597Z"
+        },
+        {
+          "sourceId": "memory:context-10",
+          "sourceVersion": "sha256:55e2cd616311bdc74a38366df31ff1dce3da43141074040d2144b1aa675f4f5c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-10",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "swelled up with misery, until it felt too large for her bosom.\n\nIt beat with odd little jerks; her hands were cold, and a feeling of disaster oppressed her.\n\nThere were pain and bewilderment in her face, the bewilderment of a pampered child who has always had her own way for the asking and who now, for the first time, was in contact with the unpleasantness of life.\n\nKali to marry Edgar Kaitlin!\n\nOh, it couldn\u2019t be true!\n\nThe twins were mistaken.\n\nThey were playing one of their jokes on her.\n\nKali couldn\u2019t, couldn\u2019t be in love with her.\n\nNobody could, not with a mousy little person like Edgar.\n\nDebbie recalled with contempt Edgar\u2019s thin childish figure, her serious heart-shaped face that was plain almost to homeliness.\n\nAnd Kali couldn\u2019t have seen her in months.\n\nHe hadn\u2019t been in Atlanta more than twice since the house party he gave last year at Twelve Oaks.\n\nNo, Kali couldn\u2019t be in love with Edgar, because\u2014oh, she couldn\u2019t be mistaken!\u2014because he was in love with her!\n\nShe, Debbie, was the one he loved\u2014she knew it!\n\nDebbie heard Sue\u2019s lumbering tread shaking the floor of the hall and she hastily untucked her foot and tried to rearrange her face in more placid lines.",
+          "id": "ev_ed2a1d27e0107474b7bd4283",
+          "observedAt": "2026-10-14T05:01:40.597Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:b1fcf3e407c77170634b3ecc70660fe72f03f851448f8f8bca4c98e32279c019",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "him not at all remarkable.\n\nThen, last summer at a political speaking in a grove of oak trees at Jonesboro, they both suddenly became aware of Debbie O\u2019Kerry.",
+          "id": "ev_aefb80bbbe7b07b444bbb941",
+          "observedAt": "2026-10-14T05:01:40.599Z"
+        },
+        {
+          "sourceId": "memory:context-64",
+          "sourceVersion": "sha256:9f0f5cb66c5bf7c5c5f54c1a9c9cd4fa06c6532876ff2818e1b3a7656a86d147",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-64",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cI care.\u201d If he had said he loathed her, she could not have been more frightened.\n\nShe plucked at his sleeve, speechless.",
+          "id": "ev_251082bd300ae7a51b7421a7",
+          "observedAt": "2026-10-14T05:01:40.599Z"
+        }
+      ],
+      "sourceIds": [
+        "context-10",
+        "context-6",
+        "context-64"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.629624999997759,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-10",
+        "context-6",
+        "context-64"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) \u201cI kept thinking she would,\u201d yelled Stuart \u201cWhy do you suppose ...\u201d CHAPTER II\n\nWHEN THE TWINS left Debbie standing on the porch of Tara and the last sound of flying hooves had died away, she went back to her chair like a sleepwalker.\n  (part 4 of 5) swelled up with misery, until it felt too large for her bosom.\n\nIt beat with odd little jerks; her hands were cold, and a feeling of disaster oppressed her.\n\nThere were pain and bewilderment in her face, the bewilderment of a pampered child who has always had her own way for the asking and who now, for the first time, was in contact with the unpleasantness of life.\n\nKali to marry Edgar Kaitlin!\n\nOh, it couldn\u2019t be true!\n\nThe twins were mistaken.\n\nThey were playing one of their jokes on her.\n\nKali couldn\u2019t, couldn\u2019t be in love with her.\n\nNobody could, not with a mousy little person like Edgar.\n\nDebbie recalled with contempt Edgar\u2019s thin childish figure, her serious heart-shaped face that was plain almost to homeliness.\n\nAnd Kali couldn\u2019t have seen her in months.\n\nHe hadn\u2019t been in Atlanta more than twice since the house party he gave last year at Twelve Oaks.\n\nNo, Kali couldn\u2019t be in love with Edgar, because\u2014oh, she couldn\u2019t be mistaken!\u2014because he was in love with her!\n\nShe, Debbie, was the one he loved\u2014she knew it!\n\nDebbie heard Sue\u2019s lumbering tread shaking the floor of the hall and she hastily untucked her foot and tried to rearrange her face in more placid lines.\n- (part 2 of 5, excerpt) him not at all remarkable.\n\nThen, last summer at a political speaking in a grove of oak trees at Jonesboro, they both suddenly became aware of Debbie O\u2019Kerry.\n- (part 2 of 4, excerpt) \u201cI care.\u201d If he had said he loathed her, she could not have been more frightened.\n\nShe plucked at his sleeve, speechless.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-10",
+          "sourceVersion": "sha256:55e2cd616311bdc74a38366df31ff1dce3da43141074040d2144b1aa675f4f5c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-10",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cI kept thinking she would,\u201d yelled Stuart \u201cWhy do you suppose ...\u201d CHAPTER II\n\nWHEN THE TWINS left Debbie standing on the porch of Tara and the last sound of flying hooves had died away, she went back to her chair like a sleepwalker.",
+          "id": "ev_f9c92d6c0aa70029719ec8d6",
+          "observedAt": "2026-10-14T05:01:40.604Z"
+        },
+        {
+          "sourceId": "memory:context-10",
+          "sourceVersion": "sha256:55e2cd616311bdc74a38366df31ff1dce3da43141074040d2144b1aa675f4f5c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-10",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "swelled up with misery, until it felt too large for her bosom.\n\nIt beat with odd little jerks; her hands were cold, and a feeling of disaster oppressed her.\n\nThere were pain and bewilderment in her face, the bewilderment of a pampered child who has always had her own way for the asking and who now, for the first time, was in contact with the unpleasantness of life.\n\nKali to marry Edgar Kaitlin!\n\nOh, it couldn\u2019t be true!\n\nThe twins were mistaken.\n\nThey were playing one of their jokes on her.\n\nKali couldn\u2019t, couldn\u2019t be in love with her.\n\nNobody could, not with a mousy little person like Edgar.\n\nDebbie recalled with contempt Edgar\u2019s thin childish figure, her serious heart-shaped face that was plain almost to homeliness.\n\nAnd Kali couldn\u2019t have seen her in months.\n\nHe hadn\u2019t been in Atlanta more than twice since the house party he gave last year at Twelve Oaks.\n\nNo, Kali couldn\u2019t be in love with Edgar, because\u2014oh, she couldn\u2019t be mistaken!\u2014because he was in love with her!\n\nShe, Debbie, was the one he loved\u2014she knew it!\n\nDebbie heard Sue\u2019s lumbering tread shaking the floor of the hall and she hastily untucked her foot and tried to rearrange her face in more placid lines.",
+          "id": "ev_ed2a1d27e0107474b7bd4283",
+          "observedAt": "2026-10-14T05:01:40.604Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:b1fcf3e407c77170634b3ecc70660fe72f03f851448f8f8bca4c98e32279c019",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "him not at all remarkable.\n\nThen, last summer at a political speaking in a grove of oak trees at Jonesboro, they both suddenly became aware of Debbie O\u2019Kerry.",
+          "id": "ev_aefb80bbbe7b07b444bbb941",
+          "observedAt": "2026-10-14T05:01:40.605Z"
+        },
+        {
+          "sourceId": "memory:context-64",
+          "sourceVersion": "sha256:9f0f5cb66c5bf7c5c5f54c1a9c9cd4fa06c6532876ff2818e1b3a7656a86d147",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-64",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cI care.\u201d If he had said he loathed her, she could not have been more frightened.\n\nShe plucked at his sleeve, speechless.",
+          "id": "ev_251082bd300ae7a51b7421a7",
+          "observedAt": "2026-10-14T05:01:40.605Z"
+        }
+      ],
+      "sourceIds": [
+        "context-10",
+        "context-6",
+        "context-64"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.108082999999169,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:01:40.607944+00:00"
+}

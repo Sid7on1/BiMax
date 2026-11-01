@@ -33,6 +33,8 @@ interface WorkerHandle {
 }
 
 export interface SubAgentConfig {
+  /** Frozen, host-admitted bot assignment; absent for ordinary sub-agent workers. */
+  botRun?: import('../bots/worker.policy').BotAssignment;
   runBudget?: SharedArrayBuffer;
   agentType: string;
   prompt: string;
@@ -190,7 +192,8 @@ export class SubAgentManager {
     const worker = new Worker(bundle, {
       env, stdout: true, stderr: false,
       workerData: { bimaxEngineRoot: config.cwd || process.cwd(), runBudget: config.runBudget },
-      resourceLimits: { maxOldGenerationSizeMb: SUBAGENT_WORKER_HEAP_MB },
+      // Bound the young generation too: Node 24 otherwise adds ~192 MiB beyond the old-generation budget.
+    resourceLimits: { maxOldGenerationSizeMb: SUBAGENT_WORKER_HEAP_MB, maxYoungGenerationSizeMb: 16 },
     });
     const emitter = new EventEmitter();
     translateSentinels(worker.stdout, emitter);

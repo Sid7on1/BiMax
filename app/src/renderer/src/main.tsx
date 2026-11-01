@@ -16,8 +16,8 @@ startRenderMode(window.bimax.phase9, document.documentElement);
 document.documentElement.toggleAttribute('data-reduce-motion', savedMotionPreference());
 
 /**
- * Single renderer entry. Bimax is a code-only agentic IDE: there is no macOS permission coach
- * window and no Computer Use surface, so this bundle mounts exactly one app root.
+ * Single renderer entry. Code and built-in Computer Use share the task transcript and approvals.
+ * The normal app, floating bar and approval surface use the same renderer bundle.
  */
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

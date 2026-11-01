@@ -164,6 +164,9 @@ export interface LocalModelReport {
 declare global {
   interface Window {
     bimax: {
+      mobile?: import("../../shared/mobile").MobileApi;
+      outputs?: import("../../preload/index").BimaxApi["outputs"];
+      computer?: import("../../preload/index").BimaxApi["computer"];
       threads: import("../../preload/index").BimaxApi["threads"];
       voice: import("../../preload/index").BimaxApi["voice"];
       talk: import("../../preload/index").BimaxApi["talk"];

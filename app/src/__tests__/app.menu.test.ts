@@ -13,10 +13,11 @@ const read = (rel: string): string => fs.readFileSync(path.resolve(__dirname, '.
 function build(isMac = true, dev = false) {
   const sent: MenuCommand[] = [];
   let quick = 0;
+  let computer = 0;
   const template = appMenuTemplate({
-    appName: 'Bimax', isMac, dev, send: (c) => sent.push(c), openQuickBar: () => { quick++; }, quickShortcut: '⌘2',
+    appName: 'Bimax', isMac, dev, send: (c) => sent.push(c), openQuickBar: () => { quick++; }, computerUse: () => { computer++; }, quickShortcut: '⌘2',
   });
-  return { template, sent, quick: () => quick };
+  return { template, sent, quick: () => quick, computer: () => computer };
 }
 
 function items(template: MenuItemConstructorOptions[]): MenuItemConstructorOptions[] {
@@ -42,7 +43,7 @@ test('Edit carries the roles text fields need — without them ⌘C and ⌘V do 
 test('every command the menu sends is one the page runs, and the page owns its keys', () => {
   const { template, sent } = build();
   const app = read('renderer/src/App.tsx');
-  const commands = items(template).filter((item) => item.click && item.label && !item.label.startsWith('New Task'));
+  const commands = items(template).filter((item) => item.click && item.label && !item.label.startsWith('New Task') && item.label !== 'Computer Use…');
   expect(commands.length).toBeGreaterThanOrEqual(8);
   for (const item of commands) {
     click(item);
@@ -72,9 +73,14 @@ test('the ⌘2 bar is in File, by its current shortcut, and opens the bar', () =
   expect(quick()).toBe(1);
 });
 
-test('no Trust Center or Computer Use entry (the code-only product gate)', () => {
-  const labels = items(build(true, true).template).map((item) => String(item.label ?? item.role ?? ''));
-  for (const label of labels) expect(label).not.toMatch(/trust|computer|control mac|permission/i);
+test('Computer Use is a Mac app feature that opens its task entry without a connector manager', () => {
+  const { template, computer, sent } = build(true, true);
+  const all = items(template);
+  click(all.find(item => item.label === 'Computer Use…')!);
+  expect(computer()).toBe(1);
+  expect(sent).toEqual([]);
+  expect(all.map(item => item.label).join(' ')).not.toMatch(/MCP|Arc CU|connect computer/i);
+  expect(items(build(false).template).some(item => item.label === 'Computer Use…')).toBe(false);
 });
 
 test('developer tools only in a development build', () => {

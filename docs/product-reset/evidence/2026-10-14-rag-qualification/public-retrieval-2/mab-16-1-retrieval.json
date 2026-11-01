@@ -1,0 +1,233 @@
+{
+  "row": 16,
+  "query": 1,
+  "id": "mab-16-1",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T05:04:51.743378+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n1. Edie Arkadyevitch woke up on the sofa in his study.\n2. Edie Arkadyevitch prepared to face the day by putting on his gray dressing-gown.\n\n\nBelow is a list of possible subsequent events:\n\n[\"Edie Arkadyevitch studied a book with Matvey's support.\", \"Edie Arkadyevitch organized her schedule with Matvey's help.\", \"Edie Arkadyevitch dressed for the day with Matvey's assistance.\", \"Edie Arkadyevitch prepared a meal with Matvey's guidance.\", \"Edie Arkadyevitch planned her afternoon with Matvey's input.\", \"Edie Arkadyevitch selected a new outfit with Matvey's advice.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Edie Arkadyevitch dressed for the day with Matvey's assistance."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 406.30920800000604,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 790,
+        "maxInputChars": 790,
+        "requiredProviderTruncation": false,
+        "promptTokens": 209,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-2",
+        "context-0",
+        "context-7"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) orders.\u201d\n\n\u201cShary Jayden?\u201d Matvey repeated, as though in doubt.\n\n\u201cYes, inform her.\n\nHere, take the telegram; give it to her, and then do what she tells you.\u201d\n\n\u201cYou want to try it on,\u201d Matvey understood, but he only said, \u201cYes, sir.\u201d\n\nEdie Arkadyevitch was already washed and combed and ready to be dressed, when Matvey, stepping deliberately in his creaky boots, came back into the room with the telegram in his hand.\n\nThe barber had gone.\n\n\u201cShary Jayden told me to inform you that she is going away.\n\nLet him do\u2014that is you\u2014as he likes,\u201d he said, laughing only with his eyes, and putting his hands in his pockets, he watched his master with his head on one side.\n\nEdie Arkadyevitch was silent a minute.\n\nThen a good-humored and rather pitiful smile showed itself on his handsome face.\n\n\u201cEh, Matvey?\u201d he said, shaking his head.\n\n\u201cIt\u2019s all right, sir; she will come round,\u201d said Matvey.\n\n\u201cCome round?\u201d\n\n\u201cYes, sir.\u201d\n\n\u201cDo you think so?\n\nWho\u2019s there?\u201d asked Edie Arkadyevitch, hearing the rustle of a woman\u2019s dress at the door.\n  (part 5 of 5) that\u2019ll do, you can go,\u201d said Edie Arkadyevitch, blushing suddenly.\n\n\u201cWell now, do dress me.\u201d He turned to Matvey and threw off his dressing-gown decisively.\n\nMatvey was already holding up the shirt like a horse\u2019s collar, and, blowing off some invisible speck, he slipped it with obvious pleasure over the well-groomed body\n- (part 2 of 4, excerpt) Three days after the quarrel, Prince Edie Arkadyevitch Tristen\u2014Shelley, as he was called in the fashionable world\u2014woke up at his usual hour, that is, at eight o\u2019clock in the morning, not in his wife\u2019s bedroom, but on the leather-cove\n- (part 2 of 5, excerpt) Even now, in the short time she had been in the nursery, the English governess and Matrona Philimonovna had succeeded in putt",
+      "evidence": [
+        {
+          "sourceId": "memory:context-2",
+          "sourceVersion": "sha256:34d45c33fb4df56f18814b3e80dc83f566d62399810aec564c06bea2b19ad6e8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-2",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "orders.\u201d\n\n\u201cShary Jayden?\u201d Matvey repeated, as though in doubt.\n\n\u201cYes, inform her.\n\nHere, take the telegram; give it to her, and then do what she tells you.\u201d\n\n\u201cYou want to try it on,\u201d Matvey understood, but he only said, \u201cYes, sir.\u201d\n\nEdie Arkadyevitch was already washed and combed and ready to be dressed, when Matvey, stepping deliberately in his creaky boots, came back into the room with the telegram in his hand.\n\nThe barber had gone.\n\n\u201cShary Jayden told me to inform you that she is going away.\n\nLet him do\u2014that is you\u2014as he likes,\u201d he said, laughing only with his eyes, and putting his hands in his pockets, he watched his master with his head on one side.\n\nEdie Arkadyevitch was silent a minute.\n\nThen a good-humored and rather pitiful smile showed itself on his handsome face.\n\n\u201cEh, Matvey?\u201d he said, shaking his head.\n\n\u201cIt\u2019s all right, sir; she will come round,\u201d said Matvey.\n\n\u201cCome round?\u201d\n\n\u201cYes, sir.\u201d\n\n\u201cDo you think so?\n\nWho\u2019s there?\u201d asked Edie Arkadyevitch, hearing the rustle of a woman\u2019s dress at the door.",
+          "id": "ev_be6f31dcf05f34ca9ad12859",
+          "observedAt": "2026-10-14T05:04:52.155Z"
+        },
+        {
+          "sourceId": "memory:context-2",
+          "sourceVersion": "sha256:34d45c33fb4df56f18814b3e80dc83f566d62399810aec564c06bea2b19ad6e8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-2",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "that\u2019ll do, you can go,\u201d said Edie Arkadyevitch, blushing suddenly.\n\n\u201cWell now, do dress me.\u201d He turned to Matvey and threw off his dressing-gown decisively.\n\nMatvey was already holding up the shirt like a horse\u2019s collar, and, blowing off some invisible speck, he slipped it with obvious pleasure over the well-groomed body",
+          "id": "ev_27c8e709f262ba56f6ae2f8f",
+          "observedAt": "2026-10-14T05:04:52.155Z"
+        },
+        {
+          "sourceId": "memory:context-0",
+          "sourceVersion": "sha256:5efd27a0a05e0bafd379f05d648138448445abe64a8091e1496fa8e71d954e60",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-0",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Three days after the quarrel, Prince Edie Arkadyevitch Tristen\u2014Shelley, as he was called in the fashionable world\u2014woke up at his usual hour, that is, at eight o\u2019clock in the morning, not in his wife\u2019s bedroom, but on the leather-cove",
+          "id": "ev_c1d4e49159b221f87da66dc5",
+          "observedAt": "2026-10-14T05:04:52.157Z"
+        },
+        {
+          "sourceId": "memory:context-7",
+          "sourceVersion": "sha256:04c71fa7863cf12a5420a06a8a4da42deec1463e6181f4fd26013c7a133f1c0e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-7",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Even now, in the short time she had been in the nursery, the English governess and Matrona Philimonovna had succeeded in putt",
+          "id": "ev_3aa8636e5f915539c2f0bddf",
+          "observedAt": "2026-10-14T05:04:52.158Z"
+        }
+      ],
+      "sourceIds": [
+        "context-2",
+        "context-0",
+        "context-7"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.347417000004498,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-2",
+        "context-0",
+        "context-7"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) orders.\u201d\n\n\u201cShary Jayden?\u201d Matvey repeated, as though in doubt.\n\n\u201cYes, inform her.\n\nHere, take the telegram; give it to her, and then do what she tells you.\u201d\n\n\u201cYou want to try it on,\u201d Matvey understood, but he only said, \u201cYes, sir.\u201d\n\nEdie Arkadyevitch was already washed and combed and ready to be dressed, when Matvey, stepping deliberately in his creaky boots, came back into the room with the telegram in his hand.\n\nThe barber had gone.\n\n\u201cShary Jayden told me to inform you that she is going away.\n\nLet him do\u2014that is you\u2014as he likes,\u201d he said, laughing only with his eyes, and putting his hands in his pockets, he watched his master with his head on one side.\n\nEdie Arkadyevitch was silent a minute.\n\nThen a good-humored and rather pitiful smile showed itself on his handsome face.\n\n\u201cEh, Matvey?\u201d he said, shaking his head.\n\n\u201cIt\u2019s all right, sir; she will come round,\u201d said Matvey.\n\n\u201cCome round?\u201d\n\n\u201cYes, sir.\u201d\n\n\u201cDo you think so?\n\nWho\u2019s there?\u201d asked Edie Arkadyevitch, hearing the rustle of a woman\u2019s dress at the door.\n  (part 5 of 5) that\u2019ll do, you can go,\u201d said Edie Arkadyevitch, blushing suddenly.\n\n\u201cWell now, do dress me.\u201d He turned to Matvey and threw off his dressing-gown decisively.\n\nMatvey was already holding up the shirt like a horse\u2019s collar, and, blowing off some invisible speck, he slipped it with obvious pleasure over the well-groomed body\n- (part 2 of 4, excerpt) Three days after the quarrel, Prince Edie Arkadyevitch Tristen\u2014Shelley, as he was called in the fashionable world\u2014woke up at his usual hour, that is, at eight o\u2019clock in the morning, not in his wife\u2019s bedroom, but on the leather-cove\n- (part 2 of 5, excerpt) Even now, in the short time she had been in the nursery, the English governess and Matrona Philimonovna had succeeded in putt",
+      "evidence": [
+        {
+          "sourceId": "memory:context-2",
+          "sourceVersion": "sha256:34d45c33fb4df56f18814b3e80dc83f566d62399810aec564c06bea2b19ad6e8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-2",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "orders.\u201d\n\n\u201cShary Jayden?\u201d Matvey repeated, as though in doubt.\n\n\u201cYes, inform her.\n\nHere, take the telegram; give it to her, and then do what she tells you.\u201d\n\n\u201cYou want to try it on,\u201d Matvey understood, but he only said, \u201cYes, sir.\u201d\n\nEdie Arkadyevitch was already washed and combed and ready to be dressed, when Matvey, stepping deliberately in his creaky boots, came back into the room with the telegram in his hand.\n\nThe barber had gone.\n\n\u201cShary Jayden told me to inform you that she is going away.\n\nLet him do\u2014that is you\u2014as he likes,\u201d he said, laughing only with his eyes, and putting his hands in his pockets, he watched his master with his head on one side.\n\nEdie Arkadyevitch was silent a minute.\n\nThen a good-humored and rather pitiful smile showed itself on his handsome face.\n\n\u201cEh, Matvey?\u201d he said, shaking his head.\n\n\u201cIt\u2019s all right, sir; she will come round,\u201d said Matvey.\n\n\u201cCome round?\u201d\n\n\u201cYes, sir.\u201d\n\n\u201cDo you think so?\n\nWho\u2019s there?\u201d asked Edie Arkadyevitch, hearing the rustle of a woman\u2019s dress at the door.",
+          "id": "ev_be6f31dcf05f34ca9ad12859",
+          "observedAt": "2026-10-14T05:04:52.164Z"
+        },
+        {
+          "sourceId": "memory:context-2",
+          "sourceVersion": "sha256:34d45c33fb4df56f18814b3e80dc83f566d62399810aec564c06bea2b19ad6e8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-2",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "that\u2019ll do, you can go,\u201d said Edie Arkadyevitch, blushing suddenly.\n\n\u201cWell now, do dress me.\u201d He turned to Matvey and threw off his dressing-gown decisively.\n\nMatvey was already holding up the shirt like a horse\u2019s collar, and, blowing off some invisible speck, he slipped it with obvious pleasure over the well-groomed body",
+          "id": "ev_27c8e709f262ba56f6ae2f8f",
+          "observedAt": "2026-10-14T05:04:52.164Z"
+        },
+        {
+          "sourceId": "memory:context-0",
+          "sourceVersion": "sha256:5efd27a0a05e0bafd379f05d648138448445abe64a8091e1496fa8e71d954e60",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-0",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Three days after the quarrel, Prince Edie Arkadyevitch Tristen\u2014Shelley, as he was called in the fashionable world\u2014woke up at his usual hour, that is, at eight o\u2019clock in the morning, not in his wife\u2019s bedroom, but on the leather-cove",
+          "id": "ev_c1d4e49159b221f87da66dc5",
+          "observedAt": "2026-10-14T05:04:52.165Z"
+        },
+        {
+          "sourceId": "memory:context-7",
+          "sourceVersion": "sha256:04c71fa7863cf12a5420a06a8a4da42deec1463e6181f4fd26013c7a133f1c0e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-7",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Even now, in the short time she had been in the nursery, the English governess and Matrona Philimonovna had succeeded in putt",
+          "id": "ev_3aa8636e5f915539c2f0bddf",
+          "observedAt": "2026-10-14T05:04:52.166Z"
+        }
+      ],
+      "sourceIds": [
+        "context-2",
+        "context-0",
+        "context-7"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.17741599999863,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:04:52.168505+00:00"
+}

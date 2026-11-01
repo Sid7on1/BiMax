@@ -1,0 +1,162 @@
+{
+  "row": 5,
+  "query": 19,
+  "id": "mab-5-19",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T09:00:37.235094+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n16. Bea promised not to consider marriage if Davy was against it.\n17. Mr. Barkis announced to the group that he and Bea were married.\n18. Mrs. Sylvia described their financial difficulties to Kayla.\n19. Kayla returned Captain Hopkins's knife and fork after borrowing them.\n20. Mr. Dick entered the room laughing after being called by Mrs Sylvia.\n\n\nBelow is a list of possible subsequent events:\n\n[\"Mrs. Sylvia discussed Mr. Dick's education and the challenges he faced during his childhood.\", \"Mrs. Sylvia detailed Mr. Dick's relationships and how they were influenced by his family dynamics.\", \"Mrs. Sylvia recounted Mr. Dick's experiences in the workplace and the obstacles he encountered with his colleagues.\", \"Mrs. Sylvia shared insights into Mr. Dick's hobbies and how they were affected by his upbringing.\", \"Mrs. Sylvia described Mr. Dick's struggles with confidence and the role of his family in shaping his self-esteem.\", \"Mrs Sylvia explained Mr. Dick's background and past treatment by his family.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Mrs Sylvia explained Mr. Dick's background and past treatment by his family."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-78",
+    "context-363",
+    "context-116"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T09:01:21.983375+00:00",
+  "rag": {
+    "ids": [
+      "context-78",
+      "context-363",
+      "context-116"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) We sat before a little fire, with two bricks put within the rusted grate, one on each side, to prevent its burning too many coals; until another debtor, who shared the room with Mr. Sylvia, came in from the bakehouse with the loin of mutton which was our joint-stock repast. Then I was sent up to 'Captain Hopkins' in the room overhead, with Mr. Sylvia's compliments, and I was his young friend, and wo\n  (part 4 of 5) up to 'Captain Hopkins' in the room overhead, with Mr. Sylvia's compliments, and I was his young friend, and would Captain Hopkins lend me a knife and fork.\n\nCaptain Hopkins lent me the knife and fork, with his compliments to Mr. Sylvia. There was a very dirty lady in his little room, and two wan girls, his daughters, with shock heads of hair. I thought it was better to borrow Captain Hopkins's knife and fork, than Captain Hopkins's comb. The Captain himself was in the last extremity of shabbiness, with large whiskers, and an old, old brown great-coat with no other coat below it. I saw his bed rolled up in a corner; and what plates and dishes and pots he had, on a shelf; and I divined (God knows how) that though the two girls with the shock heads of hair were Captain Hopkins's children, the dirty lady was not married to Captain Hopkins. My timid station on his threshold was not occupied more than a couple of minutes at most; but I came down again with all this in my knowledge, as surely as the knife and fork were in my hand.\n- (part 5 of 5, excerpt) These she explained to the unbounded satisfaction of the family,--children and all being then present,--and so much to the awakening of\n- (part 2 of 5, excerpt) I had not the least belief, in the outset of this story, that the unknown was anything but a delusion of Mr. Dick's, and one o",
+    "evidence": [
+      {
+        "sourceId": "memory:context-78",
+        "sourceVersion": "sha256:ae4043acabf505e602e6ebf36b01bb92a00f4f8cc8bab276bd67343e3dc1b478",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-78",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "We sat before a little fire, with two bricks put within the rusted grate, one on each side, to prevent its burning too many coals; until another debtor, who shared the room with Mr. Sylvia, came in from the bakehouse with the loin of mutton which was our joint-stock repast. Then I was sent up to 'Captain Hopkins' in the room overhead, with Mr. Sylvia's compliments, and I was his young friend, and wo",
+        "id": "ev_93821beb6c8e026b7cc6c78a",
+        "observedAt": "2026-10-14T08:49:12.320Z"
+      },
+      {
+        "sourceId": "memory:context-78",
+        "sourceVersion": "sha256:ae4043acabf505e602e6ebf36b01bb92a00f4f8cc8bab276bd67343e3dc1b478",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-78",
+          "part": 4,
+          "parts": 5
+        },
+        "text": "up to 'Captain Hopkins' in the room overhead, with Mr. Sylvia's compliments, and I was his young friend, and would Captain Hopkins lend me a knife and fork.\n\nCaptain Hopkins lent me the knife and fork, with his compliments to Mr. Sylvia. There was a very dirty lady in his little room, and two wan girls, his daughters, with shock heads of hair. I thought it was better to borrow Captain Hopkins's knife and fork, than Captain Hopkins's comb. The Captain himself was in the last extremity of shabbiness, with large whiskers, and an old, old brown great-coat with no other coat below it. I saw his bed rolled up in a corner; and what plates and dishes and pots he had, on a shelf; and I divined (God knows how) that though the two girls with the shock heads of hair were Captain Hopkins's children, the dirty lady was not married to Captain Hopkins. My timid station on his threshold was not occupied more than a couple of minutes at most; but I came down again with all this in my knowledge, as surely as the knife and fork were in my hand.",
+        "id": "ev_2ab25b7ba9573cc40cd02ee0",
+        "observedAt": "2026-10-14T08:49:12.320Z"
+      },
+      {
+        "sourceId": "memory:context-363",
+        "sourceVersion": "sha256:baf600b5610d35be941d96820fe16adceab4e173aa8a0c5a639a11a41a08ab59",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-363",
+          "part": 5,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "These she explained to the unbounded satisfaction of the family,--children and all being then present,--and so much to the awakening of",
+        "id": "ev_bc6d8c79586bf59e9fb21811",
+        "observedAt": "2026-10-14T08:49:12.321Z"
+      },
+      {
+        "sourceId": "memory:context-116",
+        "sourceVersion": "sha256:5a8bc58ad0a6e82bbc37a5b1b07d5c5ec42fb2adaec3c348470c7d21dee66ba5",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-116",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "I had not the least belief, in the outset of this story, that the unknown was anything but a delusion of Mr. Dick's, and one o",
+        "id": "ev_2e27f89d54d9e2859cde2a40",
+        "observedAt": "2026-10-14T08:49:12.321Z"
+      }
+    ],
+    "sourceIds": [
+      "context-78",
+      "context-363",
+      "context-116"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 9.010874999999942,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Mrs. Sylvia described Mr. Dick's struggles with confidence and the role of his family in shaping his self-esteem.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.4827586206896552
+  },
+  "readerUsage": {
+    "prompt_tokens": 794,
+    "completion_tokens": 1048,
+    "total_tokens": 1842,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 526,
+    "completion_tokens": 974,
+    "total_tokens": 1500,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 971,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 29592.278083000565,
+  "judgeWallMs": 15153.632667000238
+}

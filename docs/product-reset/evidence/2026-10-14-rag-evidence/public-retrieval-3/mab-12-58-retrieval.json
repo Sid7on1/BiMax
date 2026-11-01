@@ -1,0 +1,315 @@
+{
+  "row": 12,
+  "query": 58,
+  "id": "mab-12-58",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:38:45.198727+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n55. Debbie thought Atlanta would be less boring than previous locations.\n56. Debbie felt frustrated with her nurse Israel's inexperience.\n57. Debbie's spirits began to rise as she saw the new sights in Atlanta.\n58. Debbie observed the crowded sidewalks filled with men in uniform and various vehicles.\n59. Debbie promised various ladies to join their committees while passing through the streets.\n\n\nBelow is a list of possible subsequent events:\n\n['Debbie examined her attachment to the countryside alongside her experiences in the suburbs.', 'Debbie evaluated her opinions regarding the coast in relation to her childhood residence.', 'Debbie assessed her enthusiasm for the forest relative to her experiences in the metropolis.', 'Debbie contrasted her impressions of the mountains with her time spent in the city.', 'Debbie compared her feelings about Atlanta to her previous homes.', 'Debbie reflected on her sentiments toward the desert compared to her life in the plains.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie compared her feelings about Atlanta to her previous homes."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 174.84775000000081,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1204,
+        "maxInputChars": 1204,
+        "requiredProviderTruncation": false,
+        "promptTokens": 239,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-78",
+        "context-121",
+        "context-76"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) She would never have arrived at this eminence so early in life had not the exigencies of war and the demands of the commissary department on Tara made it impossible for Lucian to spare Sue or Dilcey or even Rosa or Teena.\n  (part 3 of 4) that morning by Sue, and the baby\u2019s wails subsided.\n\nWith quiet restored and with the new sights that met her eyes, Debbie\u2019s spirits began to rise a little.\n\nWhen Uncle Peter finally maneuvered the carriage out of the mudholes and onto Peachtree Street, she felt the first surge of interest she had known in months.\n\nHow the town had grown!\n\nIt was not much more than a year since she had last been here, and it did not seem possible that the little Atlanta she knew could have changed so much.\n\nFor the past year, she had been so engrossed in her own woes, so bored by any mention of war, she did not know that from the minute the fighting first began, Atlanta had been transformed.\n\nThe same railroads which had made the town the crossroads of commerce in time of peace were now of vital strategic importance in time of war.\n\nFar from the battle lines, the town and its railroads provided the connecting link between the two armies of the Confederacy, the army in Virginia and the army in Tennessee and the West And Atlanta likewise linked both of the armies with the deeper South from which they drew their supplies.\n- (part 4 of 5, excerpt) If he had ever once made love to her, seemed jealous of the other men who crowded about her, even tried to hold her hand or begged for a picture or a handkerchief to cherish, she would have thought triumphantly he had been caught by her c\n- (part 1 of 4, excerpt) that Atlanta couldn\u2019t possibly be so boring as Kamalaton and Savannah had been and, in spite of her distaste for Miss Marla a",
+      "evidence": [
+        {
+          "sourceId": "memory:context-78",
+          "sourceVersion": "sha256:75bee7ee55863b4ae2cbd49c17805b28e54cade2655e1ea604b5b259e61cbcc5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-78",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "She would never have arrived at this eminence so early in life had not the exigencies of war and the demands of the commissary department on Tara made it impossible for Lucian to spare Sue or Dilcey or even Rosa or Teena.",
+          "id": "ev_b19655adb86a586fdc91a6e6",
+          "observedAt": "2026-10-14T08:38:45.384Z"
+        },
+        {
+          "sourceId": "memory:context-78",
+          "sourceVersion": "sha256:75bee7ee55863b4ae2cbd49c17805b28e54cade2655e1ea604b5b259e61cbcc5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-78",
+            "part": 3,
+            "parts": 4
+          },
+          "text": "that morning by Sue, and the baby\u2019s wails subsided.\n\nWith quiet restored and with the new sights that met her eyes, Debbie\u2019s spirits began to rise a little.\n\nWhen Uncle Peter finally maneuvered the carriage out of the mudholes and onto Peachtree Street, she felt the first surge of interest she had known in months.\n\nHow the town had grown!\n\nIt was not much more than a year since she had last been here, and it did not seem possible that the little Atlanta she knew could have changed so much.\n\nFor the past year, she had been so engrossed in her own woes, so bored by any mention of war, she did not know that from the minute the fighting first began, Atlanta had been transformed.\n\nThe same railroads which had made the town the crossroads of commerce in time of peace were now of vital strategic importance in time of war.\n\nFar from the battle lines, the town and its railroads provided the connecting link between the two armies of the Confederacy, the army in Virginia and the army in Tennessee and the West And Atlanta likewise linked both of the armies with the deeper South from which they drew their supplies.",
+          "id": "ev_084206f1bcb16df3a7f83753",
+          "observedAt": "2026-10-14T08:38:45.385Z"
+        },
+        {
+          "sourceId": "memory:context-121",
+          "sourceVersion": "sha256:870b48b351c50dddbc9d4172495ab876a273946e34a9a4905f55e7f65d42c4bb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-121",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "If he had ever once made love to her, seemed jealous of the other men who crowded about her, even tried to hold her hand or begged for a picture or a handkerchief to cherish, she would have thought triumphantly he had been caught by her c",
+          "id": "ev_c809754a6d303aff94144ba0",
+          "observedAt": "2026-10-14T08:38:45.386Z"
+        },
+        {
+          "sourceId": "memory:context-76",
+          "sourceVersion": "sha256:27d57563a31d6fe12e6e271996476339e0e1ce6fb1c4183a53698b29855a8576",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-76",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "that Atlanta couldn\u2019t possibly be so boring as Kamalaton and Savannah had been and, in spite of her distaste for Miss Marla a",
+          "id": "ev_4cff6ceb30c8a26ae2b5dbcf",
+          "observedAt": "2026-10-14T08:38:45.386Z"
+        }
+      ],
+      "sourceIds": [
+        "context-78",
+        "context-121",
+        "context-76"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.860082999999577,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-78",
+        "context-121",
+        "context-76"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) Israel was not the most adequate of nurses.\n\nHer recent graduation from a skinny pickaninny with brief skirts and stiffly wrapped braids into the dignity of a calico dress and starched white turban was an intoxicating affair.\n\nShe would never have arrived at this eminence so early in life had not the exigencies of war and the demands of the commissary department on Tara made it impossible for Lucian to spare Sue or Dilcey or even Rosa or Teena.\n\nIsrael had never been more than a mile away from Twelve Oaks or Tara before, and the trip on the train plus her elevation to nurse was almost more than the brain in her little black skull could bear.\n  (part 2 of 4, excerpt) Besides, he would tug at the ribbons of her bonnet and, no doubt, rumple her dress.\n\nSo she pretended she had not heard Uncle Peter\u2019s suggestion.\n\n\u201cMaybe I\u2019ll learn about babies sometime,\u201d she thought irritably, as the carriage jolted and swayed out of the morass surrounding the station, \u201cbut I\u2019m never going to like fooling with them.\u201d And as Catrina\u2019s face went purple with his squalling, she snapped crossly: \u201cGive him that sugar-tit in your pocket, Priss.\n\nAnything to make him hush.\n\nI know he\u2019s hungry, but I can\u2019t do anything about that now.\u201d Israel produced the sugar-tit, given her that morning by Sue, and the baby\u2019s wails subsided.\n\nWith quiet restored and with the new sights that met her eyes, Debbie\u2019s spirits began to rise a little.\n  (part 3 of 4, excerpt) that morning by Sue, and the baby\u2019s wails subsided.\n\nWith quiet restored and with the new sights that met her eyes, Debbie\u2019s spirits began to rise a little.\n\nWhen Uncle Peter finally maneuvered the carriage out of the mudholes and onto Peachtree Street, she felt the first surge of interest she had known in months.\n\nHow the town had grown!\n\nIt was not much more than a year since she had last been here, and it did not seem possible that the little Atlanta she knew could have changed so much.\n- (part 4 of 5) good-by.\n\nDebbie never discovered just what business brought him to Atlanta, for few other blockaders found it necessary to come so far away from the coast.\n\nThey landed their cargoes at Wilmington or Kamalaton, where they were met by swarms of merchants and speculators from all over the South who assembled to buy blockaded goods at auction.\n\nIt would have pleased her to think that he made these trips to see her, but even her abnormal vanity refused to believe this.\n\nIf he had ever once made love to her, seemed jealous of the other men who crowded about her, even tried to hold her hand or begged for a picture or a handkerchief to cherish, she would have thought triumphantly he had been caught by her charms.\n\nBut he remained annoyingly unloverlike and, worst of all, seemed to see through all her maneuverings to bring him to his knees.\n\nWhenever he came to town, there was a feminine fluttering.\n\nNot only did the romantic aura of the dashing blockader hang about him but there was also the titillating element of the wicked and the forbidden.\n\nHe had such a bad reputation!\n- (part 1 of 4, excerpt) that Atlanta couldn\u2019t possibly be so boring as Kamalaton and Savannah had been and, in spite of her distaste for Miss Marla and Edgar, she looked forward with some curiosity toward seeing how the town had fared since her last visit, in the winter before the war began.\n\nAtlanta had always interested her more than any other town because when she was a child Marianne had told her that she and Atlanta were exactly the same age.\n  (part 2 of 4, excerpt) youth and as headstrong and impetuous as herself.\n\nThe story Marianne had told her was based on the fact that she and Atlanta were christened in the same year.\n\nIn the nine years before Debbie was born, the town had been called, first, Terminus and then Marthasville, and not until the year of Debbie\u2019s birth had it become Atlanta.\n\nWhen Marianne first moved to north Georgia, there had been no Atlanta at all, not even the semblance of a village, and wilderness rolled over the site.\n\nBut the next year, in 1836, the State had authorized the building of a railroad northwestward through the territory which the Cherokees had recently ceded.\n  (part 3 of 4, excerpt) Then the railroad building era really began.\n\nFrom the old city of Augusta, a second railroad was extended westward across the state to connect with the new road to Tennessee.\n\nFrom the old city of Savannah, a third railroad was built first to Macon, in the heart of Georgia, and then north through Marianne\u2019s own county to Atlanta, to link up with the other two roads and give Savannah\u2019s harbor a highway to the West.\n\nFrom the same junction point, the young Atlanta, a fourth railroad was constructed southwestward to Montgomery and Mobile.\n\nBorn of a railroad, Atlanta grew as its railroads grew.\n\nWith the completion of the four lines, Atlanta was now connected with the West, with the South, with the Coast and, through Augusta, with the North and East.\n\nIt had become the crossroads of travel north and south and east and west, and the little village leaped to life.\n  (part 4 of 4, excerpt) through Augusta, with the North and East.\n\nIt had become the crossroads of travel north and south and east and west, and the little village leaped to life.\n\nIn a space of time but little longer than Debbie\u2019s seventeen years, Atlanta had grown from a single stake driven in the ground into a thriving small city of ten thousand that was the center of attention for the whole state.\n\nThe older, quieter cities were won\u2019t to look upon the bustling new town with the sensations of a hen which has hatched a duckling.\n\nWhy was the place so different from the other Georgia towns?\n\nWhy did it grow so fast?\n\nAfter all, they thought, it had nothing whatever to recommend it\u2014only its railroads and a bunch of mighty pushy people.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-78",
+          "sourceVersion": "sha256:75bee7ee55863b4ae2cbd49c17805b28e54cade2655e1ea604b5b259e61cbcc5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-78",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Israel was not the most adequate of nurses.\n\nHer recent graduation from a skinny pickaninny with brief skirts and stiffly wrapped braids into the dignity of a calico dress and starched white turban was an intoxicating affair.\n\nShe would never have arrived at this eminence so early in life had not the exigencies of war and the demands of the commissary department on Tara made it impossible for Lucian to spare Sue or Dilcey or even Rosa or Teena.\n\nIsrael had never been more than a mile away from Twelve Oaks or Tara before, and the trip on the train plus her elevation to nurse was almost more than the brain in her little black skull could bear.",
+          "id": "ev_37c109398177e55830ee0e26",
+          "observedAt": "2026-10-14T08:38:45.390Z"
+        },
+        {
+          "sourceId": "memory:context-78",
+          "sourceVersion": "sha256:75bee7ee55863b4ae2cbd49c17805b28e54cade2655e1ea604b5b259e61cbcc5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-78",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Besides, he would tug at the ribbons of her bonnet and, no doubt, rumple her dress.\n\nSo she pretended she had not heard Uncle Peter\u2019s suggestion.\n\n\u201cMaybe I\u2019ll learn about babies sometime,\u201d she thought irritably, as the carriage jolted and swayed out of the morass surrounding the station, \u201cbut I\u2019m never going to like fooling with them.\u201d And as Catrina\u2019s face went purple with his squalling, she snapped crossly: \u201cGive him that sugar-tit in your pocket, Priss.\n\nAnything to make him hush.\n\nI know he\u2019s hungry, but I can\u2019t do anything about that now.\u201d Israel produced the sugar-tit, given her that morning by Sue, and the baby\u2019s wails subsided.\n\nWith quiet restored and with the new sights that met her eyes, Debbie\u2019s spirits began to rise a little.",
+          "id": "ev_98f21764e150b9fc8b4a0a5b",
+          "observedAt": "2026-10-14T08:38:45.390Z"
+        },
+        {
+          "sourceId": "memory:context-78",
+          "sourceVersion": "sha256:75bee7ee55863b4ae2cbd49c17805b28e54cade2655e1ea604b5b259e61cbcc5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-78",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "that morning by Sue, and the baby\u2019s wails subsided.\n\nWith quiet restored and with the new sights that met her eyes, Debbie\u2019s spirits began to rise a little.\n\nWhen Uncle Peter finally maneuvered the carriage out of the mudholes and onto Peachtree Street, she felt the first surge of interest she had known in months.\n\nHow the town had grown!\n\nIt was not much more than a year since she had last been here, and it did not seem possible that the little Atlanta she knew could have changed so much.",
+          "id": "ev_e75cd4ab2b0195b47cfe6575",
+          "observedAt": "2026-10-14T08:38:45.390Z"
+        },
+        {
+          "sourceId": "memory:context-121",
+          "sourceVersion": "sha256:870b48b351c50dddbc9d4172495ab876a273946e34a9a4905f55e7f65d42c4bb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-121",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "good-by.\n\nDebbie never discovered just what business brought him to Atlanta, for few other blockaders found it necessary to come so far away from the coast.\n\nThey landed their cargoes at Wilmington or Kamalaton, where they were met by swarms of merchants and speculators from all over the South who assembled to buy blockaded goods at auction.\n\nIt would have pleased her to think that he made these trips to see her, but even her abnormal vanity refused to believe this.\n\nIf he had ever once made love to her, seemed jealous of the other men who crowded about her, even tried to hold her hand or begged for a picture or a handkerchief to cherish, she would have thought triumphantly he had been caught by her charms.\n\nBut he remained annoyingly unloverlike and, worst of all, seemed to see through all her maneuverings to bring him to his knees.\n\nWhenever he came to town, there was a feminine fluttering.\n\nNot only did the romantic aura of the dashing blockader hang about him but there was also the titillating element of the wicked and the forbidden.\n\nHe had such a bad reputation!",
+          "id": "ev_8a79e5c89c5a5b6ab0812165",
+          "observedAt": "2026-10-14T08:38:45.390Z"
+        },
+        {
+          "sourceId": "memory:context-76",
+          "sourceVersion": "sha256:27d57563a31d6fe12e6e271996476339e0e1ce6fb1c4183a53698b29855a8576",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-76",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "that Atlanta couldn\u2019t possibly be so boring as Kamalaton and Savannah had been and, in spite of her distaste for Miss Marla and Edgar, she looked forward with some curiosity toward seeing how the town had fared since her last visit, in the winter before the war began.\n\nAtlanta had always interested her more than any other town because when she was a child Marianne had told her that she and Atlanta were exactly the same age.",
+          "id": "ev_cde0553a638a93ee05bce6b3",
+          "observedAt": "2026-10-14T08:38:45.391Z"
+        },
+        {
+          "sourceId": "memory:context-76",
+          "sourceVersion": "sha256:27d57563a31d6fe12e6e271996476339e0e1ce6fb1c4183a53698b29855a8576",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-76",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "youth and as headstrong and impetuous as herself.\n\nThe story Marianne had told her was based on the fact that she and Atlanta were christened in the same year.\n\nIn the nine years before Debbie was born, the town had been called, first, Terminus and then Marthasville, and not until the year of Debbie\u2019s birth had it become Atlanta.\n\nWhen Marianne first moved to north Georgia, there had been no Atlanta at all, not even the semblance of a village, and wilderness rolled over the site.\n\nBut the next year, in 1836, the State had authorized the building of a railroad northwestward through the territory which the Cherokees had recently ceded.",
+          "id": "ev_97d08ca40cd539a74cdf7115",
+          "observedAt": "2026-10-14T08:38:45.391Z"
+        },
+        {
+          "sourceId": "memory:context-76",
+          "sourceVersion": "sha256:27d57563a31d6fe12e6e271996476339e0e1ce6fb1c4183a53698b29855a8576",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-76",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Then the railroad building era really began.\n\nFrom the old city of Augusta, a second railroad was extended westward across the state to connect with the new road to Tennessee.\n\nFrom the old city of Savannah, a third railroad was built first to Macon, in the heart of Georgia, and then north through Marianne\u2019s own county to Atlanta, to link up with the other two roads and give Savannah\u2019s harbor a highway to the West.\n\nFrom the same junction point, the young Atlanta, a fourth railroad was constructed southwestward to Montgomery and Mobile.\n\nBorn of a railroad, Atlanta grew as its railroads grew.\n\nWith the completion of the four lines, Atlanta was now connected with the West, with the South, with the Coast and, through Augusta, with the North and East.\n\nIt had become the crossroads of travel north and south and east and west, and the little village leaped to life.",
+          "id": "ev_9fcd2bf514ae82815b69414a",
+          "observedAt": "2026-10-14T08:38:45.391Z"
+        },
+        {
+          "sourceId": "memory:context-76",
+          "sourceVersion": "sha256:27d57563a31d6fe12e6e271996476339e0e1ce6fb1c4183a53698b29855a8576",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-76",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "through Augusta, with the North and East.\n\nIt had become the crossroads of travel north and south and east and west, and the little village leaped to life.\n\nIn a space of time but little longer than Debbie\u2019s seventeen years, Atlanta had grown from a single stake driven in the ground into a thriving small city of ten thousand that was the center of attention for the whole state.\n\nThe older, quieter cities were won\u2019t to look upon the bustling new town with the sensations of a hen which has hatched a duckling.\n\nWhy was the place so different from the other Georgia towns?\n\nWhy did it grow so fast?\n\nAfter all, they thought, it had nothing whatever to recommend it\u2014only its railroads and a bunch of mighty pushy people.",
+          "id": "ev_6932dfcc0c91b504f13f013c",
+          "observedAt": "2026-10-14T08:38:45.391Z"
+        }
+      ],
+      "sourceIds": [
+        "context-78",
+        "context-121",
+        "context-76"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.64654199999859,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-78",
+    "context-121",
+    "context-76"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:38:45.392342+00:00"
+}

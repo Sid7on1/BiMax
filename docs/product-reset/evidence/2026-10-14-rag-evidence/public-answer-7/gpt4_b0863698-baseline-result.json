@@ -1,0 +1,164 @@
+{
+  "row": 281,
+  "id": "gpt4_b0863698",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T08:50:25.540037+00:00",
+  "valid": true,
+  "question": "How many days ago did I participate in the 5K charity run?",
+  "references": [
+    "7 days ago. 8 days (including the last day) is also acceptable."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/03/26 (Sun) 04:13",
+  "benchmarkSessionIds": [
+    "91e581ad_3",
+    "answer_550bb2d1_1",
+    "4a79d078_2"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:51:10.251487+00:00",
+  "rag": {
+    "ids": [
+      "91e581ad_3",
+      "answer_550bb2d1_1",
+      "4a79d078_2"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 8 of 20) 7.\n\n**Event schedule and timeline**: Create a schedule or timeline for the event, including check-in times, start times, and post-event activities.\n\n8.\n\n**Sponsor and partner recognition**: Acknowledge and thank your sponsors and partners by adding their logos or names to the event page.\n\n9.\n\n**Updates and posts**: Regularly post updates, behind-the-scenes content, and reminders to keep the event top of mind and build excitement.\n\n10.\n\n**Encourage sharing and inviting**: Add a section that encourages people to share the event with their friends and family, and invite others to join.\n\nHere's an example of a well-structured Facebook event page:\n\n[Header Image: A photo of a person running with a charity logo overlay]\n\n**Event Name:** Run for Hope: Charity 5K Run/Walk\n\n**Event Type:** Charity Run/Walk\n\n**Date:** Saturday, March 12, 2023\n\n**Time:** 8:00 AM - 11:00 AM\n\n**Location:** Downtown Park, [City]\n\n**Description:** Join us for our annual charity 5K run/walk to support cancer research and awareness! All proceeds will go towards funding life-saving research and supporting families affected by cancer.\n\n**Header Video:** A short video showcasing the charity's work and impact\n  (part 9 of 20, excerpt) **Donation Link:** [JustGiving link]\n\n**Schedule:**\n\n* 7:00 AM - Check-in and registration\n* 8:00 AM - Start of the 5K run/walk\n* 10:00 AM - Post-event celebration and awards\n\n**Sponsors:** [List of sponsors with logos]\n- (part 1 of 16, excerpt) user: I'm looking for some new running routes in my area. I just got back into running and did a 5K charity run today, finishing in 27 minutes and 12 seconds, which wa\n- (part 1 of 20, excerpt) user: I'm planning to participate in a charity bike ride next month and I was wondering if you could help me find some tips",
+    "evidence": [
+      {
+        "sourceId": "memory:91e581ad_3",
+        "sourceVersion": "sha256:1c529c97291606c8f2fddcfe40d144729730756afe08b6363406f113fc3375ec",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "91e581ad_3",
+          "part": 8,
+          "parts": 20
+        },
+        "text": "7.\n\n**Event schedule and timeline**: Create a schedule or timeline for the event, including check-in times, start times, and post-event activities.\n\n8.\n\n**Sponsor and partner recognition**: Acknowledge and thank your sponsors and partners by adding their logos or names to the event page.\n\n9.\n\n**Updates and posts**: Regularly post updates, behind-the-scenes content, and reminders to keep the event top of mind and build excitement.\n\n10.\n\n**Encourage sharing and inviting**: Add a section that encourages people to share the event with their friends and family, and invite others to join.\n\nHere's an example of a well-structured Facebook event page:\n\n[Header Image: A photo of a person running with a charity logo overlay]\n\n**Event Name:** Run for Hope: Charity 5K Run/Walk\n\n**Event Type:** Charity Run/Walk\n\n**Date:** Saturday, March 12, 2023\n\n**Time:** 8:00 AM - 11:00 AM\n\n**Location:** Downtown Park, [City]\n\n**Description:** Join us for our annual charity 5K run/walk to support cancer research and awareness! All proceeds will go towards funding life-saving research and supporting families affected by cancer.\n\n**Header Video:** A short video showcasing the charity's work and impact",
+        "id": "ev_ca4f2bbf8e004199a7a75286",
+        "observedAt": "2026-10-14T08:42:30.041Z"
+      },
+      {
+        "sourceId": "memory:91e581ad_3",
+        "sourceVersion": "sha256:1c529c97291606c8f2fddcfe40d144729730756afe08b6363406f113fc3375ec",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "91e581ad_3",
+          "part": 9,
+          "parts": 20,
+          "partial": true
+        },
+        "text": "**Donation Link:** [JustGiving link]\n\n**Schedule:**\n\n* 7:00 AM - Check-in and registration\n* 8:00 AM - Start of the 5K run/walk\n* 10:00 AM - Post-event celebration and awards\n\n**Sponsors:** [List of sponsors with logos]",
+        "id": "ev_91a9fcc1fef42f17c9c51aa9",
+        "observedAt": "2026-10-14T08:42:30.042Z"
+      },
+      {
+        "sourceId": "memory:answer_550bb2d1_1",
+        "sourceVersion": "sha256:10553a6d20f690fc21c39a5d3cb3f1969e385a0fcfc2f039dcf7dfb694ee03d6",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_550bb2d1_1",
+          "part": 1,
+          "parts": 16,
+          "partial": true
+        },
+        "text": "user: I'm looking for some new running routes in my area. I just got back into running and did a 5K charity run today, finishing in 27 minutes and 12 seconds, which wa",
+        "id": "ev_fcc49d823e1a56cb2f35c91a",
+        "observedAt": "2026-10-14T08:42:30.042Z"
+      },
+      {
+        "sourceId": "memory:4a79d078_2",
+        "sourceVersion": "sha256:dd58eba8ff0083504fe0049ce87ec8ecb00463f5c5d6a2475b226ea43d8d231b",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "4a79d078_2",
+          "part": 1,
+          "parts": 20,
+          "partial": true
+        },
+        "text": "user: I'm planning to participate in a charity bike ride next month and I was wondering if you could help me find some tips",
+        "id": "ev_f6d29d1e47acb3605b060479",
+        "observedAt": "2026-10-14T08:42:30.042Z"
+      }
+    ],
+    "sourceIds": [
+      "91e581ad_3",
+      "answer_550bb2d1_1",
+      "4a79d078_2"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 18.98504200000025,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "I do not know. The retrieved history does not contain any record of your participation in a 5K charity run or the date it occurred.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 590,
+    "completion_tokens": 787,
+    "total_tokens": 1377,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 756,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 416,
+    "completion_tokens": 1026,
+    "total_tokens": 1442,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 11733.725624999352,
+  "judgeWallMs": 13625.853708999784
+}

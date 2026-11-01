@@ -1,0 +1,106 @@
+{
+  "scope": "installed native/provider owned fixture; not WhatsApp qualification",
+  "installedSha256": "851a53e63c4d85a67764111677ef5528f6e8fb8173f87bb4a2a9c0e2a8291af4",
+  "threadId": "075c85d8-10b7-4c1f-8fea-de4eae3a477f",
+  "model": "gpt-oss-20b",
+  "effort": "Low",
+  "status": "idle",
+  "calls": [
+    {
+      "id": "chatcmpl-tool-901bc90507846f2a",
+      "toolName": "BimaxCuTool",
+      "input": "{\"operation\":\"apps\"}",
+      "output": "{\"apps\": [{\"pid\": 89381, \"name\": \"Messaging Proof\", \"bundle_id\": \"org.cu.proof.whatsapp-fixture\", \"frontmost\": false, \"hidden\": false}], \"otherAppsRedacted\": 4}",
+      "status": "success",
+      "startTime": "2026-10-11T09:50:01.783Z",
+      "endTime": "2026-10-11T09:50:02.013Z"
+    },
+    {
+      "id": "chatcmpl-tool-b9bdbd876fc3cc94",
+      "toolName": "BimaxCuTool",
+      "input": "{\"operation\":\"windows\",\"pid\":89381}",
+      "output": "{\n  \"windows\": [\n    {\n      \"window_id\": 862,\n      \"title\": \"\",\n      \"on_screen\": true,\n      \"bounds\": {\n        \"x\": 505,\n        \"y\": 159,\n        \"width\": 460,\n        \"height\": 362\n      }\n    },\n    {\n      \"window_id\": 867,\n      \"title\": \"Window\",\n      \"on_screen\": false,\n      \"bounds\": {\n        \"x\": 511,\n        \"y\": 165,\n        \"width\": 66,\n        \"height\": 20\n      }\n    }\n  ]\n}",
+      "status": "success",
+      "startTime": "2026-10-11T09:50:12.949Z",
+      "endTime": "2026-10-11T09:50:25.901Z"
+    },
+    {
+      "id": "chatcmpl-tool-8115e8116f3ae1b9",
+      "toolName": "BimaxCuTool",
+      "input": "{\"operation\":\"observe\",\"pid\":89381,\"window_id\":862}",
+      "output": "{\n  \"snapshot\": \"836443e0-70ad-4ae8-a508-3b6f7e98a3f2:s1\",\n  \"pid\": 89381,\n  \"window_id\": 862,\n  \"application\": \"Messaging Proof\",\n  \"window\": \"Safe Messaging Proof\",\n  \"elements\": [\n    {\n      \"id\": \"ax_1\",\n      \"role\": \"Window\",\n      \"name\": \"Safe Messaging Proof\"\n    },\n    {\n      \"id\": \"ax_2\",\n      \"role\": \"StaticText\",\n      \"name\": \"Conversation\",\n      \"value\": \"Mom demo\",\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_4\",\n      \"role\": \"StaticText\",\n      \"name\": \"Outgoing message\",\n      \"value\": \"hi\",\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_5\",\n      \"role\": \"Unknown\",\n      \"name\": \"Message\",\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_6\",\n      \"role\": \"TextField\",\n      \"name\": \"Message\",\n      \"actions\": [\n        \"CLICK\",\n        \"RIGHT_CLICK\",\n        \"TYPE_TEXT\",\n        \"SET_VALUE\"\n      ],\n      \"focused\": true,\n      \"parent\": \"ax_5\"\n    },\n    {\n      \"id\": \"ax_7\",\n      \"role\": \"Unknown\",\n      \"name\": \"Send\",\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_8\",\n      \"role\": \"Button\",\n      \"name\": \"Send\",\n      \"actions\": [\n        \"CLICK\"\n      ],\n      \"parent\": \"ax_7\"\n    },\n    {\n      \"id\": \"ax_9\",\n      \"role\": \"Unknown\",\n      \"name\": \"Other demo\",\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_10\",\n      \"role\": \"Button\",\n      \"name\": \"Other demo\",\n      \"actions\": [\n        \"CLICK\"\n      ],\n      \"parent\": \"ax_9\"\n    },\n    {\n      \"id\": \"ax_11\",\n      \"role\": \"Button\",\n      \"actions\": [\n        \"CLICK\"\n      ],\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_12\",\n      \"role\": \"Button\",\n      \"actions\": [\n        \"CLICK\",\n        \"RIGHT_CLICK\"\n      ],\n      \"enabled\": false,\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_13\",\n      \"role\": \"Group\",\n      \"parent\": \"ax_12\"\n    },\n    {\n      \"id\": \"ax_14\",\n      \"role\": \"Button\",\n      \"actions\": [\n        \"CLICK\"\n      ],\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_15\",\n      \"role\": \"StaticText\",\n      \"value\": \"Safe Messaging Proof\",\n      \"parent\": \"ax_1\"\n    }\n  ]\n}",
+      "status": "success",
+      "startTime": "2026-10-11T09:50:31.796Z",
+      "endTime": "2026-10-11T09:50:31.854Z"
+    },
+    {
+      "id": "chatcmpl-tool-9dccb64570afeac6",
+      "toolName": "BimaxCuTool",
+      "input": "{\"operation\":\"workflow\",\"pid\":89381,\"window_id\":862,\"steps\":[{\"action\":\"SET_VALUE\",\"control\":\"Message\",\"role\":\"TextField\",\"value\":\"hi\"},{\"action\":\"SEND_MESSAGE\",\"control\":\"Send\",\"role\":\"Button\",\"message\":{\"recipient\":{\"control\":\"Conversation\",\"role\":\"StaticText\",\"value\":\"Mom demo\"},\"draft\":{\"control\":\"Message\",\"role\":\"TextField\",\"value\":\"hi\"},\"outgoing\":{\"control\":\"Outgoing message\",\"role\":\"StaticText\",\"value\":\"hi\"}}}]}",
+      "output": "{\n  \"ok\": true,\n  \"driver\": \"Bimax CU\",\n  \"operation\": \"workflow\",\n  \"verified\": true,\n  \"verification\": \"exact\",\n  \"messageVerification\": {\n    \"recipient\": \"Mom demo\",\n    \"text\": \"hi\",\n    \"beforeCount\": 1,\n    \"afterCount\": 2,\n    \"outcome\": \"observed-outgoing\",\n    \"delivery\": \"unconfirmed\",\n    \"beforeSnapshot\": \"836443e0-70ad-4ae8-a508-3b6f7e98a3f2:s7\",\n    \"afterSnapshot\": \"836443e0-70ad-4ae8-a508-3b6f7e98a3f2:s10\"\n  },\n  \"mode\": \"do\",\n  \"completed\": [\n    {\n      \"index\": 0,\n      \"action\": \"SET_VALUE\",\n      \"control\": \"Message\",\n      \"verified\": true,\n      \"input\": true\n    },\n    {\n      \"index\": 1,\n      \"action\": \"SEND_MESSAGE\",\n      \"control\": \"Send\",\n      \"verified\": true,\n      \"input\": true\n    }\n  ],\n  \"attempted\": [\n    {\n      \"index\": 0,\n      \"action\": \"SET_VALUE\",\n      \"control\": \"Message\",\n      \"inputStatus\": \"done\"\n    },\n    {\n      \"index\": 1,\n      \"action\": \"SEND_MESSAGE\",\n      \"control\": \"Send\",\n      \"inputStatus\": \"done\"\n    }\n  ],\n  \"completedCount\": 2,\n  \"final\": {\n    \"snapshot\": \"836443e0-70ad-4ae8-a508-3b6f7e98a3f2:s10\",\n    \"pid\": 89381,\n    \"window_id\": 862,\n    \"application\": \"Messaging Proof\",\n    \"window\": \"Safe Messaging Proof\",\n    \"elements\": [\n      {\n        \"id\": \"ax_1\",\n        \"role\": \"Window\",\n        \"name\": \"Safe Messaging Proof\"\n      },\n      {\n        \"id\": \"ax_2\",\n        \"role\": \"StaticText\",\n        \"name\": \"Conversation\",\n        \"value\": \"Mom demo\",\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_19\",\n        \"role\": \"StaticText\",\n        \"name\": \"Outgoing message\",\n        \"value\": \"hi\",\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_20\",\n        \"role\": \"StaticText\",\n        \"name\": \"Outgoing message\",\n        \"value\": \"hi\",\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_5\",\n        \"role\": \"Unknown\",\n        \"name\": \"Message\",\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_6\",\n        \"role\": \"TextField\",\n        \"name\": \"Message\",\n        \"actions\": [\n          \"CLICK\",\n          \"RIGHT_CLICK\",\n          \"TYPE_TEXT\",\n          \"SET_VALUE\"\n        ],\n        \"focused\": true,\n        \"parent\": \"ax_5\"\n      },\n      {\n        \"id\": \"ax_7\",\n        \"role\": \"Unknown\",\n        \"name\": \"Send\",\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_8\",\n        \"role\": \"Button\",\n        \"name\": \"Send\",\n        \"actions\": [\n          \"CLICK\"\n        ],\n        \"parent\": \"ax_7\"\n      },\n      {\n        \"id\": \"ax_9\",\n        \"role\": \"Unknown\",\n        \"name\": \"Other demo\",\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_10\",\n        \"role\": \"Button\",\n        \"name\": \"Other demo\",\n        \"actions\": [\n          \"CLICK\"\n        ],\n        \"parent\": \"ax_9\"\n      },\n      {\n        \"id\": \"ax_11\",\n        \"role\": \"Button\",\n        \"actions\": [\n          \"CLICK\"\n        ],\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_12\",\n        \"role\": \"Button\",\n        \"actions\": [\n          \"CLICK\",\n          \"RIGHT_CLICK\"\n        ],\n        \"enabled\": false,\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_17\",\n        \"role\": \"Group\",\n        \"parent\": \"ax_12\"\n      },\n      {\n        \"id\": \"ax_18\",\n        \"role\": \"Group\",\n        \"parent\": \"ax_17\"\n      },\n      {\n        \"id\": \"ax_14\",\n        \"role\": \"Button\",\n        \"actions\": [\n          \"CLICK\"\n        ],\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_15\",\n        \"role\": \"StaticText\",\n        \"value\": \"Safe Messaging Proof\",\n        \"parent\": \"ax_1\"\n      }\n    ]\n  }\n}",
+      "status": "success",
+      "startTime": "2026-10-11T09:50:54.417Z",
+      "endTime": "2026-10-11T09:53:28.840Z"
+    }
+  ],
+  "before": {
+    "draft": "",
+    "messages": [
+      {
+        "id": "old-mom",
+        "recipient": "Mom demo",
+        "text": "hi"
+      },
+      {
+        "id": "old-other",
+        "recipient": "Other demo",
+        "text": "do not change"
+      }
+    ],
+    "recipient": "Mom demo",
+    "sends": 0
+  },
+  "after": {
+    "draft": "",
+    "messages": [
+      {
+        "id": "old-mom",
+        "recipient": "Mom demo",
+        "text": "hi"
+      },
+      {
+        "id": "old-other",
+        "recipient": "Other demo",
+        "text": "do not change"
+      },
+      {
+        "id": "new-1",
+        "recipient": "Mom demo",
+        "text": "hi"
+      }
+    ],
+    "recipient": "Mom demo",
+    "sends": 1
+  },
+  "inputs": [],
+  "assistantMessages": [
+    {
+      "id": "msg-1791712139051-ljk0f",
+      "role": "user",
+      "content": "@CU In Messaging Proof, send exactly one \"hi\" to the already selected Mom demo conversation. This is the local safe fixture. Verify the intended recipient, one new outgoing message despite the identical old message, and the cleared draft using a SEND_MESSAGE workflow. Do not touch Other demo.",
+      "timestamp": "2026-10-11T09:48:59.051Z"
+    },
+    {
+      "id": "msg-1791712411017-yflnw",
+      "role": "assistant",
+      "content": "The message \u201chi\u201d was sent to the \u201cMom demo\u201d conversation in the Messaging Proof app. One new outgoing \u201chi\u201d appears and the draft is cleared, confirming the SEND_MESSAGE workflow succeeded. No other demo was touched. Task complete.",
+      "timestamp": "2026-10-11T09:53:31.017Z"
+    }
+  ],
+  "humanInterventions": 2,
+  "controlledInterruption": "Pause then Resume before first input",
+  "approvalPrompts": 5,
+  "approvalAllows": 4,
+  "approvalDetailsReviewed": true,
+  "stateFileModifiedAfterStart": true
+}

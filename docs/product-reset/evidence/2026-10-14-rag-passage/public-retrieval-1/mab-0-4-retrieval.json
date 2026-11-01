@@ -1,0 +1,276 @@
+{
+  "row": 0,
+  "query": 4,
+  "id": "mab-0-4",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:18:05.316768+00:00",
+  "valid": true,
+  "question": "What century did the Normans first gain their separate identity?",
+  "references": [
+    "10th century",
+    "the first half of the 10th century",
+    "10th",
+    "10th"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 17.8014169999999,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 64,
+        "maxInputChars": 64,
+        "requiredProviderTruncation": false,
+        "promptTokens": 14,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-112",
+        "context-238",
+        "context-227"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) at the StubHub Center and were local rivals. However, Chivas were suspended following the 2014 MLS season, with a second MLS team scheduled to return in 2018.\n\nDocument 568:\nThe Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Francia. The distinct cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.\n  (part 4 of 5, excerpt) cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.\n\nDocument 569:\n- (part 2 of 5, excerpt) In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief\n- (part 4 of 5, excerpt) Subsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons,",
+      "evidence": [
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:9fe9625a5a6bc47e5f39651d02c26d51137bab1df75360a70aac3596b7a3ffee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "at the StubHub Center and were local rivals. However, Chivas were suspended following the 2014 MLS season, with a second MLS team scheduled to return in 2018.\n\nDocument 568:\nThe Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Francia. The distinct cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.",
+          "id": "ev_e99db2cce3b5dfbde4549790",
+          "observedAt": "2026-10-14T15:18:05.338Z"
+        },
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:9fe9625a5a6bc47e5f39651d02c26d51137bab1df75360a70aac3596b7a3ffee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.\n\nDocument 569:",
+          "id": "ev_167f09761df0d2dfd66024ef",
+          "observedAt": "2026-10-14T15:18:05.338Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief",
+          "id": "ev_6358e5e990502464793b3500",
+          "observedAt": "2026-10-14T15:18:05.338Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Subsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons,",
+          "id": "ev_3abb53b918585a2356d4024f",
+          "observedAt": "2026-10-14T15:18:05.338Z"
+        }
+      ],
+      "sourceIds": [
+        "context-112",
+        "context-238",
+        "context-227"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.07491600000003,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-112",
+        "context-238",
+        "context-227"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) at the StubHub Center and were local rivals. However, Chivas were suspended following the 2014 MLS season, with a second MLS team scheduled to return in 2018.\n\nDocument 568:\nThe Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Francia. The distinct cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.\n  (part 4 of 5, excerpt) cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.\n\nDocument 569:\n- (part 1 of 5) ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture and musical traditions, and for their significant military accomplishments and innovations. Norman adventurers founded the Kingdom of Sicily under Roger II after conquering southern Italy on the Saracens and Byzantines, and an expedition on behalf of their duke, William the Conqueror, led to the Norman conquest of England at the Battle of Hastings in 1066. Norman cultural and military influence spread from these new European centres to the Crusader states of the Near East, where their prince Bohemond I founded the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n  (part 2 of 5) the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n\nDocument 1193:\nIn the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"renaissance\" of Norman art and scholarship were Mont-Saint-Michel, F\u00e9camp, Jumi\u00e8ges, Bec, Saint-Ouen, Saint-Evroul, and Saint-Wandrille. These centres were in contact with the so-called \"Winchester school\", which channeled a pure Carolingian artistic tradition to Normandy. In the final decade of the 11th and first of the 12th century, Normandy experienced a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.\n- (part 4 of 5) light. This insight united the nascent fields of electromagnetic theory with optics and led directly to a complete description of the electromagnetic spectrum.\n\nDocument 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n  (part 5 of 5) Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n\nDocument 1141:\nIn 2014, economists with the Standard & Poor's rating agency concluded that the widening disparity between the U.S.'s wealthiest citizens and the rest of the nation had slowed its recovery from the 2008-2009 recession and made it more prone to boom-and-bust cycles. To partially remedy the wealth gap and the resulting slow growth, S&P recommended increasing access to education. It estimated that if the average United States worker had completed just",
+      "evidence": [
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:9fe9625a5a6bc47e5f39651d02c26d51137bab1df75360a70aac3596b7a3ffee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "at the StubHub Center and were local rivals. However, Chivas were suspended following the 2014 MLS season, with a second MLS team scheduled to return in 2018.\n\nDocument 568:\nThe Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Francia. The distinct cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.",
+          "id": "ev_e99db2cce3b5dfbde4549790",
+          "observedAt": "2026-10-14T15:18:05.343Z"
+        },
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:9fe9625a5a6bc47e5f39651d02c26d51137bab1df75360a70aac3596b7a3ffee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.\n\nDocument 569:",
+          "id": "ev_167f09761df0d2dfd66024ef",
+          "observedAt": "2026-10-14T15:18:05.343Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture and musical traditions, and for their significant military accomplishments and innovations. Norman adventurers founded the Kingdom of Sicily under Roger II after conquering southern Italy on the Saracens and Byzantines, and an expedition on behalf of their duke, William the Conqueror, led to the Norman conquest of England at the Battle of Hastings in 1066. Norman cultural and military influence spread from these new European centres to the Crusader states of the Near East, where their prince Bohemond I founded the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.",
+          "id": "ev_1664e9ae72dd2ec51b485949",
+          "observedAt": "2026-10-14T15:18:05.343Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n\nDocument 1193:\nIn the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"renaissance\" of Norman art and scholarship were Mont-Saint-Michel, F\u00e9camp, Jumi\u00e8ges, Bec, Saint-Ouen, Saint-Evroul, and Saint-Wandrille. These centres were in contact with the so-called \"Winchester school\", which channeled a pure Carolingian artistic tradition to Normandy. In the final decade of the 11th and first of the 12th century, Normandy experienced a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.",
+          "id": "ev_67ccc53433eaadaa83674ec1",
+          "observedAt": "2026-10-14T15:18:05.343Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "light. This insight united the nascent fields of electromagnetic theory with optics and led directly to a complete description of the electromagnetic spectrum.\n\nDocument 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.",
+          "id": "ev_4575747702d68363dfe23992",
+          "observedAt": "2026-10-14T15:18:05.343Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n\nDocument 1141:\nIn 2014, economists with the Standard & Poor's rating agency concluded that the widening disparity between the U.S.'s wealthiest citizens and the rest of the nation had slowed its recovery from the 2008-2009 recession and made it more prone to boom-and-bust cycles. To partially remedy the wealth gap and the resulting slow growth, S&P recommended increasing access to education. It estimated that if the average United States worker had completed just",
+          "id": "ev_f562a36d99d0f12f9304dc3a",
+          "observedAt": "2026-10-14T15:18:05.343Z"
+        }
+      ],
+      "sourceIds": [
+        "context-112",
+        "context-238",
+        "context-227"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.196833000000197,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-112",
+    "context-238",
+    "context-227"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T15:18:05.345377+00:00"
+}

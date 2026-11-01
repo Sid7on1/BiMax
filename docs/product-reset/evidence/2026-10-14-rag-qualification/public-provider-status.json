@@ -1,0 +1,766 @@
+{
+  "at": "2026-10-14T05:14:08.643031+00:00",
+  "reader": "openai/gpt-oss-20b",
+  "judge": "openai/gpt-oss-20b",
+  "benchmarkQuestionsAnswered": 0,
+  "latestQualification": "blocked: four 90-second read timeouts on a required independent control",
+  "providerAttempts": 94,
+  "validTransportCompletions": 70,
+  "invalidAttempts": 24,
+  "attempts": [
+    {
+      "file": "public-preflight-8/judge-control-exact-attempt-0.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90079.48779100116,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-8/judge-control-exact-attempt-1.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90118.29074999696,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-8/judge-control-exact-attempt-2.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90087.00233299896,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-8/judge-control-exact-attempt-3.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90136.71737500408,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-exact-attempt-0.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90094.83566699782,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-exact-attempt-1.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90158.70583299693,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-exact-attempt-2.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 4833.521250002377,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-missing-attempt-0.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90005.7551669961,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-missing-attempt-1.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 14881.810250000854,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-paraphrase-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 6915.646708002896,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-partial-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 17395.686250005383,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-right-target-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 3160.087458003545,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-temporal-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 6925.710708004772,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-temporal-wrong-attempt-0.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90005.99587500619,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-temporal-wrong-attempt-1.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90134.27316600428,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-temporal-wrong-attempt-2.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90151.21870800067,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-temporal-wrong-attempt-3.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90127.83029099955,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-wrong-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 68973.11695800454,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-wrong-target-attempt-0.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90005.92379199952,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-wrong-target-attempt-1.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90175.8426669985,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-wrong-target-attempt-2.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 6606.908499998099,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-wrong-target-reversed-attempt-0.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90007.56600000022,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-wrong-target-reversed-attempt-1.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90136.06766700104,
+      "judge": true
+    },
+    {
+      "file": "public-preflight-9/judge-control-wrong-target-reversed-attempt-2.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 2366.869666999264,
+      "judge": true
+    },
+    {
+      "file": "public-run-1/judge-control-abstain-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 3109.08329099766,
+      "judge": true
+    },
+    {
+      "file": "public-run-1/judge-control-exact-attempt-0.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90604.28583400062,
+      "judge": true
+    },
+    {
+      "file": "public-run-1/judge-control-exact-attempt-1.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 2188.6291670016362,
+      "judge": true
+    },
+    {
+      "file": "public-run-1/judge-control-injection-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1681.8790409961366,
+      "judge": true
+    },
+    {
+      "file": "public-run-1/judge-control-invented-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1596.105415999773,
+      "judge": true
+    },
+    {
+      "file": "public-run-1/judge-control-missing-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1486.3172080004006,
+      "judge": true
+    },
+    {
+      "file": "public-run-1/judge-control-paraphrase-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1594.1723749929224,
+      "judge": true
+    },
+    {
+      "file": "public-run-1/judge-control-partial-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 31761.279750004178,
+      "judge": true
+    },
+    {
+      "file": "public-run-1/judge-control-temporal-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 2280.445875003352,
+      "judge": true
+    },
+    {
+      "file": "public-run-1/judge-control-updated-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1801.3114580026013,
+      "judge": true
+    },
+    {
+      "file": "public-run-1/judge-control-wrong-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 2127.66091600497,
+      "judge": true
+    },
+    {
+      "file": "public-run-1/judge-control-wrong-target-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 3678.18895799428,
+      "judge": true
+    },
+    {
+      "file": "public-run-2/judge-control-exact-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 12026.197833001788,
+      "judge": true
+    },
+    {
+      "file": "public-run-2/judge-control-missing-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 13610.63912499958,
+      "judge": true
+    },
+    {
+      "file": "public-run-2/judge-control-paraphrase-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 9722.34450000542,
+      "judge": true
+    },
+    {
+      "file": "public-run-2/judge-control-partial-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 8455.79766699666,
+      "judge": true
+    },
+    {
+      "file": "public-run-2/judge-control-wrong-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 5369.6821670018835,
+      "judge": true
+    },
+    {
+      "file": "public-run-2/judge-control-wrong-target-attempt-0.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90117.57866699918,
+      "judge": true
+    },
+    {
+      "file": "public-run-3/judge-control-exact-attempt-0.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90156.15983300086,
+      "judge": true
+    },
+    {
+      "file": "public-run-3/judge-control-exact-attempt-1.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90084.6958750044,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-abstain-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1814.378167000541,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-alternative-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1636.438667002949,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-alternative-wrong-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1758.442375001323,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-exact-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1866.4015829999698,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-injection-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1836.1223749961937,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-invented-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 894.203916999686,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-missing-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 2561.688249996223,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-paraphrase-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1713.411000004271,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-partial-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1483.3032080059638,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-temporal-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1742.4811250020866,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-temporal-wrong-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1093.326458001684,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-temporal-wrong-unit-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 2543.3995830026106,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-updated-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1255.6038330003503,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-wrong-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1387.0347079937346,
+      "judge": true
+    },
+    {
+      "file": "public-run-4/judge-control-wrong-target-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 4667.2622919941205,
+      "judge": true
+    },
+    {
+      "file": "public-run-5/judge-control-exact-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 43910.88370799844,
+      "judge": true
+    },
+    {
+      "file": "public-run-5/judge-control-missing-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1308.3090000000084,
+      "judge": true
+    },
+    {
+      "file": "public-run-5/judge-control-paraphrase-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 10071.590292005567,
+      "judge": true
+    },
+    {
+      "file": "public-run-5/judge-control-wrong-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 33517.5651669997,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-abstain-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1462.9060000006575,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-alternative-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1966.0612500010757,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-alternative-wrong-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1202.2988329990767,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-exact-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1359.5080000013695,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-injection-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1735.8117910043802,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-invented-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1325.489374998142,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-missing-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1237.160207994748,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-paraphrase-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1307.6561659981962,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-partial-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1422.3913329988136,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-temporal-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1427.7587090036832,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-temporal-wrong-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1416.2831669964362,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-temporal-wrong-unit-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1320.8284159991308,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-updated-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1017.6037499986705,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-wrong-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1506.4037909978651,
+      "judge": true
+    },
+    {
+      "file": "public-run-6/judge-control-wrong-target-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1742.640125004982,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-alternative-attempt-0.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90006.26037500479,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-alternative-attempt-1.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90083.92941700004,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-alternative-attempt-2.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90088.20816699881,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-alternative-attempt-3.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90143.23041700118,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-exact-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1211.6566660042736,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-missing-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1352.3922079984914,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-paraphrase-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1735.8411660025013,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-partial-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1020.4715830041096,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-right-target-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 3422.77316700347,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-temporal-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 6948.597750000772,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-temporal-wrong-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 4298.488957996597,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-temporal-wrong-unit-attempt-0.json",
+      "valid": false,
+      "status": null,
+      "error": "ReadTimeout",
+      "wallMs": 90024.65649999795,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-temporal-wrong-unit-attempt-1.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 64122.64237500494,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-wrong-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 2045.9310000005644,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-wrong-target-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 1589.3007080012467,
+      "judge": true
+    },
+    {
+      "file": "public-run-7/judge-control-wrong-target-reversed-attempt-0.json",
+      "valid": true,
+      "status": 200,
+      "error": null,
+      "wallMs": 2411.5397090063198,
+      "judge": true
+    }
+  ],
+  "score": null,
+  "explanation": "Control-only completions are not benchmark answers. Initial temporal/wrong-target semantic failures and subsequent transport failures remain evidence. Do not report 0% accuracy or a full-denominator benchmark result."
+}

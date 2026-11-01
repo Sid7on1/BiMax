@@ -1,0 +1,235 @@
+{
+  "row": 269,
+  "id": "gpt4_f420262c",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T04:56:10.494854+00:00",
+  "valid": true,
+  "question": "What is the order of airlines I flew with from earliest to latest before today?",
+  "references": [
+    "JetBlue, Delta, United, American Airlines"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/03/02 (Thu) 06:11",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 278.50441599999976,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 79,
+        "maxInputChars": 79,
+        "requiredProviderTruncation": false,
+        "promptTokens": 18,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_d8a1af6b_4",
+        "answer_d8a1af6b_3",
+        "answer_d8a1af6b_5"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 18) Session date: 2023/02/10 (Fri) 17:40\nuser: I'm planning a trip to Miami and I'm considering flying with American Airlines. What's their in-flight entertainment system like? By the way, I had a terrible experience with it on my flight from New York to Los Angeles today.\nassistant: Sorry to hear that you had a bad experience with American Airlines' in-flight entertainment system on your recent flight!\n\nHowever, I'm happy to provide you with information about their in-flight entertainment system to help you decide if it's suitable for your upcoming Miami trip.\n\nAmerican Airlines offers a range of in-flight entertainment options, depending on the aircraft and route. Here's an overview:\n  (part 4 of 18, excerpt) I hope this information helps, and I wish you a better experience on your upcoming Miami trip!\nuser: I'm still unsure about flying with American Airlines after my terrible experience today. Can you tell me more about their customer service, especially when it comes to flight disruptions?\nassistant: I completely understand your concerns! Customer service is a crucial aspect of any airline, and it's essential to know how they handle flight disruptions and customer issues.\n\nAmerican Airlines has a mixed reputation when it comes to customer service, but they have made efforts to improve in recent years. Here's what you can expect:\n\n**Flight Disruptions:**\n- (part 1 of 17, excerpt) user: I'm planning a trip to Miami and I'm considering flying with American Airlines or Delta. Can you compare their in-flight entertainment systems? By the way, I recently had a terrible experience with American Airlines' ente\n- (part 6 of 15, excerpt) JetBlue's seat selection process is a bit different from other airlines. When you book your ticket, you'll be assigned a sea",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_d8a1af6b_4",
+          "sourceVersion": "sha256:83a4229558858b8add37bd63fad3987fcd228c3d353e30a70d73edfd95a6509c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8a1af6b_4",
+            "part": 1,
+            "parts": 18
+          },
+          "text": "Session date: 2023/02/10 (Fri) 17:40\nuser: I'm planning a trip to Miami and I'm considering flying with American Airlines. What's their in-flight entertainment system like? By the way, I had a terrible experience with it on my flight from New York to Los Angeles today.\nassistant: Sorry to hear that you had a bad experience with American Airlines' in-flight entertainment system on your recent flight!\n\nHowever, I'm happy to provide you with information about their in-flight entertainment system to help you decide if it's suitable for your upcoming Miami trip.\n\nAmerican Airlines offers a range of in-flight entertainment options, depending on the aircraft and route. Here's an overview:",
+          "id": "ev_8e89fb018df4d892fe20ef58",
+          "observedAt": "2026-10-14T04:56:10.795Z"
+        },
+        {
+          "sourceId": "memory:answer_d8a1af6b_4",
+          "sourceVersion": "sha256:83a4229558858b8add37bd63fad3987fcd228c3d353e30a70d73edfd95a6509c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8a1af6b_4",
+            "part": 4,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "I hope this information helps, and I wish you a better experience on your upcoming Miami trip!\nuser: I'm still unsure about flying with American Airlines after my terrible experience today. Can you tell me more about their customer service, especially when it comes to flight disruptions?\nassistant: I completely understand your concerns! Customer service is a crucial aspect of any airline, and it's essential to know how they handle flight disruptions and customer issues.\n\nAmerican Airlines has a mixed reputation when it comes to customer service, but they have made efforts to improve in recent years. Here's what you can expect:\n\n**Flight Disruptions:**",
+          "id": "ev_c58be2a0f83c09dae02eecec",
+          "observedAt": "2026-10-14T04:56:10.796Z"
+        },
+        {
+          "sourceId": "memory:answer_d8a1af6b_3",
+          "sourceVersion": "sha256:10a9331188b7f1cff2e7a4298b5fd31b95e69a294972dbc1002e53a755512b29",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8a1af6b_3",
+            "part": 1,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "user: I'm planning a trip to Miami and I'm considering flying with American Airlines or Delta. Can you compare their in-flight entertainment systems? By the way, I recently had a terrible experience with American Airlines' ente",
+          "id": "ev_ac1555a8b97bdb4c1cb675bf",
+          "observedAt": "2026-10-14T04:56:10.796Z"
+        },
+        {
+          "sourceId": "memory:answer_d8a1af6b_5",
+          "sourceVersion": "sha256:11a00a7b84319848dcfe7a85ae8dbe752d30160f7598f9a6f60a91e2db9f8174",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8a1af6b_5",
+            "part": 6,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "JetBlue's seat selection process is a bit different from other airlines. When you book your ticket, you'll be assigned a sea",
+          "id": "ev_e29e09a5b731809889fc58c7",
+          "observedAt": "2026-10-14T04:56:10.797Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_d8a1af6b_4",
+        "answer_d8a1af6b_3",
+        "answer_d8a1af6b_5"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 24.850290999998833,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_d8a1af6b_4",
+        "answer_d8a1af6b_3",
+        "answer_d8a1af6b_5"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 18) Session date: 2023/02/10 (Fri) 17:40\nuser: I'm planning a trip to Miami and I'm considering flying with American Airlines. What's their in-flight entertainment system like? By the way, I had a terrible experience with it on my flight from New York to Los Angeles today.\nassistant: Sorry to hear that you had a bad experience with American Airlines' in-flight entertainment system on your recent flight!\n\nHowever, I'm happy to provide you with information about their in-flight entertainment system to help you decide if it's suitable for your upcoming Miami trip.\n\nAmerican Airlines offers a range of in-flight entertainment options, depending on the aircraft and route. Here's an overview:\n  (part 4 of 18, excerpt) I hope this information helps, and I wish you a better experience on your upcoming Miami trip!\nuser: I'm still unsure about flying with American Airlines after my terrible experience today. Can you tell me more about their customer service, especially when it comes to flight disruptions?\nassistant: I completely understand your concerns! Customer service is a crucial aspect of any airline, and it's essential to know how they handle flight disruptions and customer issues.\n\nAmerican Airlines has a mixed reputation when it comes to customer service, but they have made efforts to improve in recent years. Here's what you can expect:\n\n**Flight Disruptions:**\n- (part 1 of 17, excerpt) user: I'm planning a trip to Miami and I'm considering flying with American Airlines or Delta. Can you compare their in-flight entertainment systems? By the way, I recently had a terrible experience with American Airlines' ente\n- (part 6 of 15, excerpt) JetBlue's seat selection process is a bit different from other airlines. When you book your ticket, you'll be assigned a sea",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_d8a1af6b_4",
+          "sourceVersion": "sha256:83a4229558858b8add37bd63fad3987fcd228c3d353e30a70d73edfd95a6509c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8a1af6b_4",
+            "part": 1,
+            "parts": 18
+          },
+          "text": "Session date: 2023/02/10 (Fri) 17:40\nuser: I'm planning a trip to Miami and I'm considering flying with American Airlines. What's their in-flight entertainment system like? By the way, I had a terrible experience with it on my flight from New York to Los Angeles today.\nassistant: Sorry to hear that you had a bad experience with American Airlines' in-flight entertainment system on your recent flight!\n\nHowever, I'm happy to provide you with information about their in-flight entertainment system to help you decide if it's suitable for your upcoming Miami trip.\n\nAmerican Airlines offers a range of in-flight entertainment options, depending on the aircraft and route. Here's an overview:",
+          "id": "ev_8e89fb018df4d892fe20ef58",
+          "observedAt": "2026-10-14T04:56:10.803Z"
+        },
+        {
+          "sourceId": "memory:answer_d8a1af6b_4",
+          "sourceVersion": "sha256:83a4229558858b8add37bd63fad3987fcd228c3d353e30a70d73edfd95a6509c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8a1af6b_4",
+            "part": 4,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "I hope this information helps, and I wish you a better experience on your upcoming Miami trip!\nuser: I'm still unsure about flying with American Airlines after my terrible experience today. Can you tell me more about their customer service, especially when it comes to flight disruptions?\nassistant: I completely understand your concerns! Customer service is a crucial aspect of any airline, and it's essential to know how they handle flight disruptions and customer issues.\n\nAmerican Airlines has a mixed reputation when it comes to customer service, but they have made efforts to improve in recent years. Here's what you can expect:\n\n**Flight Disruptions:**",
+          "id": "ev_c58be2a0f83c09dae02eecec",
+          "observedAt": "2026-10-14T04:56:10.803Z"
+        },
+        {
+          "sourceId": "memory:answer_d8a1af6b_3",
+          "sourceVersion": "sha256:10a9331188b7f1cff2e7a4298b5fd31b95e69a294972dbc1002e53a755512b29",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8a1af6b_3",
+            "part": 1,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "user: I'm planning a trip to Miami and I'm considering flying with American Airlines or Delta. Can you compare their in-flight entertainment systems? By the way, I recently had a terrible experience with American Airlines' ente",
+          "id": "ev_ac1555a8b97bdb4c1cb675bf",
+          "observedAt": "2026-10-14T04:56:10.803Z"
+        },
+        {
+          "sourceId": "memory:answer_d8a1af6b_5",
+          "sourceVersion": "sha256:11a00a7b84319848dcfe7a85ae8dbe752d30160f7598f9a6f60a91e2db9f8174",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8a1af6b_5",
+            "part": 6,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "JetBlue's seat selection process is a bit different from other airlines. When you book your ticket, you'll be assigned a sea",
+          "id": "ev_e29e09a5b731809889fc58c7",
+          "observedAt": "2026-10-14T04:56:10.803Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_d8a1af6b_4",
+        "answer_d8a1af6b_3",
+        "answer_d8a1af6b_5"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.509874999999738,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 0.6,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:56:10.805893+00:00"
+}

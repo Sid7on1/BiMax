@@ -1,0 +1,357 @@
+{
+  "selectionVersion": "bimax-rag-complete-passage-fresh50-2026-10-14-v1",
+  "scope": "Owner-authorized fresh balanced25classicLongMemEval_S+25MemoryAgentBench,paired100answer arms; excludes all record96+97 IDs and normalized questions. Small pilot,shared public corpora,not independent population/official leaderboard.",
+  "datasets": [
+    {
+      "name": "LongMemEval_S cleaned",
+      "revision": "98d7416c24c778c2fee6e6f3006e7a073259d48f",
+      "url": "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/resolve/98d7416c24c778c2fee6e6f3006e7a073259d48f/longmemeval_s_cleaned.json?download=true",
+      "sha256": "d6f21ea9d60a0d56f34a05b609c79c88a451d2ae03597821ea3d5a9678c3a442",
+      "bytes": 277383467,
+      "license": "MIT",
+      "totalQuestions": 500
+    },
+    {
+      "name": "MemoryAgentBench Accurate_Retrieval",
+      "revision": "7ea066982b140a19337e17e60d45d4076e042faf",
+      "sha256": "56c3cd80fb6731a3e53cd1a6be3148f54df60ff2d290ee50e28f8acebf9655c1",
+      "bytes": 20024386,
+      "license": "MIT",
+      "totalQuestions": 2000
+    }
+  ],
+  "selection": {
+    "longmemeval": [
+      {
+        "row": 377,
+        "id": "a1eacc2a",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 204,
+        "id": "61f8c8f8",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 448,
+        "id": "4c36ccef",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 152,
+        "id": "d6233ab6",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 38,
+        "id": "577d4d32",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 237,
+        "id": "gpt4_fa19884c",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 401,
+        "id": "1cea1afa",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 124,
+        "id": "gpt4_2f91af09",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 465,
+        "id": "71a3fd6b",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 135,
+        "id": "0edc2aef",
+        "stratum": "single-session-preference"
+      },
+      {
+        "row": 49,
+        "id": "8a137a7f",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 356,
+        "id": "gpt4_5438fa52",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 391,
+        "id": "618f13b2",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 121,
+        "id": "c2ac3c61",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 481,
+        "id": "7a8d0b71",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 20,
+        "id": "c8c3f81d",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 238,
+        "id": "0bc8ad92",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 366,
+        "id": "6a1eabeb",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 174,
+        "id": "f35224e0",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 470,
+        "id": "1b9b7252",
+        "stratum": "single-session-assistant"
+      },
+      {
+        "row": 60,
+        "id": "c14c00dd",
+        "stratum": "single-session-user"
+      },
+      {
+        "row": 298,
+        "id": "9a707b82",
+        "stratum": "temporal-reasoning"
+      },
+      {
+        "row": 428,
+        "id": "10e09553",
+        "stratum": "knowledge-update"
+      },
+      {
+        "row": 71,
+        "id": "6d550036",
+        "stratum": "multi-session"
+      },
+      {
+        "row": 455,
+        "id": "fea54f57",
+        "stratum": "single-session-assistant"
+      }
+    ],
+    "memoryagentbench": [
+      {
+        "row": 13,
+        "query": 40,
+        "id": "mab-13-40",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 11,
+        "query": 27,
+        "id": "mab-11-27",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 6,
+        "query": 76,
+        "id": "mab-6-76",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 20,
+        "query": 7,
+        "id": "mab-20-7",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 30,
+        "id": "mab-0-30",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 39,
+        "id": "mab-1-39",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 15,
+        "query": 38,
+        "id": "mab-15-38",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 9,
+        "query": 84,
+        "id": "mab-9-84",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 3,
+        "query": 70,
+        "id": "mab-3-70",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 19,
+        "query": 55,
+        "id": "mab-19-55",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 66,
+        "id": "mab-0-66",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 54,
+        "id": "mab-1-54",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 12,
+        "query": 43,
+        "id": "mab-12-43",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 8,
+        "query": 8,
+        "id": "mab-8-8",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 6,
+        "query": 25,
+        "id": "mab-6-25",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 18,
+        "query": 49,
+        "id": "mab-18-49",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 78,
+        "id": "mab-0-78",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 42,
+        "id": "mab-1-42",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 14,
+        "query": 77,
+        "id": "mab-14-77",
+        "stratum": "eventqa_131072"
+      },
+      {
+        "row": 8,
+        "query": 5,
+        "id": "mab-8-5",
+        "stratum": "eventqa_65536"
+      },
+      {
+        "row": 3,
+        "query": 80,
+        "id": "mab-3-80",
+        "stratum": "eventqa_full"
+      },
+      {
+        "row": 21,
+        "query": 18,
+        "id": "mab-21-18",
+        "stratum": "longmemeval_s*"
+      },
+      {
+        "row": 0,
+        "query": 4,
+        "id": "mab-0-4",
+        "stratum": "ruler_qa1_197K"
+      },
+      {
+        "row": 1,
+        "query": 5,
+        "id": "mab-1-5",
+        "stratum": "ruler_qa2_421K"
+      },
+      {
+        "row": 16,
+        "query": 57,
+        "id": "mab-16-57",
+        "stratum": "eventqa_131072"
+      }
+    ]
+  },
+  "cache": "/Users/vishsiddharth/Library/Caches/BimaxBench/rag-evidence-20261014/fresh50-raw",
+  "oldIdsExcluded": 400,
+  "oldQuestionsExcluded": 400,
+  "rawCorpusHashes": {
+    "lme-20.json": "70f5597d361277d126f31f6b56bbabf5db431f0edd06680357fd73bb36fb9042",
+    "lme-38.json": "791ef8f4c913f9dfa1fb559ab80401f380d785bdaf6c75bafefe843f159aad9a",
+    "lme-49.json": "7aa9123f596b6bf56bac54ffe0781469828c8b261958fa2f824f454d9f5cef66",
+    "lme-60.json": "0391e7cb8afcc2b95e077806ee124f9032c34e6202a21bdc5322b6ef6232d3d9",
+    "lme-71.json": "5936fe4c34af4e284cb27360119abbcf69b6dbb4f537bbf588c910eec615ec76",
+    "lme-121.json": "60d8b92a30a560824779763c18614224441ca200c32abfc0675d985d252b2b46",
+    "lme-124.json": "8b0be0c48b00507cb890d25b57eb3a239adfc15f9921b7bccfc9e71fede91e9d",
+    "lme-135.json": "2e9e6b2725abb5bad69a4aac5eecfd1084caebf07d92c7fa25a184f2dc3a0046",
+    "lme-152.json": "ab1fcf5c08d7027f50e13f728864b850499c3279964ac8f89d152ff319cf91ad",
+    "lme-174.json": "881c3f1945214759e9ac8c8812c13c7d2ecdab813777ea60ef4b5383f28efbed",
+    "lme-204.json": "b16029239729ca25f17d11cf1eeb7cba35d9eace7e390afc406390f9c4a3a9bd",
+    "lme-237.json": "47b920d7aa297fbb8ce7d2e30c49b91ce2503760195cad906ef0291af49715c0",
+    "lme-238.json": "e0484c555689540ad79e77ebd9c652fb311b640386ca0ec5d67f8ed615e92385",
+    "lme-298.json": "913f0e42ca3521fb82d6e38d2d684ed48649d0718c5de00640145ac6e2282d7a",
+    "lme-356.json": "3abe572efe6557402472cc4a9ab5dbcb0f20f1308e1a1a653b9c782cc83d8a8d",
+    "lme-366.json": "df12d40adc83aaedd88994b5232a17a3c80642b50a6f79a25b93f10106d38020",
+    "lme-377.json": "4679b87012265cbcf06c2cd2d9c6d3d460da3cecadd10068a71114f236286b43",
+    "lme-391.json": "3b068cfd11eacbdf8a9d407a5f8a9a0d12e7f469fa44832ff12d1067f92c9c5a",
+    "lme-401.json": "85a4172781d576d6a3e77ad34d6acd73225521633bc09cd00fa7c604cc763988",
+    "lme-428.json": "a533e89d8a24820e18743b962815c1ee75807f3e7f9921098ea9f6a78fa583ee",
+    "lme-448.json": "97d54d95e4a2224f4f979533f2913a8725f1fa56f535b49cfd13f888ed9bc8fb",
+    "lme-455.json": "a9c0d0c9c167f1f4154ddab6e3c32183a4299c658271f523c9cc6ec1702c236d",
+    "lme-465.json": "36b9e789783b4db3f02bae3852f9ed83dfb8afb3c0d214f2e1502e2a28c46f2c",
+    "lme-470.json": "3d10ebc34a1cc8887b40d408065db9ce605cdff267d2a9f236aaa0c40dfbe31a",
+    "lme-481.json": "ac8637f441585fceca41651b4192aac044504fb367424530aab5c8864f8625af",
+    "mab-0.json": "945983cbaf748603648c00d52fa388260cdc834d3b27c89163c1e8c0945ed3a5",
+    "mab-1.json": "3c1b9cac4e7c2f65ff4f04f35378c82ebf3b881af40152d3d5f004c727b0201b",
+    "mab-3.json": "24d7301dd6e5a0f715eb6ad007bd98f33f5816828256dee89eae3a2059331f96",
+    "mab-6.json": "6d4edbc8369b6adcfe75bfcde93aed1e182a2dd03d96af36702e116eb6b0ef73",
+    "mab-8.json": "df5f053bab65440f1b46f93932eabe3bca97406648659ab0a561106a6e2196c3",
+    "mab-9.json": "2e282e412c7452bd0cd8c4625bf926905c590f9d952e3cd8dce3f2b73d3820bc",
+    "mab-11.json": "84e9e0b0e05dffab0dc0e66988104b0b5e85b0f985e806c7bb10f64e5ba4e353",
+    "mab-12.json": "4a1b9809065cef55f757b195b318c8bfe59ef80a368b7ea4e0b1c909d95d5792",
+    "mab-13.json": "a6a4c6e334fad882716f15bf1ec73c52c495eee18cbc4855f11da286dfddd145",
+    "mab-14.json": "84821daaf3d3741e18235b36b64ca43ed54552920d8742d10d27fbe6699b2171",
+    "mab-15.json": "ac7e3a29e366c09d0e69975375f121ddb721a20d35c5b7e91bdd9c6612911b77",
+    "mab-16.json": "7b2742f0e6d5eac882208e9190f48e77ce4c2b544f9f0107ca60bc61402a1299",
+    "mab-18.json": "ae704c590c61cc040579072d431aed90fdef5b99332ea09f2368f7ce1a3c0194",
+    "mab-19.json": "09b96675162fe49012b054f45ae73f36a0c53442b5b0cfbfa041de1f5d496c79",
+    "mab-20.json": "ba25d48f81918eda291222c918b36ac44c7e9ebdc7302eb796207df3f0922c82",
+    "mab-21.json": "7416dac566bcb48955f5e98e759f9d03c1808a5e2c69b9ecdfd540b68d624f8d"
+  },
+  "preparation": {
+    "lmeSequentialPasses": 2,
+    "maxBufferedChars": 835218,
+    "parquetRowsPerBatch": 1,
+    "parquetThreads": false
+  },
+  "rule": "Metadata/hash-only before inference; no answer/retrieval outcome selects cases; no same-question duplicates across earlier experiments."
+}

@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T09:10:45.439198+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 0,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/03/16 (Thu) 07:05\nQuestion: Current Date: 2023/03/16 (Thu) 07:05,\n\n Now Answer the Question: How many dozen eggs do we currently have stocked up in our refrigerator?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 5) when you're ready.\\n\\nEnjoy your delicious homemade quiche!\"}, {'role': 'user', 'content': \"I think I'll try the spinach and feta variation, sounds delicious.\n\nBy the way, I was thinking of using some of our fresh eggs from the coop - we've got 20 dozen stocked up in the fridge right now.\n\nDo you have any tips on how to store eggs properly to keep them fresh for a longer period?\"}, {'role': 'assistant', 'content': \"The spinach and feta quiche is a fantastic combination.\\n\\nWow, 20 dozen eggs is a lot!\n\nCongratulations on having a thriving coop!\n\nProper storage is crucial to keep your eggs fresh for a longer period.\n\nHere are some tips to help you store your eggs:\\n\\n1.\n\n**Cool, dry place:** Store eggs in a cool, dry place, away from direct sunlight and heat sources.\n\nThe ideal storage temperature is between 40\u00b0F (4\u00b0C) and 50\u00b0F (10\u00b0C).\\n2.\n\n**Refrigerate:** Store eggs in the refrigerator at a consistent temperature below 40\u00b0F (4\u00b0C).\n\nThis will help prevent bacterial growth and keep eggs fresh for a longer period.\\n3.\n\n**Carton or container:** Store eggs in their original carton or a covered container to protect them from moisture, light, and contamination.\n  (part 5 of 5) period.\\n3.\n\n**Carton or container:** Store eggs in their original carton or a covered container to protect them from moisture, light, and contamination.\n\nMake sure the container is clean and dry before placing the eggs inside.\\n4.\n\n**Poi\n- (part 2 of 5, excerpt) Generally, eggs can be stored for:\\n\\n* 4 to 5 weeks in the refrigerator\\n* 1 year or longer in the freezer (if frozen)\\n\\nRemember to always handle eggs safely and hygienicall\n- (part 3 of 4, excerpt) And by the way, I need to start using up some of our eggs, we have a lot stocked up in the fridge - 30 dozen at the moment!'}"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 101.67841699967539
+}

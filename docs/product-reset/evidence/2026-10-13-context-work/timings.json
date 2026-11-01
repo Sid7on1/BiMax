@@ -1,0 +1,2128 @@
+{
+  "scope": "Local generated context fixtures; full compaction uses an offline summarizer, not a model",
+  "runtime": "v22.13.1",
+  "platform": "darwin",
+  "arch": "arm64",
+  "cpu": "Apple M3",
+  "cores": 8,
+  "memoryBytes": 8589934592,
+  "sourceHashes": {
+    "baseline:src/memory/context.manager.ts": "197f8250b3f5b44c8897c65cd94856767a1c17c10b9e01d3034bae575ad3716a",
+    "baseline:src/context/continuation.ts": "323ff592d831419c4d753781876add0cbff54fde99b12a82a07e2495ae504178",
+    "current:src/memory/context.manager.ts": "f07456dfc755e820e260faa671c03c44c7381693b01108a09f97a2879cf7975e",
+    "current:src/context/continuation.ts": "c302f015ddc36c67252a6800294d2ebaffbea25fa6813e0e863ff27dfe0d4408"
+  },
+  "results": [
+    {
+      "name": "summary-small-five",
+      "repeats": 3000,
+      "samples": [
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 0.0010952083333333272
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.0021875416666666562
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.0010409166666666655
+        },
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 0.0009334443333333411
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.0009431110000000066
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 0.0008746666666666745
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 0.0008817220000000058
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.0009012639999999881
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 0.0008164859999999976
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.0009316389999999994
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.0009325693333333333
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 0.0008539030000000025
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.000772514000000001
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 0.0007969999999999876
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 0.0007046666666666587
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.000804333333333337
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 0.0006776249999999967
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.000825305333333328
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.0008266526666666702
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 0.0007351390000000038
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.0008108610000000074
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 0.0006838196666666742
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 0.0007120136666666781
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.0008158056666666767
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 0.0006960276666666611
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.0008477223333333275
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.0008165696666666615
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 0.0006875416666666752
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.0008262223333333243
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 0.0006782083333333351
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 0.0006751666666666741
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.0008116249999999733
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 0.0006320973333333389
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.0008182916666666718
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.000791944666666647
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 0.0006709306666666634
+        }
+      ],
+      "checksum": 73008000,
+      "baselineMs": 0.0007120136666666781,
+      "currentMs": 0.0008262223333333243,
+      "speedup": 0.861770056243964,
+      "reductionPercent": -16.040235182748507,
+      "discarded": 0
+    },
+    {
+      "name": "summary-uniform-400",
+      "repeats": 80,
+      "samples": [
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 0.4957364625000011
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.5140963624999998
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.49825625
+        },
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 0.4983213500000005
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.4896416625000001
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 0.4824322874999993
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 0.4855494749999991
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.4969932249999999
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 0.4947416750000002
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.49865156249999953
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.5007125000000002
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 0.5005750000000007
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.5375822874999997
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 0.49593957499999985
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 0.5393473999999998
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.5414781250000005
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 0.490448437500001
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.5024588625000007
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.5088364624999997
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 0.49524166250000123
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.50234375
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 0.49858177499999956
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 0.4967463500000008
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.5073796875
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 0.4821083250000015
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.4896588625000021
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.4919135374999996
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 0.48124374999999875
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.49113124999999797
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 0.48450312500000053
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 0.48554062500000156
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.4917166625000021
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 0.4876374999999996
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.49357656249999876
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.4915755250000018
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 0.4876703125000006
+        }
+      ],
+      "checksum": 275843520,
+      "baselineMs": 0.4947416750000002,
+      "currentMs": 0.49865156249999953,
+      "speedup": 0.9921590790162232,
+      "reductionPercent": -0.7902886895467809,
+      "discarded": 0
+    },
+    {
+      "name": "summary-one-MiB-read",
+      "repeats": 10,
+      "samples": [
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 2.049741599999993
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.009312499999987267
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.008816699999988487
+        },
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 2.0750416000000085
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.00907919999999649
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 2.022066599999971
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 2.0507042000000184
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.010341699999980847
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 2.0437833999999837
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.00911250000003747
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.008779200000026322
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 2.050112500000023
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.008991700000024139
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 2.038000000000011
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 2.0595290999999634
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.00919579999999769
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 2.010020799999984
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.011887500000011642
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.009787499999993088
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 2.0577957999999854
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.007929199999989579
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 2.046383400000013
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 2.049258400000008
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.008399999999983265
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 2.0328582999999982
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.007949999999982537
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.007187500000009095
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 2.027795900000001
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.007633399999986068
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 2.0564125000000333
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 2.0889417000000323
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.00838749999998072
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 2.088245800000004
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.008754199999975754
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.0071750000000065485
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 2.005037500000026
+        }
+      ],
+      "checksum": 1267560,
+      "baselineMs": 2.049741599999993,
+      "currentMs": 0.008816699999988487,
+      "speedup": 232.48399060903392,
+      "reductionPercent": 99.5698628549087,
+      "discarded": 0
+    },
+    {
+      "name": "summary-eight-MiB-read",
+      "repeats": 2,
+      "samples": [
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 17.87333350000017
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.014478999999937514
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.007354000000077576
+        },
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 17.71639550000009
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.015478999999913867
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 17.543562500000007
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 17.895312500000045
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.01577099999985876
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 17.664583499999935
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.01375000000007276
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.008145500000182437
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 17.844708499999797
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.011666999999988548
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 17.890125000000126
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 18.041541499999994
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.02585399999998117
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 17.828812499999913
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.020520999999916967
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.008354499999995824
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 17.583854499999916
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.019791500000110318
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 17.64304149999998
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 17.495354500000076
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.017896000000064305
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 17.52972900000009
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.02202050000005329
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.007604000000128508
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 17.280291999999918
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.014416500000152155
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 17.147896000000173
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 17.162458499999957
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.01364600000010796
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 17.05637499999989
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.011103999999932057
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.00739600000019891
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 16.647125000000187
+        }
+      ],
+      "checksum": 253512,
+      "baselineMs": 17.64304149999998,
+      "currentMs": 0.014416500000152155,
+      "speedup": 1223.8089341944142,
+      "reductionPercent": 99.9182878983754,
+      "discarded": 0
+    },
+    {
+      "name": "continuation-render-5-Infinity",
+      "repeats": 1000,
+      "samples": [
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 0.005225667000000158
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.005339167000000088
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.003648040999999921
+        },
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 0.0032654999999999746
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.00331616699999995
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 0.0033163340000000974
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 0.0033678749999999126
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.0031209170000001903
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 0.002848500000000058
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.0029595829999998387
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.003042207999999846
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 0.0029073339999999915
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.003058666999999787
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 0.003033834000000297
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 0.00291379199999983
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.0028663329999999406
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 0.002919332999999824
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.003034874999999829
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.00295766599999979
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 0.0028762499999998
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.003036084000000301
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 0.0029801250000000435
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 0.0029526670000000195
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.0028303750000000035
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 0.0029971669999999903
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.0029155839999998536
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.003078583000000435
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 0.0029565410000000156
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.0029547499999998763
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 0.0030246250000000147
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 0.0028849169999998594
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.0029774579999998422
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 0.002932749999999942
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.0029675830000001043
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.0029653749999997672
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 0.002978374999999687
+        }
+      ],
+      "checksum": 81612000,
+      "baselineMs": 0.002978374999999687,
+      "currentMs": 0.003034874999999829,
+      "speedup": 0.9813830882655314,
+      "reductionPercent": -1.89700759642919,
+      "discarded": 0
+    },
+    {
+      "name": "continuation-render-500-Infinity",
+      "repeats": 100,
+      "samples": [
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 0.021634170000002086
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.014029580000001261
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.014521669999999176
+        },
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 0.022334999999998217
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.014541669999998704
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 0.022266669999999066
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 0.02237333999999919
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.014907499999999345
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 0.023828749999997855
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.01577041999999892
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.014262910000002193
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 0.02178291000000172
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.012843750000001819
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 0.022562090000001263
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 0.022327080000000023
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.012450830000002498
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 0.022583330000002205
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.012447079999997186
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.012490829999997004
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 0.02343332999999802
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.012444580000001225
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 0.022283749999996872
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 0.018336670000003323
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.012194160000003649
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 0.018135839999999917
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.012102500000000873
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.01214792000000216
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 0.01868417000000136
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.0125
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 0.018015000000000326
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 0.01827958999999737
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.011662920000003397
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 0.01841583999999784
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.012367500000000291
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.012115830000002461
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 0.018406669999999393
+        }
+      ],
+      "checksum": 13489200,
+      "baselineMs": 0.022266669999999066,
+      "currentMs": 0.012490829999997004,
+      "speedup": 1.782641345691552,
+      "reductionPercent": 43.9034664815281,
+      "discarded": 0
+    },
+    {
+      "name": "continuation-render-500-1200",
+      "repeats": 100,
+      "samples": [
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 0.21872416000000158
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.05587540999999874
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.04095583000000261
+        },
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 0.19334333000000242
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.03717333000000053
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 0.18971207999999934
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 0.19084833000000345
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.0360170799999969
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 0.18858749999999871
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.036534590000001116
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.03606707999999799
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 0.19210959000000002
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.03644958000000315
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 0.19162041000000044
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 0.19334292000000006
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.03597790999999688
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 0.19119916999999986
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.0368224999999984
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.03673749999999927
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 0.1900933299999997
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.03655291999999918
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 0.19262125000000196
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 0.19075791000000208
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.037006670000000665
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 0.1905466699999988
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.03617334000000028
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.03685790999999881
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 0.19025290999999925
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.036700419999997395
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 0.18603749999999764
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 0.18673125000000254
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.035590409999999795
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 0.1845104100000026
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.03612042000000201
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.03547583000000031
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 0.18542665999999827
+        }
+      ],
+      "checksum": 3614400,
+      "baselineMs": 0.19075791000000208,
+      "currentMs": 0.03655291999999918,
+      "speedup": 5.218677741751039,
+      "reductionPercent": 80.83805803911419,
+      "discarded": 0
+    },
+    {
+      "name": "continuation-absorb-10",
+      "repeats": 300,
+      "samples": [
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 0.08232277666666657
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.0825027799999998
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.0651216666666672
+        },
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 0.06747680333333392
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.059231943333334126
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 0.05830541666666553
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 0.05817930666666749
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.05874180666666689
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 0.057506803333332454
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.05787513999999949
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.058644306666665216
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 0.0588016666666681
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.05835597333333074
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 0.05834014000000025
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 0.057701109999998154
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.05898361333333317
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 0.05914666666666866
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.05918777666666453
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.05940569333333466
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 0.05927013666666426
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.05808305666666759
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 0.05809069333333355
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 0.05839972333333208
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.05817972333333273
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 0.058196109999998955
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.05788041666666686
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.05861013666666622
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 0.05836944666666568
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.05893722000000101
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 0.05824069333333379
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 0.05978416666666817
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.059352916666666714
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 0.05841694333333483
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.058419306666667885
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.0587084700000014
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 0.05897777666666722
+        }
+      ],
+      "checksum": 38469600,
+      "baselineMs": 0.05839972333333208,
+      "currentMs": 0.05874180666666689,
+      "speedup": 0.9941764928124193,
+      "reductionPercent": -0.5857619074362441,
+      "discarded": 0
+    },
+    {
+      "name": "continuation-absorb-1000",
+      "repeats": 10,
+      "samples": [
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 1.4858874999999898
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 1.3563500000000204
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 1.3599624999999833
+        },
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 1.489129099999991
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 1.3489333000000443
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 1.4888750000000073
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 1.4690792000000328
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 1.3302458999999545
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 1.4705167000000074
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 1.3310458999999355
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 1.3294458999999734
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 1.4796333000000232
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 1.3546665999999277
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 1.4926542000000154
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 1.4931958000000123
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 1.353637499999968
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 1.4941874999999527
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 1.34852920000003
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 1.344329199999993
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 1.4849999999999455
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 1.3455791000000317
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 1.4840041000000384
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 1.4857500000000072
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 1.3494125000000168
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 1.485583299999962
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 1.3451874999999744
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 1.3458916999999928
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 1.4849458000000595
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 1.343554099999983
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 1.4868666000000303
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 1.48734170000007
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 1.3461499999999433
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 1.4866250000000036
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 1.346508400000039
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 1.3456208999999943
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 1.4856332999999722
+        }
+      ],
+      "checksum": 1348920,
+      "baselineMs": 1.4858874999999898,
+      "currentMs": 1.3461499999999433,
+      "speedup": 1.1038052965866005,
+      "reductionPercent": 9.404312237638946,
+      "discarded": 0
+    },
+    {
+      "name": "continuation-absorb-10000",
+      "repeats": 2,
+      "samples": [
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 15.370417000000089
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 13.891521000000012
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 13.82589599999983
+        },
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 15.207041500000287
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 13.881416499999887
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 15.239250000000084
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 15.321978999999828
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 13.991562499999873
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 15.323979000000236
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 13.681166500000018
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 13.694875000000138
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 15.246667000000343
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 14.02193750000015
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 15.273228999999901
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 15.277812499999982
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 13.820229499999641
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 15.307479500000227
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 13.785750000000007
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 13.850271000000248
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 15.347479499999736
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 14.023187499999949
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 15.4096669999999
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 15.4071670000003
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 13.87991699999975
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 15.326645999999982
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 13.795521000000008
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 13.838812500000131
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 15.328853999999865
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 13.791125000000193
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 15.331312499999967
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 15.36349999999993
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 13.74566649999997
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 15.3893750000002
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 14.274895999999899
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 14.117707999999766
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 15.423062500000015
+        }
+      ],
+      "checksum": 270576,
+      "baselineMs": 15.328853999999865,
+      "currentMs": 13.850271000000248,
+      "speedup": 1.10675480645827,
+      "reductionPercent": 9.645750425958976,
+      "discarded": 0
+    },
+    {
+      "name": "full-compaction-one-MiB-fixture-summarizer",
+      "repeats": 5,
+      "samples": [
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 2.257983400000012
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.11784999999999854
+        },
+        {
+          "pair": 0,
+          "version": "current",
+          "msPerCall": 0.09560000000001309
+        },
+        {
+          "pair": 0,
+          "version": "baseline",
+          "msPerCall": 2.350091600000087
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.16026679999995394
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 2.237524999999914
+        },
+        {
+          "pair": 1,
+          "version": "baseline",
+          "msPerCall": 2.23608320000003
+        },
+        {
+          "pair": 1,
+          "version": "current",
+          "msPerCall": 0.0925333999999566
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 2.3710915999999997
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.09156679999996413
+        },
+        {
+          "pair": 2,
+          "version": "current",
+          "msPerCall": 0.11051680000000488
+        },
+        {
+          "pair": 2,
+          "version": "baseline",
+          "msPerCall": 2.244233400000121
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.08347499999999855
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 2.226224999999977
+        },
+        {
+          "pair": 3,
+          "version": "baseline",
+          "msPerCall": 2.2873750000000657
+        },
+        {
+          "pair": 3,
+          "version": "current",
+          "msPerCall": 0.08162499999998545
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 2.222883400000137
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.08366679999999178
+        },
+        {
+          "pair": 4,
+          "version": "current",
+          "msPerCall": 0.08154180000001361
+        },
+        {
+          "pair": 4,
+          "version": "baseline",
+          "msPerCall": 2.216383400000086
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.08267500000001746
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 2.2998999999999796
+        },
+        {
+          "pair": 5,
+          "version": "baseline",
+          "msPerCall": 2.204333399999996
+        },
+        {
+          "pair": 5,
+          "version": "current",
+          "msPerCall": 0.08811659999992116
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 2.2316249999999855
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.08392499999990832
+        },
+        {
+          "pair": 6,
+          "version": "current",
+          "msPerCall": 0.08343320000003587
+        },
+        {
+          "pair": 6,
+          "version": "baseline",
+          "msPerCall": 2.295275000000038
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.0721082000000024
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 2.2116334000000277
+        },
+        {
+          "pair": 7,
+          "version": "baseline",
+          "msPerCall": 2.2116917999999712
+        },
+        {
+          "pair": 7,
+          "version": "current",
+          "msPerCall": 0.07256660000002739
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 2.2674666000000796
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.10116660000003322
+        },
+        {
+          "pair": 8,
+          "version": "current",
+          "msPerCall": 0.07346679999991465
+        },
+        {
+          "pair": 8,
+          "version": "baseline",
+          "msPerCall": 2.1633750000000873
+        }
+      ],
+      "baselineMs": 2.237524999999914,
+      "currentMs": 0.08392499999990832,
+      "speedup": 26.661006851383476,
+      "reductionPercent": 96.24920391951323,
+      "discarded": 0
+    }
+  ]
+}

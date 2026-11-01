@@ -4,6 +4,10 @@ import { GraphData, GraphNode, GraphEdge, IGraphStore } from './models';
 import { Logger } from '../utils';
 
 export class GraphStore implements IGraphStore {
+  private revision = 0;
+
+  /** Changes only when the store publishes a graph mutation; used by derived-data caches. */
+  public getRevision(): number { return this.revision; }
   private data: GraphData = {
     nodes: new Map(),
     edges: []
@@ -20,12 +24,14 @@ export class GraphStore implements IGraphStore {
   }
 
   public clear() {
+    this.revision++;
     this.data = { nodes: new Map(), edges: [] };
     this.edgesFrom.clear();
     this.edgesTo.clear();
   }
 
   public setGraph(graph: GraphData) {
+    this.revision++;
     this.data = graph;
     this.rebuildIndices();
   }
@@ -48,11 +54,13 @@ export class GraphStore implements IGraphStore {
 
   public addNode(node: GraphNode) {
     if (!this.data.nodes.has(node.id)) {
+      this.revision++;
       this.data.nodes.set(node.id, node);
     }
   }
 
   public addEdge(edge: GraphEdge) {
+    this.revision++;
     this.data.edges.push(edge);
     
     if (!this.edgesFrom.has(edge.sourceId)) this.edgesFrom.set(edge.sourceId, []);
@@ -63,10 +71,18 @@ export class GraphStore implements IGraphStore {
   }
 
   public removeNode(id: string) {
-    this.data.nodes.delete(id);
+    this.removeNodes([id]);
+  }
+
+  /** Remove a file/batch with one edge scan and one adjacency rebuild. */
+  public removeNodes(ids: Iterable<string>): void {
+    const removed = new Set(ids);
+    if (removed.size === 0) return;
+    this.revision++;
+    for (const id of removed) this.data.nodes.delete(id);
     
     // Remove touching edges
-    this.data.edges = this.data.edges.filter(e => e.sourceId !== id && e.targetId !== id);
+    this.data.edges = this.data.edges.filter(e => !removed.has(e.sourceId) && !removed.has(e.targetId));
     this.rebuildIndices();
   }
 
@@ -111,12 +127,10 @@ export class GraphStore implements IGraphStore {
         nodesMap.set(node.id, node);
       }
       
-      this.data = {
+      this.setGraph({
         nodes: nodesMap,
         edges: rawData.edges || []
-      };
-
-      this.rebuildIndices();
+      });
       Logger.info(`[GraphStore] Graph loaded from ${this.storagePath}. Nodes: ${this.data.nodes.size}, Edges: ${this.data.edges.length}`);
     } catch (e: any) {
       if (e.code === 'ENOENT') {

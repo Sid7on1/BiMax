@@ -1,0 +1,45 @@
+{
+  "productionRecallAtStart": "a849be001290b83ef3cc59945232634dd628001780120121d7d9759d9a6ff7ef",
+  "started": "2026-10-14T15:17:32.450656+00:00",
+  "reader": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "modelSettings": {
+    "readerMaxTokens": 2048,
+    "judgeMaxTokens": 2048,
+    "temperature": 0,
+    "reasoning": {
+      "enable_thinking": true,
+      "reasoning_budget": 1024
+    },
+    "rpm": 40
+  },
+  "selectionSha256": "cd798d224c21ac4ea69acd1761099de1c47a2067031e1a9df9a5a36a0210a0b2",
+  "sourceHashes": {
+    "scripts/bench-rag-passage-model.py": "50825a38c4d776e461deceec7caef564004a5f9b6d9bb7383ae45904787971e9",
+    "scripts/bench-rag-public.py": "3fa4341c1a2b5c389dc4912a2065a15db0ffaa2fb0925445347522645f050e40",
+    "scripts/lib/rag_public_grader.py": "5516e9f71cfac91c1b6e718b549c14d9a0920d6640a4cfef6fa39a5a9bc57a37",
+    "scripts/rag-passage-worker.cjs": "c79b8f8c2eef826b7c9b8556038ecfe65ddb589056ce9057a898b39378268cbb",
+    "scripts/lib/rag_vector_cache.cjs": "3437841699d53f41d98ddc02f79643e55620f6a5970cd08532e4065b690e5a44",
+    "scripts/lib/rag_benchmark_checkpoint.py": "a71560df381b8fbeeecc2f509626207568ea3807547dfbb66c5a88b259159d6e",
+    "docs/product-reset/evidence/2026-10-14-rag-passage/baseline/src/memory/recall.ts": "a849be001290b83ef3cc59945232634dd628001780120121d7d9759d9a6ff7ef",
+    "docs/product-reset/evidence/2026-10-14-rag-passage/candidate/recall.ts": "43d8227abb92015d0d121cf10f0ed93e1f556627573671b0dd6a10523a49f66f",
+    "src/memory/vector.store.ts": "0e660a1650d44e3745d08ad1df3e22425f584c8066a28ef449a8036e02587e9a",
+    "docs/product-reset/evidence/2026-10-14-rag-passage/compiled/recall-baseline.js": "771fd0492c0d04971d12a34e6a814a89cb60a2e04a23bb8b138b5ade602b6671",
+    "docs/product-reset/evidence/2026-10-14-rag-passage/compiled/recall-current.js": "83bc3ed16c72c06590b0e22e80fd156701fc8dcb586479661c25469db4d8be4b",
+    "docs/product-reset/evidence/2026-10-14-rag-passage/compiled/baseline.js": "9965c3edcc2db26f2845482ffccfecc0fad453656db7118de6291b20166fc749",
+    "docs/product-reset/evidence/2026-10-14-rag-passage/compiled/current.js": "9965c3edcc2db26f2845482ffccfecc0fad453656db7118de6291b20166fc749",
+    "dist/memory/chunking.js": "af64858f5c00fb2591d5f3fd2e51ad5cde9dad67ed5140e6db97135a89e174f5",
+    "dist/context/evidence.js": "2e2d10669da9722019352db52709b8a285fe80da2c3de649f7bb493230dfffdd"
+  },
+  "retrievalRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-retrieval-1",
+  "scope": "Owner-authorized fresh balanced25classicLongMemEval_S+25MemoryAgentBench,paired100answer arms; excludes all record96+97 IDs and normalized questions. Small pilot,shared public corpora,not independent population/official leaderboard.",
+  "arms": {
+    "baseline": "Frozen record-96 recall, limit3/excerpts1800",
+    "current": "Isolated complete-passage candidate,limit3/default excerpts6000"
+  },
+  "controls": "Reuse 17+5 passing controls only under identical model/settings/judge source/published rubric; original raw attempts and failures retained.",
+  "controlRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "extraControlRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-rubric-controls-1",
+  "baselineComparison": "New fresh25+25 paired query-heldout pilot; earlier 40/100 and39/100 are historical, not the paired denominator.",
+  "resumeFrom": null
+}

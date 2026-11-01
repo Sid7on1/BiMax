@@ -1,0 +1,195 @@
+{
+  "row": 1,
+  "query": 66,
+  "id": "mab-1-66",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:48:58.966335+00:00",
+  "valid": true,
+  "question": "Vince Phillips held a junior welterweight title by an organization recognized by what larger Hall of Fame?",
+  "references": [
+    "International Boxing Hall of Fame"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 520.1689590000024,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 106,
+        "maxInputChars": 106,
+        "requiredProviderTruncation": false,
+        "promptTokens": 20,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-284",
+        "context-11",
+        "context-381"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) the reign of King Solomon and takes stories from several of the major and minor prophets, and the Book of Esther and concludes with anticipation of a messiah.\n\nDocument 2047:\nVince Phillips\nVincent Edwards \"Vince\" Phillips (born July 23, 1963) is an American former professional boxer who competed from 1989 to 2007. He held the IBF junior welterweight title from 1997 to 1999, notably scoring an upset victory against then-undefeated Kostya Tszyu to become champion.\n\nDocument 2048:\nArea Code 615 (band)\nArea Code 615 was the name of a Nashville country rock band active in the late 1960s and early 1970s, taking their name from the telephone area code, which at the time covered all of Central and Eastern Tennessee. The band was made up of session musicians, recording only two albums before resuming normal session work. Several of the members were backing musicians for Bob Dylan's \"Blonde on Blonde\" and \"Nashville Skyline\" albums and on recordings by Billy Swan.\n- (part 1 of 5, excerpt) rweight title, South Pacific light welterweight title, Queensland (Australia) State welterweight title, International Boxing Council (IBC) welterweight title, South Pacific welterweight title, World Boxing Federation (WBF) Intercontinental welterweight title, WBF welterweight title, Pan Asian Boxing Association (PABA) welterweight title, World Boxing Association (WBA) Fedelatin welterweight title, PABA light middleweight title, and Commonwealth light welterweight title. He was also a challenger for the South Seas light welterweight title against Pat Leglise, Australian welterweight title against Wilf Gentzen, and World Boxing O\n- (part 3 of 5, excerpt) Cooper  (Warley ABC), boxing out of West Ham Boys & ABC, won the Amateur Boxing Association of England (ABAE) 1960 Junior Cla",
+      "evidence": [
+        {
+          "sourceId": "memory:context-284",
+          "sourceVersion": "sha256:8fcfb2cfe35057f35c5dda1d9f9af6dbd0e4f131ff43d062a90c6415409cad95",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-284",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "the reign of King Solomon and takes stories from several of the major and minor prophets, and the Book of Esther and concludes with anticipation of a messiah.\n\nDocument 2047:\nVince Phillips\nVincent Edwards \"Vince\" Phillips (born July 23, 1963) is an American former professional boxer who competed from 1989 to 2007. He held the IBF junior welterweight title from 1997 to 1999, notably scoring an upset victory against then-undefeated Kostya Tszyu to become champion.\n\nDocument 2048:\nArea Code 615 (band)\nArea Code 615 was the name of a Nashville country rock band active in the late 1960s and early 1970s, taking their name from the telephone area code, which at the time covered all of Central and Eastern Tennessee. The band was made up of session musicians, recording only two albums before resuming normal session work. Several of the members were backing musicians for Bob Dylan's \"Blonde on Blonde\" and \"Nashville Skyline\" albums and on recordings by Billy Swan.",
+          "id": "ev_6da8d1313c3bf7aec2f8e91e",
+          "observedAt": "2026-10-14T04:48:59.491Z"
+        },
+        {
+          "sourceId": "memory:context-11",
+          "sourceVersion": "sha256:2712e4d2cdc0cf96e3d825679a89c4b746489086946b9ca5bcd7cc15c1bc966d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-11",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "rweight title, South Pacific light welterweight title, Queensland (Australia) State welterweight title, International Boxing Council (IBC) welterweight title, South Pacific welterweight title, World Boxing Federation (WBF) Intercontinental welterweight title, WBF welterweight title, Pan Asian Boxing Association (PABA) welterweight title, World Boxing Association (WBA) Fedelatin welterweight title, PABA light middleweight title, and Commonwealth light welterweight title. He was also a challenger for the South Seas light welterweight title against Pat Leglise, Australian welterweight title against Wilf Gentzen, and World Boxing O",
+          "id": "ev_494225e66815a18acf2a097f",
+          "observedAt": "2026-10-14T04:48:59.491Z"
+        },
+        {
+          "sourceId": "memory:context-381",
+          "sourceVersion": "sha256:190aa218e6b786ac9734d7528b8229c4d43caf3391ddf4aa04d4a223f35e3873",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-381",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Cooper  (Warley ABC), boxing out of West Ham Boys & ABC, won the Amateur Boxing Association of England (ABAE) 1960 Junior Cla",
+          "id": "ev_e927024f02bfdff58d2c9cc5",
+          "observedAt": "2026-10-14T04:48:59.491Z"
+        }
+      ],
+      "sourceIds": [
+        "context-284",
+        "context-11",
+        "context-381"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.401666000005207,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-284",
+        "context-11",
+        "context-381"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) the reign of King Solomon and takes stories from several of the major and minor prophets, and the Book of Esther and concludes with anticipation of a messiah.\n\nDocument 2047:\nVince Phillips\nVincent Edwards \"Vince\" Phillips (born July 23, 1963) is an American former professional boxer who competed from 1989 to 2007. He held the IBF junior welterweight title from 1997 to 1999, notably scoring an upset victory against then-undefeated Kostya Tszyu to become champion.\n\nDocument 2048:\nArea Code 615 (band)\nArea Code 615 was the name of a Nashville country rock band active in the late 1960s and early 1970s, taking their name from the telephone area code, which at the time covered all of Central and Eastern Tennessee. The band was made up of session musicians, recording only two albums before resuming normal session work. Several of the members were backing musicians for Bob Dylan's \"Blonde on Blonde\" and \"Nashville Skyline\" albums and on recordings by Billy Swan.\n- (part 1 of 5, excerpt) rweight title, South Pacific light welterweight title, Queensland (Australia) State welterweight title, International Boxing Council (IBC) welterweight title, South Pacific welterweight title, World Boxing Federation (WBF) Intercontinental welterweight title, WBF welterweight title, Pan Asian Boxing Association (PABA) welterweight title, World Boxing Association (WBA) Fedelatin welterweight title, PABA light middleweight title, and Commonwealth light welterweight title. He was also a challenger for the South Seas light welterweight title against Pat Leglise, Australian welterweight title against Wilf Gentzen, and World Boxing O\n- (part 3 of 5, excerpt) Cooper  (Warley ABC), boxing out of West Ham Boys & ABC, won the Amateur Boxing Association of England (ABAE) 1960 Junior Cla",
+      "evidence": [
+        {
+          "sourceId": "memory:context-284",
+          "sourceVersion": "sha256:8fcfb2cfe35057f35c5dda1d9f9af6dbd0e4f131ff43d062a90c6415409cad95",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-284",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "the reign of King Solomon and takes stories from several of the major and minor prophets, and the Book of Esther and concludes with anticipation of a messiah.\n\nDocument 2047:\nVince Phillips\nVincent Edwards \"Vince\" Phillips (born July 23, 1963) is an American former professional boxer who competed from 1989 to 2007. He held the IBF junior welterweight title from 1997 to 1999, notably scoring an upset victory against then-undefeated Kostya Tszyu to become champion.\n\nDocument 2048:\nArea Code 615 (band)\nArea Code 615 was the name of a Nashville country rock band active in the late 1960s and early 1970s, taking their name from the telephone area code, which at the time covered all of Central and Eastern Tennessee. The band was made up of session musicians, recording only two albums before resuming normal session work. Several of the members were backing musicians for Bob Dylan's \"Blonde on Blonde\" and \"Nashville Skyline\" albums and on recordings by Billy Swan.",
+          "id": "ev_6da8d1313c3bf7aec2f8e91e",
+          "observedAt": "2026-10-14T04:48:59.496Z"
+        },
+        {
+          "sourceId": "memory:context-11",
+          "sourceVersion": "sha256:2712e4d2cdc0cf96e3d825679a89c4b746489086946b9ca5bcd7cc15c1bc966d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-11",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "rweight title, South Pacific light welterweight title, Queensland (Australia) State welterweight title, International Boxing Council (IBC) welterweight title, South Pacific welterweight title, World Boxing Federation (WBF) Intercontinental welterweight title, WBF welterweight title, Pan Asian Boxing Association (PABA) welterweight title, World Boxing Association (WBA) Fedelatin welterweight title, PABA light middleweight title, and Commonwealth light welterweight title. He was also a challenger for the South Seas light welterweight title against Pat Leglise, Australian welterweight title against Wilf Gentzen, and World Boxing O",
+          "id": "ev_494225e66815a18acf2a097f",
+          "observedAt": "2026-10-14T04:48:59.496Z"
+        },
+        {
+          "sourceId": "memory:context-381",
+          "sourceVersion": "sha256:190aa218e6b786ac9734d7528b8229c4d43caf3391ddf4aa04d4a223f35e3873",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-381",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Cooper  (Warley ABC), boxing out of West Ham Boys & ABC, won the Amateur Boxing Association of England (ABAE) 1960 Junior Cla",
+          "id": "ev_e927024f02bfdff58d2c9cc5",
+          "observedAt": "2026-10-14T04:48:59.496Z"
+        }
+      ],
+      "sourceIds": [
+        "context-284",
+        "context-11",
+        "context-381"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.0764170000038575,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:48:59.497857+00:00"
+}

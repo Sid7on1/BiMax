@@ -1,0 +1,273 @@
+{
+  "row": 94,
+  "id": "7024f17c",
+  "stratum": "multi-session",
+  "dataset": "longmemeval",
+  "question": "How many hours of jogging and yoga did I do last week?",
+  "references": [
+    "0.5 hours"
+  ],
+  "kind": "multi-session",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 21:24",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 425.1805000000022,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 54,
+        "maxInputChars": 54,
+        "requiredProviderTruncation": false,
+        "promptTokens": 15,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_a21f3697_2",
+        "answer_a21f3697_1",
+        "answer_a21f3697_3"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 18) Session date: 2023/05/22 (Mon) 23:10\nuser: I've been trying to get more organized with my time, so I was wondering if you could suggest some apps or tools to help me plan out my daily tasks and stay on top of my schedule? By the way, I used to practice yoga three times a week, each time for 2 hours, but I've been slacking off for this month and I'm trying to get back into it.\nassistant: Getting organized and back on track with your yoga practice - excellent goals! I'd be happy to help you with some app and tool recommendations to boost your productivity and help you stay committed to your daily tasks and yoga routine.\n\n**Task Management Apps:**\n  (part 4 of 18) A goal-setting app that helps you track progress toward your objectives, including fitness and wellness goals like yoga practice.\n\n**Additional Tips:**\n\n1. **Set realistic goals**: Start with achievable goals, like practicing yoga twice a week, and gradually increase frequency as you build momentum.\n2. **Schedule yoga sessions**: Treat your yoga practice as non-negotiable appointments and schedule them in your calendar.\n3. **Create a morning routine**: Begin your day with a consistent routine that sets a positive tone, including yoga practice, meditation, or journaling.\n4. **Review and adjust**: Regularly review your progress, adjust your schedule as needed, and celebrate your successes.\n- (part 14 of 15, excerpt) 3. **How many days per week can you commit to strength training?** Aim for 2-3 days per week to start, but we can adjust based on your schedule.\n- (part 9 of 18, excerpt) user: That's really helpful, thanks! I think I'll definitely try to set realistic goals and find a yoga buddy to keep me motivated. Do you have any tips on how to make the most out of my yoga class, especially if I'm",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_a21f3697_2",
+          "sourceVersion": "sha256:5c9113de455aa0ecc3404fcdbecff1ded4f0ebb80765a0107201c7aa1a26eea6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a21f3697_2",
+            "part": 1,
+            "parts": 18
+          },
+          "text": "Session date: 2023/05/22 (Mon) 23:10\nuser: I've been trying to get more organized with my time, so I was wondering if you could suggest some apps or tools to help me plan out my daily tasks and stay on top of my schedule? By the way, I used to practice yoga three times a week, each time for 2 hours, but I've been slacking off for this month and I'm trying to get back into it.\nassistant: Getting organized and back on track with your yoga practice - excellent goals! I'd be happy to help you with some app and tool recommendations to boost your productivity and help you stay committed to your daily tasks and yoga routine.\n\n**Task Management Apps:**",
+          "id": "ev_eb77cbce5d445c7e3e4cf0f9",
+          "observedAt": "2026-10-14T05:00:44.643Z"
+        },
+        {
+          "sourceId": "memory:answer_a21f3697_2",
+          "sourceVersion": "sha256:5c9113de455aa0ecc3404fcdbecff1ded4f0ebb80765a0107201c7aa1a26eea6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a21f3697_2",
+            "part": 4,
+            "parts": 18
+          },
+          "text": "A goal-setting app that helps you track progress toward your objectives, including fitness and wellness goals like yoga practice.\n\n**Additional Tips:**\n\n1. **Set realistic goals**: Start with achievable goals, like practicing yoga twice a week, and gradually increase frequency as you build momentum.\n2. **Schedule yoga sessions**: Treat your yoga practice as non-negotiable appointments and schedule them in your calendar.\n3. **Create a morning routine**: Begin your day with a consistent routine that sets a positive tone, including yoga practice, meditation, or journaling.\n4. **Review and adjust**: Regularly review your progress, adjust your schedule as needed, and celebrate your successes.",
+          "id": "ev_2a89049b29c64f2a8e4ef81f",
+          "observedAt": "2026-10-14T05:00:44.647Z"
+        },
+        {
+          "sourceId": "memory:answer_a21f3697_1",
+          "sourceVersion": "sha256:1ad6955ba7aa3be8ebaac0201e17f4a83866d8e1463247270a88e67f00363269",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a21f3697_1",
+            "part": 14,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "3. **How many days per week can you commit to strength training?** Aim for 2-3 days per week to start, but we can adjust based on your schedule.",
+          "id": "ev_4be31a72d354dadcb477ce37",
+          "observedAt": "2026-10-14T05:00:44.648Z"
+        },
+        {
+          "sourceId": "memory:answer_a21f3697_3",
+          "sourceVersion": "sha256:d22909f95d1aff8d08d5dca5a14c45e8e6457a96642f2bae2067e22aa55b5b3c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a21f3697_3",
+            "part": 9,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: That's really helpful, thanks! I think I'll definitely try to set realistic goals and find a yoga buddy to keep me motivated. Do you have any tips on how to make the most out of my yoga class, especially if I'm",
+          "id": "ev_fe442d22d22583a2622f73c5",
+          "observedAt": "2026-10-14T05:00:44.649Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_a21f3697_2",
+        "answer_a21f3697_1",
+        "answer_a21f3697_3"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 37.95562500000233,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_a21f3697_2",
+        "answer_a21f3697_1",
+        "answer_a21f3697_3"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 18) Session date: 2023/05/22 (Mon) 23:10\nuser: I've been trying to get more organized with my time, so I was wondering if you could suggest some apps or tools to help me plan out my daily tasks and stay on top of my schedule? By the way, I used to practice yoga three times a week, each time for 2 hours, but I've been slacking off for this month and I'm trying to get back into it.\nassistant: Getting organized and back on track with your yoga practice - excellent goals! I'd be happy to help you with some app and tool recommendations to boost your productivity and help you stay committed to your daily tasks and yoga routine.\n\n**Task Management Apps:**\n  (part 4 of 18) A goal-setting app that helps you track progress toward your objectives, including fitness and wellness goals like yoga practice.\n\n**Additional Tips:**\n\n1. **Set realistic goals**: Start with achievable goals, like practicing yoga twice a week, and gradually increase frequency as you build momentum.\n2. **Schedule yoga sessions**: Treat your yoga practice as non-negotiable appointments and schedule them in your calendar.\n3. **Create a morning routine**: Begin your day with a consistent routine that sets a positive tone, including yoga practice, meditation, or journaling.\n4. **Review and adjust**: Regularly review your progress, adjust your schedule as needed, and celebrate your successes.\n- (part 14 of 15, excerpt) 3. **How many days per week can you commit to strength training?** Aim for 2-3 days per week to start, but we can adjust based on your schedule.\n- (part 9 of 18, excerpt) user: That's really helpful, thanks! I think I'll definitely try to set realistic goals and find a yoga buddy to keep me motivated. Do you have any tips on how to make the most out of my yoga class, especially if I'm",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_a21f3697_2",
+          "sourceVersion": "sha256:5c9113de455aa0ecc3404fcdbecff1ded4f0ebb80765a0107201c7aa1a26eea6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a21f3697_2",
+            "part": 1,
+            "parts": 18
+          },
+          "text": "Session date: 2023/05/22 (Mon) 23:10\nuser: I've been trying to get more organized with my time, so I was wondering if you could suggest some apps or tools to help me plan out my daily tasks and stay on top of my schedule? By the way, I used to practice yoga three times a week, each time for 2 hours, but I've been slacking off for this month and I'm trying to get back into it.\nassistant: Getting organized and back on track with your yoga practice - excellent goals! I'd be happy to help you with some app and tool recommendations to boost your productivity and help you stay committed to your daily tasks and yoga routine.\n\n**Task Management Apps:**",
+          "id": "ev_eb77cbce5d445c7e3e4cf0f9",
+          "observedAt": "2026-10-14T05:00:44.663Z"
+        },
+        {
+          "sourceId": "memory:answer_a21f3697_2",
+          "sourceVersion": "sha256:5c9113de455aa0ecc3404fcdbecff1ded4f0ebb80765a0107201c7aa1a26eea6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a21f3697_2",
+            "part": 4,
+            "parts": 18
+          },
+          "text": "A goal-setting app that helps you track progress toward your objectives, including fitness and wellness goals like yoga practice.\n\n**Additional Tips:**\n\n1. **Set realistic goals**: Start with achievable goals, like practicing yoga twice a week, and gradually increase frequency as you build momentum.\n2. **Schedule yoga sessions**: Treat your yoga practice as non-negotiable appointments and schedule them in your calendar.\n3. **Create a morning routine**: Begin your day with a consistent routine that sets a positive tone, including yoga practice, meditation, or journaling.\n4. **Review and adjust**: Regularly review your progress, adjust your schedule as needed, and celebrate your successes.",
+          "id": "ev_2a89049b29c64f2a8e4ef81f",
+          "observedAt": "2026-10-14T05:00:44.663Z"
+        },
+        {
+          "sourceId": "memory:answer_a21f3697_1",
+          "sourceVersion": "sha256:1ad6955ba7aa3be8ebaac0201e17f4a83866d8e1463247270a88e67f00363269",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a21f3697_1",
+            "part": 14,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "3. **How many days per week can you commit to strength training?** Aim for 2-3 days per week to start, but we can adjust based on your schedule.",
+          "id": "ev_4be31a72d354dadcb477ce37",
+          "observedAt": "2026-10-14T05:00:44.664Z"
+        },
+        {
+          "sourceId": "memory:answer_a21f3697_3",
+          "sourceVersion": "sha256:d22909f95d1aff8d08d5dca5a14c45e8e6457a96642f2bae2067e22aa55b5b3c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a21f3697_3",
+            "part": 9,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: That's really helpful, thanks! I think I'll definitely try to set realistic goals and find a yoga buddy to keep me motivated. Do you have any tips on how to make the most out of my yoga class, especially if I'm",
+          "id": "ev_fe442d22d22583a2622f73c5",
+          "observedAt": "2026-10-14T05:00:44.664Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_a21f3697_2",
+        "answer_a21f3697_1",
+        "answer_a21f3697_3"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 13.38799999999901,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:56:54.129869+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "I don't have any recorded data about your jogging or yoga hours from last week. The conversation history only mentions your past habit of practicing yoga three times a week for 2 hours each, but it doesn't track or summarize actual weekly activity. There's no jogging data at all. Therefore, I cannot determine how many hours you did last week.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 550,
+    "completion_tokens": 824,
+    "total_tokens": 1374,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 750,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 318,
+    "completion_tokens": 491,
+    "total_tokens": 809,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 488,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 9783.264207999764,
+  "judgeWallMs": 5503.998917000445,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.03333333333333333
+  },
+  "ended": "2026-10-14T07:57:09.419034+00:00"
+}

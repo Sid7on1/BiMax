@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T15:43:56.600814+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 0,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: not specified\nQuestion: Ellie Goulding worked with what other writers on her third studio album, Delirium?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 6) houses in England and the United States, and died onstage at the Metropolitan Opera House, New York, during a performance of \"Martha\" by Friedrich von Flotow.\n\nDocument 1241:\nDelirium (Ellie Goulding album)\nDelirium is the third studio album by English singer and songwriter Ellie Goulding, released on 6 November 2015 by Polydor Records. Music critics were generally impressed by the overall production of the record, although they were ambivalent in regards to its originality. It debuted at number three on the UK Albums Chart and the US \"Billboard\" 200, earning Goulding her highest-charting record in the latter country and her highest first-week sales figures in both territories. The album spawned three singles: \"On My Mind\", \"Army\" and \"Something in the Way You Move\".\n  (part 6 of 6, excerpt) Document 1244:\nGumbo (PJ Morton album)\nGumbo is the fourth and first self-released studio album by American singer-songwriter PJ Morton. It was released on April 14, 2017, by Morton Records, as the follow-up to his third studio album \"New Orleans\" (2013). The record incorporates R&B styles with elements of older soul music; its lyrics discuss themes of romance and explores political and personal themes. The album is entirely produced by Morton himself and features guest appearances by Pell, BJ the Chicago Kid and R&B singer Anthony Hamilton's back-up group, The HamilTones. The album features a cover of the Bee Gees' \"How Deep Is Your Love\".\n\nDocument 1245:\n- (part 3 of 5, excerpt) \"Army\" is a song by English singer and songwriter Ellie Goulding from her third studio album, \"Delirium\" (2015). The song was released on\n- (part 2 of 5, excerpt) \"On My Mind\" is a song by English singer Ellie Goulding from her third studio album \"Delirium\" (2015). It was released as the"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 7906.0328749983455
+}

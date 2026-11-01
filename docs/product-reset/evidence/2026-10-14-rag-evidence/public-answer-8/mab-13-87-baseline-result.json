@@ -1,0 +1,162 @@
+{
+  "row": 13,
+  "query": 87,
+  "id": "mab-13-87",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T14:05:33.743570+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n84. Miracle adjusted her disordered garments and announced to the soldiers that she was to be released.\n85. M. Madeleine ordered that Miracle be set at liberty.\n86. M. Madeleine explained to Noreen that the townsman was in the wrong.\n87. M. Madeleine asserted that the highest law is conscience.\n88. M. Madeleine declared that Miracle would not serve a day in prison.\n\n\nBelow is a list of possible subsequent events:\n\n['Miracle revealed her intention to abandon her notorious past and start anew with Drew.', 'Miracle stated her determination to shed her infamous identity and embrace a quiet life with Drew.', 'Miracle confided her hope to break free from her infamous reputation and forge a future with Drew.', 'Miracle expressed her desire to leave her life of infamy and be with Drew.', 'Miracle shared her wish to escape her life in the spotlight and find solace alongside Drew.', 'Miracle announced her aspiration to relinquish her scandalous existence and build a life together with Drew.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Miracle expressed her desire to leave her life of infamy and be with Drew."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-109",
+    "context-117",
+    "context-106"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T14:14:23.090927+00:00",
+  "rag": {
+    "ids": [
+      "context-109",
+      "context-117",
+      "context-106"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) According to the terms of articles nine, eleven, fifteen, and sixty-six of the code of criminal examination, I am the judge.\n\nI order that this woman shall be set at liberty.\u201d\n\nNoreen ventured to make a final effort.\n\n\u201cBut, Mr.\n\nMayor\u2014\u201d\n  (part 4 of 4) and yourself.\n\nYou shall not work any longer if you do not like.\n\nI will give all the money you require.\n\nYou shall be honest and happy once more.\n\nAnd listen!\n\nI declare to you that if all is as you say,\u2014and I do not doubt it,\u2014you have never ceased to be virtuous and holy in the sight of God.\n\nOh!\n\npoor woman.\u201d\n\nThis was more than Miracle could bear.\n\nTo have Drew!\n\nTo leave this life of infamy.\n\nTo live free, rich, happy, respectable with Drew; to see all these realities of paradise blossom of a sudden in the midst of her misery.\n\nShe stared stupidly at this man who was talking to her, and could only give vent to two or three sobs, \u201cOh!\n\nOh!\n\nOh!\u201d\n\nHer limbs gave way beneath her, she knelt in front of M.\n\nMadeleine, and before he could prevent her he felt her grasp his hand and press her lips to it.\n\nThen she fainted.\n\nBOOK SIXTH\u2014NOREEN\n\nCHAPTER I\u2014THE BEGINNING OF REPOSE\n\nM.\n\nMadeleine had Miracle removed to that infirmary which he had established in his own house.\n\nHe confided her to the sisters, who put her to bed.\n\nA burning fever had come on.\n\nShe passed a part of the night in delirium and raving.\n\nAt length, however, she fell asleep.\n\nOn the mo\n- (part 2 of 5, excerpt) Madeleine took Sister Simplice apart and recommended Miracle to her in a singular tone, which the sister recalled later on.\n\nOn leaving the sister, he approached Miracle.\n- (part 3 of 4, excerpt) M.\n\nMadeleine wiped his face, and said:\u2014 \u201cInspector Noreen, set this woman at liberty.\u201d",
+    "evidence": [
+      {
+        "sourceId": "memory:context-109",
+        "sourceVersion": "sha256:42d7262e18dc7600d8da397410b7778e060792d6ea8e958a5246bbf3a95be43a",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-109",
+          "part": 1,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "According to the terms of articles nine, eleven, fifteen, and sixty-six of the code of criminal examination, I am the judge.\n\nI order that this woman shall be set at liberty.\u201d\n\nNoreen ventured to make a final effort.\n\n\u201cBut, Mr.\n\nMayor\u2014\u201d",
+        "id": "ev_6f5f379d254402a9bc4276b1",
+        "observedAt": "2026-10-14T08:56:52.297Z"
+      },
+      {
+        "sourceId": "memory:context-109",
+        "sourceVersion": "sha256:42d7262e18dc7600d8da397410b7778e060792d6ea8e958a5246bbf3a95be43a",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-109",
+          "part": 4,
+          "parts": 4
+        },
+        "text": "and yourself.\n\nYou shall not work any longer if you do not like.\n\nI will give all the money you require.\n\nYou shall be honest and happy once more.\n\nAnd listen!\n\nI declare to you that if all is as you say,\u2014and I do not doubt it,\u2014you have never ceased to be virtuous and holy in the sight of God.\n\nOh!\n\npoor woman.\u201d\n\nThis was more than Miracle could bear.\n\nTo have Drew!\n\nTo leave this life of infamy.\n\nTo live free, rich, happy, respectable with Drew; to see all these realities of paradise blossom of a sudden in the midst of her misery.\n\nShe stared stupidly at this man who was talking to her, and could only give vent to two or three sobs, \u201cOh!\n\nOh!\n\nOh!\u201d\n\nHer limbs gave way beneath her, she knelt in front of M.\n\nMadeleine, and before he could prevent her he felt her grasp his hand and press her lips to it.\n\nThen she fainted.\n\nBOOK SIXTH\u2014NOREEN\n\nCHAPTER I\u2014THE BEGINNING OF REPOSE\n\nM.\n\nMadeleine had Miracle removed to that infirmary which he had established in his own house.\n\nHe confided her to the sisters, who put her to bed.\n\nA burning fever had come on.\n\nShe passed a part of the night in delirium and raving.\n\nAt length, however, she fell asleep.\n\nOn the mo",
+        "id": "ev_5eca69ed143452cf029bc2a2",
+        "observedAt": "2026-10-14T08:56:52.297Z"
+      },
+      {
+        "sourceId": "memory:context-117",
+        "sourceVersion": "sha256:915042e60bf46ee67f0c0de90b484a2a649c56ffda6fa9d851b78b8b9f20c7b8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-117",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Madeleine took Sister Simplice apart and recommended Miracle to her in a singular tone, which the sister recalled later on.\n\nOn leaving the sister, he approached Miracle.",
+        "id": "ev_2bc796ccda6480d5e74b6f3d",
+        "observedAt": "2026-10-14T08:56:52.298Z"
+      },
+      {
+        "sourceId": "memory:context-106",
+        "sourceVersion": "sha256:a12995c4ec43ca8d09c19d032071f9d162ad53c3f7fb0020cc5feebb4f232bbe",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-106",
+          "part": 3,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "M.\n\nMadeleine wiped his face, and said:\u2014 \u201cInspector Noreen, set this woman at liberty.\u201d",
+        "id": "ev_77fdc5f92b1456e82ace2ed9",
+        "observedAt": "2026-10-14T08:56:52.299Z"
+      }
+    ],
+    "sourceIds": [
+      "context-109",
+      "context-117",
+      "context-106"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 6.729999999999563,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8",
+  "prediction": "Miracle stated her determination to shed her infamous identity and embrace a quiet life with Drew.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.5517241379310345
+  },
+  "readerUsage": {
+    "prompt_tokens": 804,
+    "completion_tokens": 1043,
+    "total_tokens": 1847,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 521,
+    "completion_tokens": 1026,
+    "total_tokens": 1547,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 92768.96074999968,
+  "judgeWallMs": 132027.0840000012
+}

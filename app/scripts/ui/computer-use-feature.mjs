@@ -1,0 +1,34 @@
+import puppeteer from 'puppeteer-core';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import assert from 'node:assert/strict';
+import { chromeExecutable } from './harness.mjs';
+const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+const evidence = path.join(repo, 'docs/product-reset/evidence/2026-10-07-full-arc-cu-feature');
+const scratch = mkdtempSync(path.join(tmpdir(), 'bimax-cu-renderer-'));
+let browser;
+try {
+  execFileSync('bun', ['build', path.join(evidence, 'renderer-probe.tsx'), '--production', '--target=browser', '--format=iife', '--outfile', path.join(scratch, 'probe.js')], { cwd: repo, stdio: 'pipe' });
+  writeFileSync(path.join(scratch, 'index.html'), '<!doctype html><meta charset="utf-8"><style>html,body{height:100%;margin:0}.h-full{height:100%}.flex-1{flex:1}.min-h-0{min-height:0}#root{height:600px;display:flex;flex-direction:column}button{cursor:pointer}</style><div id="root"></div><script src="probe.js"></script>');
+  browser = await puppeteer.launch({ executablePath: chromeExecutable(), headless: true, args: ['--allow-file-access-from-files'] });
+  const page = await browser.newPage(), errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto(`file://${path.join(scratch, 'index.html')}`);
+  await page.waitForFunction(() => document.querySelector('button[aria-expanded]'));
+  const summary = await page.$eval('button[aria-expanded]', button => button.textContent);
+  assert(summary.includes('Computer Use')); assert(summary.includes('2 app actions')); assert(!/BimaxCuTool|MCP|window_id|123/.test(summary));
+  assert.equal(await page.$('pre'), null);
+  await page.click('button[aria-expanded]');
+  await page.waitForFunction(() => document.querySelector('pre'));
+  const diagnostics = await page.$eval('pre', node => node.textContent);
+  assert(diagnostics.includes('window_id')); assert(diagnostics.includes('Fixture diagnostics only'));
+  await page.evaluate(() => window.probe.render('error'));
+  await page.waitForFunction(() => document.body.textContent.includes('Computer Use failed'));
+  const failed = await page.$eval('button[aria-expanded]', button => button.textContent);
+  assert(failed.includes('Computer Use failed')); assert.equal(errors.length, 0);
+  writeFileSync(process.argv[2] || path.join(evidence, 'renderer.json'), JSON.stringify({ summary, failed, diagnosticsOnlyAfterExpand: true, browserErrors: errors, scope: 'actual Transcript component in production bundle, minimal layout fixture; not installed desktop or native input' }, null, 2));
+  console.log('PASS actual Computer Use activity, hidden raw arguments, readable failure and diagnostic disclosure');
+} finally { await browser?.close(); rmSync(scratch, { recursive: true, force: true }); }

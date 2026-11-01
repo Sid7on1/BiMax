@@ -1,0 +1,145 @@
+{
+  "row": 0,
+  "query": 44,
+  "id": "mab-0-44",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:41:54.296164+00:00",
+  "valid": true,
+  "question": "Who was the ruling class ahead of the Normans?",
+  "references": [
+    "Anglo-Saxons",
+    "the Anglo-Saxons",
+    "Anglo-Saxons"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-219",
+    "context-112",
+    "context-106"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:42:13.221000+00:00",
+  "rag": {
+    "ids": [
+      "context-219",
+      "context-112",
+      "context-106"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6) and improvements of living conditions. The Social Charter became the basis for European Community legislation on these issues in 40 pieces of legislation.\n\nDocument 1095:\nIn 1066, Duke William II of Normandy conquered England killing King Harold II at the Battle of Hastings. The invading Normans and their descendants replaced the Anglo-Saxons as the ruling class of England. The nobility of England were part of a single Normans culture and many had lands on both sides of the channel. Early Norman kings of England, as Dukes of Normandy, owed homage to the King of France for their land on the continent. They considered England to be their most important holding (it brought with it the title of King\u2014an important status symbol).\n- (part 3 of 5, excerpt) Document 568:\nThe Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Francia. The distinct cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.\n- (part 2 of 5, excerpt) The city's garrison resisted until February 1082, when Dyrrachium was betrayed to the Normans by the Venetian and Amalfitan merchants who had settled there.",
+    "evidence": [
+      {
+        "sourceId": "memory:context-219",
+        "sourceVersion": "sha256:3b0ef2f3aa63c90f36b8995231e8f8b0ba784a2397bca91f08d261f3a0d9bb7c",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-219",
+          "part": 4,
+          "parts": 6
+        },
+        "text": "and improvements of living conditions. The Social Charter became the basis for European Community legislation on these issues in 40 pieces of legislation.\n\nDocument 1095:\nIn 1066, Duke William II of Normandy conquered England killing King Harold II at the Battle of Hastings. The invading Normans and their descendants replaced the Anglo-Saxons as the ruling class of England. The nobility of England were part of a single Normans culture and many had lands on both sides of the channel. Early Norman kings of England, as Dukes of Normandy, owed homage to the King of France for their land on the continent. They considered England to be their most important holding (it brought with it the title of King\u2014an important status symbol).",
+        "id": "ev_e48fa98cc6dc9500666c8a95",
+        "observedAt": "2026-10-14T08:38:03.484Z"
+      },
+      {
+        "sourceId": "memory:context-112",
+        "sourceVersion": "sha256:9fe9625a5a6bc47e5f39651d02c26d51137bab1df75360a70aac3596b7a3ffee",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-112",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Document 568:\nThe Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Francia. The distinct cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.",
+        "id": "ev_e12707c559f1b14badb5a92e",
+        "observedAt": "2026-10-14T08:38:03.484Z"
+      },
+      {
+        "sourceId": "memory:context-106",
+        "sourceVersion": "sha256:e1b7c4e4eb9f82a8cf7b567ef663b193630a453c6653ebd26944d868483650b0",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-106",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "The city's garrison resisted until February 1082, when Dyrrachium was betrayed to the Normans by the Venetian and Amalfitan merchants who had settled there.",
+        "id": "ev_0a5e3c43c4b5f1f766926e2f",
+        "observedAt": "2026-10-14T08:38:03.484Z"
+      }
+    ],
+    "sourceIds": [
+      "context-219",
+      "context-112",
+      "context-106"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.9225420000002487,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "The Anglo-Saxons were the ruling class in England before the Normans replaced them following the Norman Conquest in 1066.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.125
+  },
+  "readerUsage": {
+    "prompt_tokens": 495,
+    "completion_tokens": 540,
+    "total_tokens": 1035,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 509,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 307,
+    "completion_tokens": 569,
+    "total_tokens": 876,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 566,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 9122.523832999832,
+  "judgeWallMs": 7422.629040999709
+}

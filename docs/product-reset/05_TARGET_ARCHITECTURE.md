@@ -1,5 +1,140 @@
 # Target architecture
 
+## Snapshot admission and retained-history recovery — record 119
+
+[Record 119](119_HISTORY_LIMIT_AND_RECOVERY.md) keeps the existing JSON snapshot format and 32 MiB
+encoded per-file read limit, applies it to every writer before replacement, and exposes retained
+unreadable/oversized files through a metadata-only recovery catalog. Main resolves ids/location flags;
+the renderer cannot choose source paths. User-selected raw export streams, independently verifies
+bytes and preserves originals. Bin wrappers reserve metadata overhead without widening inner history
+admission. Full in-app paging and aggregate installed resource qualification remain Target.
+
+## Known-folder creation authority — record 114
+
+[Record 114](114_WORKSPACE_CHATS_RETRIEVAL_AND_CANVAS.md) adds bounded known-folder metadata and encrypted idempotent empty-chat creation. The Mac maps opaque ids back to fresh canonical known roots; the phone supplies no path. Creation neither selects nor starts an engine. Snapshot intent, bind peer/folder in the journal, and revalidate current secure session after async admission. Source/id owns UI lifetime. Local embedding service identity/destination remains unchanged.
+
+## Phone presentation and route truth — record 112
+
+[Record 112](112_PHONE_PREFERENCES_AND_CONNECTION_SETTINGS.md): phone account-scoped preferences stay local; Mac model/tool/system configuration remains Mac-owned. Current transport is shown only with an authenticated paired session. Cloud relay traffic, Mac conversation storage and Metro LAN loading remain three distinct responsibilities. Frame-coalesced incremental delivery preserves exact final state and cancels on unmount.
+
+## Shared message body and source-aware navigation — record 111
+
+[Record 111](111_SHARED_MESSAGES_AND_PHONE_DRAWER.md) centralizes Desktop/phone message layout and reasoning in one compiled component with host-specific action slots. Drawer routes distinguish phone versus Mac identity; Mac history remains memory-only and paired transport is unchanged. No privileged Desktop bridge is included in the phone renderer.
+
+## Trusted live phone transport — record 110, 2026-10-25
+
+[Record 110](110_TRUSTED_PHONE_LIVE_CONNECTION.md) makes verified peer/current Noise authority the ordinary-operation host grant, while keeping signed phone tool decisions, revocation and local Stop. One selected revision-bound watch pushes adapter state from either device. Paced immutable history remains bounded. A separate deployed account/device-bound relay supports LAN/cloud transport; its revocable Mac-key credential carries no user session or model entitlement. This explicitly supersedes historical native per-request consent/banner statements below. Physical roaming/sleep/account setup remain Target.
+
+## Selected history and shared rendering — 2026-10-24, record 109
+
+[Record 109](109_PHONE_CONVERSATIONS_AND_SHARED_RENDERER.md) adds authenticated bounded history snapshots without starting/selecting engines. Native consent and cursors bind the selected Bimax Thread and exact secure session. Phone read state is memory-only. One offline transcript WebView compiles Desktop Markdown/plugins/styles with a narrow Copy/link bridge, network-denying CSP and no privileged preload. Hash gates enforce the linked two-repository build. Device/resource/cloud/release qualification remains separate.
+
+## Main-owned local phone connection — 2026-10-24, record 105
+
+[Record 105](105_PHONE_PAIRING_AND_DESKTOP_TESTS.md) replaces normal Desktop's environment-only startup with explicit Settings opt-in and encrypted persisted connection preferences. Main binds an authenticated relay only to a current selected private address. Shared mobile core owns signed hello/routing/replay/outbox logic; the app-owned listener uses in-memory Node SQLite. Renderer supplies no arbitrary URL, key or storage authority. Exact trusted-document IPC, immutable approval capabilities, native per-request consent, visible activity and local Stop remain. Public wire presentation crosses the existing protocol API; Node-24 worker caps now include young generation. LAN settings are implemented; cloud accounts/rollout, physical-device permission behavior and release remain Target.
+
+## Renderer, filesystem and mobile approval authority — 2026-10-24, record 104
+
+[Record 104](104_SECURITY_BOUNDARIES_AND_MOBILE_LINK.md) narrows privileged renderer admission to exact app-owned documents, including navigation/redirect checks. Files IPC holds a selected-project directory descriptor and delegates bounded `openat`/`O_NOFOLLOW` operations to an app-bundled helper; there is no path-based fallback. It is file authority, not Computer Use or a new Terminal permission owner. MCP App calls retain an explicit current-guest sender policy through the common IPC wrapper. Mobile approvals carry the exact fresh ThreadManager token, snapshotted arguments and cancellation/expiry/session fences across the linked protocol-2 responder. Fetch policy validates/pins DNS and redirects and bounds bytes before parsing. Source-build fixtures qualify these paths; installed helper/signing, physical phones, arbitrary same-user filesystem interference and full recovery remain Target.
+
+## Bounded messaging verification — 2026-10-11, record 84
+
+[Record 84](84_MESSAGING_RELIABILITY.md) adds a Mac-owned SEND_MESSAGE workflow:
+exact recipient/draft evidence, a fresh check after each approval, exactly one
+added outgoing row and a cleared composer. Only that consumed draft is retired;
+ordinary persistent-field checks remain strict. Ambiguity, unknown completion and
+missing proof stop without replay. Visible outgoing evidence is not delivery.
+This remains built-in Bimax CU, with direct @CU and per-input approvals.
+WhatsApp contact selection, full M01, repeated native/model-tier reliability and
+release qualification remain Target. The local signed alpha is installed. A selected-conversation fixture subcase is
+locally Measured with one Send and injected Pause/Resume. The record retains the
+initial no-input failure, 189 tests, nine source faults and fifteen grader faults;
+none establishes broad reliability.
+
+
+## Direct @CU experience — 2026-10-11, record 83
+
+[Record 83](83_DIRECT_AT_CU_EXPERIENCE.md) supersedes records 81–82’s required app/window picker at the
+owner’s request. Send `@CU <task>` in either composer: Do is the default, and the
+CU model discovers actual running apps/windows after dispatch. Guide/Teach and
+saved workflows are optional. Read grants, per-input approval, exact observations,
+Pause/Stop and no-replay barriers remain. Main-owned ephemeral single-use admission
+refuses restored/expired requests; discovery metadata grants no input authority.
+Mac owns CU through its private host channel. Broader model reliability, full M02/X01
+and release qualification remain Target. The signed local arm64 app is installed;
+one direct saved-model Do task is Measured on the owned fixture (two verified
+inputs, exact text, exactly one Save). Local typecheck, 392 regression tests, ten
+renderer checks and seven source faults pass; record 83 scopes the receipts.
+
+
+## CU modes and verification recovery — 2026-10-11, record 82
+
+[Record 82](82_CU_MODES_AND_VERIFICATION_RECOVERY.md) adds Do/Guide/Teach,
+revision-bound in-panel approvals, Pause/Take over/Resume/Stop, and explicit
+read-only correction of a changed unexpected status. Guide has no native input;
+Teach saves only verified literal instructions and reuse requires a fresh target
+and consent. Exact postconditions and no-replay barriers remain. Local host and
+renderer contracts are scoped in record 82; assisted correction is not autonomous
+model inference. The signed local arm64 v2 app is installed. Individual Teach
+(assisted), Guide (zero native inputs) and Do outcomes are Measured on one owned
+fixture; 33 grader faults are rejected. Interrupted/rejected attempts remain
+recorded. Broader model planning/prose reliability, repeated model tiers, full
+M02/X01 and distribution remain Target.
+
+## Explicit @CU messages — 2026-10-10, record 81
+
+[Record 81](81_AT_CU_MESSAGE_ROUTING.md) implements per-message Computer Use in the project composer
+and ⌘2 floating bar: autocomplete, a visible chip and explicit running-app/window
+selection. Main-owned single-use receipts and native enforcement bind the exact
+window; the engine advertises and executes only CU plus clarification for that
+turn. Ordinary coding messages cannot activate CU by guessing its tool name.
+Picker consent is separate from task read/input approvals. Queued/restarted routes
+never silently become coding turns. Native ownership remains Bimax for Mac through
+its private host channel, without an MCP connector. Local contracts, renderer end
+states and assertion-caught faults are scoped in record 81. Full M02/X01, repeated
+model reliability and release/performance qualification remain Target.
+
+## Full Arc source owned by Bimax CU — 2026-10-07, record 80
+
+[Record 80](80_FULL_ARC_SOURCE_AND_BUILT_IN_CU_FEATURE.md) places all 100 original
+Arc files inside `app/native/computer/vendor/arc-cua/` and ships that full source
+snapshot plus all 34 Python package modules inside Bimax CU. Original MIT identity,
+authorship and byte hashes remain. The upstream MCP/CLI code is retained; Bimax's
+entry refuses its `mcp`/`run` commands and exposes only the private app component.
+Computer Use is a File menu action and readable chat activity. Its engine connection
+remains the birth-transferred internal MessagePort, never a managed MCP connector.
+Record 79's module exclusions and the earlier third_party location are superseded.
+The installed v4 app is **Measured** on one owned fixture with the saved gpt-oss-20b:
+one verified field edit, one verified Save click, exact persisted text and save count
+one, plus independent native AX read-back. Flat arguments, safe read correction and
+standalone window-target import defects are fixed. Failed attempts remain recorded.
+Full native/saved-model M02/X01, clean-Mac distribution and performance remain Target.
+
+
+## Internal Bimax CU — 2026-10-07, record 79
+
+[Record 79](79_INTERNAL_BIMAX_CU_AND_WORKFLOW_RELIABILITY.md) supersedes record 78's
+MCP connection at the owner's explicit request. Bimax for Mac owns a built-in
+`BimaxCuTool`, transferred to its engine worker through a private MessagePort at
+worker creation. No MCP descriptor, proxy, socket route or detachable connection
+supplies CU. The pinned MIT Arc Driver remains the native backend; Bimax's archived
+commit-label and executable-identity policies are selected first-party components,
+combined with ordered workflow execution and independent UI read-back. Product
+identity is Bimax CU; original Arc authorship/license/provenance remain intact.
+Terminal owns no native binary, permission or native tool implementation. Legacy
+CUA/COMPUTER_CONTROL routes remain refused. Local contracts/builds qualify only
+what record 79's receipts prove; full M02/X01, model tiers and release remain Target.
+
+
+## CU source-import boundary — 2026-10-07
+
+[Record 77](77_CU_SOURCE_IMPORT_RECORD.md) returns the archived source to
+`archive/computer-use/` and adds the complete pinned arc-cua snapshot at
+`third_party/arc-cua/`. These locations are outside active compilation, Jest roots
+and app packaging. Historical source copies do not replace current main/engine
+integration files. Record 66's runtime retirement and Mac-only permission ownership
+remain; its external-only source location is superseded.
+
 ## Fresh project conversations and scoped replay — 2026-10-05
 
 [Record 69](69_FRESH_CHAT_AND_REPLAY_ISOLATION.md) changes explicit repository opening to create a
@@ -68,7 +203,7 @@ through an incomplete standardization rewrite.
 ## App-owned computer capability
 
 The end state is a Desktop capability provider registered with the engine over a narrow local
-interface (MCP is the preferred existing seam). Terminal ships the generic capability client but no
+interface (the active monolith uses a transferred MessagePort; MCP remains for external integrations). Terminal ships the generic capability client but no
 Mac provider and therefore exposes no computer tool or computer prompt.
 
 Migration has an intentional temporary state: Desktop may bundle an engine that still contains the

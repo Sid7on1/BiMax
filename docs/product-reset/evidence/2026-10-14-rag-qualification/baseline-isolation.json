@@ -1,0 +1,34 @@
+[
+  {
+    "name": "baseline-resource-contracts",
+    "command": [
+      "node",
+      "node_modules/jest/bin/jest.js",
+      "--coverage=false",
+      "--runInBand",
+      "src/__tests__/rag.resources.test.ts"
+    ],
+    "exit": 1,
+    "seconds": 2.613749333002488
+  },
+  {
+    "name": "baseline-unrelated-jest",
+    "command": [
+      "node",
+      "node_modules/jest/bin/jest.js",
+      "--coverage=false",
+      "--runInBand",
+      "app/src/__tests__/desktop.runtime.security.test.ts",
+      "app/src/main/responder/__tests__/adapter.test.ts"
+    ],
+    "exit": 1,
+    "seconds": 11.654505250000511
+  },
+  {
+    "exactRestoration": true,
+    "restoredHashes": {
+      "src/memory/vector.store.ts": "0e660a1650d44e3745d08ad1df3e22425f584c8066a28ef449a8036e02587e9a",
+      "src/memory/recall.ts": "a849be001290b83ef3cc59945232634dd628001780120121d7d9759d9a6ff7ef"
+    }
+  }
+]

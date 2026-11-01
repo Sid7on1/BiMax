@@ -31,6 +31,7 @@ function sentTokens(request: { messages: any[]; options: any }): number {
 async function turn(shape: { window: number; systemChars: number; toolChars: number; history: any[]; question?: string }) {
   const requests: Array<{ messages: any[]; options: any }> = [];
   const llm = {
+    maxTokens: Math.min(4096, Math.floor(shape.window * 0.15)),
     async *chat(messages: any[], options: any = {}) {
       const main = options.system !== undefined;
       if (main) requests.push({ messages: messages.map((m) => ({ ...m })), options });
@@ -74,6 +75,7 @@ test('the request sent fits the window, carries the question, and records what g
 
   expect(requests).toHaveLength(1);
   expect(sentTokens(requests[0])).toBeLessThanOrEqual(3000);
+  expect(sentTokens(requests[0]) + manager.lastRequest.outputReserve + manager.lastRequest.margin).toBeLessThanOrEqual(3000);
   expect(requests[0].messages.at(-1)).toMatchObject({ role: 'user', content: QUESTION });
   // What gave way is still carried: the constraint is quoted in the continuation state that went with the request.
   const continuation = requests[0].messages.find((m) => String(m.content).startsWith(CONTINUATION_PREFIX));

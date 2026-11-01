@@ -4,6 +4,24 @@ Research date: 2026-08-08. Technical conclusions use primary documentation where
 is accepted only when it is supported by a platform source and consistent with the local code or a
 second independent source.
 
+## 2026-10-26 — classic chat recovery and desktop UI references (records 115–116)
+
+Fetched current first-party [Settings reference](https://learn.chatgpt.com/docs/reference/settings),
+[Commands](https://learn.chatgpt.com/docs/reference/commands) and
+[Developer settings overview](https://learn.chatgpt.com/docs/developer-settings). The reference places
+app settings in the app menu / ⌘, and separates General, Profile, Keyboard Shortcuts, Notifications,
+Appearance, Personalization and Archived Chats. Commands document sidebar/new-chat/model-picker
+navigation. This establishes functional organization, not exact component dimensions or pixel values.
+
+Decision: retain the owner's preferred committed classic Desktop renderer; compile that same
+implementation for the phone. Preserve history/search/New at the left, lower Settings/Your Mac
+navigation and the bottom composer. Phone settings separate Appearance, General, Mac connection and
+Account, exposing only implemented controls. Mac model/provider configuration stays Mac-owned.
+Computer Use refused the installed ChatGPT app (`com.openai.codex`) for safety reasons; no native
+ChatGPT screenshot or exact visual comparison is claimed. iPhone Mirroring separately timed out.
+Native phone visual/crash/resource acceptance remains Target. See record 116 for inspected source,
+scoped end-state checks and the distinction between a renderer reset and an observed native crash.
+
 ## Verified conclusions
 
 ### 1. The Mac app is the correct XPC host

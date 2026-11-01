@@ -34,6 +34,8 @@ export interface ToolPermissionRule {
   pattern?: string;
   effect: 'allow' | 'deny';
   persistent: boolean;
+  /** Exact built-in/MCP tool identity; absent legacy allows do not grant authority. */
+  subject?: string;
 }
 
 export class Governor implements IGovernor {
@@ -75,6 +77,19 @@ export class Governor implements IGovernor {
     // Retired capability: refuse even stale plugins, bypass mode, and saved allow rules before any shortcut.
     if (taskType === 'COMPUTER_CONTROL') {
       throw new GovernorVetoError('Computer Use has been removed from Bimax.');
+    }
+
+    // NetworkConsent owns per-host caching; a first host requires actual user authority.
+    if (taskType === 'NETWORK_ACCESS') {
+      if (this.mode === 'bypass') return;
+      if (this.mode === 'unattended') throw new GovernorVetoError('No standing consent for this host; approve it interactively first.');
+      let host: string;
+      try { host = new URL(String(payload.target)).host; }
+      catch { throw new GovernorVetoError('Invalid network destination.'); }
+      if (!host || host !== payload.host) throw new GovernorVetoError('Network consent host mismatch.');
+      const answer = await GlobalPrompter.ask(`Allow ${String(payload.tool)} to reach ${host}? (${String(payload.purpose || 'network access')})`, ['Yes', 'No']);
+      if (answer !== 'Yes') throw new GovernorVetoError('Network access declined.');
+      return;
     }
 
     // Taint capability narrowing (v2 D3) — computed BEFORE the rule shortcut so a persistent
@@ -189,8 +204,11 @@ export class Governor implements IGovernor {
     }
 
     // Layer 1: Persistent Rules Check
-    const matchingRule = this.rules.find(r => r.tool === taskType && (
-      taskType !== 'OS_COMMAND' || r.effect === 'deny' || (r.pattern !== undefined && r.pattern === payload.command)
+    const subject = typeof payload.tool === 'string' && payload.tool ? payload.tool : undefined;
+    const matchingRule = this.rules.find(r => r.tool === taskType && r.effect === 'deny') ?? this.rules.find(r => r.tool === taskType && (
+      taskType === 'OS_COMMAND'
+        ? r.pattern !== undefined && r.pattern === payload.command
+        : subject !== undefined && r.subject === subject
     ));
     if (matchingRule) {
       if (matchingRule.effect === 'deny') {
@@ -257,15 +275,16 @@ export class Governor implements IGovernor {
       // A taint-narrowed command asks with the taint source in view — the human decides knowingly.
       const question = taintCut ? `⚠ TAINTED CONTEXT — ${taintCut.reason}\nAllow anyway? ${label}` : `Allow? ${label}`;
       const always = taskType === 'OS_COMMAND' ? 'Always Allow This Command' : 'Always Allow This Tool';
-      const options = taintCut ? ['Yes', 'No'] : ['Yes', 'No', always];
+      const remember = !taintCut && (taskType === 'OS_COMMAND' || subject !== undefined);
+      const options = remember ? ['Yes', 'No', always] : ['Yes', 'No'];
       const answer = await GlobalPrompter.ask(question, options);
 
-      if (answer !== 'Yes' && (taintCut || answer !== always)) {
+      if (!options.includes(answer) || answer === 'No') {
         throw new GovernorVetoError("User explicitly denied this action.");
       }
 
-      if (answer === always && !taintCut) {
-        this.addRule({ tool: taskType, effect: 'allow', persistent: true, ...(taskType === 'OS_COMMAND' ? { pattern: String(payload.command) } : {}) });
+      if (answer === always && remember) {
+        this.addRule({ tool: taskType, effect: 'allow', persistent: true, ...(taskType === 'OS_COMMAND' ? { pattern: String(payload.command) } : { subject }) });
         Logger.info(`[Governor] Added persistent allow rule for ${taskType}`);
       }
 

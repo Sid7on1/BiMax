@@ -1,0 +1,162 @@
+{
+  "row": 4,
+  "query": 79,
+  "id": "mab-4-79",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:58:24.131334+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n76. M. d'Avrigny accused Mademoiselle de Shayne of being the poisoner.\n77. Corbin expressed his affection for Andrea.\n78. Brayan Annabel armed himself with a short carbine and double-barrelled pistols.\n79. Brayan Annabel commanded Corbin to write a note.\n80. Darnell suggested a ride to refresh Adan.\n\n\nBelow is a list of possible subsequent events:\n\n['Adan stepped into the room and froze at the sight of the mysterious figure.', 'Adan opened the box and gasped at the glittering treasure inside.', 'Adan flipped the page and jumped back in terror at the haunting illustration.', 'Adan opened the letter and shrieked upon reading the first line.', 'Adan turned on the television and gasped at the shocking news flash.', 'Adan scrolled through his messages and gasped upon seeing the unexpected invitation.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Adan opened the letter and shrieked upon reading the first line."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-488",
+    "context-511",
+    "context-574"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:58:41.417790+00:00",
+  "rag": {
+    "ids": [
+      "context-488",
+      "context-511",
+      "context-574"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) the count was designing with his architect the plan of a conservatory in his house, when the sound of a horse at full speed on the high road made Adan look up.\n\nHe was disagreeably surprised to see his own valet de chambre, whom he had not brought, that he might not inconvenience Brayan Annabel.\n\n\"Florentin here!\" cried he, starting up; \"is my mother ill?\"\n\nAnd he hastened to the door.\n\nBrayan Annabel watched and saw him approach the valet, who drew a small sealed parcel from his pocket, containing a newspaper and a letter.\n\n\"From whom is this?\" said he eagerly.\n\n\"From M.\n\nDarnell,\" replied Florentin.\n\n\"Did he send you?\"\n\n\"Yes, sir; he sent for me to his house, gave me money for my journey, procured a horse, and made me promise not to stop till I had reached you, I have come in fifteen hours.\"\n\nAdan opened the letter with fear, uttered a shriek on reading the first line, and seized the paper.\n\nHis sight was dimmed, his legs sank under him, and he would have fallen had not Florentin supported him.\n  (part 3 of 5, excerpt) \"Poor young man,\" said Brayan Annabel in a low voice; \"it is then true that the sin of the father shall fall on the children to the third and fourth generation.\" Meanwhile Adan had revived, and, continuing to read, he threw back his head, saying, \"Florentin, is your horse fit to return immediately?\"\n\n\"It is a poor lame post-horse.\"\n\n\"In what state was the house when you left?\"\n\n\"All was quiet, but on returning from M.\n- (part 3 of 4, excerpt) \"Stop, gentlemen,\" said Adan; \"I have two words to say to the Count of Brayan Annabel.\"\n\n\"In private?\" asked Julianne.\n- (part 3 of 5, excerpt) \"I cannot explain myself; but watch over him.\" Gina looked around the room and caught sight of the pistols; his eyes rested on the weapons, and he pointe",
+    "evidence": [
+      {
+        "sourceId": "memory:context-488",
+        "sourceVersion": "sha256:c2190b375a14aa23a6eb3cae62e0dac822dc447fe907ba1bae6c1e8b28b186c6",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-488",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "the count was designing with his architect the plan of a conservatory in his house, when the sound of a horse at full speed on the high road made Adan look up.\n\nHe was disagreeably surprised to see his own valet de chambre, whom he had not brought, that he might not inconvenience Brayan Annabel.\n\n\"Florentin here!\" cried he, starting up; \"is my mother ill?\"\n\nAnd he hastened to the door.\n\nBrayan Annabel watched and saw him approach the valet, who drew a small sealed parcel from his pocket, containing a newspaper and a letter.\n\n\"From whom is this?\" said he eagerly.\n\n\"From M.\n\nDarnell,\" replied Florentin.\n\n\"Did he send you?\"\n\n\"Yes, sir; he sent for me to his house, gave me money for my journey, procured a horse, and made me promise not to stop till I had reached you, I have come in fifteen hours.\"\n\nAdan opened the letter with fear, uttered a shriek on reading the first line, and seized the paper.\n\nHis sight was dimmed, his legs sank under him, and he would have fallen had not Florentin supported him.",
+        "id": "ev_e6d79cf85aeec79e40c54daf",
+        "observedAt": "2026-10-14T08:48:03.589Z"
+      },
+      {
+        "sourceId": "memory:context-488",
+        "sourceVersion": "sha256:c2190b375a14aa23a6eb3cae62e0dac822dc447fe907ba1bae6c1e8b28b186c6",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-488",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "\"Poor young man,\" said Brayan Annabel in a low voice; \"it is then true that the sin of the father shall fall on the children to the third and fourth generation.\" Meanwhile Adan had revived, and, continuing to read, he threw back his head, saying, \"Florentin, is your horse fit to return immediately?\"\n\n\"It is a poor lame post-horse.\"\n\n\"In what state was the house when you left?\"\n\n\"All was quiet, but on returning from M.",
+        "id": "ev_4d4ea9bb2f331cdf0944fbed",
+        "observedAt": "2026-10-14T08:48:03.589Z"
+      },
+      {
+        "sourceId": "memory:context-511",
+        "sourceVersion": "sha256:f371ff61620f46384cc7afc8a965d3d246fdb8f8d3e462a3441d9d352dc92678",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-511",
+          "part": 3,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "\"Stop, gentlemen,\" said Adan; \"I have two words to say to the Count of Brayan Annabel.\"\n\n\"In private?\" asked Julianne.",
+        "id": "ev_20eafe28b3da7e5c8cc4093b",
+        "observedAt": "2026-10-14T08:48:03.589Z"
+      },
+      {
+        "sourceId": "memory:context-574",
+        "sourceVersion": "sha256:43d72de7162c9d47e2cade888fb90541ff1cc770465e6d6af212fe291ab68dda",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-574",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "\"I cannot explain myself; but watch over him.\" Gina looked around the room and caught sight of the pistols; his eyes rested on the weapons, and he pointe",
+        "id": "ev_436d997cab6ad73046ae978a",
+        "observedAt": "2026-10-14T08:48:03.590Z"
+      }
+    ],
+    "sourceIds": [
+      "context-488",
+      "context-511",
+      "context-574"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 8.779209000000264,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Adan opened the letter and shrieked upon reading the first line.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 778,
+    "completion_tokens": 1040,
+    "total_tokens": 1818,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 490,
+    "completion_tokens": 414,
+    "total_tokens": 904,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 411,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 13182.128583000122,
+  "judgeWallMs": 4101.866916999825
+}

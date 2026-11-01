@@ -1,0 +1,244 @@
+{
+  "method": "Two separate warm ABBA runs, nine groups each. Pool every batch-normalized sample: 36 per version/shape. Median average of middle two; no qualified sample discarded. Sample p95 is not installed application latency. Heap separate child processes, three samples/version; post-GC retained heap not RSS/peak.",
+  "sourceHashes": {
+    "baseline:src/memory/vector.store.ts": "e3d7c7a6b03df729188379844e883884ce76410eb24fb9d87d64feb8c8eff26a",
+    "baseline:src/memory/recall.ts": "ecc51e3e00118ba69a396c9989e28a1ac6af7b6201f5a7785250df60a8171a91",
+    "current:src/memory/vector.store.ts": "55400c2e1ff96e0e93db1a29664b2cea6cb17f794d2b1dd523f6aea9e228c3b8",
+    "current:src/memory/recall.ts": "a849be001290b83ef3cc59945232634dd628001780120121d7d9759d9a6ff7ef"
+  },
+  "results": [
+    {
+      "label": "warm-unknown-terms-50-docs-200-terms",
+      "baselineMs": 0.10223186999999996,
+      "currentMs": 0.0021345850000000157,
+      "speedup": 47.89308928901834,
+      "reductionPercent": 97.91201608656868,
+      "samplesPerVersion": 36,
+      "discarded": 0,
+      "sampleP95Ms": {
+        "baseline": 0.10603958999999975,
+        "current": 0.010381669999999872
+      }
+    },
+    {
+      "label": "warm-scoped-unknown-terms-50-docs",
+      "baselineMs": 0.05255000000000053,
+      "currentMs": 0.00124708499999997,
+      "speedup": 42.13826643733329,
+      "reductionPercent": 97.62686013320655,
+      "samplesPerVersion": 36,
+      "discarded": 0,
+      "sampleP95Ms": {
+        "baseline": 0.05562583000000018,
+        "current": 0.007150420000000395
+      }
+    },
+    {
+      "label": "warm-unknown-terms-500-docs-200-terms",
+      "baselineMs": 1.2706737499999985,
+      "currentMs": 0.03210562500000037,
+      "speedup": 39.57791664233242,
+      "reductionPercent": 97.47333845528796,
+      "samplesPerVersion": 36,
+      "discarded": 0,
+      "sampleP95Ms": {
+        "baseline": 1.2844437500000003,
+        "current": 0.03616791000000376
+      }
+    },
+    {
+      "label": "warm-scoped-unknown-terms-500-docs",
+      "baselineMs": 0.5510431250000011,
+      "currentMs": 0.01870291499999894,
+      "speedup": 29.46295403684572,
+      "reductionPercent": 96.60590720553878,
+      "samplesPerVersion": 36,
+      "discarded": 0,
+      "sampleP95Ms": {
+        "baseline": 0.5690233299999999,
+        "current": 0.0212945899999977
+      }
+    },
+    {
+      "label": "warm-search-long-100-chunks",
+      "baselineMs": 0.04577776666665159,
+      "currentMs": 0.033597233333299906,
+      "speedup": 1.3625457254921924,
+      "reductionPercent": 26.607967623341967,
+      "samplesPerVersion": 36,
+      "discarded": 0,
+      "sampleP95Ms": {
+        "baseline": 0.087711066666634,
+        "current": 0.05430000000002717
+      }
+    },
+    {
+      "label": "warm-search-long-10000-chunks",
+      "baselineMs": 0.963266666666641,
+      "currentMs": 0.026961133333315956,
+      "speedup": 35.72797384879698,
+      "reductionPercent": 97.20107273859956,
+      "samplesPerVersion": 36,
+      "discarded": 0,
+      "sampleP95Ms": {
+        "baseline": 1.1409555333333627,
+        "current": 0.03368060000005547
+      }
+    },
+    {
+      "label": "warm-sparse-search-50-docs",
+      "baselineMs": 0.014145133333325552,
+      "currentMs": 0.01411041666666885,
+      "speedup": 1.0024603573003417,
+      "reductionPercent": 0.24543187991669102,
+      "samplesPerVersion": 36,
+      "discarded": 0,
+      "sampleP95Ms": {
+        "baseline": 0.016588900000018232,
+        "current": 0.023163899999993496
+      }
+    },
+    {
+      "label": "warm-sparse-search-500-docs",
+      "baselineMs": 0.02796248333334006,
+      "currentMs": 0.014878483333329012,
+      "speedup": 1.8793907085073533,
+      "reductionPercent": 46.79126615485833,
+      "samplesPerVersion": 36,
+      "discarded": 0,
+      "sampleP95Ms": {
+        "baseline": 0.037333333333329694,
+        "current": 0.02249583333332339
+      }
+    },
+    {
+      "label": "warm-sparse-search-10000-docs",
+      "baselineMs": 0.4147986333333241,
+      "currentMs": 0.015170833333346914,
+      "speedup": 27.341848942573105,
+      "reductionPercent": 96.34260286456731,
+      "samplesPerVersion": 36,
+      "discarded": 0,
+      "sampleP95Ms": {
+        "baseline": 0.45506526666667924,
+        "current": 0.016051400000014836
+      }
+    },
+    {
+      "label": "warm-recall-500-docs-vocabulary-check",
+      "baselineMs": 1.4595343749999983,
+      "currentMs": 0.06693022500001007,
+      "speedup": 21.806805146699844,
+      "reductionPercent": 95.41427552879594,
+      "samplesPerVersion": 36,
+      "discarded": 0,
+      "sampleP95Ms": {
+        "baseline": 1.5240020999999615,
+        "current": 0.07602499999998144
+      }
+    },
+    {
+      "label": "warm-dense-control-50-docs",
+      "baselineMs": 0.041343049999992824,
+      "currentMs": 0.043285416666670545,
+      "speedup": 0.9551265341480858,
+      "reductionPercent": -4.698169744801262,
+      "samplesPerVersion": 36,
+      "discarded": 0,
+      "sampleP95Ms": {
+        "baseline": 0.0495722333333409,
+        "current": 0.04603890000001532
+      }
+    }
+  ],
+  "quality": [
+    {
+      "family": "ordinary",
+      "version": "baseline",
+      "cases": 24,
+      "generatedCorpora": 8,
+      "recallAt3": 1,
+      "allSources": 24,
+      "promptFactCoverage": 1,
+      "allPromptFacts": 24,
+      "mrr": 1,
+      "precision": 1,
+      "scopeViolations": 0,
+      "invalidProvenance": 0
+    },
+    {
+      "family": "ordinary",
+      "version": "current",
+      "cases": 24,
+      "generatedCorpora": 8,
+      "recallAt3": 1,
+      "allSources": 24,
+      "promptFactCoverage": 1,
+      "allPromptFacts": 24,
+      "mrr": 1,
+      "precision": 1,
+      "scopeViolations": 0,
+      "invalidProvenance": 0
+    },
+    {
+      "family": "document-crowding",
+      "version": "baseline",
+      "cases": 24,
+      "generatedCorpora": 8,
+      "recallAt3": 0.3333333333333333,
+      "allSources": 0,
+      "promptFactCoverage": 0.6666666666666666,
+      "allPromptFacts": 0,
+      "mrr": 1,
+      "precision": 1,
+      "scopeViolations": 0,
+      "invalidProvenance": 0
+    },
+    {
+      "family": "document-crowding",
+      "version": "current",
+      "cases": 24,
+      "generatedCorpora": 8,
+      "recallAt3": 1,
+      "allSources": 24,
+      "promptFactCoverage": 1,
+      "allPromptFacts": 24,
+      "mrr": 1,
+      "precision": 1,
+      "scopeViolations": 0,
+      "invalidProvenance": 0
+    }
+  ],
+  "freshnessAbstention": [
+    {
+      "version": "baseline",
+      "family": "freshness-and-abstention",
+      "missingAbstained": true,
+      "currentValue": true,
+      "deleted": true
+    },
+    {
+      "version": "current",
+      "family": "freshness-and-abstention",
+      "missingAbstained": true,
+      "currentValue": true,
+      "deleted": true
+    }
+  ],
+  "heap": {
+    "baseline": [
+      2142184,
+      3313912,
+      3313784
+    ],
+    "current": [
+      2506296,
+      3716384,
+      3716424
+    ],
+    "medianMiB": {
+      "baseline": 3.1602706909179688,
+      "current": 3.544219970703125
+    }
+  }
+}

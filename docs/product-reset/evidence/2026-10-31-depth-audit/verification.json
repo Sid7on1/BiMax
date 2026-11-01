@@ -1,0 +1,93 @@
+{
+  "status": "audit complete; runtime repairs remain Target",
+  "head": "7d1346dd9f428ce780871a652ce2f3a27b5388f6",
+  "existing_jest": {
+    "passed": 4641,
+    "skipped": 3,
+    "failed": 0,
+    "suites_passed": 480,
+    "suites_skipped": 1
+  },
+  "audit_contracts": {
+    "expected_failed": 8,
+    "passing_controls": 5,
+    "findings": [
+      {
+        "name": "CONTROL: a newer ordinary save reloads exact bytes",
+        "status": "passed"
+      },
+      {
+        "name": "A01: an old async rename already in flight must not replace a newer acknowledged input",
+        "status": "failed"
+      },
+      {
+        "name": "A02: a failed sent-state save must not leave an executed request eligible for automatic replay",
+        "status": "failed"
+      },
+      {
+        "name": "A03: an oversized snapshot is either explicitly refused or successfully reloadable",
+        "status": "failed"
+      },
+      {
+        "name": "A04: user echoes must adopt the matching earlier queued bubble, preserving order without duplicates",
+        "status": "failed"
+      },
+      {
+        "name": "A05: engine failure settles an app-owned approval promise as refused",
+        "status": "failed"
+      },
+      {
+        "name": "CONTROL: explicit Stop settles the same app-owned approval as refused",
+        "status": "passed"
+      },
+      {
+        "name": "A06: first remote instruction with a default workspace enqueues exactly one user request",
+        "status": "failed"
+      },
+      {
+        "name": "CONTROL: successful sent-state persistence prevents automatic replay on restart",
+        "status": "passed"
+      },
+      {
+        "name": "CONTROL: a single optimistic user bubble adopts the engine echo",
+        "status": "passed"
+      },
+      {
+        "name": "A07: zero-similarity memory with no lexical overlap must not be injected as relevant evidence",
+        "status": "failed"
+      },
+      {
+        "name": "A08: a bounded excerpt must preserve the answering clause on a long matching line",
+        "status": "failed"
+      },
+      {
+        "name": "CONTROL: a short answering line preserves the exact fact",
+        "status": "passed"
+      }
+    ]
+  },
+  "bun": {
+    "passed": 133,
+    "failed": 0,
+    "log": "bun-tests.log"
+  },
+  "script_tests": {
+    "passed": 3,
+    "failed": 0
+  },
+  "typechecks": {
+    "engine": "pass",
+    "app": "pass"
+  },
+  "renderer_cases": 6,
+  "renderer_errors": [],
+  "renderer_updates_over_16_67ms": 0,
+  "preserved_runtime_test_script_files": 1370,
+  "changed_baseline_files": [],
+  "scope_limits": [
+    "Controlled source contracts and microbenchmarks; no installed UX failure-rate estimate",
+    "A05 has no current production caller; A06 default-workspace branch absent from normal responder initialization",
+    "No source repair or repair-specific mutation campaign",
+    "No fresh hosted build, package/release or installed full C04/R01/R02/I01 qualification"
+  ]
+}

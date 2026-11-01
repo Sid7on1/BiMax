@@ -1,0 +1,332 @@
+{
+  "row": 20,
+  "query": 1,
+  "id": "mab-20-1",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:37:59.042569+00:00",
+  "valid": true,
+  "question": "Current Date: 2023/05/27 (Sat) 01:55,\n\n Now Answer the Question: How many months ago did I book the Airbnb in San Francisco?",
+  "references": [
+    "Five months ago"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/05/27 (Sat) 01:55",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 417.85691699999734,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 124,
+        "maxInputChars": 124,
+        "requiredProviderTruncation": false,
+        "promptTokens": 38,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-281",
+        "context-283",
+        "context-282"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6, excerpt) You'd save:\\n\\n$9.99 - $4.99 = $5.00\\n\\non the 3-pound pack of ground beef.\\n\\nYour new total estimated cost would be:\\n\\n$50.40 + $4.99 = $55.39\\n\\nWith the updated total, your cashback earnings would be:\\n\\n$55.39 x 0.01 = $0.55 in cashback\\n\\nThis sale is a grea\n  (part 5 of 6) your cashback earnings would be:\\n\\n$55.39 x 0.01 = $0.55 in cashback\\n\\nThis sale is a great opportunity to stock up on ground beef and save some money.\n\nMake sure to grab it while it's available!\"}], 'Chat Time: 2023/05/27 (Sat) 06:10', [{'role': 'user', 'content': \"I'm planning a trip to San Francisco and was wondering if you could recommend some good neighborhoods to stay in.\n\nBy the way, I've had a great experience with Airbnb in the past, like when I stayed in Haight-Ashbury for my best friend's wedding and had to book three months in advance.\"}, {'role': 'assistant', 'content': \"San Francisco is an amazing city!\n\nI'd be happy to help you find a great neighborhood to stay in.\\n\\nFirst, I have to say that Haight-Ashbury is a fantastic choice, especially if you're looking for a vibrant and eclectic atmosphere.\n\nHowever, there are many other neighborhoods in San Francisco that might suit your taste and preferences.\n\nSince you've had a good experience with Airbnb, I'll suggest some popular neighborhoods to consider:\\n\\n1.\n\n**Fisherman's Wharf**: If you want to be close to the waterfront, Alcatraz, and the famous Pier 39, Fisherman's Wharf is a great option.\n- (part 1 of 4, excerpt) }, {'role': 'assistant', 'content': 'San Francisco has a well-connected airport and a comprehensive public transportation system, making\n- (part 2 of 5, excerpt) It's a bit quieter than other areas, but still has plenty of amenities and is within walking distance to Fisherman's Wharf.\\n",
+      "evidence": [
+        {
+          "sourceId": "memory:context-281",
+          "sourceVersion": "sha256:2bd0ecdd8d221f7f6a65026f92ee256a44526a31fc6d294ccf30e8057bf20589",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-281",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "You'd save:\\n\\n$9.99 - $4.99 = $5.00\\n\\non the 3-pound pack of ground beef.\\n\\nYour new total estimated cost would be:\\n\\n$50.40 + $4.99 = $55.39\\n\\nWith the updated total, your cashback earnings would be:\\n\\n$55.39 x 0.01 = $0.55 in cashback\\n\\nThis sale is a grea",
+          "id": "ev_6fcf4dfca145fe938e87836f",
+          "observedAt": "2026-10-14T08:37:59.465Z"
+        },
+        {
+          "sourceId": "memory:context-281",
+          "sourceVersion": "sha256:2bd0ecdd8d221f7f6a65026f92ee256a44526a31fc6d294ccf30e8057bf20589",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-281",
+            "part": 5,
+            "parts": 6
+          },
+          "text": "your cashback earnings would be:\\n\\n$55.39 x 0.01 = $0.55 in cashback\\n\\nThis sale is a great opportunity to stock up on ground beef and save some money.\n\nMake sure to grab it while it's available!\"}], 'Chat Time: 2023/05/27 (Sat) 06:10', [{'role': 'user', 'content': \"I'm planning a trip to San Francisco and was wondering if you could recommend some good neighborhoods to stay in.\n\nBy the way, I've had a great experience with Airbnb in the past, like when I stayed in Haight-Ashbury for my best friend's wedding and had to book three months in advance.\"}, {'role': 'assistant', 'content': \"San Francisco is an amazing city!\n\nI'd be happy to help you find a great neighborhood to stay in.\\n\\nFirst, I have to say that Haight-Ashbury is a fantastic choice, especially if you're looking for a vibrant and eclectic atmosphere.\n\nHowever, there are many other neighborhoods in San Francisco that might suit your taste and preferences.\n\nSince you've had a good experience with Airbnb, I'll suggest some popular neighborhoods to consider:\\n\\n1.\n\n**Fisherman's Wharf**: If you want to be close to the waterfront, Alcatraz, and the famous Pier 39, Fisherman's Wharf is a great option.",
+          "id": "ev_8f7420be3d4f99a1e0b26631",
+          "observedAt": "2026-10-14T08:37:59.465Z"
+        },
+        {
+          "sourceId": "memory:context-283",
+          "sourceVersion": "sha256:b196a3c4385bff0f26f34379c336236a451e7d073e2d2f1faf4e7968e90071b6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-283",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "}, {'role': 'assistant', 'content': 'San Francisco has a well-connected airport and a comprehensive public transportation system, making",
+          "id": "ev_708d3dcad8c2eeda9e39078b",
+          "observedAt": "2026-10-14T08:37:59.465Z"
+        },
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:4b2a5fe9bd539312dcd6e747bafef71e13c784581c6be51c66ef824a5640725b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "It's a bit quieter than other areas, but still has plenty of amenities and is within walking distance to Fisherman's Wharf.\\n",
+          "id": "ev_985eba9bf2564f4742cdc450",
+          "observedAt": "2026-10-14T08:37:59.466Z"
+        }
+      ],
+      "sourceIds": [
+        "context-281",
+        "context-283",
+        "context-282"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.041917000002286,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-281",
+        "context-283",
+        "context-282"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6, excerpt) \\n\\n**Sale:** Buy One Get One 50% Off on all ground beef products, including the 3-pound pack!\\n\\nWith this sale, you can get the 3-pound pack of ground beef for:\\n\\n$9.99 - 50% of $9.99 = $4.99\\n\\nThat's a significant discount!\n\nYou'd save:\\n\\n$9.99 - $4.99 = $5.00\\n\\non the 3-pound pack of ground beef.\\n\\nYour new total estimated cost would be:\\n\\n$50.40 + $4.99 = $55.39\\n\\nWith the updated total, your cashback earnings would be:\\n\\n$55.39 x 0.01 = $0.55 in cashback\\n\\nThis sale is a great opportunity to stock up on ground beef and save some money.\n  (part 5 of 6, excerpt) your cashback earnings would be:\\n\\n$55.39 x 0.01 = $0.55 in cashback\\n\\nThis sale is a great opportunity to stock up on ground beef and save some money.\n\nMake sure to grab it while it's available!\"}], 'Chat Time: 2023/05/27 (Sat) 06:10', [{'role': 'user', 'content': \"I'm planning a trip to San Francisco and was wondering if you could recommend some good neighborhoods to stay in.\n\nBy the way, I've had a great experience with Airbnb in the past, like when I stayed in Haight-Ashbury for my best friend's wedding and had to book three months in advance.\"}, {'role': 'assistant', 'content': \"San Francisco is an amazing city!\n  (part 6 of 6) to consider:\\n\\n1.\n\n**Fisherman's Wharf**: If you want to be close to the waterfront, Alcatraz, and the famous Pier 39, Fisherman's Wharf is a great option.\n\nIt's a bit touristy, but you'll find plenty of restaurants, shops, and street performers.\\n2.\n\n**North Beach**: This ch\n- (part 1 of 4, excerpt) }, {'role': 'assistant', 'content': 'San Francisco has a well-connected airport and a comprehensive public transportation system, making it easy to get to your Airbnb without a car.\n\nHere are some options to consider:\\n\\n1.\n\n**BART (Bay Area Rapid Transit)**: This is a convenient and affordable way to get to the city from SFO Airport.\n\nTake the BART train from the airport to the Civic Center Station, which is in the heart of San Francisco.\n\nFrom there, you can take a short taxi or ride-hail ride (Uber/Lyft) to your Airbnb.\n\nThe trip takes around 30-40 minutes, and the fare is approximately $9.65.\\n2.\n\n**SuperShuttle**: This is a shared-ride van service that can take you from the airport to your Airbnb.\n\nYou can book online in advance, and the fare is around $17-20 per person, depending on the location.\n\nThe trip takes around 30-40 minutes, depending on traffic.\\n3.\n\n**Taxis**: You can find taxi stands at the airport, and the fare to the city is around $40-50, depending on traffic.\n  (part 2 of 4) city is around $40-50, depending on traffic.\n\nThis option is more expensive than BART or SuperShuttle, but can be convenient if you have a lot of luggage.\\n4.\n\n**Ride-hailing (Uber/Lyft)**: You can use ride-hailing services to get from the airport to your Airbnb.\n\nThe fare will depend on the time of day, traffic, and the type of vehicle you choose.\n\nExpect to pay around $30-40, depending on the circumstances.\\n5.\n\n**Private car services**: If you prefer a more luxurious and hassle-free experience, you can book a private car service to take you from the airport to your Airbnb.\n\nThis option is more expensive, with fares starting at around $60-70.\\n\\nOnce you arrive at your Airbnb, you can use public transportation, walk, or take ride-hailing services to get around the city.\n\nSan Francisco has a comprehensive network of buses, trains, and cable cars, making it easy to navigate without a car.\\n\\nRemember to check with your Airbnb host for any specific transportation recommendations or tips for getting to their location.\n\nThey might have some insider knowledge to make your trip smoother!'}, {'role': 'user', 'content': \"I'll definitely look into those options.\n- (part 1 of 5, excerpt) arming neighborhood is known for its Italian-American culture, delicious food, and lively atmosphere.\n\nIt's within walking distance to Fisherman's Wharf and has plenty of Airbnb options.\\n3.\n\n**The Mission District**: A popular area among young professionals and artists, the Mission is famous for its vibrant street art, trendy bars, and amazing Mexican food.\n\nIt's a bit farther from the main tourist attractions, but still accessible by public transportation.\\n4.\n\n**Pacific Heights**: If you're looking for a more upscale experience, Pacific Heights offers beautiful Victorian homes, stunning views of the Bay, and a more laid-back atmosphere.\n  (part 2 of 5, excerpt) plenty of amenities and is within walking distance to Fisherman's Wharf.\\n\\nWhen booking your Airbnb, be sure to check the neighborhood, proximity to public transportation, and reviews from previous guests to ensure you find the perfect spot for your stay.\\n\\nRemember to book in advance, especially during peak season (June to August), as San Francisco can get quite busy!\"}, {'role': 'user', 'content': 'Can you recommend any good tailors in the city area where I can get a suit made for the occasion?'}, {'role': 'assistant',\n  (part 3 of 5, excerpt) is a great idea.\n\nSan Francisco has a rich history of tailoring, and you'll find many excellent tailors in the city.\n\nHere are a few recommendations:\\n\\n1.\n\n**Bespoke by Curtis Eliot**: Located in the Financial District, Curtis Eliot offers bespoke suits with a modern twist.\n\nThey use high-quality fabrics and have a team of experienced tailors to ensure a perfect fit.\\n2.\n\n**Martin Greenfield**: With over 60 years of experience, Martin Greenfield is a San Francisco institution.\n\nThey offer bespoke and made-to-measure suits, and their tailors have dressed many notable figures, including President Barack Obama.\\n3.\n  (part 5 of 5) be able to guide you through the process and help you look your best for the wedding!\"}, {'role': 'user', 'content': \"I'll definitely check out those options.\n\nCan you also help me with transportation from the airport to my Airbnb in the city?\n\nI don't plan on renting a car.\"",
+      "evidence": [
+        {
+          "sourceId": "memory:context-281",
+          "sourceVersion": "sha256:2bd0ecdd8d221f7f6a65026f92ee256a44526a31fc6d294ccf30e8057bf20589",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-281",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "\\n\\n**Sale:** Buy One Get One 50% Off on all ground beef products, including the 3-pound pack!\\n\\nWith this sale, you can get the 3-pound pack of ground beef for:\\n\\n$9.99 - 50% of $9.99 = $4.99\\n\\nThat's a significant discount!\n\nYou'd save:\\n\\n$9.99 - $4.99 = $5.00\\n\\non the 3-pound pack of ground beef.\\n\\nYour new total estimated cost would be:\\n\\n$50.40 + $4.99 = $55.39\\n\\nWith the updated total, your cashback earnings would be:\\n\\n$55.39 x 0.01 = $0.55 in cashback\\n\\nThis sale is a great opportunity to stock up on ground beef and save some money.",
+          "id": "ev_5fc129076a6349dca043ee00",
+          "observedAt": "2026-10-14T08:37:59.471Z"
+        },
+        {
+          "sourceId": "memory:context-281",
+          "sourceVersion": "sha256:2bd0ecdd8d221f7f6a65026f92ee256a44526a31fc6d294ccf30e8057bf20589",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-281",
+            "part": 5,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "your cashback earnings would be:\\n\\n$55.39 x 0.01 = $0.55 in cashback\\n\\nThis sale is a great opportunity to stock up on ground beef and save some money.\n\nMake sure to grab it while it's available!\"}], 'Chat Time: 2023/05/27 (Sat) 06:10', [{'role': 'user', 'content': \"I'm planning a trip to San Francisco and was wondering if you could recommend some good neighborhoods to stay in.\n\nBy the way, I've had a great experience with Airbnb in the past, like when I stayed in Haight-Ashbury for my best friend's wedding and had to book three months in advance.\"}, {'role': 'assistant', 'content': \"San Francisco is an amazing city!",
+          "id": "ev_1d65e14be78929bb098dbd76",
+          "observedAt": "2026-10-14T08:37:59.471Z"
+        },
+        {
+          "sourceId": "memory:context-281",
+          "sourceVersion": "sha256:2bd0ecdd8d221f7f6a65026f92ee256a44526a31fc6d294ccf30e8057bf20589",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-281",
+            "part": 6,
+            "parts": 6
+          },
+          "text": "to consider:\\n\\n1.\n\n**Fisherman's Wharf**: If you want to be close to the waterfront, Alcatraz, and the famous Pier 39, Fisherman's Wharf is a great option.\n\nIt's a bit touristy, but you'll find plenty of restaurants, shops, and street performers.\\n2.\n\n**North Beach**: This ch",
+          "id": "ev_bd9f854ec6155b83609326c7",
+          "observedAt": "2026-10-14T08:37:59.471Z"
+        },
+        {
+          "sourceId": "memory:context-283",
+          "sourceVersion": "sha256:b196a3c4385bff0f26f34379c336236a451e7d073e2d2f1faf4e7968e90071b6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-283",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "}, {'role': 'assistant', 'content': 'San Francisco has a well-connected airport and a comprehensive public transportation system, making it easy to get to your Airbnb without a car.\n\nHere are some options to consider:\\n\\n1.\n\n**BART (Bay Area Rapid Transit)**: This is a convenient and affordable way to get to the city from SFO Airport.\n\nTake the BART train from the airport to the Civic Center Station, which is in the heart of San Francisco.\n\nFrom there, you can take a short taxi or ride-hail ride (Uber/Lyft) to your Airbnb.\n\nThe trip takes around 30-40 minutes, and the fare is approximately $9.65.\\n2.\n\n**SuperShuttle**: This is a shared-ride van service that can take you from the airport to your Airbnb.\n\nYou can book online in advance, and the fare is around $17-20 per person, depending on the location.\n\nThe trip takes around 30-40 minutes, depending on traffic.\\n3.\n\n**Taxis**: You can find taxi stands at the airport, and the fare to the city is around $40-50, depending on traffic.",
+          "id": "ev_283c813be39603776ad2aa0f",
+          "observedAt": "2026-10-14T08:37:59.471Z"
+        },
+        {
+          "sourceId": "memory:context-283",
+          "sourceVersion": "sha256:b196a3c4385bff0f26f34379c336236a451e7d073e2d2f1faf4e7968e90071b6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-283",
+            "part": 2,
+            "parts": 4
+          },
+          "text": "city is around $40-50, depending on traffic.\n\nThis option is more expensive than BART or SuperShuttle, but can be convenient if you have a lot of luggage.\\n4.\n\n**Ride-hailing (Uber/Lyft)**: You can use ride-hailing services to get from the airport to your Airbnb.\n\nThe fare will depend on the time of day, traffic, and the type of vehicle you choose.\n\nExpect to pay around $30-40, depending on the circumstances.\\n5.\n\n**Private car services**: If you prefer a more luxurious and hassle-free experience, you can book a private car service to take you from the airport to your Airbnb.\n\nThis option is more expensive, with fares starting at around $60-70.\\n\\nOnce you arrive at your Airbnb, you can use public transportation, walk, or take ride-hailing services to get around the city.\n\nSan Francisco has a comprehensive network of buses, trains, and cable cars, making it easy to navigate without a car.\\n\\nRemember to check with your Airbnb host for any specific transportation recommendations or tips for getting to their location.\n\nThey might have some insider knowledge to make your trip smoother!'}, {'role': 'user', 'content': \"I'll definitely look into those options.",
+          "id": "ev_973fd79b17b8b71e007d1190",
+          "observedAt": "2026-10-14T08:37:59.471Z"
+        },
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:4b2a5fe9bd539312dcd6e747bafef71e13c784581c6be51c66ef824a5640725b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "arming neighborhood is known for its Italian-American culture, delicious food, and lively atmosphere.\n\nIt's within walking distance to Fisherman's Wharf and has plenty of Airbnb options.\\n3.\n\n**The Mission District**: A popular area among young professionals and artists, the Mission is famous for its vibrant street art, trendy bars, and amazing Mexican food.\n\nIt's a bit farther from the main tourist attractions, but still accessible by public transportation.\\n4.\n\n**Pacific Heights**: If you're looking for a more upscale experience, Pacific Heights offers beautiful Victorian homes, stunning views of the Bay, and a more laid-back atmosphere.",
+          "id": "ev_226a55174f36626654c858f8",
+          "observedAt": "2026-10-14T08:37:59.473Z"
+        },
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:4b2a5fe9bd539312dcd6e747bafef71e13c784581c6be51c66ef824a5640725b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "plenty of amenities and is within walking distance to Fisherman's Wharf.\\n\\nWhen booking your Airbnb, be sure to check the neighborhood, proximity to public transportation, and reviews from previous guests to ensure you find the perfect spot for your stay.\\n\\nRemember to book in advance, especially during peak season (June to August), as San Francisco can get quite busy!\"}, {'role': 'user', 'content': 'Can you recommend any good tailors in the city area where I can get a suit made for the occasion?'}, {'role': 'assistant',",
+          "id": "ev_f82006234cd131569e4f773c",
+          "observedAt": "2026-10-14T08:37:59.473Z"
+        },
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:4b2a5fe9bd539312dcd6e747bafef71e13c784581c6be51c66ef824a5640725b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "is a great idea.\n\nSan Francisco has a rich history of tailoring, and you'll find many excellent tailors in the city.\n\nHere are a few recommendations:\\n\\n1.\n\n**Bespoke by Curtis Eliot**: Located in the Financial District, Curtis Eliot offers bespoke suits with a modern twist.\n\nThey use high-quality fabrics and have a team of experienced tailors to ensure a perfect fit.\\n2.\n\n**Martin Greenfield**: With over 60 years of experience, Martin Greenfield is a San Francisco institution.\n\nThey offer bespoke and made-to-measure suits, and their tailors have dressed many notable figures, including President Barack Obama.\\n3.",
+          "id": "ev_d806dc05ceb40fac5277de92",
+          "observedAt": "2026-10-14T08:37:59.473Z"
+        },
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:4b2a5fe9bd539312dcd6e747bafef71e13c784581c6be51c66ef824a5640725b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "be able to guide you through the process and help you look your best for the wedding!\"}, {'role': 'user', 'content': \"I'll definitely check out those options.\n\nCan you also help me with transportation from the airport to my Airbnb in the city?\n\nI don't plan on renting a car.\"",
+          "id": "ev_71e287edc769dd34826818e8",
+          "observedAt": "2026-10-14T08:37:59.473Z"
+        }
+      ],
+      "sourceIds": [
+        "context-281",
+        "context-283",
+        "context-282"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.989000000001397,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-281",
+    "context-283",
+    "context-282"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:37:59.476345+00:00"
+}

@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T09:11:38.989198+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 3,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/30 (Tue) 23:39\nQuestion: Where did I buy my new tennis racket from?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 7 of 17) prevent further damage.\n\nBy following these tips, you'll be able to keep your tennis racket in great condition and ensure it continues to perform well for you.\n\nRemember to also take care of your tennis balls, as they can affect your game too!\nuser: I'm planning to buy new tennis balls this weekend. Do you know any good brands or types of tennis balls that are suitable for recreational players like me?\nassistant: As a recreational player, you'll want tennis balls that offer a good balance of quality, durability, and affordability. Here are some popular brands and types of tennis balls that are suitable for recreational players like you:\n\n**Brands:**\n\n1. **Wilson**: Wilson is a well-known and trusted brand in the tennis world. They offer a range of tennis balls, from recreational to professional-level.\n2. **Penn**: Penn is another popular brand that offers high-quality tennis balls at an affordable price.\n3. **Dunlop**: Dunlop is a well-established brand that provides a range of tennis balls, including those suitable for recreational players.\n\n**Types:**\n  (part 10 of 17, excerpt) 3. **Dunlop ATP**: These balls are designed for recreational players and offer a good balance of quality and price.\n\nWhen buying tennis balls, you can usually find them in cans of three or four balls. As a recreational player, you may not need to buy balls in bulk, but it's often more cost-effective to buy a can of three or four balls.\n- (part 9 of 12, excerpt) user: I'm glad I could fit in the swimming session on Sunday morning. Since I've been enjoying my tennis lessons, I was wondering if you could recommend some tennis dril\n- (part 16 of 19, excerpt) 3. **Purchase Your New Tab S8**: Buy your new Galaxy Tab S8 from Samsung's website, a Samsung store, or an authorized retail"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 186.3989590001438
+}

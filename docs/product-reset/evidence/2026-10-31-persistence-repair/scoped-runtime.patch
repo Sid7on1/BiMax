@@ -1,0 +1,204 @@
+--- before/app/src/main/thread.storage.ts
++++ app/src/main/thread.storage.ts
+@@ -142,8 +142,12 @@
+     const generation = ++this.generation;
+     const file = path.join(this.dir, `${value.summary.id}.json`);
+     const temporary = `${file}.${generation}.tmp`;
+-    fs.writeFileSync(temporary, this.text(this.copy(value)), { mode: 0o600 });
+-    fs.renameSync(temporary, file);
++    try {
++      fs.writeFileSync(temporary, this.text(this.copy(value)), { mode: 0o600 });
++      fs.renameSync(temporary, file);
++    } finally {
++      fs.rmSync(temporary, { force: true });
++    }
+     this.written.set(value.summary.id, generation);
+     const pending = this.pending.get(value.summary.id);
+     if (pending && pending.generation < generation) this.pending.delete(value.summary.id);
+@@ -167,7 +171,10 @@
+           await fsp.writeFile(temporary, this.text(value), { mode: 0o600 });
+           // A newer saveNow may have landed while this was being written: never replace it with older state.
+           if ((this.written.get(id) ?? 0) > generation) { await fsp.rm(temporary, { force: true }); continue; }
+-          await fsp.rename(temporary, file);
++          // The generation check and replacement must share one main-event-loop turn. An async
++          // rename can finish AFTER saveNow has committed a newer generation and erase its input.
++          // Only the metadata replacement is synchronous; preparing/writing snapshot bytes stays async.
++          fs.renameSync(temporary, file);
+           this.written.set(id, generation);
+         } catch (error) {
+           failed = (error as Error).message;
+--- before/app/src/main/thread.manager.ts
++++ app/src/main/thread.manager.ts
+@@ -58,6 +58,8 @@
+   resumeDeadline?: () => void;
+   /** A resume failed and the user has not said what to do with the queued message yet. */
+   holdInputs?: boolean;
++  /** Dispatch is paused after a failed acceptance/sent-state save until an explicit user retry. */
++  storageBlocked?: boolean;
+   /** The previous engine's process is still exiting: nothing else may write in this folder yet (backlog F11). */
+   draining?: Promise<unknown>;
+   /** The person interrupted the current turn, so it ends "interrupted", not "completed" (backlog N12). */
+@@ -371,16 +373,21 @@
+     const r = this.records.get(id);
+     if (!r) throw new Error('Thread not found');
+     if (computerRequest(text) !== null) throw new Error('Choose an app/window with @CU before sending.');
+-    if (text.trim().startsWith('/')) return this.send(id, { t: 'input', text });
+-    const running = r.ready && !!r.engine && (r.summary.status === 'working' || r.summary.status === 'needs-you') && !r.draining && !r.holdInputs;
+-    if (!running) return this.submit(id, text, display, echo);
++    if (text.trim().startsWith('/')) { this.send(id, { t: 'input', text }); return; }
++    const running = r.ready && !!r.engine && (r.summary.status === 'working' || r.summary.status === 'needs-you') && !r.draining && !r.holdInputs && !r.storageBlocked;
++    if (!running) { this.submit(id, text, display, echo); return; }
+     if (!text.trim() || text.length > 200_000) throw new Error('Prompt must contain 1–200,000 characters');
+     r.state = engineReducer(r.state, { type: 'localUser', text: display });
+     if (echo) this.deps.message(id, { t: 'event', name: 'thread_user', args: [display] } as Outbound);
+     // Saved as being worked on before it is sent (F1): if the engine goes away now, it is reported as possibly run.
+     const now = Date.now();
+-    r.inputs.push({ id: randomUUID(), text, display, state: 'sent', at: now, sentAt: now });
+-    this.persist(r, true);
++    const input: SavedInput = { id: randomUUID(), text, display, state: 'sent', at: now, sentAt: now };
++    r.inputs.push(input);
++    if (!this.persist(r, true)) {
++      input.state = 'queued'; delete input.sentAt;
++      this.blockForStorage(r);
++      return;
++    }
+     r.engine!.sendFromRenderer({ t: 'steer', text } as Inbound);
+   }
+ 
+@@ -422,13 +429,15 @@
+     r.recovered = [];
+     r.inputs.push({ id: randomUUID(), text: engineText, display, state: 'queued', at: Date.now(), ...(route ? { route } : {}) });
+     // Saved before this returns: an accepted message must survive a crash, a restart or a reload (backlog F1, T01).
+-    this.persist(r, true);
++    if (!this.persist(r, true)) { this.blockForStorage(r); return; }
++    // A new user interaction may retry a previously held queue, only after saving it succeeds.
++    r.storageBlocked = false;
+     this.pump(r);
+     this.persist(r);
+   }
+   private pump(r: LiveThread): void {
+     const next = r.inputs.find((input) => input.state === 'queued');
+-    if (!r.ready || r.pending.size || r.summary.status === 'working' || !next || r.holdInputs || r.draining) return;
++    if (!r.ready || r.pending.size || r.summary.status === 'working' || !next || r.holdInputs || r.storageBlocked || r.draining) return;
+     if (this.folderTaken(r)) return;
+     let prepared: Pick<Extract<Inbound, { t: 'input' }>, 'text' | 'toolScope' | 'displayText'>;
+     try {
+@@ -452,7 +461,13 @@
+     r.turnLimited = false;
+     r.turnStartedAt = Date.now();
+     // Recorded as sent before it is sent: after a crash in between, the message is reported as possibly run, never repeated.
+-    this.persist(r, true);
++    if (!this.persist(r, true)) {
++      next.state = 'queued'; delete next.sentAt;
++      r.summary.status = 'idle'; r.turnStartedAt = undefined;
++      this.deps.ended?.(r.summary.id);
++      this.blockForStorage(r);
++      return;
++    }
+     r.engine!.sendFromRenderer({ t: 'input', ...prepared });
+   }
+   receive(id: string, msg: Outbound): void {
+@@ -687,9 +702,9 @@
+   send(id: string, msg: any): void {
+     const r = this.records.get(id);
+     if (!r) throw new Error('Thread not found');
+-    if (msg.t === 'input' && !msg.text.trim().startsWith('/')) return this.submit(id, msg.text, msg.text, false);
++    if (msg.t === 'input' && !msg.text.trim().startsWith('/')) { this.submit(id, msg.text, msg.text, false); return; }
+     // The window paints its own words, so they are not echoed back to it (F7).
+-    if (msg.t === 'steer') return this.steer(id, String(msg.text ?? ''), String(msg.text ?? ''), false);
++    if (msg.t === 'steer') { this.steer(id, String(msg.text ?? ''), String(msg.text ?? ''), false); return; }
+     if (msg.t === 'reply' && this.takeReply(r, msg) === 'handled') return;
+     if (msg.t === 'interrupt') this.cancelTurn(r);
+     // Tool scope belongs to main's prepareInput, never a renderer-supplied frame.
+@@ -893,7 +908,8 @@
+     const queued = r.inputs.filter((input) => input.state === 'queued').length;
+     if (!queued) return summary;
+     summary.queued = queued;
+-    if (!r.engine) summary.waiting = 'resume';
++    if (r.storageBlocked) summary.waiting = 'storage';
++    else if (!r.engine) summary.waiting = 'resume';
+     else if (r.draining || !r.ready) summary.waiting = 'engine';
+     else if (this.folderTaken(r)) summary.waiting = 'folder';
+     return summary;
+@@ -1102,28 +1118,39 @@
+     this.reapCancel?.(); this.reapCancel = undefined;
+     for (const id of this.records.keys()) this.stop(id, { keepInputs: true });
+   }
+-  private persist(r: LiveThread, now = false): void {
++  /** Keep an unexecuted message visible, but do not mistake a deferred retry for dispatch admission. */
++  private blockForStorage(r: LiveThread): void {
++    r.storageBlocked = true;
++    this.appendNote(r, 'Your message has not been sent because Bimax could not save it. It is kept in this open conversation, but may not survive quitting. Free disk space or fix storage access, then send a message to retry the queue, or Stop to discard it.', 'warning', true);
++    this.persist(r);
++  }
++
++  private persist(r: LiveThread, now = false): boolean {
+     // An idle engine emits a heartbeat every few seconds that changes nothing a thread stores. Stamping and
+     // saving on each one rewrote every live thread's file every 3s and kept bumping `updatedAt`, which also
+     // floated idle threads up the list. The reducer returns the same state object for such events, so only
+     // a real change — a new state or a changed summary — is written.
+     const summary = JSON.stringify({ ...r.summary, updatedAt: 0, inputs: r.inputs });
+-    if (r.state === r.savedState && summary === r.savedSummary) return;
+-    r.savedState = r.state;
+-    r.savedSummary = summary;
++    // A prior coalesced save is not a durable acknowledgement. Urgent admission always writes.
++    if (!now && r.state === r.savedState && summary === r.savedSummary) return true;
+     r.summary.updatedAt = Date.now();
+     const value: SavedThread = { summary: r.summary, state: r.state, inputs: r.inputs.map((input) => ({ ...input })) };
+     if (now && this.deps.saveNow) {
+       try {
+         this.deps.saveNow(value);
+       } catch (error) {
+-        // Could not write at once: keep the message and save it the ordinary way rather than refuse it.
++        // A deferred retry preserves work when possible, but cannot authorize executing it now.
+         console.warn(`[threads] could not save thread ${r.summary.id} at once: ${(error as Error).message}`);
+         this.deps.save(value);
++        this.deps.changed();
++        return false;
+       }
+     } else {
+       this.deps.save(value);
+     }
++    r.savedState = r.state;
++    r.savedSummary = summary;
+     this.deps.changed();
++    return true;
+   }
+ }
+--- before/app/src/main/responder/adapter.ts
++++ app/src/main/responder/adapter.ts
+@@ -281,7 +281,9 @@
+   }): Promise<CommandResult> {
+     const active = this.threads.activeId;
+     if (!active && !this.defaultWorkspaceDir) throw new Error('Open a folder in Bimax before sending a remote instruction');
+-    const sessionId = active ?? this.threads.create(this.defaultWorkspaceDir!, input.instruction, 'project');
++    // create(root, prompt) already submits that prompt in the real manager. Create empty so this
++    // adapter has one dispatch authority, including when the first instruction needs a workspace.
++    const sessionId = active ?? this.threads.create(this.defaultWorkspaceDir!, '', 'project');
+     this.remotelyControlled.add(sessionId);
+     this.threads.submit(sessionId, input.instruction);
+     void this.notifyStatusChanged();
+--- before/app/src/shared/threads.ts
++++ app/src/shared/threads.ts
+@@ -45,8 +45,8 @@
+   bookmark?: { note: string; at: number };
+   /** Messages accepted and not yet sent to the engine. Filled in for lists; never saved. */
+   queued?: number;
+-  /** Why queued messages wait: another task holds the folder, the engine is not ready, or the task is stopped. Never saved. */
+-  waiting?: 'folder' | 'engine' | 'resume';
++  /** Why queued messages wait: folder ownership, engine startup, stopped task or failed saving. Never saved. */
++  waiting?: 'folder' | 'engine' | 'resume' | 'storage';
+ }
+ export interface ThreadSelection { id: string; state: EngineUiState }
+ /** The tallest the ⌘2 bar may grow, as a share of its screen's work area (main clamps, the bar follows text at it). */
+@@ -118,6 +118,10 @@
+   const n = t.queued ?? 0;
+   const queued = `${n} message${n === 1 ? '' : 's'} queued`;
+   const also = (label: string): string => (n ? `${label} · ${queued}` : label);
++  if (t.waiting === 'storage') return {
++    label: `${t.status === 'working' ? 'Working · follow-up not sent' : t.status === 'needs-you' ? 'Needs your decision · follow-up not sent' : 'Waiting for saving to recover'} · ${queued}`,
++    short: 'not sent · saving failed',
++  };
+   if (t.status === 'working') return { label: also('Working'), short: 'working' };
+   if (t.status === 'needs-you') return { label: also('Needs your decision'), short: 'needs you' };
+   if (t.status === 'starting') return { label: also('Starting'), short: 'working' };

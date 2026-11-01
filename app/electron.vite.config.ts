@@ -1,3 +1,4 @@
+import { build as buildBrowser } from 'esbuild';
 import { resolve } from 'node:path';
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
 import react from '@vitejs/plugin-react';
@@ -21,10 +22,12 @@ import tailwindcss from '@tailwindcss/vite';
  */
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()],
+    plugins: [externalizeDepsPlugin(), { name: 'mcp-app-host', async closeBundle() { await buildBrowser({ entryPoints:[resolve(__dirname,'src/preview/mcp.host.ts')],bundle:true,platform:'browser',format:'iife',minify:true,outfile:resolve(__dirname,'out/preview/mcp.host.js') }); } }],
+    build: { rollupOptions: { input: { index: resolve(__dirname, "src/main/index.ts"), "preview.compiler.worker": resolve(__dirname, "src/main/preview.compiler.worker.ts") } } },
   },
   preload: {
     plugins: [externalizeDepsPlugin()],
+    build: { rollupOptions: { input: { index: resolve(__dirname,'src/preload/index.ts'), preview: resolve(__dirname,'src/preload/preview.ts') } } },
   },
   renderer: {
     plugins: [react(), tailwindcss()],

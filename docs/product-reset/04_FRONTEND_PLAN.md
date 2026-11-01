@@ -1,5 +1,108 @@
 # Frontend plan
 
+## Explicit workspace/new-chat flow and canvas — record 114
+
+[Record 114](114_WORKSPACE_CHATS_RETRIEVAL_AND_CANVAS.md) makes New context-sensitive: Phone is standalone; Mac opens a folder picker and creates an empty folder-bound conversation. Show folder identity, reset previous transcript/draft owners, and keep the Desktop live/final message layout identical. Phone supports saved Comfortable/Large reading scale with one code toolbar/table frame. Native visual acceptance remains Target.
+
+## Phone preferences and Mac connection — record 112
+
+[Record 112](112_PHONE_PREFERENCES_AND_CONNECTION_SETTINGS.md) supersedes the duplicate Mac chat page: Your Mac is connection settings; Mac chat history stays in the exclusive drawer tab. Persisted reduce-motion/thinking/follow controls affect the shared transcript, with restrained drawer motion and frame-coalesced bridge delivery. Actual native gestures/resources remain Target.
+
+## Phone history navigation and full message presentation — record 111
+
+[Record 111](111_SHARED_MESSAGES_AND_PHONE_DRAWER.md) replaces the phone-only message wrapper with shared Desktop presentation and introduces one searchable source-aware drawer with a Phone/Mac switch and permanent Settings. The actual Desktop thinking indicator now supplies generation words, elapsed time, reasoning controls and loop/motion guards on the phone. Remove the duplicate instruction workflow; preserve Copy, meaningful action review and explicit Stop. Owner-confirmed physical chat delivery is separate from the new drawer visual/gesture gate.
+
+## Trusted phone interaction — record 110, 2026-10-25
+
+[Record 110](110_TRUSTED_PHONE_LIVE_CONNECTION.md) supersedes the ordinary-operation consent/banner policy below: pair once, follow/reply live, review tool actions on the phone and retain a small Mac menu-bar Stop. Settings also opens without a selected project. Selected history is a baseline plus pushed revisions, with incremental WebView updates. Current native phone interaction/resource qualification remains Target.
+
+## Open Mac chats with the shared renderer — 2026-10-24, record 109
+
+[Record 109](109_PHONE_CONVERSATIONS_AND_SHARED_RENDERER.md) makes Mac conversation rows actionable and uses one shared offline transcript renderer for standalone and remote phone chat. Reading has selected-conversation native Mac consent; replies address the selected Bimax Thread. Moonlight typography/colors, GFM, code, maths and diagrams share Desktop source. Owner-confirmed pairing/listing supersede record 108’s pending retry; new physical history/reply/rendering remain Target.
+
+## Native pairing progress — 2026-10-24, record 108
+
+[Record 108](108_NATIVE_PHONE_PAIRING_ADMISSION.md) replaces the pre-handshake “Waiting for desktop approval” claim with actual connecting/reconnecting/secure-handshake states and phase-specific timeout recovery. The phone-native transport now adapts RN's implicit Origin to the existing LAN admission policy. Code comparison remains mandatory. Real server admission and pure progress regressions qualify this slice; physical pairing and the outer App's projectless Settings gate remain Target.
+
+
+## Dark phone chat and useful failure states — 2026-10-24, record 107
+
+[Record 107](107_PHONE_CHAT_RECOVERY_AND_DARK_UI.md) implements a shared default dark appearance, line icons without UI emoji, subdued user bubbles/open assistant replies and a growing rounded composer across the Expo phone surfaces. Show waiting, exact bounded errors, real Stop and Retry without duplicating a prompt; hide unconfigured provider choices and inactive remote panels before pairing. The owner confirms GPT OSS responds after reload. Actual rendered source controls and iOS export qualify this slice; native accessibility/keyboard/device breadth, physical pairing and release remain Target.
+
+
+## Phone connection settings — 2026-10-24, record 105
+
+[Record 105](105_PHONE_PAIRING_AND_DESKTOP_TESTS.md) adds a main-window Phone connection page, independent of engine availability. Opening it never starts a listener. Explicit local enablement offers QR/manual pairing and exact human verification; candidate verification replaces the QR so the decision is visible. Paired/offline and connected are distinct. Disable, Forget and always-reachable Stop are real main-owned operations. Explain same-network use and Expo Go/Face ID limits. This is local pairing/settings, not cloud account UI or a new permanent workspace destination. Packaged runtime and actual renderer fixtures qualify this slice; physical phones and release remain Target.
+
+## Direct @CU experience — 2026-10-11, record 83
+
+[Record 83](83_DIRECT_AT_CU_EXPERIENCE.md) supersedes records 81–82’s required app/window picker at the
+owner’s request. Send `@CU <task>` in either composer: Do is the default, and the
+CU model discovers actual running apps/windows after dispatch. Guide/Teach and
+saved workflows are optional. Read grants, per-input approval, exact observations,
+Pause/Stop and no-replay barriers remain. Main-owned ephemeral single-use admission
+refuses restored/expired requests; discovery metadata grants no input authority.
+Mac owns CU through its private host channel. Broader model reliability, full M02/X01
+and release qualification remain Target. The signed local arm64 app is installed;
+one direct saved-model Do task is Measured on the owned fixture (two verified
+inputs, exact text, exactly one Save). Local typecheck, 392 regression tests, ten
+renderer checks and seven source faults pass; record 83 scopes the receipts.
+
+
+## CU modes and verification recovery — 2026-10-11, record 82
+
+[Record 82](82_CU_MODES_AND_VERIFICATION_RECOVERY.md) adds Do/Guide/Teach,
+revision-bound in-panel approvals, Pause/Take over/Resume/Stop, and explicit
+read-only correction of a changed unexpected status. Guide has no native input;
+Teach saves only verified literal instructions and reuse requires a fresh target
+and consent. Exact postconditions and no-replay barriers remain. Local host and
+renderer contracts are scoped in record 82; assisted correction is not autonomous
+model inference. The signed local arm64 v2 app is installed. Individual Teach
+(assisted), Guide (zero native inputs) and Do outcomes are Measured on one owned
+fixture; 33 grader faults are rejected. Interrupted/rejected attempts remain
+recorded. Broader model planning/prose reliability, repeated model tiers, full
+M02/X01 and distribution remain Target.
+
+## Explicit @CU messages — 2026-10-10, record 81
+
+[Record 81](81_AT_CU_MESSAGE_ROUTING.md) implements per-message Computer Use in the project composer
+and ⌘2 floating bar: autocomplete, a visible chip and explicit running-app/window
+selection. Main-owned single-use receipts and native enforcement bind the exact
+window; the engine advertises and executes only CU plus clarification for that
+turn. Ordinary coding messages cannot activate CU by guessing its tool name.
+Picker consent is separate from task read/input approvals. Queued/restarted routes
+never silently become coding turns. Native ownership remains Bimax for Mac through
+its private host channel, without an MCP connector. Local contracts, renderer end
+states and assertion-caught faults are scoped in record 81. Full M02/X01, repeated
+model reliability and release/performance qualification remain Target.
+
+## Full Arc source owned by Bimax CU — 2026-10-07, record 80
+
+[Record 80](80_FULL_ARC_SOURCE_AND_BUILT_IN_CU_FEATURE.md) places all 100 original
+Arc files inside `app/native/computer/vendor/arc-cua/` and ships that full source
+snapshot plus all 34 Python package modules inside Bimax CU. Original MIT identity,
+authorship and byte hashes remain. The upstream MCP/CLI code is retained; Bimax's
+entry refuses its `mcp`/`run` commands and exposes only the private app component.
+Computer Use is a File menu action and readable chat activity. Its engine connection
+remains the birth-transferred internal MessagePort, never a managed MCP connector.
+Record 79's module exclusions and the earlier third_party location are superseded.
+The installed v4 app is **Measured** on one owned fixture with the saved gpt-oss-20b:
+one verified field edit, one verified Save click, exact persisted text and save count
+one, plus independent native AX read-back. Flat arguments, safe read correction and
+standalone window-target import defects are fixed. Failed attempts remain recorded.
+Full native/saved-model M02/X01, clean-Mac distribution and performance remain Target.
+
+
+## Conversation lifecycle and rendering — 2026-10-06, record 75
+
+Pending config, catalogue and attachment reads settle on owner retirement and release deadlines;
+attachments share the owner's engine-message subscription. Approval close acknowledgements match
+Bimax Thread, request ID and token. A later floating-bar selection/context broadcast supersedes
+its corresponding initial read, including New/null, and disposal retires reads. Unchanged Markdown
+and code cache only by content/language for component lifetime; link context and Copy remain live.
+[Record 75](75_CHAT_EXPERIENCE_AND_RENDERING_SPRINT.md) gives local proof and remaining startup,
+installed performance and full-journey qualification limits. Computer Use remains retired.
+
 Current conversation policy (2026-10-05, record 69): explicit repo opening starts a fresh Bimax Thread.
 Old history resumes through conversation selection. The sidebar action is **New**; it creates an
 empty conversation in the selected folder. Recorded harness evaluation must never render as fresh

@@ -96,13 +96,6 @@ async function executeToolCall(
   const tracer = getTracer();
   if (options?.requireTool && tc.name === options.requireTool) {
     st.requiredToolUsed = true;
-    // Preparatory verbs acquire or inspect a target; they never change anything the user
-    // asked to change. Parsed defensively: an unreadable argument blob must not be counted
-    // as progress, but must not block the turn either — the bounded nudge below decides.
-    try {
-      const action = String(JSON.parse(tc.args || '{}')?.action || '').toLowerCase();
-      if (action && !PREPARATORY_MOTION_ACTIONS.has(action)) st.sawAdvancingAction = true;
-    } catch { /* unparseable args are judged by the runtime, not here */ }
   }
   const toolSpan = tracer.startSpan(`execute_tool ${tc.name}`, {
     'gen_ai.operation.name': 'execute_tool',
@@ -126,6 +119,13 @@ async function executeToolCall(
     if (options?.requireTool && tc.name === options.requireTool) {
       st.lastCapabilitySucceeded = !isError;
       if (tc.name === 'DocumentTool' && typed?.status === 'ok' && !result.startsWith('Draft retained')) st.sawAdvancingAction = true;
+      if (!isError) {
+        try {
+          const receipt = JSON.parse(result);
+          const action = String(argsObj?.action || argsObj?.operation || '').toLowerCase();
+          if (receipt?.ok !== false && receipt?.status !== 'stale' && receipt?.status !== 'changed' && action && !PREPARATORY_MOTION_ACTIONS.has(action)) st.sawAdvancingAction = true;
+        } catch { /* A native progress claim needs a structured receipt. */ }
+      }
       if (!isError) reportCapability({ id: 'tool-activation', label: 'Requested capability', state: 'ready',
         reason: 'The requested tool completed a subsequent operation.', impact: '', action: '' });
       if (!isError) {
@@ -148,6 +148,7 @@ async function executeToolCall(
       endTime,
       // Additive typed-outcome fields — the TUI ignores unknown JSON keys.
       ...(typed ? { outcome: typed.status, errorClass: typed.errorClass } : {}),
+      ...(typed?.presentation ? { parts: typed.presentation } : {}),
     } as ToolCallEntry);
     if (typed?.errorClass) toolSpan.setAttribute('bimax.tool.error_class', typed.errorClass);
     toolSpan.end(isError ? 'error' : 'ok', isError ? result.slice(0, 200) : undefined);
@@ -178,8 +179,14 @@ async function executeToolCall(
   }
 
   const tool = host.tools.getTool(tc.name);
+  if (options?.toolNames && !options.toolNames.includes(tc.name)) {
+    return finish(`Tool ${tc.name} is outside this turn's tool scope. Nothing was executed.`, true);
+  }
   if (!tool) {
     return finish(`Tool ${tc.name} not found.`, true);
+  }
+  if (tool.scopeOnly && !options?.toolNames?.includes(tc.name)) {
+    return finish(`Tool ${tc.name} requires an explicit task scope. Nothing was executed.`, true);
   }
 
   // Validate the call against the tool's OWN declared schema before it runs. Without this a
@@ -216,10 +223,17 @@ async function executeToolCall(
     // and the hooks have all let it through. A tool the model asked for and was refused is
     // not a tool in use, and counting the request would make a blocked tool look popular.
     if (!isReplayActive()) recordUsage('tool', tool.name);
+    const questionKey = tool.name === 'AskUserTool' ? JSON.stringify([String(argsObj.question).trim().toLowerCase(), argsObj.options, argsObj.isMultiSelect === true]) : undefined;
+    if (questionKey && st.answeredQuestions.has(questionKey)) {
+      return finish('This exact question was already answered in this turn: ' + st.answeredQuestions.get(questionKey) + '. Continue using that answer. This is clarification only; it grants no action permission.', false);
+    }
     const result = await tool.execute(argsObj, toolContext);
+    if (questionKey && !signal?.aborted && typeof result === 'string' && result.startsWith('User selected:')) {
+      if (st.answeredQuestions.size < 32) st.answeredQuestions.set(questionKey, result);
+    }
     const resultStr = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
     // A tool's own `invalid_args` refuses the arguments before doing anything, so it is a rejection like the two above.
-    return { ...finish(resultStr, !!typed && typed.status !== 'ok', typed), rejected: typed?.errorClass === 'invalid_args' };
+    return { ...finish(resultStr, (!!typed && typed.status !== 'ok') || (typeof result === 'object' && result?.ok === false), typed), rejected: typed?.errorClass === 'invalid_args' };
   } catch (e: any) {
     const text = `Tool Error: ${e.message}`;
     return finish(text, true, typedFromError(e, text));
@@ -375,8 +389,13 @@ export async function runToolRound(
       resultById.set(res.id, { result: res.result, isError: res.isError });
       const call = batch.calls.find((c) => c.id === res.id);
       if (res.rejected && call) loopDetector.noteRejected(call.name, call.args);
+      if (call && !st.operationTerminalBlocker && (host.tools.getTool(call.name)?.outputSource === 'screen' || options?.requireTool === call.name)) {
+        st.operationTerminalBlocker = terminalCapabilityBlocker(res.result);
+      }
     }
     if (signal?.aborted) { interrupted = true; break; }
+    // Native failure is a barrier even for later calls in this same provider response.
+    if (st.operationTerminalBlocker) break;
   }
 
   // Push tool results in the SAME order the model emitted the calls, and answer EVERY
@@ -407,16 +426,16 @@ export async function runToolRound(
     // File, shell, web and MCP output goes to the model fenced as untrusted data (flaw list A5); every check below reads the
     // tool's own unfenced result.
     // A failed optional observer cannot leave newly introduced untrusted data unmarked.
-    if (ran && !isReplayActive() && !getTaintTracker().isTainted()) markToolTaint(tc.name, tc.args || '{}', result);
+    if (ran && !isReplayActive() && !getTaintTracker().isTainted()) markToolTaint(tc.name, tc.args || '{}', result, host.tools.getTool(tc.name)?.outputSource);
     // Recorded results are the exact, already-fenced messages the original loop sent. Re-fencing
     // them changes the request hash and makes an unchanged harness appear to diverge.
-    host.messages.push({ role: 'tool', tool_call_id: tc.id, content: ran && !isReplayActive() ? fenceUntrusted(tc.name, tc.args || '{}', result) : result });
+    host.messages.push({ role: 'tool', tool_call_id: tc.id, content: ran && !isReplayActive() ? fenceUntrusted(tc.name, tc.args || '{}', result, host.tools.getTool(tc.name)?.outputSource) : result });
     if (ran) {
       let structuredFailure = false;
       try { structuredFailure = JSON.parse(result)?.ok === false; } catch { /* text result */ }
       const sig = loopDetector.record(tc.name, tc.args, result, ran.isError || structuredFailure);
       if (sig) loopSignals.push(sig);
-      if (!st.operationTerminalBlocker && options?.requireTool && tc.name === options.requireTool) {
+      if (!st.operationTerminalBlocker && ((options?.requireTool && tc.name === options.requireTool) || host.tools.getTool(tc.name)?.outputSource === 'screen')) {
         st.operationTerminalBlocker = terminalCapabilityBlocker(result);
       }
       const shot = screenshotFromToolResult(tc.name, result);

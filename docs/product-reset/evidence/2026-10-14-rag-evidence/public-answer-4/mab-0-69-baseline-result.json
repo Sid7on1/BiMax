@@ -1,0 +1,145 @@
+{
+  "row": 0,
+  "query": 69,
+  "id": "mab-0-69",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:38:49.256427+00:00",
+  "valid": true,
+  "question": "Who was Guy's Rival?",
+  "references": [
+    "Conrad of Montferrat",
+    "Conrad of Montferrat",
+    "Conrad of Montferrat"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-89",
+    "context-0",
+    "context-161"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:39:01.152908+00:00",
+  "rag": {
+    "ids": [
+      "context-89",
+      "context-0",
+      "context-161"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 6) lower sea levels within the various ice ages, the Rhine took a left turn, creating the Channel River, the course of which now lies below the English Channel.\n\nDocument 451:\nVarious princes of the Holy Land arrived in Limassol at the same time, in particular Guy de Lusignan. All declared their support for Richard provided that he support Guy against his rival Conrad of Montferrat. The local barons abandoned Isaac, who considered making peace with Richard, joining him on the crusade, and offering his daughter in marriage to the person named by Richard. But Isaac changed his mind and tried to escape. Richard then proceeded to conquer the whole island, his troops being led by Guy de Lusignan. Isaac surrendered and was confined with silver chains, because Richard had promised that he would not place him in irons. By 1 June, Richard had conquered the whole island. His exploit was well publicized and contributed to his reputation; he also derived significant financial gains from the conquest of the island. Richard left for Acre on 5 June, with his allies. Before his departure, he named two of his Norman generals, Richard de Camville and Robert de Thornham, as governors of Cyprus.\n- (part 2 of 6, excerpt) M\u00f6ngke Khan commenced a military campaign against the Chinese Song dynasty in southern China. The Mongol force that invaded southern China was far greater than the force they sent to invade the Middle East in 1256. He died in 1259 without a successor. Kublai returned from fighting the Song in 1260 when he learned that his brother, Ariq B\u00f6ke, was challenging his claim to the throne. Kublai convened a kurultai i\n- (part 2 of 5, excerpt) there also exist Chinese people[who?] who did not consider the Yuan dynasty as a legitimate dynasty of China, but rather as a",
+    "evidence": [
+      {
+        "sourceId": "memory:context-89",
+        "sourceVersion": "sha256:6bd274d9c4cc3e174b79335b8d679b50691887299085bac82df12ee43c5e3185",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-89",
+          "part": 2,
+          "parts": 6
+        },
+        "text": "lower sea levels within the various ice ages, the Rhine took a left turn, creating the Channel River, the course of which now lies below the English Channel.\n\nDocument 451:\nVarious princes of the Holy Land arrived in Limassol at the same time, in particular Guy de Lusignan. All declared their support for Richard provided that he support Guy against his rival Conrad of Montferrat. The local barons abandoned Isaac, who considered making peace with Richard, joining him on the crusade, and offering his daughter in marriage to the person named by Richard. But Isaac changed his mind and tried to escape. Richard then proceeded to conquer the whole island, his troops being led by Guy de Lusignan. Isaac surrendered and was confined with silver chains, because Richard had promised that he would not place him in irons. By 1 June, Richard had conquered the whole island. His exploit was well publicized and contributed to his reputation; he also derived significant financial gains from the conquest of the island. Richard left for Acre on 5 June, with his allies. Before his departure, he named two of his Norman generals, Richard de Camville and Robert de Thornham, as governors of Cyprus.",
+        "id": "ev_f855a8008d004f19d02e631a",
+        "observedAt": "2026-10-14T08:38:00.559Z"
+      },
+      {
+        "sourceId": "memory:context-0",
+        "sourceVersion": "sha256:d40ae40928851a2f049ba4117c847f938f1dbcd6e204af3f53d0f89c2985f185",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-0",
+          "part": 2,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "M\u00f6ngke Khan commenced a military campaign against the Chinese Song dynasty in southern China. The Mongol force that invaded southern China was far greater than the force they sent to invade the Middle East in 1256. He died in 1259 without a successor. Kublai returned from fighting the Song in 1260 when he learned that his brother, Ariq B\u00f6ke, was challenging his claim to the throne. Kublai convened a kurultai i",
+        "id": "ev_8c23d0e3e60bdc31687434ea",
+        "observedAt": "2026-10-14T08:38:00.559Z"
+      },
+      {
+        "sourceId": "memory:context-161",
+        "sourceVersion": "sha256:4b4bad73964ab9d0ec2eb61fa59fa32c66db3fa43b8dd819f38e52f467fbf376",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-161",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "there also exist Chinese people[who?] who did not consider the Yuan dynasty as a legitimate dynasty of China, but rather as a",
+        "id": "ev_872763db50f8caea77920b6c",
+        "observedAt": "2026-10-14T08:38:00.559Z"
+      }
+    ],
+    "sourceIds": [
+      "context-89",
+      "context-0",
+      "context-161"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 17.82041699999536,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Conrad of Montferrat.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 502,
+    "completion_tokens": 440,
+    "total_tokens": 942,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 431,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 244,
+    "completion_tokens": 406,
+    "total_tokens": 650,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 403,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 5126.649916999668,
+  "judgeWallMs": 4709.664208000504
+}

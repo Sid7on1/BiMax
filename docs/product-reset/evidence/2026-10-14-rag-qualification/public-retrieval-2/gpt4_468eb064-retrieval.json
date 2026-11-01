@@ -1,0 +1,235 @@
+{
+  "row": 296,
+  "id": "gpt4_468eb064",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T05:08:40.753389+00:00",
+  "valid": true,
+  "question": "Who did I meet with during the lunch last Tuesday?",
+  "references": [
+    "Emma"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/04/18 (Tue) 16:50",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 1508.8539999999994,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 50,
+        "maxInputChars": 50,
+        "requiredProviderTruncation": false,
+        "promptTokens": 13,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "1e5bd28d_2",
+        "sharegpt_0PLBHdX_15",
+        "ultrachat_323709"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 6 of 16) \"I'll take an Italian beef sandwich, hot, wet, with provolone cheese, please.\"\n\nor\n\n\"Can I get an Italian beef, sweet, dry, with mozzarella?\"\n\n**Tips:**\n\n* Be prepared for a messy, juicy sandwich. You might want to grab some napkins!\n* Try to avoid ordering during peak lunch hours (11:30 am - 1:30 pm) to avoid long lines.\n* If you're not sure what to order, ask the staff for recommendations or guidance. They'll be happy to help.\n\nEnjoy your Italian beef adventure in Chicago!\nuser: I'm also interested in trying some of Chicago's famous deep-dish pizza. Can you recommend some classic spots and any tips on what to order?\nassistant: Deep-dish pizza is a must-try in Chicago! Here are some iconic spots and tips to help you navigate the rich, cheesy, and crusty world of Chicago-style deep-dish pizza:\n\n**Classic Deep-Dish Spots:**\n  (part 9 of 16, excerpt) a classic deep-dish pizza with sausage, mushrooms, and onions, please.\"\n\nor\n\n\"Can I get a deep-dish with pepperoni, bacon, and olives?\"\n\n**Additional Tips:**\n\n* Be prepared for a rich, filling meal. Deep-dish pizzas are dense and satisfying.\n* Don't be afraid to ask for a \"well-done\" crust if you prefer a crisper crust.\n* If you're unsure about the wait, ask your server for an estimate or consider ordering ahead for pickup.\n* Try to visit during off-peak hours (e.g., lunch or early dinner) to avoid long waits.\n\nEnjoy your deep-dish adventure in Chicago!\n- (part 1 of 2, excerpt) It's said that Fatih Terim also did such things sometimes.\n\nKnowing that my players' families are with me makes me happy.\n- (part 7 of 9, excerpt) who spent time in the town.\n\n5.\n\nPlague Column - This striking column was erected in the 18th century to commemorate the end of a devastating plague epidemic.\n\n6.",
+      "evidence": [
+        {
+          "sourceId": "memory:1e5bd28d_2",
+          "sourceVersion": "sha256:ac2bb20ebe29ebd013167b2aa4e1832bd52bfaa47f016aa848dae544e41c9a03",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "1e5bd28d_2",
+            "part": 6,
+            "parts": 16
+          },
+          "text": "\"I'll take an Italian beef sandwich, hot, wet, with provolone cheese, please.\"\n\nor\n\n\"Can I get an Italian beef, sweet, dry, with mozzarella?\"\n\n**Tips:**\n\n* Be prepared for a messy, juicy sandwich. You might want to grab some napkins!\n* Try to avoid ordering during peak lunch hours (11:30 am - 1:30 pm) to avoid long lines.\n* If you're not sure what to order, ask the staff for recommendations or guidance. They'll be happy to help.\n\nEnjoy your Italian beef adventure in Chicago!\nuser: I'm also interested in trying some of Chicago's famous deep-dish pizza. Can you recommend some classic spots and any tips on what to order?\nassistant: Deep-dish pizza is a must-try in Chicago! Here are some iconic spots and tips to help you navigate the rich, cheesy, and crusty world of Chicago-style deep-dish pizza:\n\n**Classic Deep-Dish Spots:**",
+          "id": "ev_7e779e8b5bb5d137a44843b0",
+          "observedAt": "2026-10-14T05:08:42.292Z"
+        },
+        {
+          "sourceId": "memory:1e5bd28d_2",
+          "sourceVersion": "sha256:ac2bb20ebe29ebd013167b2aa4e1832bd52bfaa47f016aa848dae544e41c9a03",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "1e5bd28d_2",
+            "part": 9,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "a classic deep-dish pizza with sausage, mushrooms, and onions, please.\"\n\nor\n\n\"Can I get a deep-dish with pepperoni, bacon, and olives?\"\n\n**Additional Tips:**\n\n* Be prepared for a rich, filling meal. Deep-dish pizzas are dense and satisfying.\n* Don't be afraid to ask for a \"well-done\" crust if you prefer a crisper crust.\n* If you're unsure about the wait, ask your server for an estimate or consider ordering ahead for pickup.\n* Try to visit during off-peak hours (e.g., lunch or early dinner) to avoid long waits.\n\nEnjoy your deep-dish adventure in Chicago!",
+          "id": "ev_85a9cc0ba4ef70036c706062",
+          "observedAt": "2026-10-14T05:08:42.295Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_0PLBHdX_15",
+          "sourceVersion": "sha256:9e4b10e367465e3e50cbd6c82984c5947138c2ff8d3ec5af7625e6f3a052fcdb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_0PLBHdX_15",
+            "part": 1,
+            "parts": 2,
+            "partial": true
+          },
+          "text": "It's said that Fatih Terim also did such things sometimes.\n\nKnowing that my players' families are with me makes me happy.",
+          "id": "ev_8d32b2b987c5e8c957c9b98b",
+          "observedAt": "2026-10-14T05:08:42.296Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_323709",
+          "sourceVersion": "sha256:3000467b591dbee78bd398282674b6a492e188f74cafcec8d0823b0af1a8b22f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_323709",
+            "part": 7,
+            "parts": 9,
+            "partial": true
+          },
+          "text": "who spent time in the town.\n\n5.\n\nPlague Column - This striking column was erected in the 18th century to commemorate the end of a devastating plague epidemic.\n\n6.",
+          "id": "ev_df6a6a04e37de1f490a1f061",
+          "observedAt": "2026-10-14T05:08:42.296Z"
+        }
+      ],
+      "sourceIds": [
+        "1e5bd28d_2",
+        "sharegpt_0PLBHdX_15",
+        "ultrachat_323709"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 35.18937499999447,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "1e5bd28d_2",
+        "sharegpt_0PLBHdX_15",
+        "ultrachat_323709"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 6 of 16) \"I'll take an Italian beef sandwich, hot, wet, with provolone cheese, please.\"\n\nor\n\n\"Can I get an Italian beef, sweet, dry, with mozzarella?\"\n\n**Tips:**\n\n* Be prepared for a messy, juicy sandwich. You might want to grab some napkins!\n* Try to avoid ordering during peak lunch hours (11:30 am - 1:30 pm) to avoid long lines.\n* If you're not sure what to order, ask the staff for recommendations or guidance. They'll be happy to help.\n\nEnjoy your Italian beef adventure in Chicago!\nuser: I'm also interested in trying some of Chicago's famous deep-dish pizza. Can you recommend some classic spots and any tips on what to order?\nassistant: Deep-dish pizza is a must-try in Chicago! Here are some iconic spots and tips to help you navigate the rich, cheesy, and crusty world of Chicago-style deep-dish pizza:\n\n**Classic Deep-Dish Spots:**\n  (part 9 of 16, excerpt) a classic deep-dish pizza with sausage, mushrooms, and onions, please.\"\n\nor\n\n\"Can I get a deep-dish with pepperoni, bacon, and olives?\"\n\n**Additional Tips:**\n\n* Be prepared for a rich, filling meal. Deep-dish pizzas are dense and satisfying.\n* Don't be afraid to ask for a \"well-done\" crust if you prefer a crisper crust.\n* If you're unsure about the wait, ask your server for an estimate or consider ordering ahead for pickup.\n* Try to visit during off-peak hours (e.g., lunch or early dinner) to avoid long waits.\n\nEnjoy your deep-dish adventure in Chicago!\n- (part 1 of 2, excerpt) It's said that Fatih Terim also did such things sometimes.\n\nKnowing that my players' families are with me makes me happy.\n- (part 7 of 9, excerpt) who spent time in the town.\n\n5.\n\nPlague Column - This striking column was erected in the 18th century to commemorate the end of a devastating plague epidemic.\n\n6.",
+      "evidence": [
+        {
+          "sourceId": "memory:1e5bd28d_2",
+          "sourceVersion": "sha256:ac2bb20ebe29ebd013167b2aa4e1832bd52bfaa47f016aa848dae544e41c9a03",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "1e5bd28d_2",
+            "part": 6,
+            "parts": 16
+          },
+          "text": "\"I'll take an Italian beef sandwich, hot, wet, with provolone cheese, please.\"\n\nor\n\n\"Can I get an Italian beef, sweet, dry, with mozzarella?\"\n\n**Tips:**\n\n* Be prepared for a messy, juicy sandwich. You might want to grab some napkins!\n* Try to avoid ordering during peak lunch hours (11:30 am - 1:30 pm) to avoid long lines.\n* If you're not sure what to order, ask the staff for recommendations or guidance. They'll be happy to help.\n\nEnjoy your Italian beef adventure in Chicago!\nuser: I'm also interested in trying some of Chicago's famous deep-dish pizza. Can you recommend some classic spots and any tips on what to order?\nassistant: Deep-dish pizza is a must-try in Chicago! Here are some iconic spots and tips to help you navigate the rich, cheesy, and crusty world of Chicago-style deep-dish pizza:\n\n**Classic Deep-Dish Spots:**",
+          "id": "ev_7e779e8b5bb5d137a44843b0",
+          "observedAt": "2026-10-14T05:08:42.303Z"
+        },
+        {
+          "sourceId": "memory:1e5bd28d_2",
+          "sourceVersion": "sha256:ac2bb20ebe29ebd013167b2aa4e1832bd52bfaa47f016aa848dae544e41c9a03",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "1e5bd28d_2",
+            "part": 9,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "a classic deep-dish pizza with sausage, mushrooms, and onions, please.\"\n\nor\n\n\"Can I get a deep-dish with pepperoni, bacon, and olives?\"\n\n**Additional Tips:**\n\n* Be prepared for a rich, filling meal. Deep-dish pizzas are dense and satisfying.\n* Don't be afraid to ask for a \"well-done\" crust if you prefer a crisper crust.\n* If you're unsure about the wait, ask your server for an estimate or consider ordering ahead for pickup.\n* Try to visit during off-peak hours (e.g., lunch or early dinner) to avoid long waits.\n\nEnjoy your deep-dish adventure in Chicago!",
+          "id": "ev_85a9cc0ba4ef70036c706062",
+          "observedAt": "2026-10-14T05:08:42.303Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_0PLBHdX_15",
+          "sourceVersion": "sha256:9e4b10e367465e3e50cbd6c82984c5947138c2ff8d3ec5af7625e6f3a052fcdb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_0PLBHdX_15",
+            "part": 1,
+            "parts": 2,
+            "partial": true
+          },
+          "text": "It's said that Fatih Terim also did such things sometimes.\n\nKnowing that my players' families are with me makes me happy.",
+          "id": "ev_8d32b2b987c5e8c957c9b98b",
+          "observedAt": "2026-10-14T05:08:42.303Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_323709",
+          "sourceVersion": "sha256:3000467b591dbee78bd398282674b6a492e188f74cafcec8d0823b0af1a8b22f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_323709",
+            "part": 7,
+            "parts": 9,
+            "partial": true
+          },
+          "text": "who spent time in the town.\n\n5.\n\nPlague Column - This striking column was erected in the 18th century to commemorate the end of a devastating plague epidemic.\n\n6.",
+          "id": "ev_df6a6a04e37de1f490a1f061",
+          "observedAt": "2026-10-14T05:08:42.304Z"
+        }
+      ],
+      "sourceIds": [
+        "1e5bd28d_2",
+        "sharegpt_0PLBHdX_15",
+        "ultrachat_323709"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.856708999999682,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 0.0,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:08:42.306996+00:00"
+}

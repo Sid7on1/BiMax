@@ -1,0 +1,275 @@
+{
+  "row": 0,
+  "query": 0,
+  "id": "mab-0-0",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:38:00.564130+00:00",
+  "valid": true,
+  "question": "In what country is Normandy located?",
+  "references": [
+    "France",
+    "France",
+    "France",
+    "France"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 537.0473330000023,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 36,
+        "maxInputChars": 36,
+        "requiredProviderTruncation": false,
+        "promptTokens": 9,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-189",
+        "context-203",
+        "context-238"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) um (Last Glacial Maximum). During this time, the lower Rhine flowed roughly west through the Netherlands and extended to the southwest, through the English Channel and finally, to the Atlantic Ocean. The English Channel, the Irish Channel and most of the North Sea were dry land, mainly because sea level was approximately 120 m (390 ft) lower than today.\n\nDocument 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n  (part 2 of 5, excerpt) by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n\nDocument 947:\n- (part 1 of 5) tection against further Viking incursions. The area corresponded to the northern part of present-day Upper Normandy down to the river Seine, but the Duchy would eventually extend west beyond the Seine. The territory was roughly equivalent to the old province of Rouen, and reproduced the Roman administrative structure of Gallia Lugdunensis II (part of the former Gallia Lugdunensis).\n- (part 2 of 5, excerpt) In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century t",
+      "evidence": [
+        {
+          "sourceId": "memory:context-189",
+          "sourceVersion": "sha256:1e2275347ec9de496eb42c1d852f77b368d8264ddfa0030036703b2c4f3352d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-189",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "um (Last Glacial Maximum). During this time, the lower Rhine flowed roughly west through the Netherlands and extended to the southwest, through the English Channel and finally, to the Atlantic Ocean. The English Channel, the Irish Channel and most of the North Sea were dry land, mainly because sea level was approximately 120 m (390 ft) lower than today.\n\nDocument 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.",
+          "id": "ev_f7fea43d9cc571c4a85ef122",
+          "observedAt": "2026-10-14T08:38:01.106Z"
+        },
+        {
+          "sourceId": "memory:context-189",
+          "sourceVersion": "sha256:1e2275347ec9de496eb42c1d852f77b368d8264ddfa0030036703b2c4f3352d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-189",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n\nDocument 947:",
+          "id": "ev_c503a5b5901c1e1ce58d55ba",
+          "observedAt": "2026-10-14T08:38:01.106Z"
+        },
+        {
+          "sourceId": "memory:context-203",
+          "sourceVersion": "sha256:d30626130eee535ba6d456687a511e458ba3c3dfeadc4bdf18e1cc015e84a789",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-203",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "tection against further Viking incursions. The area corresponded to the northern part of present-day Upper Normandy down to the river Seine, but the Duchy would eventually extend west beyond the Seine. The territory was roughly equivalent to the old province of Rouen, and reproduced the Roman administrative structure of Gallia Lugdunensis II (part of the former Gallia Lugdunensis).",
+          "id": "ev_7f60be878aa9297b4ee17192",
+          "observedAt": "2026-10-14T08:38:01.106Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century t",
+          "id": "ev_7c8ac1618b109a6dbcb7ce34",
+          "observedAt": "2026-10-14T08:38:01.107Z"
+        }
+      ],
+      "sourceIds": [
+        "context-189",
+        "context-203",
+        "context-238"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.158125000001746,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-189",
+        "context-203",
+        "context-238"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) Document 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n  (part 2 of 5) by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n\nDocument 947:\nThe French Protestant Church of London was established by Royal Charter in 1550. It is now located at Soho Square. Huguenot refugees flocked to Shoreditch, London. They established a major weaving industry in and around Spitalfields (see Petticoat Lane and the Tenterground) in East London. In Wandsworth, their gardening skills benefited the Battersea market gardens. The Old Truman Brewery, then known as the Black Eagle Brewery, was founded in 1724. The flight of Huguenot refugees from Tours, France drew off most of the workers of its great silk mills which they had built.[citation needed] Some of these immigrants moved to Norwich, which had accommodated an earlier settlement of Walloon weavers. The French added to the existing immigrant population, then comprising about a third of the population of the city.\n- (part 1 of 5) tection against further Viking incursions. The area corresponded to the northern part of present-day Upper Normandy down to the river Seine, but the Duchy would eventually extend west beyond the Seine. The territory was roughly equivalent to the old province of Rouen, and reproduced the Roman administrative structure of Gallia Lugdunensis II (part of the former Gallia Lugdunensis).\n- (part 1 of 5) ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture and musical traditions, and for their significant military accomplishments and innovations. Norman adventurers founded the Kingdom of Sicily under Roger II after conquering southern Italy on the Saracens and Byzantines, and an expedition on behalf of their duke, William the Conqueror, led to the Norman conquest of England at the Battle of Hastings in 1066. Norman cultural and military influence spread from these new European centres to the Crusader states of the Near East, where their prince Bohemond I founded the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n  (part 2 of 5) the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n\nDocument 1193:\nIn the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"renaissance\" of Norman art and scholarship were Mont-Saint-Michel, F\u00e9camp, Jumi\u00e8ges, Bec, Saint-Ouen, Saint-Evroul, and Saint-Wandrille. These centres were in contact with the so-called \"Winchester school\", which channeled a pure Carolingian artistic tradition to Normandy. In the final decade of the 11th and first of the 12th century, Normandy experienced a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.\n  (part 3 of 5) a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.\n\nDocument 1194:\nAnother important library \u2013 the University Library, founded in 1816, is home to over two million items. The building was designed by architects Marek Budzy\u0144ski and Zbigniew Badowski and opened on 15 December 1999. It is surrounded by green. The University Library garden, designed by Irena Bajerska, was opened on 12 June 2002. It is one of the largest and most beautiful roof gardens in Europe with an area of more than 10,000 m2 (107,639.10 sq ft), and plants covering 5,111 m2 (55,014.35 sq ft). As the university garden it is open to the public every day.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-189",
+          "sourceVersion": "sha256:1e2275347ec9de496eb42c1d852f77b368d8264ddfa0030036703b2c4f3352d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-189",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.",
+          "id": "ev_f7b7e8fe5131ced2ea72082c",
+          "observedAt": "2026-10-14T08:38:01.110Z"
+        },
+        {
+          "sourceId": "memory:context-189",
+          "sourceVersion": "sha256:1e2275347ec9de496eb42c1d852f77b368d8264ddfa0030036703b2c4f3352d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-189",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n\nDocument 947:\nThe French Protestant Church of London was established by Royal Charter in 1550. It is now located at Soho Square. Huguenot refugees flocked to Shoreditch, London. They established a major weaving industry in and around Spitalfields (see Petticoat Lane and the Tenterground) in East London. In Wandsworth, their gardening skills benefited the Battersea market gardens. The Old Truman Brewery, then known as the Black Eagle Brewery, was founded in 1724. The flight of Huguenot refugees from Tours, France drew off most of the workers of its great silk mills which they had built.[citation needed] Some of these immigrants moved to Norwich, which had accommodated an earlier settlement of Walloon weavers. The French added to the existing immigrant population, then comprising about a third of the population of the city.",
+          "id": "ev_c42735b17aafb20190640ad0",
+          "observedAt": "2026-10-14T08:38:01.110Z"
+        },
+        {
+          "sourceId": "memory:context-203",
+          "sourceVersion": "sha256:d30626130eee535ba6d456687a511e458ba3c3dfeadc4bdf18e1cc015e84a789",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-203",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "tection against further Viking incursions. The area corresponded to the northern part of present-day Upper Normandy down to the river Seine, but the Duchy would eventually extend west beyond the Seine. The territory was roughly equivalent to the old province of Rouen, and reproduced the Roman administrative structure of Gallia Lugdunensis II (part of the former Gallia Lugdunensis).",
+          "id": "ev_7f60be878aa9297b4ee17192",
+          "observedAt": "2026-10-14T08:38:01.110Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture and musical traditions, and for their significant military accomplishments and innovations. Norman adventurers founded the Kingdom of Sicily under Roger II after conquering southern Italy on the Saracens and Byzantines, and an expedition on behalf of their duke, William the Conqueror, led to the Norman conquest of England at the Battle of Hastings in 1066. Norman cultural and military influence spread from these new European centres to the Crusader states of the Near East, where their prince Bohemond I founded the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.",
+          "id": "ev_1664e9ae72dd2ec51b485949",
+          "observedAt": "2026-10-14T08:38:01.110Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n\nDocument 1193:\nIn the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"renaissance\" of Norman art and scholarship were Mont-Saint-Michel, F\u00e9camp, Jumi\u00e8ges, Bec, Saint-Ouen, Saint-Evroul, and Saint-Wandrille. These centres were in contact with the so-called \"Winchester school\", which channeled a pure Carolingian artistic tradition to Normandy. In the final decade of the 11th and first of the 12th century, Normandy experienced a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.",
+          "id": "ev_67ccc53433eaadaa83674ec1",
+          "observedAt": "2026-10-14T08:38:01.110Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.\n\nDocument 1194:\nAnother important library \u2013 the University Library, founded in 1816, is home to over two million items. The building was designed by architects Marek Budzy\u0144ski and Zbigniew Badowski and opened on 15 December 1999. It is surrounded by green. The University Library garden, designed by Irena Bajerska, was opened on 12 June 2002. It is one of the largest and most beautiful roof gardens in Europe with an area of more than 10,000 m2 (107,639.10 sq ft), and plants covering 5,111 m2 (55,014.35 sq ft). As the university garden it is open to the public every day.",
+          "id": "ev_51f19e9d35b9de2205c0a3e5",
+          "observedAt": "2026-10-14T08:38:01.110Z"
+        }
+      ],
+      "sourceIds": [
+        "context-189",
+        "context-203",
+        "context-238"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.478540999996767,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-189",
+    "context-203",
+    "context-238"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:38:01.112280+00:00"
+}

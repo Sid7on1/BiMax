@@ -160,7 +160,7 @@ export function changesFiles(tool: string, args: string, result: string): boolea
   if (FILE_TOOLS.has(tool)) return true;
   if (tool === 'DocumentTool') return !result.startsWith('Draft retained');
   if (tool !== 'BashTool') return false;
-  let command = '';
+  let command: string;
   try { command = String((JSON.parse(args) as { command?: unknown }).command ?? ''); } catch { return false; }
   analyzer ??= new BashStaticAnalyzer();
   const { category } = analyzer.analyze(command);

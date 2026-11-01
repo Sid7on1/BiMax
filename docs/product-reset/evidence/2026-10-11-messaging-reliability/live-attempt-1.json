@@ -1,0 +1,141 @@
+{
+  "scope": "installed native/provider owned fixture; not WhatsApp qualification",
+  "installedSha256": "f6f27627580f9e79b8fe2c5e3b3f28474cd46b1f0e21e3f8f2070a921291d2f1",
+  "threadId": "3923776a-c4b4-4e07-af25-3d6fd5699d1e",
+  "model": "gpt-oss-20b",
+  "effort": "Low",
+  "status": "idle",
+  "calls": [
+    {
+      "id": "chatcmpl-tool-85009531200561a5",
+      "toolName": "BimaxCuTool",
+      "input": "{\n  \"operation\": \"apps\"\n}",
+      "output": "{\"apps\": [{\"pid\": 71706, \"name\": \"Messaging Proof\", \"bundle_id\": \"org.cu.proof.whatsapp-fixture\", \"frontmost\": false, \"hidden\": false}], \"otherAppsRedacted\": 4}",
+      "status": "success",
+      "startTime": "2026-10-11T09:43:03.602Z",
+      "endTime": "2026-10-11T09:43:03.924Z"
+    },
+    {
+      "id": "chatcmpl-tool-92c3ddd1e8e57648",
+      "toolName": "BimaxCuTool",
+      "input": "{\"operation\":\"windows\",\"pid\":71706}",
+      "output": "{\n  \"windows\": [\n    {\n      \"window_id\": 801,\n      \"title\": \"\",\n      \"on_screen\": true,\n      \"bounds\": {\n        \"x\": 505,\n        \"y\": 159,\n        \"width\": 460,\n        \"height\": 362\n      }\n    },\n    {\n      \"window_id\": 808,\n      \"title\": \"Window\",\n      \"on_screen\": false,\n      \"bounds\": {\n        \"x\": 511,\n        \"y\": 165,\n        \"width\": 66,\n        \"height\": 20\n      }\n    }\n  ]\n}",
+      "status": "success",
+      "startTime": "2026-10-11T09:43:07.741Z",
+      "endTime": "2026-10-11T09:43:38.918Z"
+    },
+    {
+      "id": "chatcmpl-tool-a366151c9080aadd",
+      "toolName": "BimaxCuTool",
+      "input": "{\"operation\":\"observe\",\"pid\":71706,\"window_id\":801}",
+      "output": "{\n  \"snapshot\": \"4b9f8ec8-7581-4193-b644-dd290ad31f8f:s1\",\n  \"pid\": 71706,\n  \"window_id\": 801,\n  \"application\": \"Messaging Proof\",\n  \"window\": \"Safe Messaging Proof\",\n  \"elements\": [\n    {\n      \"id\": \"ax_1\",\n      \"role\": \"Window\",\n      \"name\": \"Safe Messaging Proof\"\n    },\n    {\n      \"id\": \"ax_2\",\n      \"role\": \"Unknown\",\n      \"name\": \"Conversation\",\n      \"value\": \"Mom demo\",\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_3\",\n      \"role\": \"StaticText\",\n      \"name\": \"Conversation\",\n      \"value\": \"Mom demo\",\n      \"parent\": \"ax_2\"\n    },\n    {\n      \"id\": \"ax_5\",\n      \"role\": \"Unknown\",\n      \"name\": \"Outgoing message\",\n      \"value\": \"hi\",\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_6\",\n      \"role\": \"Unknown\",\n      \"name\": \"Message\",\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_7\",\n      \"role\": \"TextField\",\n      \"name\": \"Message\",\n      \"actions\": [\n        \"CLICK\",\n        \"RIGHT_CLICK\",\n        \"TYPE_TEXT\",\n        \"SET_VALUE\"\n      ],\n      \"focused\": true,\n      \"parent\": \"ax_6\"\n    },\n    {\n      \"id\": \"ax_8\",\n      \"role\": \"Unknown\",\n      \"name\": \"Send\",\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_9\",\n      \"role\": \"Button\",\n      \"name\": \"Send\",\n      \"actions\": [\n        \"CLICK\"\n      ],\n      \"parent\": \"ax_8\"\n    },\n    {\n      \"id\": \"ax_10\",\n      \"role\": \"Unknown\",\n      \"name\": \"Other demo\",\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_11\",\n      \"role\": \"Button\",\n      \"name\": \"Other demo\",\n      \"actions\": [\n        \"CLICK\"\n      ],\n      \"parent\": \"ax_10\"\n    },\n    {\n      \"id\": \"ax_12\",\n      \"role\": \"Button\",\n      \"actions\": [\n        \"CLICK\"\n      ],\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_13\",\n      \"role\": \"Button\",\n      \"actions\": [\n        \"CLICK\",\n        \"RIGHT_CLICK\"\n      ],\n      \"enabled\": false,\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_14\",\n      \"role\": \"Group\",\n      \"parent\": \"ax_13\"\n    },\n    {\n      \"id\": \"ax_15\",\n      \"role\": \"Button\",\n      \"actions\": [\n        \"CLICK\"\n      ],\n      \"parent\": \"ax_1\"\n    },\n    {\n      \"id\": \"ax_16\",\n      \"role\": \"StaticText\",\n      \"value\": \"Safe Messaging Proof\",\n      \"parent\": \"ax_1\"\n    }\n  ]\n}",
+      "status": "success",
+      "startTime": "2026-10-11T09:43:44.874Z",
+      "endTime": "2026-10-11T09:43:44.919Z"
+    },
+    {
+      "id": "chatcmpl-tool-a1d40e040176838e",
+      "toolName": "BimaxCuTool",
+      "input": "{\"operation\":\"workflow\",\"pid\":71706,\"window_id\":801,\"steps\":[{\"action\":\"SET_VALUE\",\"control\":\"Message\",\"value\":\"hi\"},{\"action\":\"SEND_MESSAGE\",\"message\":{\"recipient\":{\"control\":\"Conversation\",\"value\":\"Mom demo\"},\"draft\":{\"control\":\"Message\",\"value\":\"hi\"},\"outgoing\":{\"control\":\"Outgoing message\",\"role\":\"StaticText\",\"value\":\"hi\"}}}]}",
+      "output": "BimaxCuTool was NOT executed \u2014 its arguments do not match the tool's schema:\n  - steps[1].control: required, but missing\n\nRe-issue the call once with corrected arguments. Do not repeat the same arguments.",
+      "status": "error",
+      "startTime": "2026-10-11T09:44:01.911Z",
+      "endTime": "2026-10-11T09:44:01.912Z"
+    },
+    {
+      "id": "chatcmpl-tool-9feedd2924920248",
+      "toolName": "BimaxCuTool",
+      "input": "{\"operation\":\"workflow\",\"pid\":71706,\"window_id\":801,\"steps\":[{\"action\":\"SET_VALUE\",\"control\":\"Message\",\"value\":\"hi\"},{\"action\":\"SEND_MESSAGE\",\"message\":{\"recipient\":{\"control\":\"Conversation\",\"value\":\"Mom demo\"},\"draft\":{\"control\":\"Message\",\"value\":\"hi\"},\"outgoing\":{\"control\":\"Outgoing message\",\"role\":\"StaticText\",\"value\":\"hi\"}}}]}",
+      "output": "BimaxCuTool was NOT executed \u2014 its arguments do not match the tool's schema:\n  - steps[1].control: required, but missing\n\nRe-issue the call once with corrected arguments. Do not repeat the same arguments.",
+      "status": "error",
+      "startTime": "2026-10-11T09:44:07.479Z",
+      "endTime": "2026-10-11T09:44:07.480Z"
+    },
+    {
+      "id": "chatcmpl-tool-829c3edafadd147b",
+      "toolName": "BimaxCuTool",
+      "input": "{\"operation\":\"workflow\",\"pid\":71706,\"window_id\":801,\"steps\":[{\"action\":\"SET_VALUE\",\"control\":\"Message\",\"value\":\"hi\"},{\"action\":\"SEND_MESSAGE\",\"control\":\"\",\"message\":{\"recipient\":{\"control\":\"Conversation\",\"value\":\"Mom demo\"},\"draft\":{\"control\":\"Message\",\"value\":\"hi\"},\"outgoing\":{\"control\":\"Outgoing message\",\"role\":\"StaticText\",\"value\":\"hi\"}}}]}",
+      "output": "Tool Error: A workflow control name is required.",
+      "status": "error",
+      "startTime": "2026-10-11T09:44:09.630Z",
+      "endTime": "2026-10-11T09:44:09.633Z"
+    },
+    {
+      "id": "chatcmpl-tool-adb1666f380332fb",
+      "toolName": "BimaxCuTool",
+      "input": "{\"operation\":\"workflow\",\"pid\":71706,\"window_id\":801,\"steps\":[{\"action\":\"SET_VALUE\",\"control\":\"Message\",\"value\":\"hi\"},{\"action\":\"SEND_MESSAGE\",\"control\":\"Send\",\"message\":{\"recipient\":{\"control\":\"Conversation\",\"value\":\"Mom demo\"},\"draft\":{\"control\":\"Message\",\"value\":\"hi\"},\"outgoing\":{\"control\":\"Outgoing message\",\"role\":\"StaticText\",\"value\":\"hi\"}}}]}",
+      "output": "{\n  \"ok\": false,\n  \"driver\": \"Bimax CU\",\n  \"operation\": \"workflow\",\n  \"blocked\": true,\n  \"executor\": \"stop\",\n  \"code\": \"native_workflow_stopped\",\n  \"reason\": \"Intended recipient is missing, ambiguous or changed; no message input is allowed.\",\n  \"completed\": [],\n  \"attempted\": [],\n  \"completedCount\": 0,\n  \"final\": {\n    \"snapshot\": \"4b9f8ec8-7581-4193-b644-dd290ad31f8f:s2\",\n    \"pid\": 71706,\n    \"window_id\": 801,\n    \"application\": \"Messaging Proof\",\n    \"window\": \"Safe Messaging Proof\",\n    \"elements\": [\n      {\n        \"id\": \"ax_1\",\n        \"role\": \"Window\",\n        \"name\": \"Safe Messaging Proof\"\n      },\n      {\n        \"id\": \"ax_2\",\n        \"role\": \"Unknown\",\n        \"name\": \"Conversation\",\n        \"value\": \"Mom demo\",\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_3\",\n        \"role\": \"StaticText\",\n        \"name\": \"Conversation\",\n        \"value\": \"Mom demo\",\n        \"parent\": \"ax_2\"\n      },\n      {\n        \"id\": \"ax_5\",\n        \"role\": \"Unknown\",\n        \"name\": \"Outgoing message\",\n        \"value\": \"hi\",\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_6\",\n        \"role\": \"Unknown\",\n        \"name\": \"Message\",\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_7\",\n        \"role\": \"TextField\",\n        \"name\": \"Message\",\n        \"actions\": [\n          \"CLICK\",\n          \"RIGHT_CLICK\",\n          \"TYPE_TEXT\",\n          \"SET_VALUE\"\n        ],\n        \"focused\": true,\n        \"parent\": \"ax_6\"\n      },\n      {\n        \"id\": \"ax_8\",\n        \"role\": \"Unknown\",\n        \"name\": \"Send\",\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_9\",\n        \"role\": \"Button\",\n        \"name\": \"Send\",\n        \"actions\": [\n          \"CLICK\"\n        ],\n        \"parent\": \"ax_8\"\n      },\n      {\n        \"id\": \"ax_10\",\n        \"role\": \"Unknown\",\n        \"name\": \"Other demo\",\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_11\",\n        \"role\": \"Button\",\n        \"name\": \"Other demo\",\n        \"actions\": [\n          \"CLICK\"\n        ],\n        \"parent\": \"ax_10\"\n      },\n      {\n        \"id\": \"ax_12\",\n        \"role\": \"Button\",\n        \"actions\": [\n          \"CLICK\"\n        ],\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_13\",\n        \"role\": \"Button\",\n        \"actions\": [\n          \"CLICK\",\n          \"RIGHT_CLICK\"\n        ],\n        \"enabled\": false,\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_17\",\n        \"role\": \"Group\",\n        \"parent\": \"ax_13\"\n      },\n      {\n        \"id\": \"ax_15\",\n        \"role\": \"Button\",\n        \"actions\": [\n          \"CLICK\"\n        ],\n        \"parent\": \"ax_1\"\n      },\n      {\n        \"id\": \"ax_16\",\n        \"role\": \"StaticText\",\n        \"value\": \"Safe Messaging Proof\",\n        \"parent\": \"ax_1\"\n      }\n    ]\n  },\n  \"replay\": false\n}",
+      "status": "error",
+      "startTime": "2026-10-11T09:44:18.275Z",
+      "endTime": "2026-10-11T09:44:18.307Z"
+    }
+  ],
+  "before": {
+    "draft": "",
+    "messages": [
+      {
+        "id": "old-mom",
+        "recipient": "Mom demo",
+        "text": "hi"
+      },
+      {
+        "id": "old-other",
+        "recipient": "Other demo",
+        "text": "do not change"
+      }
+    ],
+    "recipient": "Mom demo",
+    "sends": 0
+  },
+  "after": {
+    "draft": "",
+    "messages": [
+      {
+        "id": "old-mom",
+        "recipient": "Mom demo",
+        "text": "hi"
+      },
+      {
+        "id": "old-other",
+        "recipient": "Other demo",
+        "text": "do not change"
+      }
+    ],
+    "recipient": "Mom demo",
+    "sends": 0
+  },
+  "inputs": [],
+  "assistantMessages": [
+    {
+      "id": "msg-1791711735029-5zgwq",
+      "role": "user",
+      "content": "@CU In Messaging Proof, send exactly one \"hi\" to the already selected Mom demo conversation. This is the local safe fixture. Verify the intended recipient, one new outgoing message despite the identical old message, and the cleared draft using a SEND_MESSAGE workflow. Do not touch Other demo.",
+      "timestamp": "2026-10-11T09:42:15.029Z"
+    },
+    {
+      "id": "capability-1",
+      "role": "system",
+      "level": "warn",
+      "content": "BimaxCuTool: unavailable. The operation threw an error. This operation did not complete successfully. Inspect the tool result before continuing.",
+      "timestamp": "2026-10-11T09:44:09.632Z",
+      "payload": {
+        "capabilityStatus": {
+          "id": "tool:BimaxCuTool",
+          "label": "BimaxCuTool",
+          "state": "unavailable",
+          "reason": "The operation threw an error.",
+          "impact": "This operation did not complete successfully.",
+          "action": "Inspect the tool result before continuing.",
+          "observedAt": "2026-10-11T09:44:09.632Z"
+        }
+      }
+    },
+    {
+      "id": "msg-1791711861464-53gzs",
+      "role": "assistant",
+      "content": "The native workflow stopped because the intended recipient is missing, ambiguous, or has changed. No message input is allowed under these conditions, so the send action cannot proceed.",
+      "timestamp": "2026-10-11T09:44:21.464Z"
+    }
+  ],
+  "humanInterventions": 0
+}

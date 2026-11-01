@@ -1,0 +1,233 @@
+{
+  "row": 1,
+  "query": 24,
+  "id": "mab-1-24",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "question": "What was the father of Kasper Schmeichel voted to be by the IFFHS in 1992?",
+  "references": [
+    "World's Best Goalkeeper"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 8.303208000012091,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 74,
+        "maxInputChars": 74,
+        "requiredProviderTruncation": false,
+        "promptTokens": 24,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-384",
+        "context-331",
+        "context-285"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 5) in 2012, was suggested by Kraft Foods employees and is derived from the words \"mundus\" (Latin for \u201cworld\u201d) and \"delez\" (a proxy for the word \"delicious\").\n\nDocument 2770:\nPeter Schmeichel\nPeter Boles\u0142aw Schmeichel MBE (] ; born 18 November 1963) is a Danish former professional footballer who played as a goalkeeper, and was voted the IFFHS World's Best Goalkeeper in 1992 and 1993. He is best remembered for his most successful years at English club Manchester United, whom he captained to the 1999 UEFA Champions League to complete the Treble, and for winning UEFA Euro 1992 with Denmark.\n- (part 4 of 5) \u2013 David Beckham, Nicky Butt, Ryan Giggs, Gary Neville, Phil Neville and Paul Scholes \u2013 and details their careers for Manchester United starting in 1992.\n\nDocument 2401:\nIFFHS World's Best Goalkeeper\nThe IFFHS World's Best Goalkeeper is a football award given annually since 1987 to the most outstanding goalkeeper of the year as voted by the International Federation of Football History & Statistics (IFFHS). The votes are cast by IFFHS's editorial staff as well as experts from different continents. currently the worlds best goalkeeper from 2013-2016 is Manuel Neuer.\n\nDocument 2402:\nMarvin Gay Sr.\nThe Reverend Marvin Pentz Gay Sr. (October 1, 1914 \u2013 October 10, 1998) was an American minister of the House of God. He was the father of American recording artist Marvin Gaye and gained notoriety after shooting and killing him on April 1, 1984, following an argument at their Los Angeles home.\n- (part 5 of 5, excerpt) Isaak Hassler (c. 1530, St. Joachimsthal \u2013 14 July 1591, Nuremberg) was a German Lutheran organist and music teacher, mainly active in Nuremberg. He is also notable as the father of the musicians Jakob Hassler, Hans Leo Hassler and Kasper Hassle",
+      "evidence": [
+        {
+          "sourceId": "memory:context-384",
+          "sourceVersion": "sha256:ca7962111d7b68a266a98d42d79f33a56f30da7bfd1c91069badeee543b3a3d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-384",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "in 2012, was suggested by Kraft Foods employees and is derived from the words \"mundus\" (Latin for \u201cworld\u201d) and \"delez\" (a proxy for the word \"delicious\").\n\nDocument 2770:\nPeter Schmeichel\nPeter Boles\u0142aw Schmeichel MBE (] ; born 18 November 1963) is a Danish former professional footballer who played as a goalkeeper, and was voted the IFFHS World's Best Goalkeeper in 1992 and 1993. He is best remembered for his most successful years at English club Manchester United, whom he captained to the 1999 UEFA Champions League to complete the Treble, and for winning UEFA Euro 1992 with Denmark.",
+          "id": "ev_e215accb21d8c16812edbd9b",
+          "observedAt": "2026-10-14T04:49:03.756Z"
+        },
+        {
+          "sourceId": "memory:context-331",
+          "sourceVersion": "sha256:06bd5592a425aa798840465ab32e77e89ae3d2057c42ff192b94899cc38ec656",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-331",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "\u2013 David Beckham, Nicky Butt, Ryan Giggs, Gary Neville, Phil Neville and Paul Scholes \u2013 and details their careers for Manchester United starting in 1992.\n\nDocument 2401:\nIFFHS World's Best Goalkeeper\nThe IFFHS World's Best Goalkeeper is a football award given annually since 1987 to the most outstanding goalkeeper of the year as voted by the International Federation of Football History & Statistics (IFFHS). The votes are cast by IFFHS's editorial staff as well as experts from different continents. currently the worlds best goalkeeper from 2013-2016 is Manuel Neuer.\n\nDocument 2402:\nMarvin Gay Sr.\nThe Reverend Marvin Pentz Gay Sr. (October 1, 1914 \u2013 October 10, 1998) was an American minister of the House of God. He was the father of American recording artist Marvin Gaye and gained notoriety after shooting and killing him on April 1, 1984, following an argument at their Los Angeles home.",
+          "id": "ev_be384ba9de6528d21d6d5f22",
+          "observedAt": "2026-10-14T04:49:03.756Z"
+        },
+        {
+          "sourceId": "memory:context-285",
+          "sourceVersion": "sha256:08a40e6a05fceea6c014c112621fd99d040343083502733e6a63876c2ad67bd3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-285",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Isaak Hassler (c. 1530, St. Joachimsthal \u2013 14 July 1591, Nuremberg) was a German Lutheran organist and music teacher, mainly active in Nuremberg. He is also notable as the father of the musicians Jakob Hassler, Hans Leo Hassler and Kasper Hassle",
+          "id": "ev_a8ab408027c895de7a73e8b4",
+          "observedAt": "2026-10-14T04:49:03.756Z"
+        }
+      ],
+      "sourceIds": [
+        "context-384",
+        "context-331",
+        "context-285"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.2588749999995343,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-384",
+        "context-331",
+        "context-285"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 5) in 2012, was suggested by Kraft Foods employees and is derived from the words \"mundus\" (Latin for \u201cworld\u201d) and \"delez\" (a proxy for the word \"delicious\").\n\nDocument 2770:\nPeter Schmeichel\nPeter Boles\u0142aw Schmeichel MBE (] ; born 18 November 1963) is a Danish former professional footballer who played as a goalkeeper, and was voted the IFFHS World's Best Goalkeeper in 1992 and 1993. He is best remembered for his most successful years at English club Manchester United, whom he captained to the 1999 UEFA Champions League to complete the Treble, and for winning UEFA Euro 1992 with Denmark.\n- (part 4 of 5) \u2013 David Beckham, Nicky Butt, Ryan Giggs, Gary Neville, Phil Neville and Paul Scholes \u2013 and details their careers for Manchester United starting in 1992.\n\nDocument 2401:\nIFFHS World's Best Goalkeeper\nThe IFFHS World's Best Goalkeeper is a football award given annually since 1987 to the most outstanding goalkeeper of the year as voted by the International Federation of Football History & Statistics (IFFHS). The votes are cast by IFFHS's editorial staff as well as experts from different continents. currently the worlds best goalkeeper from 2013-2016 is Manuel Neuer.\n\nDocument 2402:\nMarvin Gay Sr.\nThe Reverend Marvin Pentz Gay Sr. (October 1, 1914 \u2013 October 10, 1998) was an American minister of the House of God. He was the father of American recording artist Marvin Gaye and gained notoriety after shooting and killing him on April 1, 1984, following an argument at their Los Angeles home.\n- (part 5 of 5, excerpt) Isaak Hassler (c. 1530, St. Joachimsthal \u2013 14 July 1591, Nuremberg) was a German Lutheran organist and music teacher, mainly active in Nuremberg. He is also notable as the father of the musicians Jakob Hassler, Hans Leo Hassler and Kasper Hassle",
+      "evidence": [
+        {
+          "sourceId": "memory:context-384",
+          "sourceVersion": "sha256:ca7962111d7b68a266a98d42d79f33a56f30da7bfd1c91069badeee543b3a3d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-384",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "in 2012, was suggested by Kraft Foods employees and is derived from the words \"mundus\" (Latin for \u201cworld\u201d) and \"delez\" (a proxy for the word \"delicious\").\n\nDocument 2770:\nPeter Schmeichel\nPeter Boles\u0142aw Schmeichel MBE (] ; born 18 November 1963) is a Danish former professional footballer who played as a goalkeeper, and was voted the IFFHS World's Best Goalkeeper in 1992 and 1993. He is best remembered for his most successful years at English club Manchester United, whom he captained to the 1999 UEFA Champions League to complete the Treble, and for winning UEFA Euro 1992 with Denmark.",
+          "id": "ev_e215accb21d8c16812edbd9b",
+          "observedAt": "2026-10-14T04:49:03.759Z"
+        },
+        {
+          "sourceId": "memory:context-331",
+          "sourceVersion": "sha256:06bd5592a425aa798840465ab32e77e89ae3d2057c42ff192b94899cc38ec656",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-331",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "\u2013 David Beckham, Nicky Butt, Ryan Giggs, Gary Neville, Phil Neville and Paul Scholes \u2013 and details their careers for Manchester United starting in 1992.\n\nDocument 2401:\nIFFHS World's Best Goalkeeper\nThe IFFHS World's Best Goalkeeper is a football award given annually since 1987 to the most outstanding goalkeeper of the year as voted by the International Federation of Football History & Statistics (IFFHS). The votes are cast by IFFHS's editorial staff as well as experts from different continents. currently the worlds best goalkeeper from 2013-2016 is Manuel Neuer.\n\nDocument 2402:\nMarvin Gay Sr.\nThe Reverend Marvin Pentz Gay Sr. (October 1, 1914 \u2013 October 10, 1998) was an American minister of the House of God. He was the father of American recording artist Marvin Gaye and gained notoriety after shooting and killing him on April 1, 1984, following an argument at their Los Angeles home.",
+          "id": "ev_be384ba9de6528d21d6d5f22",
+          "observedAt": "2026-10-14T04:49:03.759Z"
+        },
+        {
+          "sourceId": "memory:context-285",
+          "sourceVersion": "sha256:08a40e6a05fceea6c014c112621fd99d040343083502733e6a63876c2ad67bd3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-285",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Isaak Hassler (c. 1530, St. Joachimsthal \u2013 14 July 1591, Nuremberg) was a German Lutheran organist and music teacher, mainly active in Nuremberg. He is also notable as the father of the musicians Jakob Hassler, Hans Leo Hassler and Kasper Hassle",
+          "id": "ev_a8ab408027c895de7a73e8b4",
+          "observedAt": "2026-10-14T04:49:03.759Z"
+        }
+      ],
+      "sourceIds": [
+        "context-384",
+        "context-331",
+        "context-285"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.0588750000024447,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:42:55.895712+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Peter Schmeichel was voted the IFFHS World's Best Goalkeeper in 1992.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 609,
+    "completion_tokens": 1047,
+    "total_tokens": 1656,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 279,
+    "completion_tokens": 816,
+    "total_tokens": 1095,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 813,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10505.6784169999,
+  "judgeWallMs": 10264.558375000206,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.46153846153846156
+  },
+  "ended": "2026-10-14T07:43:16.668459+00:00"
+}

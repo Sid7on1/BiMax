@@ -1,0 +1,160 @@
+{
+  "row": 5,
+  "query": 83,
+  "id": "mab-5-83",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T09:00:52.185868+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n80. Isaiah found his aunt sitting up for him.\n81. Donald looked up hopelessly and expressed her frustration about the documents not coming right.\n82. Mrs. Markleham leaned back in her chair and retired behind her fan.\n83. Mr. Littimer explained the young woman's violent reaction to Mr. Ryanne's departure.\n84. Mrs. Kyra inquired if Mr. Kayla was informed about everything.\n\n\nBelow is a list of possible subsequent events:\n\n[\"The girl lingered at the park's entrance, admiring the flowers in bloom.\", \"The girl crouched on the beach's shore, listening closely to the waves crash.\", \"The girl stopped at the river's brink, looking intently at the water.\", \"The girl stood on the cliff's edge, gazing thoughtfully at the valley below.\", \"The girl knelt by the pond's edge, watching the ripples dance across the surface.\", \"The girl paused at the mountain's base, contemplating the trail ahead.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "The girl stopped at the river's brink, looking intently at the water."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-311",
+    "context-288",
+    "context-62"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T09:01:20.246421+00:00",
+  "rag": {
+    "ids": [
+      "context-311",
+      "context-288",
+      "context-62"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) ran turned her head disdainfully towards him.\n\n'I beg your pardon, miss,' he said, awakening from his abstraction, 'but, however submissive to you, I have my position, though a servant. Mr. Kayla and you, miss, are different people. If Mr. Kayla wishes to know anything from me, I take the liberty of reminding Mr. Kayla that he can put a question to me. I have a character to maintain.'\n\nAfter a momentary struggle with myself, I turned my eyes upon him, and said, 'You have heard my question. Consider it addressed to yourself, if you choose. What answer do you make?'\n  (part 4 of 4) one interest; and that is why I, who would do her any mischief that so coarse a wretch is capable of feeling, have sent for you to hear what you have heard.'\n\nI saw, by the change in her face, that someone was advancing behind me. It was Mrs. Kyra, who gave me her hand more coldly than of yore, and with an augmentation of her former stateliness of manner, but still, I perceived--and I was touched by it--with an ineffaceable remembrance of my old love for her son. She was greatly altered. Her fine figure was far less upright, her handsome face was deeply marked, and her hair was almost white. But when she sat down on the seat, she was a handsome lady still; and well I knew the bright eye with its lofty look, that had been a light in my very dreams at school.\n\n'Is Mr. Kayla informed of everything, Dorothyish?'\n\n'Yes.'\n\n'And has he heard Littimer himself?'\n\n'Yes; I have told him why you wished it.' 'You are a good girl. I have had some slight correspondence with your former friend, sir,' addressing me, 'but it has not restored his sense of duty or natural obligation. Therefore I have no other object in this, th\n- (part 4 of 5) sworn; and disposes of me easily, as if there were a Masonic understanding between us. Isaiah is not at all wanted, but is in attendance as my general backer.\n\n'I hope the next time you come here, my dear fellow,' I say to Isaiah, 'it will be on the same errand for yourself. And I hope it will be soon.'\n\n'Thank you for your good wishes, my dear Kayla,' he replies. 'I hope so too. It's a satisfaction to know that she'll wait for me any length of time, and that she really is the dearest girl--'\n\n'When are you to meet her at the coach?' I ask.\n\n'At seven,' says Isaiah, looking at his plain old silver watch--the very watch he once took a wheel out of, at school, to make a water-mill. 'That is about Miss Cristal's time, is it not?'\n\n'A little earlier. Her time is half past eight.' 'I assure you, my dear boy,' says Isaiah, 'I am almost as pleased as if I were going to be married myself, to think that this event is coming to such a happy termination. And really the great friendship and consideration of personally associating Sophy with the joyful occasion, and inviting her to be a bridesmaid in conjunction with Miss Cristal, demands my warmest thanks. I am extremely sensible of it.'\n- (part 4 of 5) faithful servant, whom of all the people upon earth I love the best, and unto whom my childish heart is certain that the Lord will one day say: 'Well done.'\n\nThere are many faces that I know, among the little crowd; faces that I knew in church, when mine was always wondering there; faces that first saw my mother, when she came to the village in her youthful bloom. I do not mind them--I mind nothing but my grief--and yet I see and know them all; and even in the background, far away, see Minnie looking on, and her eye glancing on her sweetheart, who is near me.\n\nIt is over, and the earth is filled in, and we turn to come away. Before us stands our house, so pretty and unchanged, so linked in my mind with the young idea of what is gone, that all my sorrow has been nothing to the sorrow it calls forth. But they take me on; and Mr. Chillip talks to me; and when we get home, puts some water to my lips; and when I ask his leave to go up to my room, dismisses me with the gentleness of a woman.\n\nAll this, I say, is yesterday's event. Events of later date have floated from me to the shore where all forgotten things will reappear, but this stands like a high rock in the ocean.",
+    "evidence": [
+      {
+        "sourceId": "memory:context-311",
+        "sourceVersion": "sha256:7fcfc5d5100cb28146c050504d2597bfa0524e8b5b874801948169fe8bd721a7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-311",
+          "part": 1,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "ran turned her head disdainfully towards him.\n\n'I beg your pardon, miss,' he said, awakening from his abstraction, 'but, however submissive to you, I have my position, though a servant. Mr. Kayla and you, miss, are different people. If Mr. Kayla wishes to know anything from me, I take the liberty of reminding Mr. Kayla that he can put a question to me. I have a character to maintain.'\n\nAfter a momentary struggle with myself, I turned my eyes upon him, and said, 'You have heard my question. Consider it addressed to yourself, if you choose. What answer do you make?'",
+        "id": "ev_2e835dc2c1e7e14cc59ab7f0",
+        "observedAt": "2026-10-14T08:49:11.895Z"
+      },
+      {
+        "sourceId": "memory:context-311",
+        "sourceVersion": "sha256:7fcfc5d5100cb28146c050504d2597bfa0524e8b5b874801948169fe8bd721a7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-311",
+          "part": 4,
+          "parts": 4
+        },
+        "text": "one interest; and that is why I, who would do her any mischief that so coarse a wretch is capable of feeling, have sent for you to hear what you have heard.'\n\nI saw, by the change in her face, that someone was advancing behind me. It was Mrs. Kyra, who gave me her hand more coldly than of yore, and with an augmentation of her former stateliness of manner, but still, I perceived--and I was touched by it--with an ineffaceable remembrance of my old love for her son. She was greatly altered. Her fine figure was far less upright, her handsome face was deeply marked, and her hair was almost white. But when she sat down on the seat, she was a handsome lady still; and well I knew the bright eye with its lofty look, that had been a light in my very dreams at school.\n\n'Is Mr. Kayla informed of everything, Dorothyish?'\n\n'Yes.'\n\n'And has he heard Littimer himself?'\n\n'Yes; I have told him why you wished it.' 'You are a good girl. I have had some slight correspondence with your former friend, sir,' addressing me, 'but it has not restored his sense of duty or natural obligation. Therefore I have no other object in this, th",
+        "id": "ev_8ebd30ca815dfb53d62efced",
+        "observedAt": "2026-10-14T08:49:11.895Z"
+      },
+      {
+        "sourceId": "memory:context-288",
+        "sourceVersion": "sha256:7c06bc532b8786a7df6f1341cca00f2f53c64f21c48bdac8f9252731fd41fa8c",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-288",
+          "part": 4,
+          "parts": 5
+        },
+        "text": "sworn; and disposes of me easily, as if there were a Masonic understanding between us. Isaiah is not at all wanted, but is in attendance as my general backer.\n\n'I hope the next time you come here, my dear fellow,' I say to Isaiah, 'it will be on the same errand for yourself. And I hope it will be soon.'\n\n'Thank you for your good wishes, my dear Kayla,' he replies. 'I hope so too. It's a satisfaction to know that she'll wait for me any length of time, and that she really is the dearest girl--'\n\n'When are you to meet her at the coach?' I ask.\n\n'At seven,' says Isaiah, looking at his plain old silver watch--the very watch he once took a wheel out of, at school, to make a water-mill. 'That is about Miss Cristal's time, is it not?'\n\n'A little earlier. Her time is half past eight.' 'I assure you, my dear boy,' says Isaiah, 'I am almost as pleased as if I were going to be married myself, to think that this event is coming to such a happy termination. And really the great friendship and consideration of personally associating Sophy with the joyful occasion, and inviting her to be a bridesmaid in conjunction with Miss Cristal, demands my warmest thanks. I am extremely sensible of it.'",
+        "id": "ev_879bb9ed61d37de7140f8bb4",
+        "observedAt": "2026-10-14T08:49:11.895Z"
+      },
+      {
+        "sourceId": "memory:context-62",
+        "sourceVersion": "sha256:fc6d8411c22436a1652085cefbb8c17bfcba7baae6d8f3882761aaf633bd18ab",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-62",
+          "part": 4,
+          "parts": 5
+        },
+        "text": "faithful servant, whom of all the people upon earth I love the best, and unto whom my childish heart is certain that the Lord will one day say: 'Well done.'\n\nThere are many faces that I know, among the little crowd; faces that I knew in church, when mine was always wondering there; faces that first saw my mother, when she came to the village in her youthful bloom. I do not mind them--I mind nothing but my grief--and yet I see and know them all; and even in the background, far away, see Minnie looking on, and her eye glancing on her sweetheart, who is near me.\n\nIt is over, and the earth is filled in, and we turn to come away. Before us stands our house, so pretty and unchanged, so linked in my mind with the young idea of what is gone, that all my sorrow has been nothing to the sorrow it calls forth. But they take me on; and Mr. Chillip talks to me; and when we get home, puts some water to my lips; and when I ask his leave to go up to my room, dismisses me with the gentleness of a woman.\n\nAll this, I say, is yesterday's event. Events of later date have floated from me to the shore where all forgotten things will reappear, but this stands like a high rock in the ocean.",
+        "id": "ev_75a575a15f2683994d33b737",
+        "observedAt": "2026-10-14T08:49:11.895Z"
+      }
+    ],
+    "sourceIds": [
+      "context-311",
+      "context-288",
+      "context-62"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 5.4259579999998095,
+    "provenance": true
+  },
+  "arm": "current",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "I do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 1369,
+    "completion_tokens": 1030,
+    "total_tokens": 2399,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 505,
+    "completion_tokens": 870,
+    "total_tokens": 1375,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 867,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 16482.925875000547,
+  "judgeWallMs": 11574.987625000176
+}

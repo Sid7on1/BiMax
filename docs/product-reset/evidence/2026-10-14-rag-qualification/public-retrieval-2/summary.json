@@ -1,0 +1,85 @@
+{
+  "scope": "100 balanced LongMemEval_S questions and 100 balanced MemoryAgentBench Accurate_Retrieval questions; not full-suite scores",
+  "expectedQuestions": 200,
+  "attemptedQuestions": 200,
+  "validQuestions": 200,
+  "invalid": [],
+  "datasets": {
+    "longmemeval": {
+      "questions": 100,
+      "baselineCurrentPromptEqual": 100,
+      "validProvenance": 100,
+      "answerSourceQuestions": 85,
+      "meanAnswerSourceRecallAt3": 0.9405882352941177,
+      "completeAnswerSources": 74,
+      "referenceTextPresent": 36,
+      "strata": {
+        "abstention": {
+          "questions": 15,
+          "referenceTextPresent": 0
+        },
+        "knowledge-update": {
+          "questions": 15,
+          "referenceTextPresent": 8
+        },
+        "multi-session": {
+          "questions": 14,
+          "referenceTextPresent": 8
+        },
+        "single-session-assistant": {
+          "questions": 14,
+          "referenceTextPresent": 8
+        },
+        "single-session-preference": {
+          "questions": 14,
+          "referenceTextPresent": 0
+        },
+        "single-session-user": {
+          "questions": 14,
+          "referenceTextPresent": 11
+        },
+        "temporal-reasoning": {
+          "questions": 14,
+          "referenceTextPresent": 1
+        }
+      }
+    },
+    "memoryagentbench": {
+      "questions": 100,
+      "baselineCurrentPromptEqual": 100,
+      "validProvenance": 100,
+      "answerSourceQuestions": 0,
+      "meanAnswerSourceRecallAt3": null,
+      "completeAnswerSources": 0,
+      "referenceTextPresent": 20,
+      "strata": {
+        "eventqa_131072": {
+          "questions": 17,
+          "referenceTextPresent": 0
+        },
+        "eventqa_65536": {
+          "questions": 17,
+          "referenceTextPresent": 0
+        },
+        "eventqa_full": {
+          "questions": 17,
+          "referenceTextPresent": 0
+        },
+        "longmemeval_s*": {
+          "questions": 17,
+          "referenceTextPresent": 2
+        },
+        "ruler_qa1_197K": {
+          "questions": 16,
+          "referenceTextPresent": 10
+        },
+        "ruler_qa2_421K": {
+          "questions": 16,
+          "referenceTextPresent": 8
+        }
+      }
+    }
+  },
+  "ended": "2026-10-14T05:22:24.445302+00:00",
+  "modelAnswerAccuracy": "unmeasured; no reader/judge invoked"
+}

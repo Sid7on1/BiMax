@@ -1,0 +1,280 @@
+{
+  "row": 364,
+  "id": "gpt4_c27434e8_abs",
+  "stratum": "abstention",
+  "dataset": "longmemeval",
+  "question": "Which project did I start first, the Ferrari model or the Porsche 991 Turbo S model?",
+  "references": [
+    "The information provided is not enough. You did not mention starting the Porsche 991 Turbo S model."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": true,
+  "date": "2023/05/23 (Tue) 11:26",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 45.47675000000163,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 84,
+        "maxInputChars": 84,
+        "requiredProviderTruncation": false,
+        "promptTokens": 21,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_d8e33f5c_abs_1",
+        "answer_d8e33f5c_abs_2",
+        "5c184f9f_5"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 8 of 17) on the engine compartment and body. Decals can really add a lot of detail and realism to a model, and it's great that you're happy with how they turned out.\n\nWhat kind of decals did you use? Were they pre-made or did you create your own? And how did you find the application process? Was it straightforward or were there any challenges you had to overcome?\n\nAlso, now that you've got the decals applied, what's next on your agenda for the Ferrari project? Are you moving on to the paint job, or are there other details you want to focus on first?\n\nBy the way, have you considered adding any additional details to the engine compartment, such as wiring, hoses, or other engine components? Sometimes, adding those small details can really make the model pop and give it a more realistic look.\nuser: I used pre-made decals specifically designed for the Ferrari 288 GTO. The application process was pretty straightforward, but it did take some patience and care to avoid air bubbles and wrinkles. I applied them to the engine compartment and body about a week ago, and I'm really happy with how they turned out.\n  (part 15 of 17, excerpt) As for new techniques, I did learn about a new way to create realistic paint chipping using a combination of masking tape and paint. One of the guys at the meetup showed me how to use the tape to create sharp, defined edges and then paint over it to create a chipped, worn look. I'm excited to try it out on my Ferrari model.\n- (part 17 of 21, excerpt) For my Ferrari 288 GTO model, I like the idea of adding a figure of a racing mechanic and a miniature toolbox. I might also add some details li\n- (part 9 of 18, excerpt) 1. **Discounts:** You can often find significant discounts on last season's models or previous versions, which can be a gre",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_d8e33f5c_abs_1",
+          "sourceVersion": "sha256:abbc1adc8df67b890e2bd4bededd3515adc11235885e38f2ac2e74a90959751c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8e33f5c_abs_1",
+            "part": 8,
+            "parts": 17
+          },
+          "text": "on the engine compartment and body. Decals can really add a lot of detail and realism to a model, and it's great that you're happy with how they turned out.\n\nWhat kind of decals did you use? Were they pre-made or did you create your own? And how did you find the application process? Was it straightforward or were there any challenges you had to overcome?\n\nAlso, now that you've got the decals applied, what's next on your agenda for the Ferrari project? Are you moving on to the paint job, or are there other details you want to focus on first?\n\nBy the way, have you considered adding any additional details to the engine compartment, such as wiring, hoses, or other engine components? Sometimes, adding those small details can really make the model pop and give it a more realistic look.\nuser: I used pre-made decals specifically designed for the Ferrari 288 GTO. The application process was pretty straightforward, but it did take some patience and care to avoid air bubbles and wrinkles. I applied them to the engine compartment and body about a week ago, and I'm really happy with how they turned out.",
+          "id": "ev_386c59697a174f84930f1ac2",
+          "observedAt": "2026-10-14T05:22:04.267Z"
+        },
+        {
+          "sourceId": "memory:answer_d8e33f5c_abs_1",
+          "sourceVersion": "sha256:abbc1adc8df67b890e2bd4bededd3515adc11235885e38f2ac2e74a90959751c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8e33f5c_abs_1",
+            "part": 15,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "As for new techniques, I did learn about a new way to create realistic paint chipping using a combination of masking tape and paint. One of the guys at the meetup showed me how to use the tape to create sharp, defined edges and then paint over it to create a chipped, worn look. I'm excited to try it out on my Ferrari model.",
+          "id": "ev_6cc97b981d062e230f948119",
+          "observedAt": "2026-10-14T05:22:04.271Z"
+        },
+        {
+          "sourceId": "memory:answer_d8e33f5c_abs_2",
+          "sourceVersion": "sha256:70876ddaf80dd36cef2c7fcd758bc344ab9f00025f25be8087a37e7aed223670",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8e33f5c_abs_2",
+            "part": 17,
+            "parts": 21,
+            "partial": true
+          },
+          "text": "For my Ferrari 288 GTO model, I like the idea of adding a figure of a racing mechanic and a miniature toolbox. I might also add some details li",
+          "id": "ev_f52bdac7abfb781107ed22e8",
+          "observedAt": "2026-10-14T05:22:04.272Z"
+        },
+        {
+          "sourceId": "memory:5c184f9f_5",
+          "sourceVersion": "sha256:03ee9a918d81fe648e67b597d15ab9d4e20d4eeaf8ebbb60170c9804d261a4e5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "5c184f9f_5",
+            "part": 9,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "1. **Discounts:** You can often find significant discounts on last season's models or previous versions, which can be a gre",
+          "id": "ev_1311365808d7a692f009064e",
+          "observedAt": "2026-10-14T05:22:04.273Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_d8e33f5c_abs_1",
+        "answer_d8e33f5c_abs_2",
+        "5c184f9f_5"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 38.38424999999552,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_d8e33f5c_abs_1",
+        "answer_d8e33f5c_abs_2",
+        "5c184f9f_5"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 8 of 17) on the engine compartment and body. Decals can really add a lot of detail and realism to a model, and it's great that you're happy with how they turned out.\n\nWhat kind of decals did you use? Were they pre-made or did you create your own? And how did you find the application process? Was it straightforward or were there any challenges you had to overcome?\n\nAlso, now that you've got the decals applied, what's next on your agenda for the Ferrari project? Are you moving on to the paint job, or are there other details you want to focus on first?\n\nBy the way, have you considered adding any additional details to the engine compartment, such as wiring, hoses, or other engine components? Sometimes, adding those small details can really make the model pop and give it a more realistic look.\nuser: I used pre-made decals specifically designed for the Ferrari 288 GTO. The application process was pretty straightforward, but it did take some patience and care to avoid air bubbles and wrinkles. I applied them to the engine compartment and body about a week ago, and I'm really happy with how they turned out.\n  (part 15 of 17, excerpt) As for new techniques, I did learn about a new way to create realistic paint chipping using a combination of masking tape and paint. One of the guys at the meetup showed me how to use the tape to create sharp, defined edges and then paint over it to create a chipped, worn look. I'm excited to try it out on my Ferrari model.\n- (part 17 of 21, excerpt) For my Ferrari 288 GTO model, I like the idea of adding a figure of a racing mechanic and a miniature toolbox. I might also add some details li\n- (part 9 of 18, excerpt) 1. **Discounts:** You can often find significant discounts on last season's models or previous versions, which can be a gre",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_d8e33f5c_abs_1",
+          "sourceVersion": "sha256:abbc1adc8df67b890e2bd4bededd3515adc11235885e38f2ac2e74a90959751c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8e33f5c_abs_1",
+            "part": 8,
+            "parts": 17
+          },
+          "text": "on the engine compartment and body. Decals can really add a lot of detail and realism to a model, and it's great that you're happy with how they turned out.\n\nWhat kind of decals did you use? Were they pre-made or did you create your own? And how did you find the application process? Was it straightforward or were there any challenges you had to overcome?\n\nAlso, now that you've got the decals applied, what's next on your agenda for the Ferrari project? Are you moving on to the paint job, or are there other details you want to focus on first?\n\nBy the way, have you considered adding any additional details to the engine compartment, such as wiring, hoses, or other engine components? Sometimes, adding those small details can really make the model pop and give it a more realistic look.\nuser: I used pre-made decals specifically designed for the Ferrari 288 GTO. The application process was pretty straightforward, but it did take some patience and care to avoid air bubbles and wrinkles. I applied them to the engine compartment and body about a week ago, and I'm really happy with how they turned out.",
+          "id": "ev_386c59697a174f84930f1ac2",
+          "observedAt": "2026-10-14T05:22:04.280Z"
+        },
+        {
+          "sourceId": "memory:answer_d8e33f5c_abs_1",
+          "sourceVersion": "sha256:abbc1adc8df67b890e2bd4bededd3515adc11235885e38f2ac2e74a90959751c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8e33f5c_abs_1",
+            "part": 15,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "As for new techniques, I did learn about a new way to create realistic paint chipping using a combination of masking tape and paint. One of the guys at the meetup showed me how to use the tape to create sharp, defined edges and then paint over it to create a chipped, worn look. I'm excited to try it out on my Ferrari model.",
+          "id": "ev_6cc97b981d062e230f948119",
+          "observedAt": "2026-10-14T05:22:04.280Z"
+        },
+        {
+          "sourceId": "memory:answer_d8e33f5c_abs_2",
+          "sourceVersion": "sha256:70876ddaf80dd36cef2c7fcd758bc344ab9f00025f25be8087a37e7aed223670",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_d8e33f5c_abs_2",
+            "part": 17,
+            "parts": 21,
+            "partial": true
+          },
+          "text": "For my Ferrari 288 GTO model, I like the idea of adding a figure of a racing mechanic and a miniature toolbox. I might also add some details li",
+          "id": "ev_f52bdac7abfb781107ed22e8",
+          "observedAt": "2026-10-14T05:22:04.282Z"
+        },
+        {
+          "sourceId": "memory:5c184f9f_5",
+          "sourceVersion": "sha256:03ee9a918d81fe648e67b597d15ab9d4e20d4eeaf8ebbb60170c9804d261a4e5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "5c184f9f_5",
+            "part": 9,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "1. **Discounts:** You can often find significant discounts on last season's models or previous versions, which can be a gre",
+          "id": "ev_1311365808d7a692f009064e",
+          "observedAt": "2026-10-14T05:22:04.283Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_d8e33f5c_abs_1",
+        "answer_d8e33f5c_abs_2",
+        "5c184f9f_5"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.998999999996158,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "answer_d8e33f5c_abs_1",
+    "answer_d8e33f5c_abs_2",
+    "5c184f9f_5"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:59:37.996291+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "The retrieved history only documents work on a Ferrari 288 GTO model (decals, engine compartment, paint techniques) and contains no mention of a Porsche 991 Turbo S project or any information about when either project was started. Based on the available evidence, I do not know which project you started first.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 556,
+    "completion_tokens": 671,
+    "total_tokens": 1227,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 603,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 318,
+    "completion_tokens": 606,
+    "total_tokens": 924,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 603,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 7546.106041999792,
+  "judgeWallMs": 6757.3330420000275,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.2903225806451613
+  },
+  "ended": "2026-10-14T07:59:52.301999+00:00"
+}

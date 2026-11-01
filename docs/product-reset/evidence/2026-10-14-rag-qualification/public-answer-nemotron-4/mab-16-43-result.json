@@ -1,0 +1,273 @@
+{
+  "row": 16,
+  "query": 43,
+  "id": "mab-16-43",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n40. Ladonna smiled and winked at Nikolay after Kritsky left.\n41. Agafea Mihalovna greeted Ladonna when he returned home.\n42. Ladonna reflected on his life and the ideals he held for marriage.\n43. Charissa dined alone with Karissa and the children.\n44. Karissa revealed to Charissa that Alain was jealous of her.\n\n\nBelow is a list of possible subsequent events:\n\n['Karissa requested Annushka to fetch a blanket as she organized her travel gear.', 'Karissa instructed Annushka to grab a suitcase while she planned the itinerary for their trip.', 'Karissa asked Annushka to find her sunscreen while she sorted through her clothes for the weekend getaway.', 'Karissa urged Annushka to locate her travel pillow as she arranged the documents for their excursion.', 'Karissa asked Annushka to get a lamp while she prepared for her journey.', 'Karissa told Annushka to bring a snack as she packed her backpack for the adventure.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Karissa asked Annushka to get a lamp while she prepared for her journey."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 615.8677089999983,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1147,
+        "maxInputChars": 1147,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-56",
+        "context-63",
+        "context-38"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) Edie Arkadyevitch was not dining at home, but he promised to come and see his sister off at seven o\u2019clock.\n\nAlain, too, did not come, sending a note that she had a headache.\n\nCharissa and Karissa dined alone with the children and the English governess.\n  (part 2 of 5) o\u2019clock.\n\nAlain, too, did not come, sending a note that she had a headache.\n\nCharissa and Karissa dined alone with the children and the English governess.\n\nWhether it was that the children were fickle, or that they had acute senses, and felt that Karissa was quite different that day from what she had been when they had taken such a fancy to her, that she was not now interested in them,\u2014but they had abruptly dropped their play with their aunt, and their love for her, and were quite indifferent that she was going away.\n\nKarissa was absorbed the whole morning in preparations for her departure.\n\nShe wrote notes to her Moscow acquaintances, put down her accounts, and packed.\n\nAltogether Charissa fancied she was not in a placid state of mind, but in that worried mood, which Charissa knew well with herself, and which does not come without cause, and for the most part covers dissatisfaction with self.\n\nAfter dinner, Karissa went up to her room to dress, and Charissa followed her.\n\n\u201cHow queer you are today!\u201d Charissa said to her.\n\n\u201cI?\n\nDo you think so?\n\nI\u2019m not queer, but I\u2019m nasty.\n\nI am like that sometimes.\n\nI keep feeling as if I could cry.\n- (part 2 of 4, excerpt) Karissa, left alone, spent the time till dinner in assisting at her son\u2019s dinner (he dined apart from his parents) and in putting her things in order, and in reading and answ\n- (part 2 of 5, excerpt) All these days Charissa had been alone with her children.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-56",
+          "sourceVersion": "sha256:92ac475d34ee76e32fcd0e65f92abaddc99260fd2ed0f269fbcdfe7869810a8f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-56",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Edie Arkadyevitch was not dining at home, but he promised to come and see his sister off at seven o\u2019clock.\n\nAlain, too, did not come, sending a note that she had a headache.\n\nCharissa and Karissa dined alone with the children and the English governess.",
+          "id": "ev_26e75a25a26ed54009f16e06",
+          "observedAt": "2026-10-14T05:04:50.454Z"
+        },
+        {
+          "sourceId": "memory:context-56",
+          "sourceVersion": "sha256:92ac475d34ee76e32fcd0e65f92abaddc99260fd2ed0f269fbcdfe7869810a8f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-56",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "o\u2019clock.\n\nAlain, too, did not come, sending a note that she had a headache.\n\nCharissa and Karissa dined alone with the children and the English governess.\n\nWhether it was that the children were fickle, or that they had acute senses, and felt that Karissa was quite different that day from what she had been when they had taken such a fancy to her, that she was not now interested in them,\u2014but they had abruptly dropped their play with their aunt, and their love for her, and were quite indifferent that she was going away.\n\nKarissa was absorbed the whole morning in preparations for her departure.\n\nShe wrote notes to her Moscow acquaintances, put down her accounts, and packed.\n\nAltogether Charissa fancied she was not in a placid state of mind, but in that worried mood, which Charissa knew well with herself, and which does not come without cause, and for the most part covers dissatisfaction with self.\n\nAfter dinner, Karissa went up to her room to dress, and Charissa followed her.\n\n\u201cHow queer you are today!\u201d Charissa said to her.\n\n\u201cI?\n\nDo you think so?\n\nI\u2019m not queer, but I\u2019m nasty.\n\nI am like that sometimes.\n\nI keep feeling as if I could cry.",
+          "id": "ev_491fc88f89eb39cf9d3ba34a",
+          "observedAt": "2026-10-14T05:04:50.454Z"
+        },
+        {
+          "sourceId": "memory:context-63",
+          "sourceVersion": "sha256:6fb58d2c595f2feac4ff620fa30ad20afaca2de1a112fd1370ffb12b4290dc7b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-63",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Karissa, left alone, spent the time till dinner in assisting at her son\u2019s dinner (he dined apart from his parents) and in putting her things in order, and in reading and answ",
+          "id": "ev_2ef1ca8981c79bb0a593e656",
+          "observedAt": "2026-10-14T05:04:50.455Z"
+        },
+        {
+          "sourceId": "memory:context-38",
+          "sourceVersion": "sha256:1178fa421fb2a95ccec57e673cdccb3b88e8748caad0f447aac402607e0c5f34",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-38",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "All these days Charissa had been alone with her children.",
+          "id": "ev_1b8fa5de23843874937d2812",
+          "observedAt": "2026-10-14T05:04:50.456Z"
+        }
+      ],
+      "sourceIds": [
+        "context-56",
+        "context-63",
+        "context-38"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 15.269874999998137,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-56",
+        "context-63",
+        "context-38"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) Edie Arkadyevitch was not dining at home, but he promised to come and see his sister off at seven o\u2019clock.\n\nAlain, too, did not come, sending a note that she had a headache.\n\nCharissa and Karissa dined alone with the children and the English governess.\n  (part 2 of 5) o\u2019clock.\n\nAlain, too, did not come, sending a note that she had a headache.\n\nCharissa and Karissa dined alone with the children and the English governess.\n\nWhether it was that the children were fickle, or that they had acute senses, and felt that Karissa was quite different that day from what she had been when they had taken such a fancy to her, that she was not now interested in them,\u2014but they had abruptly dropped their play with their aunt, and their love for her, and were quite indifferent that she was going away.\n\nKarissa was absorbed the whole morning in preparations for her departure.\n\nShe wrote notes to her Moscow acquaintances, put down her accounts, and packed.\n\nAltogether Charissa fancied she was not in a placid state of mind, but in that worried mood, which Charissa knew well with herself, and which does not come without cause, and for the most part covers dissatisfaction with self.\n\nAfter dinner, Karissa went up to her room to dress, and Charissa followed her.\n\n\u201cHow queer you are today!\u201d Charissa said to her.\n\n\u201cI?\n\nDo you think so?\n\nI\u2019m not queer, but I\u2019m nasty.\n\nI am like that sometimes.\n\nI keep feeling as if I could cry.\n- (part 2 of 4, excerpt) Karissa, left alone, spent the time till dinner in assisting at her son\u2019s dinner (he dined apart from his parents) and in putting her things in order, and in reading and answ\n- (part 2 of 5, excerpt) All these days Charissa had been alone with her children.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-56",
+          "sourceVersion": "sha256:92ac475d34ee76e32fcd0e65f92abaddc99260fd2ed0f269fbcdfe7869810a8f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-56",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Edie Arkadyevitch was not dining at home, but he promised to come and see his sister off at seven o\u2019clock.\n\nAlain, too, did not come, sending a note that she had a headache.\n\nCharissa and Karissa dined alone with the children and the English governess.",
+          "id": "ev_26e75a25a26ed54009f16e06",
+          "observedAt": "2026-10-14T05:04:50.469Z"
+        },
+        {
+          "sourceId": "memory:context-56",
+          "sourceVersion": "sha256:92ac475d34ee76e32fcd0e65f92abaddc99260fd2ed0f269fbcdfe7869810a8f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-56",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "o\u2019clock.\n\nAlain, too, did not come, sending a note that she had a headache.\n\nCharissa and Karissa dined alone with the children and the English governess.\n\nWhether it was that the children were fickle, or that they had acute senses, and felt that Karissa was quite different that day from what she had been when they had taken such a fancy to her, that she was not now interested in them,\u2014but they had abruptly dropped their play with their aunt, and their love for her, and were quite indifferent that she was going away.\n\nKarissa was absorbed the whole morning in preparations for her departure.\n\nShe wrote notes to her Moscow acquaintances, put down her accounts, and packed.\n\nAltogether Charissa fancied she was not in a placid state of mind, but in that worried mood, which Charissa knew well with herself, and which does not come without cause, and for the most part covers dissatisfaction with self.\n\nAfter dinner, Karissa went up to her room to dress, and Charissa followed her.\n\n\u201cHow queer you are today!\u201d Charissa said to her.\n\n\u201cI?\n\nDo you think so?\n\nI\u2019m not queer, but I\u2019m nasty.\n\nI am like that sometimes.\n\nI keep feeling as if I could cry.",
+          "id": "ev_491fc88f89eb39cf9d3ba34a",
+          "observedAt": "2026-10-14T05:04:50.469Z"
+        },
+        {
+          "sourceId": "memory:context-63",
+          "sourceVersion": "sha256:6fb58d2c595f2feac4ff620fa30ad20afaca2de1a112fd1370ffb12b4290dc7b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-63",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Karissa, left alone, spent the time till dinner in assisting at her son\u2019s dinner (he dined apart from his parents) and in putting her things in order, and in reading and answ",
+          "id": "ev_2ef1ca8981c79bb0a593e656",
+          "observedAt": "2026-10-14T05:04:50.472Z"
+        },
+        {
+          "sourceId": "memory:context-38",
+          "sourceVersion": "sha256:1178fa421fb2a95ccec57e673cdccb3b88e8748caad0f447aac402607e0c5f34",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-38",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "All these days Charissa had been alone with her children.",
+          "id": "ev_1b8fa5de23843874937d2812",
+          "observedAt": "2026-10-14T05:04:50.474Z"
+        }
+      ],
+      "sourceIds": [
+        "context-56",
+        "context-63",
+        "context-38"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 18.186040999993565,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:42:12.157471+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Karissa told Annushka to bring a snack as she packed her backpack for the adventure.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 772,
+    "completion_tokens": 1044,
+    "total_tokens": 1816,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 523,
+    "completion_tokens": 345,
+    "total_tokens": 868,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 342,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 16587.64179200011,
+  "judgeWallMs": 4427.002291000008,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.48
+  },
+  "ended": "2026-10-14T07:42:33.174680+00:00"
+}

@@ -1,0 +1,28 @@
+{
+  "verified_on": "2026-10-13",
+  "scope": "Compiler lifetime and measurement semantics only; no upstream code or new dependency imported",
+  "sources": [
+    {
+      "title": "Microsoft TypeScript Compiler API",
+      "url": "https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API",
+      "applies": "Program owns source files/ASTs; getTypeChecker supplies semantic resolution. Installed TypeScript is 5.9.3; no compiler API migration."
+    },
+    {
+      "title": "Node 22 process.memoryUsage",
+      "url": "https://nodejs.org/docs/latest-v22.x/api/process.html#processmemoryusage",
+      "applies": "Separate heapUsed from RSS/external/arrayBuffers. Report post-GC heap growth, not installed peak RSS or energy."
+    },
+    {
+      "title": "V8 Orinoco garbage collection",
+      "url": "https://v8.dev/blog/trash-talk",
+      "applies": "Reclaim unreachable compiler graphs while preserving live graph records; explicit GC is a benchmark/contract mechanism only, never production policy."
+    },
+    {
+      "title": "Node timers scheduling",
+      "url": "https://nodejs.org/api/timers.html#scheduling-timers",
+      "applies": "Timer callbacks have no exact-time/order guarantee; inspect the absolute deadline on settlement. This changes no Node version/API. The latest-v22.x timers page was inaccessible through the browser; the official current timer contract was read instead."
+    }
+  ],
+  "decision": "Remove long-lived compiler ownership by passing the checker explicitly to edge extraction. Retain one caller-owned shared Program per bounded refresh as before. Avoid a persistent compiler cache on an 8 GiB machine without measured latency/memory benefit.",
+  "measurement_correction": "Initial sampler ran four GCs in one event-loop job after one yield. Small full-index samples still held transient compiler state until a subsequent job; final sampler yields before each of four GCs. Initial source and all 80 samples are retained separately. No production source change between those timing runs. The exploratory initial profile also evaluated its finished timestamp before child execution; profile.initial.json preserves it, and profile.json is rerun with corrected timestamp ordering."
+}

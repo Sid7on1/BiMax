@@ -1,0 +1,164 @@
+{
+  "row": 0,
+  "query": 24,
+  "id": "mab-0-24",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:40:13.121595+00:00",
+  "valid": true,
+  "question": "What were the origins of the Raouliii family?",
+  "references": [
+    "Norman mercenary",
+    "an Italo-Norman named Raoul",
+    "descended from an Italo-Norman named Raoul"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-60",
+    "context-103",
+    "context-9"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:40:30.449967+00:00",
+  "rag": {
+    "ids": [
+      "context-60",
+      "context-103",
+      "context-9"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) Chinese medicine. No Chinese translation of Western medical works is known, but it is possible that the Chinese had access to Avicenna's The Canon of Medicine.\n\nDocument 306:\nDuring the Southern Song dynasty the descendant of Confucius at Qufu, the Duke Yansheng Kong Duanyou fled south with the Song Emperor to Quzhou, while the newly established Jin dynasty (1115\u20131234) in the north appointed Kong Duanyou's brother Kong Duancao who remained in Qufu as Duke Yansheng. From that time up until the Yuan dynasty, there were two Duke Yanshengs, once in the north in Qufu and the other in the south at Quzhou. During the Yuan dynasty, the Emperor Kublai Khan invited the southern Duke Yansheng Kong Zhu to return to Qufu. Kong Zhu refused, and gave up the title, so the northern branch of the family kept the title of Duke Yansheng. The southern branch still remained in Quzhou where they lived to this day. Confucius's descendants in Quzhou alone number 30,000. During the Yuan dynasty, one of Confucius' descendants moved from China to Goryeo era Korea and established a branch of the family there after marrying a Korean woman.\n  (part 3 of 5, excerpt) Yuan dynasty, one of Confucius' descendants moved from China to Goryeo era Korea and established a branch of the family there after marrying a Korean woman.\n\nDocument 307:\n- (part 1 of 5, excerpt) existing treaties \u2013 it did not completely replace them.\n\nDocument 520:\n\nA term used originally in derision, Huguenot has unclear origins.\n\nVarious hypotheses have been promoted.\n- (part 4 of 5, excerpt) One of the most prominent Huguenot refugees in the Netherlands was Pierre Bayle. He started teaching in Rotterdam, where he finished writing and publishing his multi-volume masterpiece, Historical and Critical Dictionary. It bec",
+    "evidence": [
+      {
+        "sourceId": "memory:context-60",
+        "sourceVersion": "sha256:9adebbac35f3ff80c8feb5a30ac1ef545e4efd358e53d03277689a40c28ea5b4",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-60",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "Chinese medicine. No Chinese translation of Western medical works is known, but it is possible that the Chinese had access to Avicenna's The Canon of Medicine.\n\nDocument 306:\nDuring the Southern Song dynasty the descendant of Confucius at Qufu, the Duke Yansheng Kong Duanyou fled south with the Song Emperor to Quzhou, while the newly established Jin dynasty (1115\u20131234) in the north appointed Kong Duanyou's brother Kong Duancao who remained in Qufu as Duke Yansheng. From that time up until the Yuan dynasty, there were two Duke Yanshengs, once in the north in Qufu and the other in the south at Quzhou. During the Yuan dynasty, the Emperor Kublai Khan invited the southern Duke Yansheng Kong Zhu to return to Qufu. Kong Zhu refused, and gave up the title, so the northern branch of the family kept the title of Duke Yansheng. The southern branch still remained in Quzhou where they lived to this day. Confucius's descendants in Quzhou alone number 30,000. During the Yuan dynasty, one of Confucius' descendants moved from China to Goryeo era Korea and established a branch of the family there after marrying a Korean woman.",
+        "id": "ev_892a39016fd443d87c84b882",
+        "observedAt": "2026-10-14T08:38:01.696Z"
+      },
+      {
+        "sourceId": "memory:context-60",
+        "sourceVersion": "sha256:9adebbac35f3ff80c8feb5a30ac1ef545e4efd358e53d03277689a40c28ea5b4",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-60",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Yuan dynasty, one of Confucius' descendants moved from China to Goryeo era Korea and established a branch of the family there after marrying a Korean woman.\n\nDocument 307:",
+        "id": "ev_3384ebc359427c16a407baae",
+        "observedAt": "2026-10-14T08:38:01.696Z"
+      },
+      {
+        "sourceId": "memory:context-103",
+        "sourceVersion": "sha256:c649b6a0d3a54d57dc1f2f27e557c71a87fb74596cb831e582201ee17ef3879c",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-103",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "existing treaties \u2013 it did not completely replace them.\n\nDocument 520:\n\nA term used originally in derision, Huguenot has unclear origins.\n\nVarious hypotheses have been promoted.",
+        "id": "ev_10d587c30ee6e4dd446ffbcb",
+        "observedAt": "2026-10-14T08:38:01.697Z"
+      },
+      {
+        "sourceId": "memory:context-9",
+        "sourceVersion": "sha256:2001af3e3936fe856f6edf6a56eaa8c12d96f6ac6b1d238e5ff65c1ea89f1366",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-9",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "One of the most prominent Huguenot refugees in the Netherlands was Pierre Bayle. He started teaching in Rotterdam, where he finished writing and publishing his multi-volume masterpiece, Historical and Critical Dictionary. It bec",
+        "id": "ev_e83931b366f639330b289dc3",
+        "observedAt": "2026-10-14T08:38:01.697Z"
+      }
+    ],
+    "sourceIds": [
+      "context-60",
+      "context-103",
+      "context-9"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.6041670000049635,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "I do not know. The retrieved history does not contain any information about the Raouliii family.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 533,
+    "completion_tokens": 773,
+    "total_tokens": 1306,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 750,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 313,
+    "completion_tokens": 693,
+    "total_tokens": 1006,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 690,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 8386.236957999245,
+  "judgeWallMs": 6063.850542000182
+}

@@ -1,0 +1,93 @@
+{
+  "status": "A03 bounded-admission and visible recovery implemented and locally verified; above-limit in-app paging remains Target",
+  "baseline_files": 10200,
+  "unchanged_existing_files": 10187,
+  "changed_existing_files": [
+    "app/src/main/index.ts",
+    "app/src/main/thread.bin.recovery.ts",
+    "app/src/main/thread.manager.ts",
+    "app/src/main/thread.storage.ts",
+    "app/src/preload/index.ts",
+    "app/src/renderer/src/components/ThreadsList.tsx",
+    "app/src/shared/threads.ts",
+    "docs/product-reset/05_TARGET_ARCHITECTURE.md",
+    "docs/product-reset/08_ACCEPTANCE_GATES.md",
+    "docs/product-reset/README.md",
+    "docs/product-reset/competitive/05_GAP_REGISTER.md",
+    "docs/product-reset/competitive/07_BUILD_SEQUENCE.md",
+    "scripts/prove-thread-persistence.py"
+  ],
+  "missing_existing_files": [],
+  "prior_research_content_preserved": {
+    "docs/product-reset/README.md": true,
+    "docs/product-reset/05_TARGET_ARCHITECTURE.md": true,
+    "docs/product-reset/08_ACCEPTANCE_GATES.md": true,
+    "docs/product-reset/competitive/05_GAP_REGISTER.md": true,
+    "docs/product-reset/competitive/07_BUILD_SEQUENCE.md": true
+  },
+  "new_runtime_and_test_files": [
+    "app/src/main/thread.recovery.export.ts",
+    "app/src/renderer/src/components/ThreadRecoveryList.tsx",
+    "app/src/__tests__/thread.history.storage.test.ts",
+    "app/src/__tests__/thread.history.recovery.test.tsx"
+  ],
+  "final_jest": {
+    "passed": 4665,
+    "skipped": 3,
+    "failed": 0,
+    "suites_passed": 483
+  },
+  "new_regressions": 18,
+  "focused_tests": 37,
+  "bun_passed": 133,
+  "script_tests_passed": 3,
+  "typechecks": {
+    "engine": "pass",
+    "app": "pass"
+  },
+  "production_bundling": "pass; main/preload/renderer",
+  "scoped_lint": {
+    "errors": 0,
+    "warnings": 31
+  },
+  "main_integration_lint": {
+    "errors": 2,
+    "unchanged_from_starting_source": true,
+    "rules": [
+      [
+        "@typescript-eslint/no-unused-expressions",
+        "Expected an assignment or function call and instead saw an expression."
+      ],
+      [
+        "no-useless-assignment",
+        "The value assigned to 'root' is not used in subsequent statements."
+      ]
+    ]
+  },
+  "history_mutants_assertion_caught": 9,
+  "prior_persistence_mutants_assertion_caught": 6,
+  "browser_end_state_groups": 6,
+  "browser_errors": [],
+  "exported_oversized_fixture_bytes": 33554433,
+  "source_sha256": {
+    "app/src/main/thread.storage.ts": "25971183946a0239c2abdb1d9c7477dbcce00abc664f31e79c4a57d17055ef2c",
+    "app/src/main/thread.manager.ts": "f4cc01561f321d6298c654e10e4d51f552ec61658f79aecfe871b734b8b9793d",
+    "app/src/main/thread.bin.recovery.ts": "f656f979b12bf02332a6880c0a5717c260ae90fc05a7800d2da485c5a032a842",
+    "app/src/main/index.ts": "950a7b861f0c8ac36351813f1e2ee20a6a55aba30ea13b1248e9d8f60c55e8ea",
+    "app/src/preload/index.ts": "5b130d099265cc8a205f280b6cf198a15e79b03fcf1d2769ce07c96f89cd4252",
+    "app/src/shared/threads.ts": "1f393f68eb6f60bbf1a6da14cd21ca728732cecdac05ea6997ff210aa56b7dbf",
+    "app/src/renderer/src/components/ThreadsList.tsx": "5c1c529dab54c16fce3d2fa20e921896b109040f89565d294e27eafd7eeeb6cb",
+    "scripts/prove-thread-persistence.py": "8628896b89c1031e5a2307b96f5ef3e13858d9af05c2b0c5c307f0a10c87a0e1",
+    "app/src/main/thread.recovery.export.ts": "6d5f86c4dc49a39e168b6fd85b4799df93126f82e641ab095e06cf1df96cebb1",
+    "app/src/renderer/src/components/ThreadRecoveryList.tsx": "ed876275b105ed787fb9d39f87074d7e6eb8e32770159d5ff55d86a1202004a1",
+    "app/src/__tests__/thread.history.storage.test.ts": "bfafd6aa411f1f6d1e9981a33efc8c9e4693610237dc911ec95e317e0897dde7",
+    "app/src/__tests__/thread.history.recovery.test.tsx": "5b6aa979e00c66a1843550ebc8cf3e35bf95b7e3369b345f178f40fdff5e56dd"
+  },
+  "limits": [
+    "32 MiB encoded snapshot limit retained; oversized histories are exportable rather than fully opened/resumed in-app",
+    "Per-file bounds and streamed export, no aggregate installed RSS/latency/disk-budget claim",
+    "Actual component/store/action fixture uses inert native picker/IPC ports",
+    "Two pre-existing main-file lint errors remain unchanged",
+    "No installation, private-profile/config/model change or release qualification"
+  ]
+}

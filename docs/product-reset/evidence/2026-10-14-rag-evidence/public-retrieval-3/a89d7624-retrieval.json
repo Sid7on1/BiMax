@@ -1,0 +1,410 @@
+{
+  "row": 156,
+  "id": "a89d7624",
+  "stratum": "single-session-preference",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T08:59:40.470818+00:00",
+  "valid": true,
+  "question": "I'm planning a trip to Denver soon. Any suggestions on what to do there?",
+  "references": [
+    "The user would prefer responses that take into account their previous experience in Denver, specifically their interest in live music and memorable encounter with Brandon Flowers. They might appreciate suggestions that revisit or build upon this experience, such as revisiting the same bar or exploring similar music venues in the area. The user may not prefer general tourist recommendations or activities unrelated to their interest in live music."
+  ],
+  "kind": "single-session-preference",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 21:17",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 300.63674999999785,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 72,
+        "maxInputChars": 72,
+        "requiredProviderTruncation": false,
+        "promptTokens": 20,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_8f15ac24",
+        "a479a7d6_4",
+        "99f2f5b1_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 7 of 17, excerpt) By following these tips, you'll be well-equipped to stay up-to-date with new music releases and concerts in your area. Happy music discovery!\nuser: During my previous visit to Denver, where I had a great time meeting Brandon Flowers after The Killers' concert, I realized how much I love the city's music scene. Are there any good music venues or festivals in Denver that I shouldn't miss?\nassistant: Denver's music scene is indeed thriving! You're lucky to have experienced it firsthand. As a music enthusiast, you'll love exploring the city's vibrant venues and festivals. Here are some must-visit spots and events to add to your Denver music bucket list:\n\n**Music Venues:**\n  (part 10 of 17) indie, and alternative music.\n3. **The Marquis Theater**: A mid-sized venue that hosts a range of acts, from rock and pop to hip-hop and electronic music.\n\nWhen planning your next visit to Denver, be sure to check out these venues and festivals. You might even stumble upon some new favorite bands or discover hidden gems in the city's music scene!\nuser: I'm thinking of going back to Denver for another concert. Do you know if there are any good BBQ places near the Red Rocks Amphitheater?\nassistant: You're heading back to Denver for another concert, and you're craving some delicious BBQ to fuel up before the show? You're in luck! There are some fantastic BBQ joints near Red Rocks Amphitheater. Here are a few recommendations:\n- (part 1 of 16, excerpt) user: I'm planning a trip to California in a few weeks and I'm trying to pack lightly. I've been working on improving my packing habits lately. On my last trip to Chica\n- (part 1 of 18, excerpt) user: I'm planning a family trip to Disneyland soon and I was wondering if you could recommend some must-try food spots, esp",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_8f15ac24",
+          "sourceVersion": "sha256:423a92ee72e6ba0cc5366fb9dd606ca3cbeaf9eb728267a703e1f854f75313da",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f15ac24",
+            "part": 7,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "By following these tips, you'll be well-equipped to stay up-to-date with new music releases and concerts in your area. Happy music discovery!\nuser: During my previous visit to Denver, where I had a great time meeting Brandon Flowers after The Killers' concert, I realized how much I love the city's music scene. Are there any good music venues or festivals in Denver that I shouldn't miss?\nassistant: Denver's music scene is indeed thriving! You're lucky to have experienced it firsthand. As a music enthusiast, you'll love exploring the city's vibrant venues and festivals. Here are some must-visit spots and events to add to your Denver music bucket list:\n\n**Music Venues:**",
+          "id": "ev_760d4e7edea443ae77ca4aec",
+          "observedAt": "2026-10-14T08:59:40.794Z"
+        },
+        {
+          "sourceId": "memory:answer_8f15ac24",
+          "sourceVersion": "sha256:423a92ee72e6ba0cc5366fb9dd606ca3cbeaf9eb728267a703e1f854f75313da",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f15ac24",
+            "part": 10,
+            "parts": 17
+          },
+          "text": "indie, and alternative music.\n3. **The Marquis Theater**: A mid-sized venue that hosts a range of acts, from rock and pop to hip-hop and electronic music.\n\nWhen planning your next visit to Denver, be sure to check out these venues and festivals. You might even stumble upon some new favorite bands or discover hidden gems in the city's music scene!\nuser: I'm thinking of going back to Denver for another concert. Do you know if there are any good BBQ places near the Red Rocks Amphitheater?\nassistant: You're heading back to Denver for another concert, and you're craving some delicious BBQ to fuel up before the show? You're in luck! There are some fantastic BBQ joints near Red Rocks Amphitheater. Here are a few recommendations:",
+          "id": "ev_761552d1a2f856521e4f1713",
+          "observedAt": "2026-10-14T08:59:40.795Z"
+        },
+        {
+          "sourceId": "memory:a479a7d6_4",
+          "sourceVersion": "sha256:ef1dbc0a9f31686be837a0ed3e14573cd1ff66e27c2541fa93e2f0d2d8c14d29",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "a479a7d6_4",
+            "part": 1,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "user: I'm planning a trip to California in a few weeks and I'm trying to pack lightly. I've been working on improving my packing habits lately. On my last trip to Chica",
+          "id": "ev_747212f69807579735b169f2",
+          "observedAt": "2026-10-14T08:59:40.796Z"
+        },
+        {
+          "sourceId": "memory:99f2f5b1_1",
+          "sourceVersion": "sha256:111d92134911aa773210162ab3e91e20eb9d5ae1870e68bc712cb9c55feb70b8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "99f2f5b1_1",
+            "part": 1,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I'm planning a family trip to Disneyland soon and I was wondering if you could recommend some must-try food spots, esp",
+          "id": "ev_ab4cb12d62972eea0cd3b133",
+          "observedAt": "2026-10-14T08:59:40.796Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_8f15ac24",
+        "a479a7d6_4",
+        "99f2f5b1_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 26.271332999996957,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_8f15ac24",
+        "a479a7d6_4",
+        "99f2f5b1_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- Session date: 2023/05/27 (Sat) 14:23\n  (part 7 of 17, excerpt) By following these tips, you'll be well-equipped to stay up-to-date with new music releases and concerts in your area. Happy music discovery!\nuser: During my previous visit to Denver, where I had a great time meeting Brandon Flowers after The Killers' concert, I realized how much I love the city's music scene. Are there any good music venues or festivals in Denver that I shouldn't miss?\n  (part 9 of 17, excerpt) **Music Festivals:**\n\n1. **Grandoozy**: A relatively new festival, Grandoozy features a diverse lineup of acts, from rock and pop to hip-hop and electronic music.\n2. **Denver Folk Festival**: If you're a fan of folk, bluegrass, or roots music, this festival is a must-visit.\n3. **Denver Jazz Festival**: Celebrating jazz in all its forms, this festival features local and national acts.\n4. **Westword Music Showcase**: A one-day festival featuring local and national acts, with a focus on showcasing Denver's thriving music scene.\n  (part 10 of 17, excerpt) user: I'm thinking of going back to Denver for another concert. Do you know if there are any good BBQ places near the Red Rocks Amphitheater?\nassistant: You're heading back to Denver for another concert, and you're craving some delicious BBQ to fuel up before the show? You're in luck! There are some fantastic BBQ joints near Red Rocks Amphitheater. Here are a few recommendations:\n  (part 12 of 17, excerpt) user: I'll definitely check those out. I'm thinking of getting to Red Rocks a bit earlier to grab some dinner before the concert. Do you know if there are any good restaurants or food options within walking distance of the amphitheater?\nassistant: You're planning to grab dinner before the concert, and you're wondering if there are any good restaurants or food options within walking distance of Red Rocks? Yes, there are some excellent options to fuel up before the show! Here are a few recommendations:\n\n**Within Walking Distance:**\n- (part 1 of 16, excerpt) Session date: 2023/05/28 (Sun) 04:31\nuser: I'm planning a trip to California in a few weeks and I'm trying to pack lightly. I've been working on improving my packing habits lately. On my last trip to Chicago, I packed a portable charger for the first time and it was really useful. Can you give me some tips on what else I should pack for a California trip?\nassistant: Packing lightly is an art! I'm happy to help you with that.\n  (part 3 of 16, excerpt) 12.\n\n**Earplugs and eye mask**: If you're a light sleeper, consider packing earplugs and an eye mask to ensure a good night's rest.\n\nRemember to check the weather forecast before your trip to ensure you're prepared for any conditions. You may also want to consider packing a small daypack or backpack for day trips and outings.\n\nLastly, since you're working on improving your packing habits, here are a few general tips:\n  (part 7 of 16, excerpt) user: I'm thinking of packing a few dresses that can be dressed up or down. Do you have any suggestions on what kind of shoes to pack to go with them?\nassistant: Packing a few versatile dresses is a great idea! When it comes to shoes, you'll want to choose a few pairs that can complement your dresses and adapt to different occasions. Here are some shoe suggestions to consider:\n  (part 14 of 16, excerpt) By packing a portable charger, you'll have peace of mind knowing you can keep your devices charged throughout your trip, even when you're on the move.\n\nWhat other electronics are you planning to bring on your trip? Do you have any specific questions about packing or traveling with electronics?\nuser: I'm planning to bring my phone, headphones, and a small camera. I'm a bit concerned about keeping them all charged, especially since I'll be taking a lot of photos and using my phone's GPS to navigate.\n- (part 1 of 18, excerpt) Session date: 2023/05/28 (Sun) 02:26\nuser: I'm planning a family trip to Disneyland soon and I was wondering if you could recommend some must-try food spots, especially around the Star Wars: Galaxy's Edge area. By the way, I actually visited Disneyland on Easter Sunday with my family and we had an amazing time, especially on the \"It's a Small World\" ride!\n  (part 4 of 18, excerpt) * Don't forget to try some of the seasonal treats and specials, which often appear during holidays and special events.\n\nI hope this helps, and May the Forks be with you on your upcoming Disneyland adventure!\nuser: What are some must-ride attractions at Disneyland that are suitable for all ages, especially if we have young kids in our group?\nassistant: Disneyland has plenty of attractions that are perfect for all ages, including young kids. Here are some must-ride attractions that are suitable for families with little ones:\n\n**Fantasyland**\n  (part 14 of 18, excerpt) user: I'm actually thinking of attending the Halloween Horror Nights event at Universal Studios Hollywood soon. I've heard it's a really spooky and fun event. Have you got any tips or recommendations for making the most of the event?\nassistant: Halloween Horror Nights (HHN) at Universal Studios Hollywood is an amazing event! It's a fantastic way to experience the thrill of Halloween in a uniquely terrifying way. I've got some tips and recommendations to help you make the most of your visit:\n\n**Before You Go**\n  (part 15 of 18, excerpt) the thrill of Halloween in a uniquely terrifying way. I've got some tips and recommendations to help you make the most of your visit:\n\n**Before You Go**\n\n1. **Buy tickets in advance**: HHN tickets often sell out quickly, so plan ahead and purchase your tickets online to ensure availability.\n2. **Choose your night wisely**: Weeknights (Monday to Thursday) tend to be less crowded than weekends. If you can, plan your visit on a weeknight for shorter lines.\n3. **Plan your costume**: While costumes are not required, they're highly encouraged. Dress up in your scariest or most",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_8f15ac24",
+          "sourceVersion": "sha256:423a92ee72e6ba0cc5366fb9dd606ca3cbeaf9eb728267a703e1f854f75313da",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f15ac24"
+          },
+          "text": "Session date: 2023/05/27 (Sat) 14:23",
+          "id": "ev_693b795972533ffb8e3ce6ff",
+          "observedAt": "2026-10-14T08:59:40.803Z"
+        },
+        {
+          "sourceId": "memory:answer_8f15ac24",
+          "sourceVersion": "sha256:423a92ee72e6ba0cc5366fb9dd606ca3cbeaf9eb728267a703e1f854f75313da",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f15ac24",
+            "part": 7,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "By following these tips, you'll be well-equipped to stay up-to-date with new music releases and concerts in your area. Happy music discovery!\nuser: During my previous visit to Denver, where I had a great time meeting Brandon Flowers after The Killers' concert, I realized how much I love the city's music scene. Are there any good music venues or festivals in Denver that I shouldn't miss?",
+          "id": "ev_1c575faf65e1906f828cb407",
+          "observedAt": "2026-10-14T08:59:40.803Z"
+        },
+        {
+          "sourceId": "memory:answer_8f15ac24",
+          "sourceVersion": "sha256:423a92ee72e6ba0cc5366fb9dd606ca3cbeaf9eb728267a703e1f854f75313da",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f15ac24",
+            "part": 9,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "**Music Festivals:**\n\n1. **Grandoozy**: A relatively new festival, Grandoozy features a diverse lineup of acts, from rock and pop to hip-hop and electronic music.\n2. **Denver Folk Festival**: If you're a fan of folk, bluegrass, or roots music, this festival is a must-visit.\n3. **Denver Jazz Festival**: Celebrating jazz in all its forms, this festival features local and national acts.\n4. **Westword Music Showcase**: A one-day festival featuring local and national acts, with a focus on showcasing Denver's thriving music scene.",
+          "id": "ev_9a2c7cd6b72dc8945f9842bb",
+          "observedAt": "2026-10-14T08:59:40.803Z"
+        },
+        {
+          "sourceId": "memory:answer_8f15ac24",
+          "sourceVersion": "sha256:423a92ee72e6ba0cc5366fb9dd606ca3cbeaf9eb728267a703e1f854f75313da",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f15ac24",
+            "part": 10,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "user: I'm thinking of going back to Denver for another concert. Do you know if there are any good BBQ places near the Red Rocks Amphitheater?\nassistant: You're heading back to Denver for another concert, and you're craving some delicious BBQ to fuel up before the show? You're in luck! There are some fantastic BBQ joints near Red Rocks Amphitheater. Here are a few recommendations:",
+          "id": "ev_ff686f41ce32b905427f57ed",
+          "observedAt": "2026-10-14T08:59:40.803Z"
+        },
+        {
+          "sourceId": "memory:answer_8f15ac24",
+          "sourceVersion": "sha256:423a92ee72e6ba0cc5366fb9dd606ca3cbeaf9eb728267a703e1f854f75313da",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_8f15ac24",
+            "part": 12,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "user: I'll definitely check those out. I'm thinking of getting to Red Rocks a bit earlier to grab some dinner before the concert. Do you know if there are any good restaurants or food options within walking distance of the amphitheater?\nassistant: You're planning to grab dinner before the concert, and you're wondering if there are any good restaurants or food options within walking distance of Red Rocks? Yes, there are some excellent options to fuel up before the show! Here are a few recommendations:\n\n**Within Walking Distance:**",
+          "id": "ev_d3be9d8291648bafcbbdf8c6",
+          "observedAt": "2026-10-14T08:59:40.803Z"
+        },
+        {
+          "sourceId": "memory:a479a7d6_4",
+          "sourceVersion": "sha256:ef1dbc0a9f31686be837a0ed3e14573cd1ff66e27c2541fa93e2f0d2d8c14d29",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "a479a7d6_4",
+            "part": 1,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "Session date: 2023/05/28 (Sun) 04:31\nuser: I'm planning a trip to California in a few weeks and I'm trying to pack lightly. I've been working on improving my packing habits lately. On my last trip to Chicago, I packed a portable charger for the first time and it was really useful. Can you give me some tips on what else I should pack for a California trip?\nassistant: Packing lightly is an art! I'm happy to help you with that.",
+          "id": "ev_b88fdd2d0dd7e3a5e70045c1",
+          "observedAt": "2026-10-14T08:59:40.805Z"
+        },
+        {
+          "sourceId": "memory:a479a7d6_4",
+          "sourceVersion": "sha256:ef1dbc0a9f31686be837a0ed3e14573cd1ff66e27c2541fa93e2f0d2d8c14d29",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "a479a7d6_4",
+            "part": 3,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "12.\n\n**Earplugs and eye mask**: If you're a light sleeper, consider packing earplugs and an eye mask to ensure a good night's rest.\n\nRemember to check the weather forecast before your trip to ensure you're prepared for any conditions. You may also want to consider packing a small daypack or backpack for day trips and outings.\n\nLastly, since you're working on improving your packing habits, here are a few general tips:",
+          "id": "ev_3307cc632f013740127e626f",
+          "observedAt": "2026-10-14T08:59:40.805Z"
+        },
+        {
+          "sourceId": "memory:a479a7d6_4",
+          "sourceVersion": "sha256:ef1dbc0a9f31686be837a0ed3e14573cd1ff66e27c2541fa93e2f0d2d8c14d29",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "a479a7d6_4",
+            "part": 7,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "user: I'm thinking of packing a few dresses that can be dressed up or down. Do you have any suggestions on what kind of shoes to pack to go with them?\nassistant: Packing a few versatile dresses is a great idea! When it comes to shoes, you'll want to choose a few pairs that can complement your dresses and adapt to different occasions. Here are some shoe suggestions to consider:",
+          "id": "ev_65adc4a1319cd23e60f18ce9",
+          "observedAt": "2026-10-14T08:59:40.805Z"
+        },
+        {
+          "sourceId": "memory:a479a7d6_4",
+          "sourceVersion": "sha256:ef1dbc0a9f31686be837a0ed3e14573cd1ff66e27c2541fa93e2f0d2d8c14d29",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "a479a7d6_4",
+            "part": 14,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "By packing a portable charger, you'll have peace of mind knowing you can keep your devices charged throughout your trip, even when you're on the move.\n\nWhat other electronics are you planning to bring on your trip? Do you have any specific questions about packing or traveling with electronics?\nuser: I'm planning to bring my phone, headphones, and a small camera. I'm a bit concerned about keeping them all charged, especially since I'll be taking a lot of photos and using my phone's GPS to navigate.",
+          "id": "ev_b2cbfc7d02834faeb6fb9630",
+          "observedAt": "2026-10-14T08:59:40.805Z"
+        },
+        {
+          "sourceId": "memory:99f2f5b1_1",
+          "sourceVersion": "sha256:111d92134911aa773210162ab3e91e20eb9d5ae1870e68bc712cb9c55feb70b8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "99f2f5b1_1",
+            "part": 1,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "Session date: 2023/05/28 (Sun) 02:26\nuser: I'm planning a family trip to Disneyland soon and I was wondering if you could recommend some must-try food spots, especially around the Star Wars: Galaxy's Edge area. By the way, I actually visited Disneyland on Easter Sunday with my family and we had an amazing time, especially on the \"It's a Small World\" ride!",
+          "id": "ev_4468b7c51eeca27d43be6623",
+          "observedAt": "2026-10-14T08:59:40.806Z"
+        },
+        {
+          "sourceId": "memory:99f2f5b1_1",
+          "sourceVersion": "sha256:111d92134911aa773210162ab3e91e20eb9d5ae1870e68bc712cb9c55feb70b8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "99f2f5b1_1",
+            "part": 4,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "* Don't forget to try some of the seasonal treats and specials, which often appear during holidays and special events.\n\nI hope this helps, and May the Forks be with you on your upcoming Disneyland adventure!\nuser: What are some must-ride attractions at Disneyland that are suitable for all ages, especially if we have young kids in our group?\nassistant: Disneyland has plenty of attractions that are perfect for all ages, including young kids. Here are some must-ride attractions that are suitable for families with little ones:\n\n**Fantasyland**",
+          "id": "ev_6f555b44bd3c71cc070affe5",
+          "observedAt": "2026-10-14T08:59:40.806Z"
+        },
+        {
+          "sourceId": "memory:99f2f5b1_1",
+          "sourceVersion": "sha256:111d92134911aa773210162ab3e91e20eb9d5ae1870e68bc712cb9c55feb70b8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "99f2f5b1_1",
+            "part": 14,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I'm actually thinking of attending the Halloween Horror Nights event at Universal Studios Hollywood soon. I've heard it's a really spooky and fun event. Have you got any tips or recommendations for making the most of the event?\nassistant: Halloween Horror Nights (HHN) at Universal Studios Hollywood is an amazing event! It's a fantastic way to experience the thrill of Halloween in a uniquely terrifying way. I've got some tips and recommendations to help you make the most of your visit:\n\n**Before You Go**",
+          "id": "ev_9e54bbd0c56e570a1d6e16e9",
+          "observedAt": "2026-10-14T08:59:40.806Z"
+        },
+        {
+          "sourceId": "memory:99f2f5b1_1",
+          "sourceVersion": "sha256:111d92134911aa773210162ab3e91e20eb9d5ae1870e68bc712cb9c55feb70b8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "99f2f5b1_1",
+            "part": 15,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "the thrill of Halloween in a uniquely terrifying way. I've got some tips and recommendations to help you make the most of your visit:\n\n**Before You Go**\n\n1. **Buy tickets in advance**: HHN tickets often sell out quickly, so plan ahead and purchase your tickets online to ensure availability.\n2. **Choose your night wisely**: Weeknights (Monday to Thursday) tend to be less crowded than weekends. If you can, plan your visit on a weeknight for shorter lines.\n3. **Plan your costume**: While costumes are not required, they're highly encouraged. Dress up in your scariest or most",
+          "id": "ev_dacf189775f8c981c92c713d",
+          "observedAt": "2026-10-14T08:59:40.806Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_8f15ac24",
+        "a479a7d6_4",
+        "99f2f5b1_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 10.751209000001836,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "answer_8f15ac24",
+    "a479a7d6_4",
+    "99f2f5b1_1"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:59:40.812240+00:00"
+}

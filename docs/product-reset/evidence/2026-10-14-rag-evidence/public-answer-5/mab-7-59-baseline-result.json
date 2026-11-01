@@ -1,0 +1,162 @@
+{
+  "row": 7,
+  "query": 59,
+  "id": "mab-7-59",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T09:03:50.349208+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n56. Marianne felt pride upon seeing his plantation's house rising through green branches.\n57. Marianne was on excellent terms with his neighbors except for the MacIntoshs and the Claudias.\n58. Marianne expressed his dislike for the MacIntosh family.\n59. Marianne observed rumors of Abolitionist sympathies did not enhance the popularity of the MacIntoshs.\n60. Marianne commented on Angus Macintosh's actions of never manumitting a single slave.\n\n\nBelow is a list of possible subsequent events:\n\n['Marianne portrayed the Petersons as wealthy but morally corrupt.', 'Marianne described the Claudias as poor white and lacking respect.', 'Marianne condemned the Harringtons as pretentious and disconnected from their roots.', 'Marianne labeled the Maxwells as uneducated and overly ambitious.', 'Marianne characterized the Thatchers as privileged yet painfully insecure.', 'Marianne criticized the Fairchilds as arrogant and out of touch with reality.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Marianne described the Claudias as poor white and lacking respect."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-26",
+    "context-25",
+    "context-23"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T09:04:24.914190+00:00",
+  "rag": {
+    "ids": [
+      "context-26",
+      "context-25",
+      "context-23"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) plantation.\n\nThe MacIntoshs were Scotch-Irish and Orangemen and, had they possessed all the saintly qualities of the Catholic calendar, this ancestry would have damned them forever in Marianne\u2019s eyes.\n\nTrue, they had lived in Georgia for seventy years and, before that, had spent a generation in the Carolinas; but the first of the family who set foot on American shores had come from Ulster, and that was enough for Marianne.\n\nThey were a close-mouthed and stiff-necked family, who kept strictly to themselves and intermarried with their Carolina relatives, and Marianne was not alone in disliking them, for the County people were neighborly and sociable and none too tolerant of anyone lacking in those same qualities.\n\nRumors of Abolitionist sympathies did not enhance the popularity of the Macintoshes.\n\nOld Angus had never manumitted a single slave and had committed the unpardonable social breach of selling some of his negroes to passing slave traders en route to the cane fields of Louisiana, but the rumors persisted.\n\n\u201cHe\u2019s an Abolitionist, no doubt,\u201d observed Marianne to John Abrianna.\n\n\u201cBut, in an Orangeman, when a principle comes up against Scotch tightness, the principle fares ill.\u201d\n  (part 2 of 4, excerpt) The Claudias were another affair.\n\nBeing poor white, they were not even accorded the\u201d grudging respect that Angus Macintosh\u2019s dour independence wrung from neighboring families.\n- (part 5 of 5, excerpt) Marianne, was on excellent terms with all his neighbors in the County, except the MacIntoshs whose land adjoined his on the left and the Claudias whose meager three acres stretched on his right along the\n- (part 3 of 5, excerpt) He liked the casual grace with which they conducted affairs of importance, risking a fortune, a plantation or a slave on the",
+    "evidence": [
+      {
+        "sourceId": "memory:context-26",
+        "sourceVersion": "sha256:b942563d71c8509ee11bef46d1e3b50e07290b4e7c15191b48fb9c360f50abbe",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-26",
+          "part": 1,
+          "parts": 4
+        },
+        "text": "plantation.\n\nThe MacIntoshs were Scotch-Irish and Orangemen and, had they possessed all the saintly qualities of the Catholic calendar, this ancestry would have damned them forever in Marianne\u2019s eyes.\n\nTrue, they had lived in Georgia for seventy years and, before that, had spent a generation in the Carolinas; but the first of the family who set foot on American shores had come from Ulster, and that was enough for Marianne.\n\nThey were a close-mouthed and stiff-necked family, who kept strictly to themselves and intermarried with their Carolina relatives, and Marianne was not alone in disliking them, for the County people were neighborly and sociable and none too tolerant of anyone lacking in those same qualities.\n\nRumors of Abolitionist sympathies did not enhance the popularity of the Macintoshes.\n\nOld Angus had never manumitted a single slave and had committed the unpardonable social breach of selling some of his negroes to passing slave traders en route to the cane fields of Louisiana, but the rumors persisted.\n\n\u201cHe\u2019s an Abolitionist, no doubt,\u201d observed Marianne to John Abrianna.\n\n\u201cBut, in an Orangeman, when a principle comes up against Scotch tightness, the principle fares ill.\u201d",
+        "id": "ev_17080be7e8fdf7b149a81557",
+        "observedAt": "2026-10-14T08:51:01.900Z"
+      },
+      {
+        "sourceId": "memory:context-26",
+        "sourceVersion": "sha256:b942563d71c8509ee11bef46d1e3b50e07290b4e7c15191b48fb9c360f50abbe",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-26",
+          "part": 2,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "The Claudias were another affair.\n\nBeing poor white, they were not even accorded the\u201d grudging respect that Angus Macintosh\u2019s dour independence wrung from neighboring families.",
+        "id": "ev_8715ad18d8a540c8a12e614a",
+        "observedAt": "2026-10-14T08:51:01.902Z"
+      },
+      {
+        "sourceId": "memory:context-25",
+        "sourceVersion": "sha256:2c159b751b6b973d8f449bef34cdb0f0d9a229a3e6c6cc41c0465d80e33c0a01",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-25",
+          "part": 5,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Marianne, was on excellent terms with all his neighbors in the County, except the MacIntoshs whose land adjoined his on the left and the Claudias whose meager three acres stretched on his right along the",
+        "id": "ev_4803729ffc97f98869fe328f",
+        "observedAt": "2026-10-14T08:51:01.903Z"
+      },
+      {
+        "sourceId": "memory:context-23",
+        "sourceVersion": "sha256:30190f5f80aeb6f1ad52f4ae26c55876f8b8df44a4a365664dc14be0c1444224",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-23",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "He liked the casual grace with which they conducted affairs of importance, risking a fortune, a plantation or a slave on the",
+        "id": "ev_75fb7ed2a931d2f00be54a59",
+        "observedAt": "2026-10-14T08:51:01.904Z"
+      }
+    ],
+    "sourceIds": [
+      "context-26",
+      "context-25",
+      "context-23"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 11.723833999999897,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Marianne described the Claudias as poor white and lacking respect.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 746,
+    "completion_tokens": 1039,
+    "total_tokens": 1785,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 501,
+    "completion_tokens": 1013,
+    "total_tokens": 1514,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1010,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 21314.66533299954,
+  "judgeWallMs": 13246.445334000782
+}

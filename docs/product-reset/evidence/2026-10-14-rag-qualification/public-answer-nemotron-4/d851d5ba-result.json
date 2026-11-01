@@ -1,0 +1,275 @@
+{
+  "row": 111,
+  "id": "d851d5ba",
+  "stratum": "multi-session",
+  "dataset": "longmemeval",
+  "question": "How much money did I raise for charity in total?",
+  "references": [
+    "$3,750"
+  ],
+  "kind": "multi-session",
+  "abstention": false,
+  "date": "2023/03/20 (Mon) 23:59",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 169.6381250000013,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 48,
+        "maxInputChars": 48,
+        "requiredProviderTruncation": false,
+        "promptTokens": 13,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_5cdf9bd2_1",
+        "answer_5cdf9bd2_4",
+        "answer_5cdf9bd2_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 11 of 16, excerpt) Good luck with your next charity run, and I hope you find a great event that aligns with your goals and values!\nuser: I'll definitely check out those resources. By the way, I'm thinking of raising money for a local food bank again, maybe for my next charity run.\nassistant: That's wonderful! Supporting a local food bank is a great cause, and charity runs are a fantastic way to make a tangible impact. Food banks play a vital role in providing food and groceries to those in need, and every donation counts.\n\nHere are a few tips to help you raise money for your local food bank through your charity run:\n\n1.\n\n**Set a fundraising goal**: Decide on a specific amount you want to raise for the food bank, and make it a personal challenge.\n\n2.\n\n**Create a fundraising page**: Use platforms like GoFundMe, Kickstarter, or Facebook Fundraisers to create a dedicated page for your charity run.\n  (part 16 of 16) way to raise money for your local food bank, and I'm sure you'll reach your goal. If you have any more questions or need further assistance, feel free to ask.\n\nRemember to share your fundraiser with your friends, family, and social networks to get the word out. You can also use Facebook's built-in features to share updates, thank your donors, and track your progress.\n\nMost importantly, don't forget to stay motivated and focused on your charity run training. You've got this!\n\nGood luck with your fundraiser, and I hope you exceed your goal!\n- (part 11 of 19, excerpt) user: I'm glad you provided those tips. I've had some experience with fundraising, like I said, I helped raise over $2,000 for a local animal s\n- (part 9 of 15, excerpt) user: I'm thinking about fundraising strategies for my cycling event. I've had some experience with fundraising in the past",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_5cdf9bd2_1",
+          "sourceVersion": "sha256:9fed7e0b31500abe40ca95fabb24e37a57c5216f67b60c7e239c336690ed43f1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_5cdf9bd2_1",
+            "part": 11,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "Good luck with your next charity run, and I hope you find a great event that aligns with your goals and values!\nuser: I'll definitely check out those resources. By the way, I'm thinking of raising money for a local food bank again, maybe for my next charity run.\nassistant: That's wonderful! Supporting a local food bank is a great cause, and charity runs are a fantastic way to make a tangible impact. Food banks play a vital role in providing food and groceries to those in need, and every donation counts.\n\nHere are a few tips to help you raise money for your local food bank through your charity run:\n\n1.\n\n**Set a fundraising goal**: Decide on a specific amount you want to raise for the food bank, and make it a personal challenge.\n\n2.\n\n**Create a fundraising page**: Use platforms like GoFundMe, Kickstarter, or Facebook Fundraisers to create a dedicated page for your charity run.",
+          "id": "ev_8679e451cf85747bd02861df",
+          "observedAt": "2026-10-14T04:51:29.210Z"
+        },
+        {
+          "sourceId": "memory:answer_5cdf9bd2_1",
+          "sourceVersion": "sha256:9fed7e0b31500abe40ca95fabb24e37a57c5216f67b60c7e239c336690ed43f1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_5cdf9bd2_1",
+            "part": 16,
+            "parts": 16
+          },
+          "text": "way to raise money for your local food bank, and I'm sure you'll reach your goal. If you have any more questions or need further assistance, feel free to ask.\n\nRemember to share your fundraiser with your friends, family, and social networks to get the word out. You can also use Facebook's built-in features to share updates, thank your donors, and track your progress.\n\nMost importantly, don't forget to stay motivated and focused on your charity run training. You've got this!\n\nGood luck with your fundraiser, and I hope you exceed your goal!",
+          "id": "ev_39352d1a5141550455b24c89",
+          "observedAt": "2026-10-14T04:51:29.211Z"
+        },
+        {
+          "sourceId": "memory:answer_5cdf9bd2_4",
+          "sourceVersion": "sha256:97d77a8fff03ef789f2d55e159960d2025edab56137b19679b6af85b9a12cf15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_5cdf9bd2_4",
+            "part": 11,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "user: I'm glad you provided those tips. I've had some experience with fundraising, like I said, I helped raise over $2,000 for a local animal s",
+          "id": "ev_62b958c46b5cf76aac1c69a2",
+          "observedAt": "2026-10-14T04:51:29.212Z"
+        },
+        {
+          "sourceId": "memory:answer_5cdf9bd2_2",
+          "sourceVersion": "sha256:0c2e881a7df07f475e82858ff9df0c9ad872ecbda1a89ab6a086e2d3fa66d820",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_5cdf9bd2_2",
+            "part": 9,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "user: I'm thinking about fundraising strategies for my cycling event. I've had some experience with fundraising in the past",
+          "id": "ev_b94521fd6fb28dd815c49471",
+          "observedAt": "2026-10-14T04:51:29.212Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_5cdf9bd2_1",
+        "answer_5cdf9bd2_4",
+        "answer_5cdf9bd2_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 19.440166000000318,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_5cdf9bd2_1",
+        "answer_5cdf9bd2_4",
+        "answer_5cdf9bd2_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 11 of 16, excerpt) Good luck with your next charity run, and I hope you find a great event that aligns with your goals and values!\nuser: I'll definitely check out those resources. By the way, I'm thinking of raising money for a local food bank again, maybe for my next charity run.\nassistant: That's wonderful! Supporting a local food bank is a great cause, and charity runs are a fantastic way to make a tangible impact. Food banks play a vital role in providing food and groceries to those in need, and every donation counts.\n\nHere are a few tips to help you raise money for your local food bank through your charity run:\n\n1.\n\n**Set a fundraising goal**: Decide on a specific amount you want to raise for the food bank, and make it a personal challenge.\n\n2.\n\n**Create a fundraising page**: Use platforms like GoFundMe, Kickstarter, or Facebook Fundraisers to create a dedicated page for your charity run.\n  (part 16 of 16) way to raise money for your local food bank, and I'm sure you'll reach your goal. If you have any more questions or need further assistance, feel free to ask.\n\nRemember to share your fundraiser with your friends, family, and social networks to get the word out. You can also use Facebook's built-in features to share updates, thank your donors, and track your progress.\n\nMost importantly, don't forget to stay motivated and focused on your charity run training. You've got this!\n\nGood luck with your fundraiser, and I hope you exceed your goal!\n- (part 11 of 19, excerpt) user: I'm glad you provided those tips. I've had some experience with fundraising, like I said, I helped raise over $2,000 for a local animal s\n- (part 9 of 15, excerpt) user: I'm thinking about fundraising strategies for my cycling event. I've had some experience with fundraising in the past",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_5cdf9bd2_1",
+          "sourceVersion": "sha256:9fed7e0b31500abe40ca95fabb24e37a57c5216f67b60c7e239c336690ed43f1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_5cdf9bd2_1",
+            "part": 11,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "Good luck with your next charity run, and I hope you find a great event that aligns with your goals and values!\nuser: I'll definitely check out those resources. By the way, I'm thinking of raising money for a local food bank again, maybe for my next charity run.\nassistant: That's wonderful! Supporting a local food bank is a great cause, and charity runs are a fantastic way to make a tangible impact. Food banks play a vital role in providing food and groceries to those in need, and every donation counts.\n\nHere are a few tips to help you raise money for your local food bank through your charity run:\n\n1.\n\n**Set a fundraising goal**: Decide on a specific amount you want to raise for the food bank, and make it a personal challenge.\n\n2.\n\n**Create a fundraising page**: Use platforms like GoFundMe, Kickstarter, or Facebook Fundraisers to create a dedicated page for your charity run.",
+          "id": "ev_8679e451cf85747bd02861df",
+          "observedAt": "2026-10-14T04:51:29.216Z"
+        },
+        {
+          "sourceId": "memory:answer_5cdf9bd2_1",
+          "sourceVersion": "sha256:9fed7e0b31500abe40ca95fabb24e37a57c5216f67b60c7e239c336690ed43f1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_5cdf9bd2_1",
+            "part": 16,
+            "parts": 16
+          },
+          "text": "way to raise money for your local food bank, and I'm sure you'll reach your goal. If you have any more questions or need further assistance, feel free to ask.\n\nRemember to share your fundraiser with your friends, family, and social networks to get the word out. You can also use Facebook's built-in features to share updates, thank your donors, and track your progress.\n\nMost importantly, don't forget to stay motivated and focused on your charity run training. You've got this!\n\nGood luck with your fundraiser, and I hope you exceed your goal!",
+          "id": "ev_39352d1a5141550455b24c89",
+          "observedAt": "2026-10-14T04:51:29.216Z"
+        },
+        {
+          "sourceId": "memory:answer_5cdf9bd2_4",
+          "sourceVersion": "sha256:97d77a8fff03ef789f2d55e159960d2025edab56137b19679b6af85b9a12cf15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_5cdf9bd2_4",
+            "part": 11,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "user: I'm glad you provided those tips. I've had some experience with fundraising, like I said, I helped raise over $2,000 for a local animal s",
+          "id": "ev_62b958c46b5cf76aac1c69a2",
+          "observedAt": "2026-10-14T04:51:29.217Z"
+        },
+        {
+          "sourceId": "memory:answer_5cdf9bd2_2",
+          "sourceVersion": "sha256:0c2e881a7df07f475e82858ff9df0c9ad872ecbda1a89ab6a086e2d3fa66d820",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_5cdf9bd2_2",
+            "part": 9,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "user: I'm thinking about fundraising strategies for my cycling event. I've had some experience with fundraising in the past",
+          "id": "ev_b94521fd6fb28dd815c49471",
+          "observedAt": "2026-10-14T04:51:29.217Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_5cdf9bd2_1",
+        "answer_5cdf9bd2_4",
+        "answer_5cdf9bd2_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.609458999999333,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 0.75,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:54:43.018559+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Based on the retrieved history, there is no clear total amount of money you raised for charity. A fragment mentions helping raise over $2,000 for a local animal shelter, but it's truncated and doesn't represent your overall total. I don't have sufficient information from the provided history to determine the total amount you raised.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 545,
+    "completion_tokens": 1019,
+    "total_tokens": 1564,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 950,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 311,
+    "completion_tokens": 531,
+    "total_tokens": 842,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 528,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 13123.116666999977,
+  "judgeWallMs": 9211.838457999875,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:55:06.606473+00:00"
+}

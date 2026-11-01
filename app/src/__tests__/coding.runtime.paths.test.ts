@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { PackagedRuntimeError } from '../main/coding.runtime.paths';
+import { PackagedRuntimeError, buildEngineChildEnv } from '../main/coding.runtime.paths';
 import { EngineSupervisor } from '../main/supervisor/supervisor';
 import { CrashJournal } from '../main/supervisor/journal';
 
@@ -47,4 +47,11 @@ test('the module decides nothing at run time: it never launches anything or load
   const code = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
   expect(code).not.toMatch(/spawn|exec\(|child_process/);
   expect(code).not.toMatch(/from\s+'electron'/);
+});
+
+test('native authority cannot be supplied through inherited or explicit environment descriptors', () => {
+  const inherited = buildEngineChildEnv({ parentEnv: { BIMAX_HOST_CAPABILITIES_JSON: 'untrusted-shell' }, extraEnv: {}, path: '/usr/bin', projectDir: '/project' });
+  expect(inherited.BIMAX_HOST_CAPABILITIES_JSON).toBeUndefined();
+  const own = buildEngineChildEnv({ parentEnv: {}, extraEnv: { BIMAX_HOST_CAPABILITIES_JSON: 'app-owned' }, path: '/usr/bin', projectDir: '/project' });
+  expect(own.BIMAX_HOST_CAPABILITIES_JSON).toBeUndefined();
 });

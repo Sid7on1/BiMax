@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-14T09:20:28.213382+00:00",
+  "wrapperSha256": "f71a9cc6e734ccdb818ce45d3f80987b6a59ded4c9bf8a8e7d1ccd8ba50d1fe9",
+  "driverSha256": "4c5708248cc9f7a1ff30c481efd02e19764e69965ed7520fd87431f201907f73",
+  "maximumRPM": 10,
+  "maximumConcurrentHTTP": 2,
+  "cooldown": "60 seconds doubling for consecutive429, capped300s; honor a longer supplied Retry-After.",
+  "semantics": "Only HTTP admission/cooldown changes. Model, prompt, reasoning, output cap, keys and frozen driver are unchanged. Existing valid answers are reused regardless of correctness."
+}

@@ -1,0 +1,162 @@
+{
+  "row": 13,
+  "query": 11,
+  "id": "mab-13-11",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T14:28:36.371849+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n8. The man stated that he would remain at the inn despite the host's refusal.\n9. The host identified the man as Humphrey Waylon.\n10. The man walked straight on, keeping close to the houses.\n11. The man peeped through the window into the public house.\n12. The man was warned by the tavern-keeper to leave the public house.\n\n\nBelow is a list of possible subsequent events:\n\n['The artist glanced at the blank canvas and prepared to unleash his imagination on the world.', 'The detective approached the dark alley and signaled for backup to investigate the noises within.', 'The traveler arrived at the dusty crossroads and pondered which path to take for his journey.', 'The man knocked at the prison door and requested admission for the night.', 'The musician stepped onto the empty stage and awaited the audience to appreciate his artistry.', 'The scholar opened the ancient tome and sought answers to the mysteries of the universe.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "The man knocked at the prison door and requested admission for the night."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-35",
+    "context-55",
+    "context-41"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T14:33:17.777135+00:00",
+  "rag": {
+    "ids": [
+      "context-35",
+      "context-55",
+      "context-41"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) all the guests of his inn, and all the passers-by in the street, talking vivaciously, and pointing him out with his finger; and, from the glances of terror and distrust cast by the group, he might have divined that his arrival would speedily become an eve\n  (part 2 of 4) against the white sky of the twilight.\n\nHe proceeded thither.\n\nIt proved to be, in fact, a public house.\n\nThe public house which is in the Rue de Chaffaut.\n\nThe wayfarer halted for a moment, and peeped through the window into the interior of the low-studded room of the public house, illuminated by a small lamp on a table and by a large fire on the hearth.\n\nSome men were engaged in drinking there.\n\nThe landlord was warming himself.\n\nAn iron pot, suspended from a crane, bubbled over the flame.\n\nThe entrance to this public house, which is also a sort of an inn, is by two doors.\n\nOne opens on the street, the other upon a small yard filled with manure.\n\nThe traveller dare not enter by the street door.\n\nHe slipped into the yard, halted again, then raised the latch timidly and opened the door.\n\n\u201cWho goes there?\u201d said the master.\n\n\u201cSome one who wants supper and bed.\u201d\n\n\u201cGood.\n\nWe furnish supper and bed here.\u201d\n\nHe entered.\n\nAll the men who were drinking turned round.\n\nThe lamp illuminated him on one side, the firelight on the other.\n\nThey examined him for some time while he was taking off his knapsack.\n\nThe host said to him, \u201cThere is the fire.\n\nThe supper is cooking in the pot.\n- (part 2 of 5, excerpt) He rose to his feet, hesitated still another moment, and listened; all was quiet in the house; then he walked straight ahead, with short\n- (part 1 of 4, excerpt) A good woman pointed out your house to me, and said to me, \u2018Knock there!\u2019 I have knocked.\n\nWhat is this place?",
+    "evidence": [
+      {
+        "sourceId": "memory:context-35",
+        "sourceVersion": "sha256:3fc12525add77555bba34b083ad5f1c9f28515b1bc16197b851cf1249163897e",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-35",
+          "part": 1,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "all the guests of his inn, and all the passers-by in the street, talking vivaciously, and pointing him out with his finger; and, from the glances of terror and distrust cast by the group, he might have divined that his arrival would speedily become an eve",
+        "id": "ev_78d955cf9f9f9dcb3442832e",
+        "observedAt": "2026-10-14T08:56:51.614Z"
+      },
+      {
+        "sourceId": "memory:context-35",
+        "sourceVersion": "sha256:3fc12525add77555bba34b083ad5f1c9f28515b1bc16197b851cf1249163897e",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-35",
+          "part": 2,
+          "parts": 4
+        },
+        "text": "against the white sky of the twilight.\n\nHe proceeded thither.\n\nIt proved to be, in fact, a public house.\n\nThe public house which is in the Rue de Chaffaut.\n\nThe wayfarer halted for a moment, and peeped through the window into the interior of the low-studded room of the public house, illuminated by a small lamp on a table and by a large fire on the hearth.\n\nSome men were engaged in drinking there.\n\nThe landlord was warming himself.\n\nAn iron pot, suspended from a crane, bubbled over the flame.\n\nThe entrance to this public house, which is also a sort of an inn, is by two doors.\n\nOne opens on the street, the other upon a small yard filled with manure.\n\nThe traveller dare not enter by the street door.\n\nHe slipped into the yard, halted again, then raised the latch timidly and opened the door.\n\n\u201cWho goes there?\u201d said the master.\n\n\u201cSome one who wants supper and bed.\u201d\n\n\u201cGood.\n\nWe furnish supper and bed here.\u201d\n\nHe entered.\n\nAll the men who were drinking turned round.\n\nThe lamp illuminated him on one side, the firelight on the other.\n\nThey examined him for some time while he was taking off his knapsack.\n\nThe host said to him, \u201cThere is the fire.\n\nThe supper is cooking in the pot.",
+        "id": "ev_4f4fe621608efe422233b6c7",
+        "observedAt": "2026-10-14T08:56:51.614Z"
+      },
+      {
+        "sourceId": "memory:context-55",
+        "sourceVersion": "sha256:2e5887df702b8ff67e84cfd3ce97ee08109b7cb6bb8a162342ad7e3864803103",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-55",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "He rose to his feet, hesitated still another moment, and listened; all was quiet in the house; then he walked straight ahead, with short",
+        "id": "ev_cf1613a1781532b78f12be0d",
+        "observedAt": "2026-10-14T08:56:51.614Z"
+      },
+      {
+        "sourceId": "memory:context-41",
+        "sourceVersion": "sha256:2908d6c9e683f9c9fd0d73a11e67cb38141731a3541649feef18ae5f6f8d1b17",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-41",
+          "part": 1,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "A good woman pointed out your house to me, and said to me, \u2018Knock there!\u2019 I have knocked.\n\nWhat is this place?",
+        "id": "ev_c675104ff2f7ee7e001cbe11",
+        "observedAt": "2026-10-14T08:56:51.615Z"
+      }
+    ],
+    "sourceIds": [
+      "context-35",
+      "context-55",
+      "context-41"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 6.149457999999868,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8",
+  "prediction": "The man knocked at the prison door and requested admission for the night.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 774,
+    "completion_tokens": 1039,
+    "total_tokens": 1813,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 498,
+    "completion_tokens": 433,
+    "total_tokens": 931,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 430,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 116356.99691700029,
+  "judgeWallMs": 77083.1268339989
+}

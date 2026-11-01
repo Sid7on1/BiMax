@@ -48,6 +48,7 @@ const MIN_QUERY_CHARS = 24;
 
 export interface RecallOptions {
   limit?: number;
+  signal?: AbortSignal;
   /** How much recalled text may be injected. A recall bigger than the turn is not help. */
   maxChars?: number;
 }
@@ -104,6 +105,7 @@ export async function recallForTurn(
   query: string,
   options: RecallOptions = {},
 ): Promise<RecalledMemory | null> {
+  options.signal?.throwIfAborted();
   const limit = options.limit ?? 3;
   const maxChars = options.maxChars ?? 1_800;
 
@@ -120,11 +122,13 @@ export async function recallForTurn(
     // not help. Recall is for durable knowledge; code has its own door.
     documents = await store.semanticSearch(query, limit, 0, { excludeTags: RECALL_EXCLUDED_TAGS, passages: true });
   } catch {
+    options.signal?.throwIfAborted();
     reportCapability({ id: 'memory-recall', label: 'Memory recall', state: 'degraded',
       reason: 'Memory lookup failed.', impact: 'This turn continues without recalled context.',
       action: 'Check memory storage and retrieval settings.' });
     return null;
   }
+  options.signal?.throwIfAborted();
   reportCapability({ id: 'memory-recall', label: 'Memory recall', state: 'ready',
     reason: 'Memory lookup completed.', impact: '', action: '' });
   if (!documents.length) return null;
@@ -144,8 +148,12 @@ export async function recallForTurn(
   const ids: string[] = [];
   const evidence: EvidenceSpan[] = [];
   let budget = maxChars;
-  for (const doc of documents) {
-    const passage = passageOf(doc, budget, query);
+  for (const [index, doc] of documents.entries()) {
+    // Reserve a useful excerpt for later retrieved sources rather than spending the whole
+    // prompt allowance on the first long note. Small budgets still prioritize the best source.
+    const reservePerSource = MIN_EXCERPT_CHARS + LABEL_ALLOWANCE + 3;
+    const later = Math.min(documents.length - index - 1, Math.max(0, Math.floor((budget - reservePerSource) / reservePerSource)));
+    const passage = passageOf(doc, budget - later * reservePerSource, query);
     const content = passage.text;
     if (!content) continue;
     // Truncate the last one that fits rather than dropping it: a partial memory is usually still

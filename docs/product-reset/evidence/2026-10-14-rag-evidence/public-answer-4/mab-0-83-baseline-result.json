@@ -1,0 +1,164 @@
+{
+  "row": 0,
+  "query": 83,
+  "id": "mab-0-83",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:39:59.711123+00:00",
+  "valid": true,
+  "question": "When did the church reform begin?",
+  "references": [
+    "early 11th century",
+    "11th century",
+    "in the early 11th century"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-82",
+    "context-238",
+    "context-85"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:40:20.001333+00:00",
+  "rag": {
+    "ids": [
+      "context-82",
+      "context-238",
+      "context-85"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) that reads: \"The Bill for this Act of the Scottish Parliament was passed by the Parliament on [Date] and received royal assent on [Date]\".\n\nDocument 418:\n\nOther predecessors of the Reformed church included the pro-reform and Gallican Roman Catholics, such as Jacques Lefevre (c.\n\n1455\u20131536).\n\nThe Gallicans briefly achieved independence for the French church, on the principle that the religion of France could not be controlled by the Bishop of Rome, a foreign power.\n\nDuring the Protestant Reformation, Lefevre, a professor at the University of Paris, published his French translation of the New Testament in 1523, followed by the whole Bible in the French language in 1530.\n\nWilliam Farel was a student of Lefevre who went on to become a leader of the Swiss Reformation, establishing a Protestant government in Geneva.\n\nJean Cauvin (John Calvin), another student at the University of Paris, also converted to Protestantism.\n\nLong after the sect was suppressed by Francis I, the remaining French Waldensians, then mostly in the Luberon region, sought to join William Farel, Calvin and the Reformation, and Olivetan published a French Bible for them.\n  (part 3 of 5, excerpt) The French Confession of 1559 shows a decidedly Calvinistic influence.\n\nSometime between 1550 and 1580, members of the Reformed church in France came to be commonly known as Huguenots.[citation needed]\n- (part 2 of 5, excerpt) In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform o\n- (part 3 of 5, excerpt) Gothic architecture is represented in the majestic churches but also at the burgher houses and fortifications. The most signi",
+    "evidence": [
+      {
+        "sourceId": "memory:context-82",
+        "sourceVersion": "sha256:b0f5767ef6073920438d6e6caa3ee05cb1b1c5f6e3f0b3b6a1e97dacbc39eba7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-82",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "that reads: \"The Bill for this Act of the Scottish Parliament was passed by the Parliament on [Date] and received royal assent on [Date]\".\n\nDocument 418:\n\nOther predecessors of the Reformed church included the pro-reform and Gallican Roman Catholics, such as Jacques Lefevre (c.\n\n1455\u20131536).\n\nThe Gallicans briefly achieved independence for the French church, on the principle that the religion of France could not be controlled by the Bishop of Rome, a foreign power.\n\nDuring the Protestant Reformation, Lefevre, a professor at the University of Paris, published his French translation of the New Testament in 1523, followed by the whole Bible in the French language in 1530.\n\nWilliam Farel was a student of Lefevre who went on to become a leader of the Swiss Reformation, establishing a Protestant government in Geneva.\n\nJean Cauvin (John Calvin), another student at the University of Paris, also converted to Protestantism.\n\nLong after the sect was suppressed by Francis I, the remaining French Waldensians, then mostly in the Luberon region, sought to join William Farel, Calvin and the Reformation, and Olivetan published a French Bible for them.",
+        "id": "ev_c40d6d08a90ef0e1a1639671",
+        "observedAt": "2026-10-14T08:38:04.547Z"
+      },
+      {
+        "sourceId": "memory:context-82",
+        "sourceVersion": "sha256:b0f5767ef6073920438d6e6caa3ee05cb1b1c5f6e3f0b3b6a1e97dacbc39eba7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-82",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "The French Confession of 1559 shows a decidedly Calvinistic influence.\n\nSometime between 1550 and 1580, members of the Reformed church in France came to be commonly known as Huguenots.[citation needed]",
+        "id": "ev_fbf8d0f3f83daa83a624a948",
+        "observedAt": "2026-10-14T08:38:04.547Z"
+      },
+      {
+        "sourceId": "memory:context-238",
+        "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-238",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform o",
+        "id": "ev_1db0beaa080338fabd901971",
+        "observedAt": "2026-10-14T08:38:04.547Z"
+      },
+      {
+        "sourceId": "memory:context-85",
+        "sourceVersion": "sha256:8521671c01df7422599160a500011031c60f3bdf7730f92631292cce2891eb2a",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-85",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Gothic architecture is represented in the majestic churches but also at the burgher houses and fortifications. The most signi",
+        "id": "ev_6f3e74c69ec72772101a00db",
+        "observedAt": "2026-10-14T08:38:04.547Z"
+      }
+    ],
+    "sourceIds": [
+      "context-82",
+      "context-238",
+      "context-85"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.519625000000815,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Based on the retrieved history, the church reform is noted to have begun in the early 11th century, when dukes initiated a programme of reform encouraging the Cluniac reform. No more precise date is provided in the available text.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.21621621621621623
+  },
+  "readerUsage": {
+    "prompt_tokens": 523,
+    "completion_tokens": 1074,
+    "total_tokens": 1597,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 333,
+    "completion_tokens": 800,
+    "total_tokens": 1133,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 797,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 11691.501959000561,
+  "judgeWallMs": 8597.12216600019
+}

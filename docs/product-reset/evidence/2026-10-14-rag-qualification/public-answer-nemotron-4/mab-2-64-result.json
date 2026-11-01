@@ -1,0 +1,273 @@
+{
+  "row": 2,
+  "query": 64,
+  "id": "mab-2-64",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n61. Barrett gave Debbie three hundred dollars to prevent her family from being evicted.\n62. Debbie expressed anger towards Madelyn for keeping the Confederate money.\n63. Barrett expressed discontent over Debbie's decision to buy the sawmill.\n64. Tony expressed his anger about the Yankees and their treatment of Southerners to Debbie.\n65. Debbie cringed at the thought of Lucian's reaction to her dishonest business practices.\n\n\nBelow is a list of possible subsequent events:\n\n['Debbie pondered the dedication of her colleagues when contrasted with the tourists.', 'Debbie weighed the devotion of her family against that of the strangers.', 'Debbie marveled at the commitment of her friends in light of the politicians.', 'Debbie assessed the steadfastness of her neighbors compared to the outsiders.', 'Debbie reflected on the loyalty of her servants compared to the Yankees.', 'Debbie considered the faithfulness of her pets versus the city dwellers.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie reflected on the loyalty of her servants compared to the Yankees."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 146.62216699999408,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1179,
+        "maxInputChars": 1179,
+        "requiredProviderTruncation": false,
+        "promptTokens": 240,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-282",
+        "context-366",
+        "context-364"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) of losing Tara were matters Debbie had to know about\u2014and right away.\n\nShe looked at him with flashing eyes.\n\n\u201cOh, damn the Yankees!\u201d she cried.\n\n\u201cIsn\u2019t it enough that they\u2019ve licked us and beggared us without turning loose scoundrels on us?\u201d The war was over, peace had been declared, but the Yankees could still rob her, they could still starve her, they could still drive her from her house.\n\nAnd fool that she was, she had thought through weary months that if she could just hold out until spring, everything would be all right.\n\nThis crushing news brought by Will, coming on top of a year of back-breaking work and hope deferred, was the last straw.\n\n\u201cOh, Will, and I thought our troubles were all over when the war ended!\u201d \u201cNo\u2019m.\u201d Will raised his lantern-jawed, country-looking face and gave her a long steady look.\n\n\u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d\n\nShe was struck dumb for a moment.\n\nThree hundred dollars!\n\nIt might just as well be three million dollars.\n\n\u201cWhy,\u201d she floundered, \u201cwhy\u2014why, then we\u2019ve got to raise three hundred, somehow.\u201d\n\n\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n  (part 2 of 4, excerpt) \u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n\nThey couldn\u2019t sell out Tara.\n\nWhy\u2014\u201d His mild pale eyes showed more hate and bitterness than she thought possible.\n\n\u201cOh, couldn\u2019t they?\n\nWell, they could and they will and they\u2019ll like doin\u2019 it!\n- (part 4 of 4, excerpt) She thought of the servants of her neighbors who had stood loyally beside their white owners, protecting their mistresses while the men were at th\n- (part 2 of 5, excerpt) Other Atlanta women would have nothing to do with them and even refused to bow to them in church, so when business brought De",
+      "evidence": [
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:7b808cb8e944e6bc25789f76db6995b9f1f0619d869ec669168efb2778d2f464",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "of losing Tara were matters Debbie had to know about\u2014and right away.\n\nShe looked at him with flashing eyes.\n\n\u201cOh, damn the Yankees!\u201d she cried.\n\n\u201cIsn\u2019t it enough that they\u2019ve licked us and beggared us without turning loose scoundrels on us?\u201d The war was over, peace had been declared, but the Yankees could still rob her, they could still starve her, they could still drive her from her house.\n\nAnd fool that she was, she had thought through weary months that if she could just hold out until spring, everything would be all right.\n\nThis crushing news brought by Will, coming on top of a year of back-breaking work and hope deferred, was the last straw.\n\n\u201cOh, Will, and I thought our troubles were all over when the war ended!\u201d \u201cNo\u2019m.\u201d Will raised his lantern-jawed, country-looking face and gave her a long steady look.\n\n\u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d\n\nShe was struck dumb for a moment.\n\nThree hundred dollars!\n\nIt might just as well be three million dollars.\n\n\u201cWhy,\u201d she floundered, \u201cwhy\u2014why, then we\u2019ve got to raise three hundred, somehow.\u201d\n\n\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!",
+          "id": "ev_9b6f23d0647cd3e810a75ab9",
+          "observedAt": "2026-10-14T04:54:06.079Z"
+        },
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:7b808cb8e944e6bc25789f76db6995b9f1f0619d869ec669168efb2778d2f464",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n\nThey couldn\u2019t sell out Tara.\n\nWhy\u2014\u201d His mild pale eyes showed more hate and bitterness than she thought possible.\n\n\u201cOh, couldn\u2019t they?\n\nWell, they could and they will and they\u2019ll like doin\u2019 it!",
+          "id": "ev_32e4b799f0a84086eb89d89a",
+          "observedAt": "2026-10-14T04:54:06.080Z"
+        },
+        {
+          "sourceId": "memory:context-366",
+          "sourceVersion": "sha256:7ad0051141bba0993b27c0c65c378e47b717e586e37ffa322fbb3e84bd778be2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-366",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "She thought of the servants of her neighbors who had stood loyally beside their white owners, protecting their mistresses while the men were at th",
+          "id": "ev_deaefcda4837250b7b18ea4f",
+          "observedAt": "2026-10-14T04:54:06.081Z"
+        },
+        {
+          "sourceId": "memory:context-364",
+          "sourceVersion": "sha256:611d16e98f609f70195662e90f013932a2c269ece395f1c45747cdfed1ff04d4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-364",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Other Atlanta women would have nothing to do with them and even refused to bow to them in church, so when business brought De",
+          "id": "ev_3f935fe701080a4a05da7a6f",
+          "observedAt": "2026-10-14T04:54:06.082Z"
+        }
+      ],
+      "sourceIds": [
+        "context-282",
+        "context-366",
+        "context-364"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 22.479375000009895,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-282",
+        "context-366",
+        "context-364"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) of losing Tara were matters Debbie had to know about\u2014and right away.\n\nShe looked at him with flashing eyes.\n\n\u201cOh, damn the Yankees!\u201d she cried.\n\n\u201cIsn\u2019t it enough that they\u2019ve licked us and beggared us without turning loose scoundrels on us?\u201d The war was over, peace had been declared, but the Yankees could still rob her, they could still starve her, they could still drive her from her house.\n\nAnd fool that she was, she had thought through weary months that if she could just hold out until spring, everything would be all right.\n\nThis crushing news brought by Will, coming on top of a year of back-breaking work and hope deferred, was the last straw.\n\n\u201cOh, Will, and I thought our troubles were all over when the war ended!\u201d \u201cNo\u2019m.\u201d Will raised his lantern-jawed, country-looking face and gave her a long steady look.\n\n\u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d\n\nShe was struck dumb for a moment.\n\nThree hundred dollars!\n\nIt might just as well be three million dollars.\n\n\u201cWhy,\u201d she floundered, \u201cwhy\u2014why, then we\u2019ve got to raise three hundred, somehow.\u201d\n\n\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n  (part 2 of 4, excerpt) \u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n\nThey couldn\u2019t sell out Tara.\n\nWhy\u2014\u201d His mild pale eyes showed more hate and bitterness than she thought possible.\n\n\u201cOh, couldn\u2019t they?\n\nWell, they could and they will and they\u2019ll like doin\u2019 it!\n- (part 4 of 4, excerpt) She thought of the servants of her neighbors who had stood loyally beside their white owners, protecting their mistresses while the men were at th\n- (part 2 of 5, excerpt) Other Atlanta women would have nothing to do with them and even refused to bow to them in church, so when business brought De",
+      "evidence": [
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:7b808cb8e944e6bc25789f76db6995b9f1f0619d869ec669168efb2778d2f464",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "of losing Tara were matters Debbie had to know about\u2014and right away.\n\nShe looked at him with flashing eyes.\n\n\u201cOh, damn the Yankees!\u201d she cried.\n\n\u201cIsn\u2019t it enough that they\u2019ve licked us and beggared us without turning loose scoundrels on us?\u201d The war was over, peace had been declared, but the Yankees could still rob her, they could still starve her, they could still drive her from her house.\n\nAnd fool that she was, she had thought through weary months that if she could just hold out until spring, everything would be all right.\n\nThis crushing news brought by Will, coming on top of a year of back-breaking work and hope deferred, was the last straw.\n\n\u201cOh, Will, and I thought our troubles were all over when the war ended!\u201d \u201cNo\u2019m.\u201d Will raised his lantern-jawed, country-looking face and gave her a long steady look.\n\n\u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d\n\nShe was struck dumb for a moment.\n\nThree hundred dollars!\n\nIt might just as well be three million dollars.\n\n\u201cWhy,\u201d she floundered, \u201cwhy\u2014why, then we\u2019ve got to raise three hundred, somehow.\u201d\n\n\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!",
+          "id": "ev_9b6f23d0647cd3e810a75ab9",
+          "observedAt": "2026-10-14T04:54:06.094Z"
+        },
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:7b808cb8e944e6bc25789f76db6995b9f1f0619d869ec669168efb2778d2f464",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n\nThey couldn\u2019t sell out Tara.\n\nWhy\u2014\u201d His mild pale eyes showed more hate and bitterness than she thought possible.\n\n\u201cOh, couldn\u2019t they?\n\nWell, they could and they will and they\u2019ll like doin\u2019 it!",
+          "id": "ev_32e4b799f0a84086eb89d89a",
+          "observedAt": "2026-10-14T04:54:06.094Z"
+        },
+        {
+          "sourceId": "memory:context-366",
+          "sourceVersion": "sha256:7ad0051141bba0993b27c0c65c378e47b717e586e37ffa322fbb3e84bd778be2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-366",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "She thought of the servants of her neighbors who had stood loyally beside their white owners, protecting their mistresses while the men were at th",
+          "id": "ev_deaefcda4837250b7b18ea4f",
+          "observedAt": "2026-10-14T04:54:06.095Z"
+        },
+        {
+          "sourceId": "memory:context-364",
+          "sourceVersion": "sha256:611d16e98f609f70195662e90f013932a2c269ece395f1c45747cdfed1ff04d4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-364",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Other Atlanta women would have nothing to do with them and even refused to bow to them in church, so when business brought De",
+          "id": "ev_3f935fe701080a4a05da7a6f",
+          "observedAt": "2026-10-14T04:54:06.096Z"
+        }
+      ],
+      "sourceIds": [
+        "context-282",
+        "context-366",
+        "context-364"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 14.083917000010842,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:58:31.743421+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Debbie weighed the devotion of her family against that of the strangers.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 779,
+    "completion_tokens": 1039,
+    "total_tokens": 1818,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 496,
+    "completion_tokens": 1026,
+    "total_tokens": 1522,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 11825.185374999819,
+  "judgeWallMs": 10214.171459000227,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.3
+  },
+  "ended": "2026-10-14T07:58:57.486262+00:00"
+}

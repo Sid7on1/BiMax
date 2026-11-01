@@ -1,0 +1,372 @@
+{
+  "row": 7,
+  "query": 59,
+  "id": "mab-7-59",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:51:01.455569+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n56. Marianne felt pride upon seeing his plantation's house rising through green branches.\n57. Marianne was on excellent terms with his neighbors except for the MacIntoshs and the Claudias.\n58. Marianne expressed his dislike for the MacIntosh family.\n59. Marianne observed rumors of Abolitionist sympathies did not enhance the popularity of the MacIntoshs.\n60. Marianne commented on Angus Macintosh's actions of never manumitting a single slave.\n\n\nBelow is a list of possible subsequent events:\n\n['Marianne portrayed the Petersons as wealthy but morally corrupt.', 'Marianne described the Claudias as poor white and lacking respect.', 'Marianne condemned the Harringtons as pretentious and disconnected from their roots.', 'Marianne labeled the Maxwells as uneducated and overly ambitious.', 'Marianne characterized the Thatchers as privileged yet painfully insecure.', 'Marianne criticized the Fairchilds as arrogant and out of touch with reality.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Marianne described the Claudias as poor white and lacking respect."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 437.4447090000001,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1174,
+        "maxInputChars": 1174,
+        "requiredProviderTruncation": false,
+        "promptTokens": 240,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-26",
+        "context-25",
+        "context-23"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) plantation.\n\nThe MacIntoshs were Scotch-Irish and Orangemen and, had they possessed all the saintly qualities of the Catholic calendar, this ancestry would have damned them forever in Marianne\u2019s eyes.\n\nTrue, they had lived in Georgia for seventy years and, before that, had spent a generation in the Carolinas; but the first of the family who set foot on American shores had come from Ulster, and that was enough for Marianne.\n\nThey were a close-mouthed and stiff-necked family, who kept strictly to themselves and intermarried with their Carolina relatives, and Marianne was not alone in disliking them, for the County people were neighborly and sociable and none too tolerant of anyone lacking in those same qualities.\n\nRumors of Abolitionist sympathies did not enhance the popularity of the Macintoshes.\n\nOld Angus had never manumitted a single slave and had committed the unpardonable social breach of selling some of his negroes to passing slave traders en route to the cane fields of Louisiana, but the rumors persisted.\n\n\u201cHe\u2019s an Abolitionist, no doubt,\u201d observed Marianne to John Abrianna.\n\n\u201cBut, in an Orangeman, when a principle comes up against Scotch tightness, the principle fares ill.\u201d\n  (part 2 of 4, excerpt) The Claudias were another affair.\n\nBeing poor white, they were not even accorded the\u201d grudging respect that Angus Macintosh\u2019s dour independence wrung from neighboring families.\n- (part 5 of 5, excerpt) Marianne, was on excellent terms with all his neighbors in the County, except the MacIntoshs whose land adjoined his on the left and the Claudias whose meager three acres stretched on his right along the\n- (part 3 of 5, excerpt) He liked the casual grace with which they conducted affairs of importance, risking a fortune, a plantation or a slave on the",
+      "evidence": [
+        {
+          "sourceId": "memory:context-26",
+          "sourceVersion": "sha256:b942563d71c8509ee11bef46d1e3b50e07290b4e7c15191b48fb9c360f50abbe",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-26",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "plantation.\n\nThe MacIntoshs were Scotch-Irish and Orangemen and, had they possessed all the saintly qualities of the Catholic calendar, this ancestry would have damned them forever in Marianne\u2019s eyes.\n\nTrue, they had lived in Georgia for seventy years and, before that, had spent a generation in the Carolinas; but the first of the family who set foot on American shores had come from Ulster, and that was enough for Marianne.\n\nThey were a close-mouthed and stiff-necked family, who kept strictly to themselves and intermarried with their Carolina relatives, and Marianne was not alone in disliking them, for the County people were neighborly and sociable and none too tolerant of anyone lacking in those same qualities.\n\nRumors of Abolitionist sympathies did not enhance the popularity of the Macintoshes.\n\nOld Angus had never manumitted a single slave and had committed the unpardonable social breach of selling some of his negroes to passing slave traders en route to the cane fields of Louisiana, but the rumors persisted.\n\n\u201cHe\u2019s an Abolitionist, no doubt,\u201d observed Marianne to John Abrianna.\n\n\u201cBut, in an Orangeman, when a principle comes up against Scotch tightness, the principle fares ill.\u201d",
+          "id": "ev_17080be7e8fdf7b149a81557",
+          "observedAt": "2026-10-14T08:51:01.900Z"
+        },
+        {
+          "sourceId": "memory:context-26",
+          "sourceVersion": "sha256:b942563d71c8509ee11bef46d1e3b50e07290b4e7c15191b48fb9c360f50abbe",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-26",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "The Claudias were another affair.\n\nBeing poor white, they were not even accorded the\u201d grudging respect that Angus Macintosh\u2019s dour independence wrung from neighboring families.",
+          "id": "ev_8715ad18d8a540c8a12e614a",
+          "observedAt": "2026-10-14T08:51:01.902Z"
+        },
+        {
+          "sourceId": "memory:context-25",
+          "sourceVersion": "sha256:2c159b751b6b973d8f449bef34cdb0f0d9a229a3e6c6cc41c0465d80e33c0a01",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-25",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Marianne, was on excellent terms with all his neighbors in the County, except the MacIntoshs whose land adjoined his on the left and the Claudias whose meager three acres stretched on his right along the",
+          "id": "ev_4803729ffc97f98869fe328f",
+          "observedAt": "2026-10-14T08:51:01.903Z"
+        },
+        {
+          "sourceId": "memory:context-23",
+          "sourceVersion": "sha256:30190f5f80aeb6f1ad52f4ae26c55876f8b8df44a4a365664dc14be0c1444224",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-23",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "He liked the casual grace with which they conducted affairs of importance, risking a fortune, a plantation or a slave on the",
+          "id": "ev_75fb7ed2a931d2f00be54a59",
+          "observedAt": "2026-10-14T08:51:01.904Z"
+        }
+      ],
+      "sourceIds": [
+        "context-26",
+        "context-25",
+        "context-23"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 11.723833999999897,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-26",
+        "context-25",
+        "context-23"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) Rumors of Abolitionist sympathies did not enhance the popularity of the Macintoshes.\n\nOld Angus had never manumitted a single slave and had committed the unpardonable social breach of selling some of his negroes to passing slave traders en route to the cane fields of Louisiana, but the rumors persisted.\n\n\u201cHe\u2019s an Abolitionist, no doubt,\u201d observed Marianne to John Abrianna.\n  (part 2 of 4, excerpt) no doubt,\u201d observed Marianne to John Abrianna.\n\n\u201cBut, in an Orangeman, when a principle comes up against Scotch tightness, the principle fares ill.\u201d\n\nThe Claudias were another affair.\n\nBeing poor white, they were not even accorded the\u201d grudging respect that Angus Macintosh\u2019s dour independence wrung from neighboring families.\n\nOld Claudia, who clung persistently to his few acres, in spite of repeated offers from Marianne and John Abrianna, was shiftless and whining.\n  (part 3 of 4, excerpt) Claudia hated his neighbors with what little energy he possessed, sensing their contempt beneath their courtesy, and especially did he hate \u201crich folks\u2019 uppity niggers.\u201d The house negroes of the County considered themselves superior to white trash, and their unconcealed scorn stung him, while their more secure position in life stirred his envy.\n\nBy contrast with his own miserable existence, they were well-fed, well\ufffeclothed and looked after in sickness and old age.\n  (part 4 of 4, excerpt) The Abriannaes, the Calverts, the Tarletons, the Fontaines, all smiled when the small figure on the big white horse galloped up their driveways, smiled and signaled for tall glasses in which a pony of Bourbon had been poured over a teaspoon of sugar and a sprig of crushed mint.\n\nMarianne was likable, and the neighbors learned in time what the children, negroes and dogs discovered at first sight, that a kind heart, a ready and sympathetic ear and an open pocketbook lurked just behind his.\n- (part 1 of 5, excerpt) \u201cNever mix cards and whisky unless you were weaned on Irish poteen,\u201d Marianne told Jasmin gravely the same evening, as Jasmin assisted him to bed.\n\nAnd the valet, who had begun to attempt a brogue out of admiration for his new master, made requisite answer in a combination of Geechee and County Meath that would have puzzled anyone except those two alone.\n\nThe muddy Flint River, running silently between walls of pine and water oak covered with tangled vines, wrapped about Marianne\u2019s new land like a curving arm and embraced it on two sides.\n  (part 3 of 5, excerpt) The O\u2019Kerrys were a clannish tribe, clinging to one another in prosperity as well as in adversity, not for any overweening family affection but because they had learned through grim years that to survive a family must present an unbroken front to the world.\n\nThey lent Marianne the money and, in the years that followed, the money came back to them with interest.\n\nGradually the plantation widened out, as Marianne bought more acres lying near him, and in time the white house became a reality instead of a dream.\n  (part 4 of 5, excerpt) From the avenue of cedars to the row of white cabins in the slave quarters, there was an air of solidness, of stability and permanence about Tara, and whenever Marianne galloped around the bend in the road and saw his own roof rising through green branches, his heart swelled with pride as though each sight of it were the first sight.\n\nHe had done it all, little, hard-headed, blustering Marianne.\n  (part 5 of 5) green branches, his heart swelled with pride as though each sight of it were the first sight.\n\nHe had done it all, little, hard-headed, blustering Marianne.\n\nMarianne, was on excellent terms with all his neighbors in the County, except the MacIntoshs whose land adjoined his on the left and the Claudias whose meager three acres stretched on his right along the swamp bottoms between the river and John Abrianna\u2019\n- (part 1 of 5, excerpt) And there his book knowledge stopped.\n\nThe only Latin he knew was the responses of the Mass and the only history the manifold wrongs of Ireland.\n\nHe knew no poetry save that of Moore and no music except the songs of Ireland that had come down through the years.\n\nWhile he entertained the liveliest respect for those who had more book learning than he, he never felt his own lack.\n\nAnd what need had he of these things in a new country where the most ignorant of bogtrotters had made great fortunes?\n\nin this country which asked only that a man be strong and unafraid of work?\n\nNor did James and Andrew, who took him into their store in Savannah, regret his lack of education.\n  (part 2 of 5, excerpt) He liked the South, and he soon became, in his own opinion, a Southerner.\n\nThere was much about the South\u2014and Southerners\u2014that he would never compre\ufffehend; but, with the wholeheartedness that was his nature, he adopted its ideas and customs, as he understood them, for his own\u2014poker and horse racing, red-hot politics and the code duello, States\u2019 Rights and damnation to all Yankees, slavery and King Cotton, contempt for white trash and exaggerated courtesy to women.\n\nHe even learned to chew tobacco.\n\nThere was no need for him to acquire a good head for whisky, he had been born with one.\n\nBut Marianne remained Marianne.\n  (part 3 of 5, excerpt) But Marianne could never attain elegance.\n\nTheir lazy, blurred voices fell pleasantly on his ears, but his own brisk brogue clung to his tongue.\n\nHe liked the casual grace with which they conducted affairs of importance, risking a fortune, a plantation or a slave on the turn of a card and writing off their losses with careless good humor and no more ado than when they scattered pennies to pickaninnies.\n\nBut Marianne had known poverty, and he could never learn to lose money with good humor or good grace.\n\nThey were a pleasant race, these coastal Georgians, with their soft-voiced, quick rages and their charming inconsistencies, and Marianne liked them.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-26",
+          "sourceVersion": "sha256:b942563d71c8509ee11bef46d1e3b50e07290b4e7c15191b48fb9c360f50abbe",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-26",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Rumors of Abolitionist sympathies did not enhance the popularity of the Macintoshes.\n\nOld Angus had never manumitted a single slave and had committed the unpardonable social breach of selling some of his negroes to passing slave traders en route to the cane fields of Louisiana, but the rumors persisted.\n\n\u201cHe\u2019s an Abolitionist, no doubt,\u201d observed Marianne to John Abrianna.",
+          "id": "ev_b9cf81072a021356f5ca7fcf",
+          "observedAt": "2026-10-14T08:51:01.912Z"
+        },
+        {
+          "sourceId": "memory:context-26",
+          "sourceVersion": "sha256:b942563d71c8509ee11bef46d1e3b50e07290b4e7c15191b48fb9c360f50abbe",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-26",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "no doubt,\u201d observed Marianne to John Abrianna.\n\n\u201cBut, in an Orangeman, when a principle comes up against Scotch tightness, the principle fares ill.\u201d\n\nThe Claudias were another affair.\n\nBeing poor white, they were not even accorded the\u201d grudging respect that Angus Macintosh\u2019s dour independence wrung from neighboring families.\n\nOld Claudia, who clung persistently to his few acres, in spite of repeated offers from Marianne and John Abrianna, was shiftless and whining.",
+          "id": "ev_228e4ebbddc0b0a0d358b024",
+          "observedAt": "2026-10-14T08:51:01.912Z"
+        },
+        {
+          "sourceId": "memory:context-26",
+          "sourceVersion": "sha256:b942563d71c8509ee11bef46d1e3b50e07290b4e7c15191b48fb9c360f50abbe",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-26",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Claudia hated his neighbors with what little energy he possessed, sensing their contempt beneath their courtesy, and especially did he hate \u201crich folks\u2019 uppity niggers.\u201d The house negroes of the County considered themselves superior to white trash, and their unconcealed scorn stung him, while their more secure position in life stirred his envy.\n\nBy contrast with his own miserable existence, they were well-fed, well\ufffeclothed and looked after in sickness and old age.",
+          "id": "ev_90f0ba73dc563b5eeb02662b",
+          "observedAt": "2026-10-14T08:51:01.912Z"
+        },
+        {
+          "sourceId": "memory:context-26",
+          "sourceVersion": "sha256:b942563d71c8509ee11bef46d1e3b50e07290b4e7c15191b48fb9c360f50abbe",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-26",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "The Abriannaes, the Calverts, the Tarletons, the Fontaines, all smiled when the small figure on the big white horse galloped up their driveways, smiled and signaled for tall glasses in which a pony of Bourbon had been poured over a teaspoon of sugar and a sprig of crushed mint.\n\nMarianne was likable, and the neighbors learned in time what the children, negroes and dogs discovered at first sight, that a kind heart, a ready and sympathetic ear and an open pocketbook lurked just behind his.",
+          "id": "ev_268d36b8af9a462db01d3a0c",
+          "observedAt": "2026-10-14T08:51:01.912Z"
+        },
+        {
+          "sourceId": "memory:context-25",
+          "sourceVersion": "sha256:2c159b751b6b973d8f449bef34cdb0f0d9a229a3e6c6cc41c0465d80e33c0a01",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-25",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cNever mix cards and whisky unless you were weaned on Irish poteen,\u201d Marianne told Jasmin gravely the same evening, as Jasmin assisted him to bed.\n\nAnd the valet, who had begun to attempt a brogue out of admiration for his new master, made requisite answer in a combination of Geechee and County Meath that would have puzzled anyone except those two alone.\n\nThe muddy Flint River, running silently between walls of pine and water oak covered with tangled vines, wrapped about Marianne\u2019s new land like a curving arm and embraced it on two sides.",
+          "id": "ev_2ad4f50c9ef9b6a9935d705b",
+          "observedAt": "2026-10-14T08:51:01.914Z"
+        },
+        {
+          "sourceId": "memory:context-25",
+          "sourceVersion": "sha256:2c159b751b6b973d8f449bef34cdb0f0d9a229a3e6c6cc41c0465d80e33c0a01",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-25",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The O\u2019Kerrys were a clannish tribe, clinging to one another in prosperity as well as in adversity, not for any overweening family affection but because they had learned through grim years that to survive a family must present an unbroken front to the world.\n\nThey lent Marianne the money and, in the years that followed, the money came back to them with interest.\n\nGradually the plantation widened out, as Marianne bought more acres lying near him, and in time the white house became a reality instead of a dream.",
+          "id": "ev_6a7f473a8d72fd7b095e866d",
+          "observedAt": "2026-10-14T08:51:01.914Z"
+        },
+        {
+          "sourceId": "memory:context-25",
+          "sourceVersion": "sha256:2c159b751b6b973d8f449bef34cdb0f0d9a229a3e6c6cc41c0465d80e33c0a01",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-25",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "From the avenue of cedars to the row of white cabins in the slave quarters, there was an air of solidness, of stability and permanence about Tara, and whenever Marianne galloped around the bend in the road and saw his own roof rising through green branches, his heart swelled with pride as though each sight of it were the first sight.\n\nHe had done it all, little, hard-headed, blustering Marianne.",
+          "id": "ev_73ce8a6eee9fa741095d58b8",
+          "observedAt": "2026-10-14T08:51:01.914Z"
+        },
+        {
+          "sourceId": "memory:context-25",
+          "sourceVersion": "sha256:2c159b751b6b973d8f449bef34cdb0f0d9a229a3e6c6cc41c0465d80e33c0a01",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-25",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "green branches, his heart swelled with pride as though each sight of it were the first sight.\n\nHe had done it all, little, hard-headed, blustering Marianne.\n\nMarianne, was on excellent terms with all his neighbors in the County, except the MacIntoshs whose land adjoined his on the left and the Claudias whose meager three acres stretched on his right along the swamp bottoms between the river and John Abrianna\u2019",
+          "id": "ev_98de17c6e8ddb56a3ec43c34",
+          "observedAt": "2026-10-14T08:51:01.914Z"
+        },
+        {
+          "sourceId": "memory:context-23",
+          "sourceVersion": "sha256:30190f5f80aeb6f1ad52f4ae26c55876f8b8df44a4a365664dc14be0c1444224",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-23",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "And there his book knowledge stopped.\n\nThe only Latin he knew was the responses of the Mass and the only history the manifold wrongs of Ireland.\n\nHe knew no poetry save that of Moore and no music except the songs of Ireland that had come down through the years.\n\nWhile he entertained the liveliest respect for those who had more book learning than he, he never felt his own lack.\n\nAnd what need had he of these things in a new country where the most ignorant of bogtrotters had made great fortunes?\n\nin this country which asked only that a man be strong and unafraid of work?\n\nNor did James and Andrew, who took him into their store in Savannah, regret his lack of education.",
+          "id": "ev_da05d6a1ac8e2895e9b0d07c",
+          "observedAt": "2026-10-14T08:51:01.916Z"
+        },
+        {
+          "sourceId": "memory:context-23",
+          "sourceVersion": "sha256:30190f5f80aeb6f1ad52f4ae26c55876f8b8df44a4a365664dc14be0c1444224",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-23",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "He liked the South, and he soon became, in his own opinion, a Southerner.\n\nThere was much about the South\u2014and Southerners\u2014that he would never compre\ufffehend; but, with the wholeheartedness that was his nature, he adopted its ideas and customs, as he understood them, for his own\u2014poker and horse racing, red-hot politics and the code duello, States\u2019 Rights and damnation to all Yankees, slavery and King Cotton, contempt for white trash and exaggerated courtesy to women.\n\nHe even learned to chew tobacco.\n\nThere was no need for him to acquire a good head for whisky, he had been born with one.\n\nBut Marianne remained Marianne.",
+          "id": "ev_99d31528031689bb48f3ced5",
+          "observedAt": "2026-10-14T08:51:01.916Z"
+        },
+        {
+          "sourceId": "memory:context-23",
+          "sourceVersion": "sha256:30190f5f80aeb6f1ad52f4ae26c55876f8b8df44a4a365664dc14be0c1444224",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-23",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "But Marianne could never attain elegance.\n\nTheir lazy, blurred voices fell pleasantly on his ears, but his own brisk brogue clung to his tongue.\n\nHe liked the casual grace with which they conducted affairs of importance, risking a fortune, a plantation or a slave on the turn of a card and writing off their losses with careless good humor and no more ado than when they scattered pennies to pickaninnies.\n\nBut Marianne had known poverty, and he could never learn to lose money with good humor or good grace.\n\nThey were a pleasant race, these coastal Georgians, with their soft-voiced, quick rages and their charming inconsistencies, and Marianne liked them.",
+          "id": "ev_7b6355e02d67748e638640a5",
+          "observedAt": "2026-10-14T08:51:01.916Z"
+        }
+      ],
+      "sourceIds": [
+        "context-26",
+        "context-25",
+        "context-23"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 12.635667000000012,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-26",
+    "context-25",
+    "context-23"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:51:01.920013+00:00"
+}

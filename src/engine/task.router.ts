@@ -135,6 +135,7 @@ export function catalogueSlotFor(slot: TaskSlot): 'coding' | 'vision' | 'lite' {
     case 'chat': return 'lite';
     case 'code':
     case 'draft': return 'coding';
+    default: { const exhaustive: never = slot; throw new Error(`Unsupported task slot: ${exhaustive}`); }
   }
 }
 

@@ -1,7 +1,7 @@
 import { capabilitySnapshot, capabilityMessage } from '../core/capability.status';
 import { EventEmitter } from 'events';
 import {
-  Outbound, Inbound, ReplyMsg, MenuSelectMsg, CompletionItem, CatalogResultMsg, HostCapability, JsonValue,
+  Outbound, Inbound, ReplyMsg, MenuSelectMsg, CompletionItem, CatalogResultMsg, HostCapability, JsonValue, TurnToolScope,
   FORWARDED_EVENTS, PROMPT_EVENT, DIFF_PROMPT_EVENT, INPUT_PROMPT_EVENT, HOST_CALL_EVENT,
   PROTOCOL_FEATURES, PROTOCOL_MAX_COMPATIBLE_MAJOR, PROTOCOL_MIN_COMPATIBLE_MAJOR,
   PROTOCOL_SEMVER, PROTOCOL_VERSION, sanitizeArgs,
@@ -10,7 +10,7 @@ import { markReady, loadPersistedTimelines } from '../telemetry/perf';
 
 export interface HostHandlers {
   /** A submitted prompt line (user turn or slash command) arrived from the front-end. */
-  onInput?: (text: string) => void;
+  onInput?: (text: string, toolScope?: TurnToolScope, displayText?: string) => void;
   /** The front-end asked to cancel the in-flight turn. */
   onInterrupt?: () => void;
   /** Words for the running turn, taken at its next step (F7). */
@@ -176,7 +176,7 @@ export class ProtocolHost {
           this.handlers.onInterrupt?.();
           this.cancelPending();
         }
-        this.handlers.onInput?.(msg.text);
+        this.handlers.onInput?.(msg.text, msg.toolScope, msg.displayText);
         return;
       case 'menuSelect': {
         const { id, value } = msg as MenuSelectMsg;

@@ -1,3 +1,4 @@
+import {ConversationMessage} from './ConversationMessage';
 import { ThinkingIndicator } from './ThinkingIndicator';
 import React, { createContext, useContext, useMemo, useRef, useState } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
@@ -14,6 +15,7 @@ import { copyText } from '../copy.text';
 import { Dashboard } from './Dashboards';
 import { cn } from '../lib/cn';
 import type { RunSummary } from '../run.summary.model';
+import { toolDisplayName, computerUseActivity } from '../tool.display';
 
 /**
  * Transcript v2 — virtualized scrollback (day-long sessions stay smooth), consecutive tool
@@ -120,12 +122,14 @@ const TOOL_VERBS: Array<[RegExp, string]> = [
 ];
 
 function toolVerb(name: string): string {
+  if (name === 'BimaxCuTool') return toolDisplayName(name);
   for (const [pattern, verb] of TOOL_VERBS) if (pattern.test(name)) return verb;
   return name.replace(/Tool$/, '');
 }
 
 /** The one argument worth reading: a path, a command, or a query. */
 function toolSubject(call: ToolCallEntry): string {
+  if (call.toolName === 'BimaxCuTool') return computerUseActivity(call.input || '');
   const raw = call.input || '';
   let parsed: Record<string, unknown> | null;
   try {
@@ -155,10 +159,7 @@ function StreamFooter(): React.ReactElement {
           the case that motivated hiding it. */}
       {busy && !streaming && <ThinkingIndicator thinking={thinking} status={status} />}
       {streaming && (
-        <div className="reading-column mx-auto">
-          <Markdown text={streaming} />
-          <span className="animate-soft-blink text-ember">▋</span>
-        </div>
+        <ConversationMessage id="live-response" role="assistant" content={streaming} streaming />
       )}
     </div>
   );
@@ -250,39 +251,9 @@ function Message({
       </div>
     );
   }
-  // A system line that survived `buildRows` is a warning or an error, and is tinted as one.
-  if (msg.role === 'system') {
-    return (
-      <div className={cn(
-        'reading-column mx-auto text-[12.5px]',
-        msg.level === 'error' ? 'text-rust' : 'text-amber',
-      )}>
-        <Markdown text={msg.content} />
-      </div>
-    );
-  }
+  return <ConversationMessage id={msg.id} role={msg.role} content={msg.content} reasoning={thought}
+    thoughtMs={msg.thoughtMs} level={msg.level} actions={msg.role==='system'?undefined:<MessageActions text={msg.content} id={msg.id} align={msg.role==='user'?'right':'left'} rate={msg.role!=='user'}/>}/>;
 
-  // What you said sits right, in a bubble; what Bimax said sits left as plain prose. That is the
-  // whole speaker cue — a role caption above every single message was louder than the messages.
-  if (msg.role === 'user') {
-    return (
-      <div className="group reading-column mx-auto flex flex-col items-end">
-        {/* The same measure as a reply's text (styles.css, `.md`): 34em of text plus the bubble's 32px of padding. */}
-        <div className="max-w-[min(78%,calc(34em+32px))] rounded-[18px] bg-raise px-4 py-2.5 text-ink">
-          <Markdown text={msg.content} />
-        </div>
-        <MessageActions text={msg.content} id={msg.id} align="right" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="group reading-column mx-auto">
-      {msg.thoughtMs ? <ThoughtLine ms={msg.thoughtMs} text={thought} /> : null}
-      <Markdown text={msg.content} />
-      <MessageActions text={msg.content} id={msg.id} align="left" rate />
-    </div>
-  );
 }
 
 /**
@@ -382,26 +353,6 @@ function ActionButton({
     >
       {children}
     </button>
-  );
-}
-
-function ThoughtLine({ ms, text }: { ms: number; text?: string }): React.ReactElement {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="mb-1">
-      <button
-        onClick={() => text && setOpen((v) => !v)}
-        className={cn('hit-24 flex items-center gap-1 text-xs text-faint italic', text && 'cursor-pointer hover:text-dim')}
-      >
-        {text ? (open ? <ChevronDown size={11} /> : <ChevronRight size={11} />) : null}
-        Thought for {(ms / 1000).toFixed(1)}s
-      </button>
-      {open && text ? (
-        <div className="mt-1 max-h-64 overflow-y-auto rounded-lg border border-line bg-well px-3 py-2 text-xs whitespace-pre-wrap text-dim">
-          {text}
-        </div>
-      ) : null}
-    </div>
   );
 }
 
@@ -608,7 +559,7 @@ function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean })
       >
         <span className={cn('inline-flex shrink-0', settled && 'status-settle')}>{icon}</span>
         <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
-          <span className="shrink-0 text-dim">{call.status === 'error' ? `${call.toolName.replace(/Tool$/, '')} failed` : call.status === 'running' ? call.toolName.replace(/Tool$/, '') : toolVerb(call.toolName)}</span>
+          <span className="shrink-0 text-dim">{call.status === 'error' ? `${toolDisplayName(call.toolName)} failed` : call.status === 'running' ? toolDisplayName(call.toolName) : toolVerb(call.toolName)}</span>
           {subject ? <span className="min-w-0 truncate font-mono text-[11px] text-ink/85">{subject}</span> : null}
         </span>
         {call.agentLabel ? (
@@ -621,6 +572,7 @@ function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean })
         ) : null}
         <ChevronRight size={12} className={cn('shrink-0 text-faint transition-transform', open && 'rotate-90')} />
       </button>
+      {!!call.parts?.length && <div className="tool-presentation">{call.parts.map(part => part.kind === 'output' ? <button key={part.id} onClick={() => window.dispatchEvent(new CustomEvent('bimax:open-output',{detail:{id:part.outputId,version:part.versionId}}))}>Open {part.title}</button> : part.kind === 'image' ? <img key={part.id} className="rich-image" src={`data:${part.mimeType};base64,${part.data}`} alt="Tool result" /> : part.kind === 'data' ? <details key={part.id}><summary>Structured result</summary><pre>{JSON.stringify(part.value,null,2)}</pre></details> : part.kind === 'resource' ? <details key={part.id}><summary>{part.title || part.uri}</summary>{part.text ? <Markdown text={part.text} /> : <p>{part.mimeType || 'Resource metadata'} · {part.uri}</p>}</details> : <button key={part.id} onClick={() => window.dispatchEvent(new CustomEvent('bimax:open-mcp-app',{detail:part}))}>Open tool interface</button>)}</div>}
       {/* Everything below the one-line summary is behind the disclosure. A screenshot, a receipt
           table and an output dump used to render unconditionally, so a single tool call could take
           over the conversation before you had decided you cared about it. */}

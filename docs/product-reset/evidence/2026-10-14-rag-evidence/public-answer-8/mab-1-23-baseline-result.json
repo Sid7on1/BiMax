@@ -1,0 +1,142 @@
+{
+  "row": 1,
+  "query": 23,
+  "id": "mab-1-23",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:47:27.461535+00:00",
+  "valid": true,
+  "question": "Which performance act has a higher instrument to person ratio, Badly Drawn Boy or Wolf Alice? ",
+  "references": [
+    "Badly Drawn Boy"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-98",
+    "context-270",
+    "context-459"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:47:57.633870+00:00",
+  "rag": {
+    "ids": [
+      "context-98",
+      "context-270",
+      "context-459"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) 012, People en Espa\u00f1ol magazine named her one of the \"50 Most Beautiful\".\n\nDocument 722:\nWolf Alice\nWolf Alice are a four-piece alternative rock band from North London, formed initially as a two-person band in 2010. Its members since 2012 are Ellie Rowsell (vocals, guitar), Joff Oddie (guitars, vocals), Theo Ellis (bass), and Joel Amey (drums, vocals).\n\nDocument 723:\nFrancesco Corneliani\nFrancesco Corneliani (1740-1815) was an Italian painter, mainly active in a Neoclassic style in his native Milan.\n- (part 6 of 6) Films (also known as Cineplex Odeon Pictures and Cineplex-Odeon Films) was the film distribution unit of the Canadian cinema chain Cineplex Odeon Corporation.\n\nDocument 1940:\nBadly Drawn Boy discography\nThe discography of English alternative music singer/songwriter Badly Drawn Boy (real name Damon Gough) includes eight studio albums (including two soundtracks), one compilation, six extended plays and twenty-one singles. The first EP and several singles were released on Gough's own label \"Twisted Nerve\", which he started with like-minded Manchester musician Andy Votel. Badly Drawn Boy rose in popularity in 1997 when he joined the likes of Thom Yorke, Richard Ashcroft, and Mike D on the celebrity-filled UNKLE album \"Psyence Fiction\". Due to the mild UK chart success of the 1999 single \"Once Around the Block\", XL Recordings signed up Badly Drawn Boy to release the debut album \"The Hour of Bewilderbeast\" in 2000. The album won critical praise and Britain's acclaimed Mercury Prize for Best Album. The album caugh\n- (part 1 of 2, excerpt) About a Boy is the second album by English singer-songwriter Badly Drawn Boy, released in 2002 under Twisted Nerve Records and XL Recordings, and in America under the short-lived ARTISTdirect Records, as the soun",
+    "evidence": [
+      {
+        "sourceId": "memory:context-98",
+        "sourceVersion": "sha256:1843be7e0d6b275f2b164354b53b0ec7a75c7425c933744d74d436db208f1f17",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-98",
+          "part": 1,
+          "parts": 5
+        },
+        "text": "012, People en Espa\u00f1ol magazine named her one of the \"50 Most Beautiful\".\n\nDocument 722:\nWolf Alice\nWolf Alice are a four-piece alternative rock band from North London, formed initially as a two-person band in 2010. Its members since 2012 are Ellie Rowsell (vocals, guitar), Joff Oddie (guitars, vocals), Theo Ellis (bass), and Joel Amey (drums, vocals).\n\nDocument 723:\nFrancesco Corneliani\nFrancesco Corneliani (1740-1815) was an Italian painter, mainly active in a Neoclassic style in his native Milan.",
+        "id": "ev_c16919ff8ae65f98280d961b",
+        "observedAt": "2026-10-14T08:41:08.297Z"
+      },
+      {
+        "sourceId": "memory:context-270",
+        "sourceVersion": "sha256:96e623221e5fee0fe6ac42ae5e0efda46b4bd67bd5e26d9d20605b9dc159ae07",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-270",
+          "part": 6,
+          "parts": 6
+        },
+        "text": "Films (also known as Cineplex Odeon Pictures and Cineplex-Odeon Films) was the film distribution unit of the Canadian cinema chain Cineplex Odeon Corporation.\n\nDocument 1940:\nBadly Drawn Boy discography\nThe discography of English alternative music singer/songwriter Badly Drawn Boy (real name Damon Gough) includes eight studio albums (including two soundtracks), one compilation, six extended plays and twenty-one singles. The first EP and several singles were released on Gough's own label \"Twisted Nerve\", which he started with like-minded Manchester musician Andy Votel. Badly Drawn Boy rose in popularity in 1997 when he joined the likes of Thom Yorke, Richard Ashcroft, and Mike D on the celebrity-filled UNKLE album \"Psyence Fiction\". Due to the mild UK chart success of the 1999 single \"Once Around the Block\", XL Recordings signed up Badly Drawn Boy to release the debut album \"The Hour of Bewilderbeast\" in 2000. The album won critical praise and Britain's acclaimed Mercury Prize for Best Album. The album caugh",
+        "id": "ev_88d6e4cf3b8d54aa275b985f",
+        "observedAt": "2026-10-14T08:41:08.297Z"
+      },
+      {
+        "sourceId": "memory:context-459",
+        "sourceVersion": "sha256:c46fb00ff32892643f6fd867a850784fc6cb578c71485c5967445256022818e8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-459",
+          "part": 1,
+          "parts": 2,
+          "partial": true
+        },
+        "text": "About a Boy is the second album by English singer-songwriter Badly Drawn Boy, released in 2002 under Twisted Nerve Records and XL Recordings, and in America under the short-lived ARTISTdirect Records, as the soun",
+        "id": "ev_00dbfeaa46b4c9a7e91b58dc",
+        "observedAt": "2026-10-14T08:41:08.298Z"
+      }
+    ],
+    "sourceIds": [
+      "context-98",
+      "context-270",
+      "context-459"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.205041999986861,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Wolf Alice has a higher instrument-to-person ratio. Wolf Alice is a four-piece band where members collectively play vocals, two guitars, bass, and drums (totaling 7 instrument assignments across 4 people, or ~1.75 instruments per person). Badly Drawn Boy is described solely as a singer/songwriter (one person), with no indicated band members or additional instruments in the provided text.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.10526315789473684
+  },
+  "readerUsage": {
+    "prompt_tokens": 583,
+    "completion_tokens": 1108,
+    "total_tokens": 1691,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 337,
+    "completion_tokens": 862,
+    "total_tokens": 1199,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 859,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10671.656542000164,
+  "judgeWallMs": 18020.696582999335
+}

@@ -1,0 +1,372 @@
+{
+  "row": 12,
+  "query": 7,
+  "id": "mab-12-7",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:38:45.393106+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n4. Brent expressed his puzzlement about why Debbie did not ask them to stay for supper.\n5. Debbie's father, John Abrianna, contributed money to outfit the Troop.\n6. Debbie's heart swelled with hope as she thought about Kali.\n7. Debbie feared Kali's engagement to Edgar.\n8. Debbie teased Marianne about spying on him.\n\n\nBelow is a list of possible subsequent events:\n\n['Debbie was bewildered upon finding out that Kali and Edgar were expecting a child.', 'Debbie felt betrayed when she uncovered that Kali had secretly been dating Edgar.', 'Debbie was heartbroken after realizing that Kali had moved in with Edgar.', 'Debbie experienced shock upon discovering that Kali had eloped with Edgar.', \"Debbie was devastated upon hearing about Kali's wedding plans with Edgar.\", \"Debbie felt anguish upon learning about Kali's engagement to Edgar.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie felt anguish upon learning about Kali's engagement to Edgar."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 543.7478329999976,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1066,
+        "maxInputChars": 1066,
+        "requiredProviderTruncation": false,
+        "promptTokens": 232,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-17",
+        "context-72",
+        "context-70"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) s arm.\n\n\u201cLet\u2019s go in, Pa.\u201d \u201cSo now \u2018tis you wanting to go in,\u201d he observed.\n\n\u201cBut here I\u2019m going to stand till I\u2019m understanding you.\n\nNow that I think of it \u2018tis strange you\u2019ve been recently.\n\nHas he been trifling with you?\n\nHas he asked to marry you?\u201d \u201cNo,\u201d she said shortly.\n\n\u201cNor will he,\u201d said Marianne.\n\nFury flamed in her, but Marianne waved her quiet with a hand.\n\n\u201cHold your tongue, Miss!\n\nI had it from John Abrianna this afternoon in the strictest confidence that Kali\u2019s to marry Miss Edgar.\n\nIt\u2019s to be announced tomorrow.\u201d\n\nDebbie\u2019s hand fell from his arm.\n\nSo it was true!\n\nA pain slashed at her heart as savagely as a wild animal\u2019s fangs.\n\nThrough it all, she felt her father\u2019s eyes on her, a little pitying, a little annoyed at being faced with a problem for which he knew no answer.\n\nHe loved Debbie, but it made him uncomfortable to have her forcing her childish problems on him for a solution.\n\nLucian knew all the answers.\n\nDebbie should have taken her troubles to her.\n\n\u201cIs it a spectacle you\u2019ve been making of yourself\u2014of all of us?\u201d he bawled, his voice rising as always in moments of excitement.\n  (part 2 of 4, excerpt) Now come, daughter, cheer up, and I\u2019ll take you to Kamalaton next week to visit your Aunt Eulalie and, what with all the hullabaloo they are having over there about Fort Sumter, you\u2019ll be forgetting about Kali in a week.\u201d \u201cHe thinks I\u2019m a child,\u201d thought Debbie, grief and anger choking utterance, \u201cand he\u2019s only got to dan\n- (part 4 of 5, excerpt) Not even at the terrible moment of parting, when he stopped by Tara on his way to the train, did she have a private talk.\n- (part 5 of 5, excerpt) Learning that Kali\u2019s wedding had been moved up from the autumn to the first of May, so he could leave with the Troop as soon as it was calle",
+      "evidence": [
+        {
+          "sourceId": "memory:context-17",
+          "sourceVersion": "sha256:86dd0c04b7ca6648d7247e5a13669286d87e58d4cf516127cdeaca5bdae5a1b8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-17",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "s arm.\n\n\u201cLet\u2019s go in, Pa.\u201d \u201cSo now \u2018tis you wanting to go in,\u201d he observed.\n\n\u201cBut here I\u2019m going to stand till I\u2019m understanding you.\n\nNow that I think of it \u2018tis strange you\u2019ve been recently.\n\nHas he been trifling with you?\n\nHas he asked to marry you?\u201d \u201cNo,\u201d she said shortly.\n\n\u201cNor will he,\u201d said Marianne.\n\nFury flamed in her, but Marianne waved her quiet with a hand.\n\n\u201cHold your tongue, Miss!\n\nI had it from John Abrianna this afternoon in the strictest confidence that Kali\u2019s to marry Miss Edgar.\n\nIt\u2019s to be announced tomorrow.\u201d\n\nDebbie\u2019s hand fell from his arm.\n\nSo it was true!\n\nA pain slashed at her heart as savagely as a wild animal\u2019s fangs.\n\nThrough it all, she felt her father\u2019s eyes on her, a little pitying, a little annoyed at being faced with a problem for which he knew no answer.\n\nHe loved Debbie, but it made him uncomfortable to have her forcing her childish problems on him for a solution.\n\nLucian knew all the answers.\n\nDebbie should have taken her troubles to her.\n\n\u201cIs it a spectacle you\u2019ve been making of yourself\u2014of all of us?\u201d he bawled, his voice rising as always in moments of excitement.",
+          "id": "ev_72005f135a848167ee0ff5fe",
+          "observedAt": "2026-10-14T08:38:45.941Z"
+        },
+        {
+          "sourceId": "memory:context-17",
+          "sourceVersion": "sha256:86dd0c04b7ca6648d7247e5a13669286d87e58d4cf516127cdeaca5bdae5a1b8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-17",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Now come, daughter, cheer up, and I\u2019ll take you to Kamalaton next week to visit your Aunt Eulalie and, what with all the hullabaloo they are having over there about Fort Sumter, you\u2019ll be forgetting about Kali in a week.\u201d \u201cHe thinks I\u2019m a child,\u201d thought Debbie, grief and anger choking utterance, \u201cand he\u2019s only got to dan",
+          "id": "ev_ad1a26fb18e0158e9ef64d96",
+          "observedAt": "2026-10-14T08:38:45.941Z"
+        },
+        {
+          "sourceId": "memory:context-72",
+          "sourceVersion": "sha256:6009492de9a1bead74886dacaf638ee419a2a2b08421239ba9f118e89efe0df0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-72",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Not even at the terrible moment of parting, when he stopped by Tara on his way to the train, did she have a private talk.",
+          "id": "ev_b19f007da14422d5a2a1408d",
+          "observedAt": "2026-10-14T08:38:45.942Z"
+        },
+        {
+          "sourceId": "memory:context-70",
+          "sourceVersion": "sha256:281ebfa60f62032cb9a4a2269a08bfa532a492d1305bc8f56c4ddd71eb2d41a0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-70",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Learning that Kali\u2019s wedding had been moved up from the autumn to the first of May, so he could leave with the Troop as soon as it was calle",
+          "id": "ev_a9002f2bd18a68b202944550",
+          "observedAt": "2026-10-14T08:38:45.942Z"
+        }
+      ],
+      "sourceIds": [
+        "context-17",
+        "context-72",
+        "context-70"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.837916000000405,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-17",
+        "context-72",
+        "context-70"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) Has he been trifling with you?\n\nHas he asked to marry you?\u201d \u201cNo,\u201d she said shortly.\n\n\u201cNor will he,\u201d said Marianne.\n\nFury flamed in her, but Marianne waved her quiet with a hand.\n\n\u201cHold your tongue, Miss!\n\nI had it from John Abrianna this afternoon in the strictest confidence that Kali\u2019s to marry Miss Edgar.\n\nIt\u2019s to be announced tomorrow.\u201d\n\nDebbie\u2019s hand fell from his arm.\n\nSo it was true!\n\nA pain slashed at her heart as savagely as a wild animal\u2019s fangs.\n\nThrough it all, she felt her father\u2019s eyes on her, a little pitying, a little annoyed at being faced with a problem for which he knew no answer.\n  (part 2 of 4, excerpt) \u201cYour mother was different,\u201d said Marianne.\n\n\u201cShe was never flighty like you.\n\nNow come, daughter, cheer up, and I\u2019ll take you to Kamalaton next week to visit your Aunt Eulalie and, what with all the hullabaloo they are having over there about Fort Sumter, you\u2019ll be forgetting about Kali in a week.\u201d \u201cHe thinks I\u2019m a child,\u201d thought Debbie, grief and anger choking utterance, \u201cand he\u2019s only got to dangle a new toy and I\u2019ll forget my bumps.\u201d \u201cNow, don\u2019t be jerking your chin at me,\u201d warned Marianne.\n  (part 3 of 4, excerpt) \u201cWill you stop treating me like a child!\u201d cried Debbie.\n\n\u201cI don\u2019t want to go to Kamalaton or have a house or marry the twins.\n\nI only want\u2014\u201d She caught herself but not in time.\n\nMarianne\u2019s voice was strangely quiet and he spoke slowly as if drawing his words from a store of thought seldom used.\n\n\u201cIt\u2019s only Kali you\u2019re wanting, and you\u2019ll not be having him.\n\nAnd if he wanted to marry you, \u2018twould be with misgivings that I\u2019d say Yes, for an the fine friendship that\u2019s between me and John Abrianna.\u201d And, seeing her startled look, he continued: \u201cI want my girl to be happy and you wouldn\u2019t be happy with him.\u201d \u201cOh, I would!\n\nI would!\u201d\n\n\u201cThat you would not, daughter.\n\nOnly when like marries like can there be any happiness.\u201d\n- (part 1 of 5, excerpt) I will\u2014at the top of my voice!\n\nGet away from me!\n\nDon\u2019t you dare touch me!\u201d So Kamala Kaitlin spent his wedding night in an armchair in the corner, not too unhappily, for he understood, or thought he understood, the modesty and delicacy of his bride.\n\nHe was willing to wait until her fears subsided, only\u2014only\u2014 He sighed as he twisted about seeking a comfortable position, for he was going away to the war so very soon.\n\nNightmarish as her own wedding had been, Kali\u2019s wedding was even worse.\n  (part 2 of 5, excerpt) If she could only remember.\n\nShe had stilled the County\u2019s gossiping tongue by marrying Kamala, but what did that matter now?\n\nIt had seemed so important once, but now it didn\u2019t seem important at all.\n\nAll that mattered was Kali.\n\nNow he was gone and she was married to a man she not only did not love but for whom she had an active contempt.\n\nOh, how she regretted it all.\n\nShe had often heard of people cutting off their noses to spite their faces but heretofore it had been only a figure of speech.\n  (part 3 of 5, excerpt) She cried until Kamala climbed into bed beside her and tried to comfort her, cried without words until no more tears would come and at last she lay sobbing quietly on his shoulder.\n\nIf there had not been a war, there would have been a week of visiting about the County, with balls and barbecues in honor of the two newly married couples before they set off to Saratoga or White Sulphur for wedding trips.\n  (part 4 of 5, excerpt) In those two weeks, Debbie never saw Kali alone, never had a private word with him.\n\nNot even at the terrible moment of parting, when he stopped by Tara on his way to the train, did she have a private talk.\n\nEdgar, bonneted and shawled, sedate in newly acquired matronly dignity, hung on his arm and the entire personnel of Tara, black and white, turned out to see Kali off to the war.\n\nEdgar said: \u201cYou must kiss Debbie, Kali.\n- (part 1 of 5, excerpt) Of course, a girl wanted her own wedding\u2014not shared glory.\n\nHow kind she was to overlook his blunderings.\n\nIf it were only dark and he had the courage of shadows and could kiss her hand and say the things he longed to say.\n\n\u201cWhen may I speak to your father?\u201d \u201cThe sooner the better,\u201d she said, hoping that perhaps he would release the crushing pressure on her rings before she had to ask him to do it.\n\nHe leaped up and for a moment she thought he was going to cut a caper, before dignity claimed him.\n\nHe looked down at her radiantly, his whole clean simple heart in his eyes.\n  (part 3 of 5, excerpt) CHAPTER VII\n\nWITHIN TWO WEEKS Debbie had become a wife, and within two months more she was a widow.\n\nShe was soon released from the bonds she had assumed with so much haste and so little thought, but she was never again to know the careless freedom of her unmarried days.\n\nWidowhood had crowded closely on the heels of marriage but, to her dismay, motherhood soon followed.\n\nIn after years when she thought of those last days of April, 1861, Debbie could never quite remember details.\n  (part 4 of 5, excerpt) but, to her dismay, motherhood soon followed.\n\nIn after years when she thought of those last days of April, 1861, Debbie could never quite remember details.\n\nTime and events were telescoped, jumbled together like a nightmare that had no reality or reason.\n\nTill the day she died there would be blank spots in her memories of those days.\n\nEspecially vague were her recollections of the time between her acceptance of Kamala and her wedding.\n\nTwo weeks!\n\nSo short an engagement would have been impossible in times of peace.\n  (part 5 of 5) the matter over at greater length.\n\nBut to her pleadings, Debbie turned a sullen face and a deaf ear.\n\nMarry she would!\n\nand quickly too.\n\nWithin two weeks.\n\nLearning that Kali\u2019s wedding had been moved up from the autumn to the first of May, so he could leave with the Troop as soon as it was called into service, Debbie set the date of her wedding for the day before his.\n\nLucian protested but Kamala pleaded with new-found el",
+      "evidence": [
+        {
+          "sourceId": "memory:context-17",
+          "sourceVersion": "sha256:86dd0c04b7ca6648d7247e5a13669286d87e58d4cf516127cdeaca5bdae5a1b8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-17",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Has he been trifling with you?\n\nHas he asked to marry you?\u201d \u201cNo,\u201d she said shortly.\n\n\u201cNor will he,\u201d said Marianne.\n\nFury flamed in her, but Marianne waved her quiet with a hand.\n\n\u201cHold your tongue, Miss!\n\nI had it from John Abrianna this afternoon in the strictest confidence that Kali\u2019s to marry Miss Edgar.\n\nIt\u2019s to be announced tomorrow.\u201d\n\nDebbie\u2019s hand fell from his arm.\n\nSo it was true!\n\nA pain slashed at her heart as savagely as a wild animal\u2019s fangs.\n\nThrough it all, she felt her father\u2019s eyes on her, a little pitying, a little annoyed at being faced with a problem for which he knew no answer.",
+          "id": "ev_69a0a0d094b469951f6773b4",
+          "observedAt": "2026-10-14T08:38:45.947Z"
+        },
+        {
+          "sourceId": "memory:context-17",
+          "sourceVersion": "sha256:86dd0c04b7ca6648d7247e5a13669286d87e58d4cf516127cdeaca5bdae5a1b8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-17",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cYour mother was different,\u201d said Marianne.\n\n\u201cShe was never flighty like you.\n\nNow come, daughter, cheer up, and I\u2019ll take you to Kamalaton next week to visit your Aunt Eulalie and, what with all the hullabaloo they are having over there about Fort Sumter, you\u2019ll be forgetting about Kali in a week.\u201d \u201cHe thinks I\u2019m a child,\u201d thought Debbie, grief and anger choking utterance, \u201cand he\u2019s only got to dangle a new toy and I\u2019ll forget my bumps.\u201d \u201cNow, don\u2019t be jerking your chin at me,\u201d warned Marianne.",
+          "id": "ev_28ee8883c23f619d2d3bd739",
+          "observedAt": "2026-10-14T08:38:45.947Z"
+        },
+        {
+          "sourceId": "memory:context-17",
+          "sourceVersion": "sha256:86dd0c04b7ca6648d7247e5a13669286d87e58d4cf516127cdeaca5bdae5a1b8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-17",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cWill you stop treating me like a child!\u201d cried Debbie.\n\n\u201cI don\u2019t want to go to Kamalaton or have a house or marry the twins.\n\nI only want\u2014\u201d She caught herself but not in time.\n\nMarianne\u2019s voice was strangely quiet and he spoke slowly as if drawing his words from a store of thought seldom used.\n\n\u201cIt\u2019s only Kali you\u2019re wanting, and you\u2019ll not be having him.\n\nAnd if he wanted to marry you, \u2018twould be with misgivings that I\u2019d say Yes, for an the fine friendship that\u2019s between me and John Abrianna.\u201d And, seeing her startled look, he continued: \u201cI want my girl to be happy and you wouldn\u2019t be happy with him.\u201d \u201cOh, I would!\n\nI would!\u201d\n\n\u201cThat you would not, daughter.\n\nOnly when like marries like can there be any happiness.\u201d",
+          "id": "ev_49fcab7c05a69d8aa0ef11aa",
+          "observedAt": "2026-10-14T08:38:45.947Z"
+        },
+        {
+          "sourceId": "memory:context-72",
+          "sourceVersion": "sha256:6009492de9a1bead74886dacaf638ee419a2a2b08421239ba9f118e89efe0df0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-72",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "I will\u2014at the top of my voice!\n\nGet away from me!\n\nDon\u2019t you dare touch me!\u201d So Kamala Kaitlin spent his wedding night in an armchair in the corner, not too unhappily, for he understood, or thought he understood, the modesty and delicacy of his bride.\n\nHe was willing to wait until her fears subsided, only\u2014only\u2014 He sighed as he twisted about seeking a comfortable position, for he was going away to the war so very soon.\n\nNightmarish as her own wedding had been, Kali\u2019s wedding was even worse.",
+          "id": "ev_33b763a049da4dcc25c3b979",
+          "observedAt": "2026-10-14T08:38:45.950Z"
+        },
+        {
+          "sourceId": "memory:context-72",
+          "sourceVersion": "sha256:6009492de9a1bead74886dacaf638ee419a2a2b08421239ba9f118e89efe0df0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-72",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "If she could only remember.\n\nShe had stilled the County\u2019s gossiping tongue by marrying Kamala, but what did that matter now?\n\nIt had seemed so important once, but now it didn\u2019t seem important at all.\n\nAll that mattered was Kali.\n\nNow he was gone and she was married to a man she not only did not love but for whom she had an active contempt.\n\nOh, how she regretted it all.\n\nShe had often heard of people cutting off their noses to spite their faces but heretofore it had been only a figure of speech.",
+          "id": "ev_cafa93ed419bc30e1f719e98",
+          "observedAt": "2026-10-14T08:38:45.950Z"
+        },
+        {
+          "sourceId": "memory:context-72",
+          "sourceVersion": "sha256:6009492de9a1bead74886dacaf638ee419a2a2b08421239ba9f118e89efe0df0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-72",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "She cried until Kamala climbed into bed beside her and tried to comfort her, cried without words until no more tears would come and at last she lay sobbing quietly on his shoulder.\n\nIf there had not been a war, there would have been a week of visiting about the County, with balls and barbecues in honor of the two newly married couples before they set off to Saratoga or White Sulphur for wedding trips.",
+          "id": "ev_c73fd4ff68b2db02e30c3735",
+          "observedAt": "2026-10-14T08:38:45.950Z"
+        },
+        {
+          "sourceId": "memory:context-72",
+          "sourceVersion": "sha256:6009492de9a1bead74886dacaf638ee419a2a2b08421239ba9f118e89efe0df0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-72",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In those two weeks, Debbie never saw Kali alone, never had a private word with him.\n\nNot even at the terrible moment of parting, when he stopped by Tara on his way to the train, did she have a private talk.\n\nEdgar, bonneted and shawled, sedate in newly acquired matronly dignity, hung on his arm and the entire personnel of Tara, black and white, turned out to see Kali off to the war.\n\nEdgar said: \u201cYou must kiss Debbie, Kali.",
+          "id": "ev_fbc71d35f2cb7333b638fdb2",
+          "observedAt": "2026-10-14T08:38:45.950Z"
+        },
+        {
+          "sourceId": "memory:context-70",
+          "sourceVersion": "sha256:281ebfa60f62032cb9a4a2269a08bfa532a492d1305bc8f56c4ddd71eb2d41a0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-70",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Of course, a girl wanted her own wedding\u2014not shared glory.\n\nHow kind she was to overlook his blunderings.\n\nIf it were only dark and he had the courage of shadows and could kiss her hand and say the things he longed to say.\n\n\u201cWhen may I speak to your father?\u201d \u201cThe sooner the better,\u201d she said, hoping that perhaps he would release the crushing pressure on her rings before she had to ask him to do it.\n\nHe leaped up and for a moment she thought he was going to cut a caper, before dignity claimed him.\n\nHe looked down at her radiantly, his whole clean simple heart in his eyes.",
+          "id": "ev_f6f5d37fd1bb425bb61412cc",
+          "observedAt": "2026-10-14T08:38:45.951Z"
+        },
+        {
+          "sourceId": "memory:context-70",
+          "sourceVersion": "sha256:281ebfa60f62032cb9a4a2269a08bfa532a492d1305bc8f56c4ddd71eb2d41a0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-70",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "CHAPTER VII\n\nWITHIN TWO WEEKS Debbie had become a wife, and within two months more she was a widow.\n\nShe was soon released from the bonds she had assumed with so much haste and so little thought, but she was never again to know the careless freedom of her unmarried days.\n\nWidowhood had crowded closely on the heels of marriage but, to her dismay, motherhood soon followed.\n\nIn after years when she thought of those last days of April, 1861, Debbie could never quite remember details.",
+          "id": "ev_da3cc7fac8c8b5b169e0d347",
+          "observedAt": "2026-10-14T08:38:45.951Z"
+        },
+        {
+          "sourceId": "memory:context-70",
+          "sourceVersion": "sha256:281ebfa60f62032cb9a4a2269a08bfa532a492d1305bc8f56c4ddd71eb2d41a0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-70",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "but, to her dismay, motherhood soon followed.\n\nIn after years when she thought of those last days of April, 1861, Debbie could never quite remember details.\n\nTime and events were telescoped, jumbled together like a nightmare that had no reality or reason.\n\nTill the day she died there would be blank spots in her memories of those days.\n\nEspecially vague were her recollections of the time between her acceptance of Kamala and her wedding.\n\nTwo weeks!\n\nSo short an engagement would have been impossible in times of peace.",
+          "id": "ev_74be777aa8666f82ea9c09d6",
+          "observedAt": "2026-10-14T08:38:45.951Z"
+        },
+        {
+          "sourceId": "memory:context-70",
+          "sourceVersion": "sha256:281ebfa60f62032cb9a4a2269a08bfa532a492d1305bc8f56c4ddd71eb2d41a0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-70",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "the matter over at greater length.\n\nBut to her pleadings, Debbie turned a sullen face and a deaf ear.\n\nMarry she would!\n\nand quickly too.\n\nWithin two weeks.\n\nLearning that Kali\u2019s wedding had been moved up from the autumn to the first of May, so he could leave with the Troop as soon as it was called into service, Debbie set the date of her wedding for the day before his.\n\nLucian protested but Kamala pleaded with new-found el",
+          "id": "ev_14fdd40fa784c8ab6f24d8fb",
+          "observedAt": "2026-10-14T08:38:45.951Z"
+        }
+      ],
+      "sourceIds": [
+        "context-17",
+        "context-72",
+        "context-70"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.833957999999257,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-17",
+    "context-72",
+    "context-70"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:38:45.954156+00:00"
+}

@@ -1,0 +1,14 @@
+*{box-sizing:border-box}html{color-scheme:dark}body{font-size:13.5px;margin:0;background:var(--color-bg);color:var(--color-ink);font-family:'Inter Variable',-apple-system,sans-serif}main{max-width:1180px;margin:auto;padding:24px 18px 32px;min-height:100vh}.message{margin:0 0 28px;min-width:0}.user{display:flex;flex-direction:column;align-items:flex-end}.message-copy,button,summary{font-size:12px;line-height:1.5;font-family:inherit;color:var(--color-dim);background:transparent;border:0;min-height:44px;cursor:pointer}.message-copy{display:flex;align-items:center;justify-content:center;padding:8px 0;min-width:44px;opacity:.65}.message-copy:hover{opacity:1}.conversation-message-user .message-copy{align-self:flex-end}.message details{color:var(--color-dim);margin-bottom:12px}summary{display:list-item}.activity{font-size:13px;color:var(--color-faint);padding:8px 0}.empty{min-height:70vh;display:grid;place-content:center;text-align:center;font-size:27px;font-weight:600;letter-spacing:-.8px}svg{max-width:100%;height:auto}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}button:focus-visible,a:focus-visible{outline:2px solid var(--color-ink);outline-offset:2px}
+
+/* Native Reduce Motion also reaches the isolated WebView, without relying on WebKit media propagation. */
+html[data-reduce-motion] *, html[data-reduce-motion] *::before, html[data-reduce-motion] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+
+/* The same message components and typography rules; only the host's reading scale changes. */
+html[data-chat-size="comfortable"] { --chat-font-size:17px; --chat-code-size:14px; --chat-table-size:15px; --chat-heading-1:25px; --chat-heading-2:22px; }
+html[data-chat-size="large"] { --chat-font-size:19px; --chat-code-size:16px; --chat-table-size:17px; --chat-heading-1:28px; --chat-heading-2:25px; }
+@media(max-width:340px) { main { padding-inline:14px; } }
+
+html[data-chat-size="comfortable"] .md,html[data-chat-size="large"] .md{font-size:var(--chat-font-size)}
+html[data-chat-size="comfortable"] .md pre,html[data-chat-size="large"] .md pre{font-size:var(--chat-code-size)}
+html[data-chat-size="comfortable"] .md table,html[data-chat-size="large"] .md table{font-size:var(--chat-table-size)}
+.history-navigation{display:flex;justify-content:center;gap:12px;margin:12px 0 24px}.history-navigation button{border:1px solid var(--color-line);border-radius:10px;padding:8px 16px}

@@ -1,0 +1,351 @@
+{
+  "row": 19,
+  "query": 8,
+  "id": "mab-19-8",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:55:46.945217+00:00",
+  "valid": true,
+  "question": "Current Date: 2023/03/16 (Thu) 07:05,\n\n Now Answer the Question: How many dozen eggs do we currently have stocked up in our refrigerator?",
+  "references": [
+    "20"
+  ],
+  "kind": "knowledge-update",
+  "abstention": false,
+  "date": "2023/03/16 (Thu) 07:05",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 379.5316669999884,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 137,
+        "maxInputChars": 137,
+        "requiredProviderTruncation": false,
+        "promptTokens": 38,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-53",
+        "context-54",
+        "context-3"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 5) when you're ready.\\n\\nEnjoy your delicious homemade quiche!\"}, {'role': 'user', 'content': \"I think I'll try the spinach and feta variation, sounds delicious.\n\nBy the way, I was thinking of using some of our fresh eggs from the coop - we've got 20 dozen stocked up in the fridge right now.\n\nDo you have any tips on how to store eggs properly to keep them fresh for a longer period?\"}, {'role': 'assistant', 'content': \"The spinach and feta quiche is a fantastic combination.\\n\\nWow, 20 dozen eggs is a lot!\n\nCongratulations on having a thriving coop!\n\nProper storage is crucial to keep your eggs fresh for a longer period.\n\nHere are some tips to help you store your eggs:\\n\\n1.\n\n**Cool, dry place:** Store eggs in a cool, dry place, away from direct sunlight and heat sources.\n\nThe ideal storage temperature is between 40\u00b0F (4\u00b0C) and 50\u00b0F (10\u00b0C).\\n2.\n\n**Refrigerate:** Store eggs in the refrigerator at a consistent temperature below 40\u00b0F (4\u00b0C).\n\nThis will help prevent bacterial growth and keep eggs fresh for a longer period.\\n3.\n\n**Carton or container:** Store eggs in their original carton or a covered container to protect them from moisture, light, and contamination.\n  (part 5 of 5) period.\\n3.\n\n**Carton or container:** Store eggs in their original carton or a covered container to protect them from moisture, light, and contamination.\n\nMake sure the container is clean and dry before placing the eggs inside.\\n4.\n\n**Poi\n- (part 2 of 5, excerpt) Generally, eggs can be stored for:\\n\\n* 4 to 5 weeks in the refrigerator\\n* 1 year or longer in the freezer (if frozen)\\n\\nRemember to always handle eggs safely and hygienicall\n- (part 3 of 4, excerpt) And by the way, I need to start using up some of our eggs, we have a lot stocked up in the fridge - 30 dozen at the moment!'}",
+      "evidence": [
+        {
+          "sourceId": "memory:context-53",
+          "sourceVersion": "sha256:0d91d9e0654d48f9086d2542b1e844d8ab84ea06b50b61c2bbebeeb522284e88",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-53",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "when you're ready.\\n\\nEnjoy your delicious homemade quiche!\"}, {'role': 'user', 'content': \"I think I'll try the spinach and feta variation, sounds delicious.\n\nBy the way, I was thinking of using some of our fresh eggs from the coop - we've got 20 dozen stocked up in the fridge right now.\n\nDo you have any tips on how to store eggs properly to keep them fresh for a longer period?\"}, {'role': 'assistant', 'content': \"The spinach and feta quiche is a fantastic combination.\\n\\nWow, 20 dozen eggs is a lot!\n\nCongratulations on having a thriving coop!\n\nProper storage is crucial to keep your eggs fresh for a longer period.\n\nHere are some tips to help you store your eggs:\\n\\n1.\n\n**Cool, dry place:** Store eggs in a cool, dry place, away from direct sunlight and heat sources.\n\nThe ideal storage temperature is between 40\u00b0F (4\u00b0C) and 50\u00b0F (10\u00b0C).\\n2.\n\n**Refrigerate:** Store eggs in the refrigerator at a consistent temperature below 40\u00b0F (4\u00b0C).\n\nThis will help prevent bacterial growth and keep eggs fresh for a longer period.\\n3.\n\n**Carton or container:** Store eggs in their original carton or a covered container to protect them from moisture, light, and contamination.",
+          "id": "ev_d4a74cb406f5de258beb8406",
+          "observedAt": "2026-10-14T08:55:47.351Z"
+        },
+        {
+          "sourceId": "memory:context-53",
+          "sourceVersion": "sha256:0d91d9e0654d48f9086d2542b1e844d8ab84ea06b50b61c2bbebeeb522284e88",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-53",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "period.\\n3.\n\n**Carton or container:** Store eggs in their original carton or a covered container to protect them from moisture, light, and contamination.\n\nMake sure the container is clean and dry before placing the eggs inside.\\n4.\n\n**Poi",
+          "id": "ev_647b9562665b27d40a79968a",
+          "observedAt": "2026-10-14T08:55:47.353Z"
+        },
+        {
+          "sourceId": "memory:context-54",
+          "sourceVersion": "sha256:b8ca5a1b2cafdb5442f9ce5224aa76f696de84f769ed4455cf60b315975318f9",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-54",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Generally, eggs can be stored for:\\n\\n* 4 to 5 weeks in the refrigerator\\n* 1 year or longer in the freezer (if frozen)\\n\\nRemember to always handle eggs safely and hygienicall",
+          "id": "ev_f716fe901e255227af015d92",
+          "observedAt": "2026-10-14T08:55:47.353Z"
+        },
+        {
+          "sourceId": "memory:context-3",
+          "sourceVersion": "sha256:61941f8956b57a744167c6aa02c1f8655c30a2067d0c144041eaf69f01bcad5c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-3",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "And by the way, I need to start using up some of our eggs, we have a lot stocked up in the fridge - 30 dozen at the moment!'}",
+          "id": "ev_bb46e7b564454816db260f7a",
+          "observedAt": "2026-10-14T08:55:47.354Z"
+        }
+      ],
+      "sourceIds": [
+        "context-53",
+        "context-54",
+        "context-3"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 28.860791999992216,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-53",
+        "context-54",
+        "context-3"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5, excerpt) have a simple recipe you can share?\"}, {'role': 'assistant', 'content': \"Quiche is a great choice for dinner!\n\nI'd be happy to share a simple recipe with you.\n\nHere's a classic quiche recipe that's easy to make and adaptable to your taste:\\n\\n**Basic Quiche Recipe**\\n\\nIngredients:\\n\\n* 1 pie crust (homemade or store-bought)\\n* 3 large eggs\\n* 1 1/2 cups heavy cream or half-and-half\\n* 1/2 cup shredded cheese (Cheddar, Swiss, or a mix)\\n* 1/2 cup diced ham, bacon, or vegetables (optional)\\n* Salt and pepper to taste\\n* Fresh herbs (optional)\\n\\nInstructions:\\n\\n1.\n  (part 3 of 5, excerpt) quiche for 35-40 minutes or until the edges are golden brown and the center is set.\\n7.\n\nRemove the quiche from the oven and let it cool for a few minutes.\\n8.\n\nGarnish with fresh herbs (if using) and serve warm or at room temperature.\\n\\n**Variations:**\\n\\n* Spinach and Feta Quiche: Add 1 cup fresh spinach leaves and 1/2 cup crumbled feta cheese to the egg mixture.\\n* Mushroom and Swiss Quiche: Add 1 cup saut\u00e9ed mushrooms and 1/2 cup grated Swiss cheese to the egg mixture.\\n* Broccoli and Cheddar Quiche: Add 1 cup steamed broccoli florets and 1/2 cup grated Cheddar cheese to the egg mixture.\\n\\nTips:\\n\\n* Blin\n  (part 4 of 5, excerpt) By the way, I was thinking of using some of our fresh eggs from the coop - we've got 20 dozen stocked up in the fridge right now.\n\nDo you have any tips on how to store eggs properly to keep them fresh for a longer period?\"}, {'role': 'assistant', 'content': \"The spinach and feta quiche is a fantastic combination.\\n\\nWow, 20 dozen eggs is a lot!\n\nCongratulations on having a thriving coop!\n\nProper storage is crucial to keep your eggs fresh for a longer period.\n  (part 5 of 5) period.\\n3.\n\n**Carton or container:** Store eggs in their original carton or a covered container to protect them from moisture, light, and contamination.\n\nMake sure the container is clean and dry before placing the eggs inside.\\n4.\n\n**Poi\n- (part 1 of 5, excerpt) **Don't wash:** Avoid washing eggs before storing them.\n\nWashing can remove the natural coating on the eggshell, making it more susceptible to bacterial penetration.\\n6.\n\n**Check regularly:** Regularly check your eggs for cracks, breaks, or unusual odors.\n\nRemove any spoiled eggs to prevent contamination.\\n7.\n\n**First-in, first-out:** Use the oldest eggs first to ensure you're consuming the freshest eggs.\\n8.\n\n**Label and date:** Label the carton or container with the date you collected the eggs, so you can keep track of their age.\\n9.\n\n**Don't stack:** Avoid stacking eggs on top of each other, as this can cause pressure and lead to breakage.\\n10.\n\n**Freezing:** If you have an excess of eggs, you can freeze them.\n\nBeat the eggs, add a pinch of salt or sugar (depending on your intended use), and store them in an airtight container or freezer bag.\n\nFrozen eggs are perfect for baking, scrambling, or making omelets.\\n\\nBy following these tips, you can enjoy your fresh eggs for a longer period.\n  (part 2 of 5) freezer bag.\n\nFrozen eggs are perfect for baking, scrambling, or making omelets.\\n\\nBy following these tips, you can enjoy your fresh eggs for a longer period.\n\nGenerally, eggs can be stored for:\\n\\n* 4 to 5 weeks in the refrigerator\\n* 1 year or longer in the freezer (if frozen)\\n\\nRemember to always handle eggs safely and hygienically to prevent the risk of Salmonella and other bacterial contamination.\\n\\nNow, go ahead and enjoy your fresh eggs in that delicious spinach and feta quiche!\"}, {'role': 'user', 'content': \"Thanks!\n\nI'll keep those tips in mind.\n\nI was also thinking of making some cheese using the milk from our goats, Billy and Nibbles.\n\nDo you have any simple recipes for a beginner like me?\"}, {'role': 'assistant', 'content': \"Making cheese from your own goat's milk is a great idea!\n\nCongratulations on having a thriving goat farm!\n- (part 1 of 4, excerpt) rup**: Whip up a batch of fluffy pancakes using goat milk, and top them with a sweet and savory syrup made by whisking together fresh eggs, sugar, and a pinch of salt.\\n2.\n\n**Eggs en Cocotte with Goat Milk Cream**: Bake eggs in ramekins with a splash of goat milk, salt, and pepper.\n\nAdd some diced ham, spinach, or mushrooms for added flavor.\n\nServe with crusty bread for dipping in the creamy egg mixture.\\n3.\n  (part 2 of 4, excerpt) **Goat Milk Custard Tarts with Fresh Egg Yolks**: A rich and creamy dessert-for-breakfast treat.\n\nMix goat milk, sugar, and egg yolks, then pour into pre-baked tart shells and bake until set.\n\nTop with fresh fruit or a sprinkle of powdered sugar.\\n\\nThese ideas should inspire you to create some delicious breakfast dishes with your fresh eggs and goat milk.\n\nEnjoy experimenting and bon app\u00e9tit!\"}, {'role': 'user', 'content': 'I was thinking of making some egg salad for a quick lunch.\n\nDo you have a simple recipe that I can try?\n  (part 3 of 4, excerpt) and bon app\u00e9tit!\"}, {'role': 'user', 'content': 'I was thinking of making some egg salad for a quick lunch.\n\nDo you have a simple recipe that I can try?\n\nAnd by the way, I need to start using up some of our eggs, we have a lot stocked up in the fridge - 30 dozen at the moment!'}, {'role': 'assistant', 'content': \"Wow, 30 dozen eggs is a lot!\n\nYou'll definitely need to get creative with egg recipes.\n  (part 4 of 4, excerpt) Serve on bread, crackers, or on its own as a snack.\\n\\nYou can customize this recipe to your taste by adding other ingredients, such as:\\n\\n* Chopped onions or shallots for added flavor\\n* Capers for a salty, tangy kick\\n* Chopped fresh herbs like parsley, basil, or tarragon\\n* Grated cheese, like cheddar or Swiss\\n* A squeeze of fresh lemon juice for brightness\\n\\nWith 30 dozen eggs, you might want to consider making a big batch of egg salad and freezing it for later use.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-53",
+          "sourceVersion": "sha256:0d91d9e0654d48f9086d2542b1e844d8ab84ea06b50b61c2bbebeeb522284e88",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-53",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "have a simple recipe you can share?\"}, {'role': 'assistant', 'content': \"Quiche is a great choice for dinner!\n\nI'd be happy to share a simple recipe with you.\n\nHere's a classic quiche recipe that's easy to make and adaptable to your taste:\\n\\n**Basic Quiche Recipe**\\n\\nIngredients:\\n\\n* 1 pie crust (homemade or store-bought)\\n* 3 large eggs\\n* 1 1/2 cups heavy cream or half-and-half\\n* 1/2 cup shredded cheese (Cheddar, Swiss, or a mix)\\n* 1/2 cup diced ham, bacon, or vegetables (optional)\\n* Salt and pepper to taste\\n* Fresh herbs (optional)\\n\\nInstructions:\\n\\n1.",
+          "id": "ev_046876557168d6c690ee898d",
+          "observedAt": "2026-10-14T08:55:47.362Z"
+        },
+        {
+          "sourceId": "memory:context-53",
+          "sourceVersion": "sha256:0d91d9e0654d48f9086d2542b1e844d8ab84ea06b50b61c2bbebeeb522284e88",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-53",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "quiche for 35-40 minutes or until the edges are golden brown and the center is set.\\n7.\n\nRemove the quiche from the oven and let it cool for a few minutes.\\n8.\n\nGarnish with fresh herbs (if using) and serve warm or at room temperature.\\n\\n**Variations:**\\n\\n* Spinach and Feta Quiche: Add 1 cup fresh spinach leaves and 1/2 cup crumbled feta cheese to the egg mixture.\\n* Mushroom and Swiss Quiche: Add 1 cup saut\u00e9ed mushrooms and 1/2 cup grated Swiss cheese to the egg mixture.\\n* Broccoli and Cheddar Quiche: Add 1 cup steamed broccoli florets and 1/2 cup grated Cheddar cheese to the egg mixture.\\n\\nTips:\\n\\n* Blin",
+          "id": "ev_03b161c3a382369196158181",
+          "observedAt": "2026-10-14T08:55:47.362Z"
+        },
+        {
+          "sourceId": "memory:context-53",
+          "sourceVersion": "sha256:0d91d9e0654d48f9086d2542b1e844d8ab84ea06b50b61c2bbebeeb522284e88",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-53",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "By the way, I was thinking of using some of our fresh eggs from the coop - we've got 20 dozen stocked up in the fridge right now.\n\nDo you have any tips on how to store eggs properly to keep them fresh for a longer period?\"}, {'role': 'assistant', 'content': \"The spinach and feta quiche is a fantastic combination.\\n\\nWow, 20 dozen eggs is a lot!\n\nCongratulations on having a thriving coop!\n\nProper storage is crucial to keep your eggs fresh for a longer period.",
+          "id": "ev_d182bc8bc8ab00a242700042",
+          "observedAt": "2026-10-14T08:55:47.362Z"
+        },
+        {
+          "sourceId": "memory:context-53",
+          "sourceVersion": "sha256:0d91d9e0654d48f9086d2542b1e844d8ab84ea06b50b61c2bbebeeb522284e88",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-53",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "period.\\n3.\n\n**Carton or container:** Store eggs in their original carton or a covered container to protect them from moisture, light, and contamination.\n\nMake sure the container is clean and dry before placing the eggs inside.\\n4.\n\n**Poi",
+          "id": "ev_647b9562665b27d40a79968a",
+          "observedAt": "2026-10-14T08:55:47.362Z"
+        },
+        {
+          "sourceId": "memory:context-54",
+          "sourceVersion": "sha256:b8ca5a1b2cafdb5442f9ce5224aa76f696de84f769ed4455cf60b315975318f9",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-54",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "**Don't wash:** Avoid washing eggs before storing them.\n\nWashing can remove the natural coating on the eggshell, making it more susceptible to bacterial penetration.\\n6.\n\n**Check regularly:** Regularly check your eggs for cracks, breaks, or unusual odors.\n\nRemove any spoiled eggs to prevent contamination.\\n7.\n\n**First-in, first-out:** Use the oldest eggs first to ensure you're consuming the freshest eggs.\\n8.\n\n**Label and date:** Label the carton or container with the date you collected the eggs, so you can keep track of their age.\\n9.\n\n**Don't stack:** Avoid stacking eggs on top of each other, as this can cause pressure and lead to breakage.\\n10.\n\n**Freezing:** If you have an excess of eggs, you can freeze them.\n\nBeat the eggs, add a pinch of salt or sugar (depending on your intended use), and store them in an airtight container or freezer bag.\n\nFrozen eggs are perfect for baking, scrambling, or making omelets.\\n\\nBy following these tips, you can enjoy your fresh eggs for a longer period.",
+          "id": "ev_6972ab0a6b56f63beaf82041",
+          "observedAt": "2026-10-14T08:55:47.363Z"
+        },
+        {
+          "sourceId": "memory:context-54",
+          "sourceVersion": "sha256:b8ca5a1b2cafdb5442f9ce5224aa76f696de84f769ed4455cf60b315975318f9",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-54",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "freezer bag.\n\nFrozen eggs are perfect for baking, scrambling, or making omelets.\\n\\nBy following these tips, you can enjoy your fresh eggs for a longer period.\n\nGenerally, eggs can be stored for:\\n\\n* 4 to 5 weeks in the refrigerator\\n* 1 year or longer in the freezer (if frozen)\\n\\nRemember to always handle eggs safely and hygienically to prevent the risk of Salmonella and other bacterial contamination.\\n\\nNow, go ahead and enjoy your fresh eggs in that delicious spinach and feta quiche!\"}, {'role': 'user', 'content': \"Thanks!\n\nI'll keep those tips in mind.\n\nI was also thinking of making some cheese using the milk from our goats, Billy and Nibbles.\n\nDo you have any simple recipes for a beginner like me?\"}, {'role': 'assistant', 'content': \"Making cheese from your own goat's milk is a great idea!\n\nCongratulations on having a thriving goat farm!",
+          "id": "ev_74db4261367a4390592b050d",
+          "observedAt": "2026-10-14T08:55:47.363Z"
+        },
+        {
+          "sourceId": "memory:context-3",
+          "sourceVersion": "sha256:61941f8956b57a744167c6aa02c1f8655c30a2067d0c144041eaf69f01bcad5c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-3",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "rup**: Whip up a batch of fluffy pancakes using goat milk, and top them with a sweet and savory syrup made by whisking together fresh eggs, sugar, and a pinch of salt.\\n2.\n\n**Eggs en Cocotte with Goat Milk Cream**: Bake eggs in ramekins with a splash of goat milk, salt, and pepper.\n\nAdd some diced ham, spinach, or mushrooms for added flavor.\n\nServe with crusty bread for dipping in the creamy egg mixture.\\n3.",
+          "id": "ev_26844f6c1d52b6fb790b69b4",
+          "observedAt": "2026-10-14T08:55:47.364Z"
+        },
+        {
+          "sourceId": "memory:context-3",
+          "sourceVersion": "sha256:61941f8956b57a744167c6aa02c1f8655c30a2067d0c144041eaf69f01bcad5c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-3",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "**Goat Milk Custard Tarts with Fresh Egg Yolks**: A rich and creamy dessert-for-breakfast treat.\n\nMix goat milk, sugar, and egg yolks, then pour into pre-baked tart shells and bake until set.\n\nTop with fresh fruit or a sprinkle of powdered sugar.\\n\\nThese ideas should inspire you to create some delicious breakfast dishes with your fresh eggs and goat milk.\n\nEnjoy experimenting and bon app\u00e9tit!\"}, {'role': 'user', 'content': 'I was thinking of making some egg salad for a quick lunch.\n\nDo you have a simple recipe that I can try?",
+          "id": "ev_0295a58043af2014594002c8",
+          "observedAt": "2026-10-14T08:55:47.364Z"
+        },
+        {
+          "sourceId": "memory:context-3",
+          "sourceVersion": "sha256:61941f8956b57a744167c6aa02c1f8655c30a2067d0c144041eaf69f01bcad5c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-3",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "and bon app\u00e9tit!\"}, {'role': 'user', 'content': 'I was thinking of making some egg salad for a quick lunch.\n\nDo you have a simple recipe that I can try?\n\nAnd by the way, I need to start using up some of our eggs, we have a lot stocked up in the fridge - 30 dozen at the moment!'}, {'role': 'assistant', 'content': \"Wow, 30 dozen eggs is a lot!\n\nYou'll definitely need to get creative with egg recipes.",
+          "id": "ev_66f79125ca6dce849c51edf4",
+          "observedAt": "2026-10-14T08:55:47.364Z"
+        },
+        {
+          "sourceId": "memory:context-3",
+          "sourceVersion": "sha256:61941f8956b57a744167c6aa02c1f8655c30a2067d0c144041eaf69f01bcad5c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-3",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Serve on bread, crackers, or on its own as a snack.\\n\\nYou can customize this recipe to your taste by adding other ingredients, such as:\\n\\n* Chopped onions or shallots for added flavor\\n* Capers for a salty, tangy kick\\n* Chopped fresh herbs like parsley, basil, or tarragon\\n* Grated cheese, like cheddar or Swiss\\n* A squeeze of fresh lemon juice for brightness\\n\\nWith 30 dozen eggs, you might want to consider making a big batch of egg salad and freezing it for later use.",
+          "id": "ev_0eb52e15364184253af825ee",
+          "observedAt": "2026-10-14T08:55:47.364Z"
+        }
+      ],
+      "sourceIds": [
+        "context-53",
+        "context-54",
+        "context-3"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 10.704165999995894,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-53",
+    "context-54",
+    "context-3"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:55:47.367381+00:00"
+}

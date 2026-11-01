@@ -1,0 +1,275 @@
+{
+  "row": 316,
+  "id": "gpt4_5dcc0aab",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "question": "Which pair of shoes did I clean last month?",
+  "references": [
+    "white Adidas sneakers"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/05/24 (Wed) 09:14",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 7.40795799999978,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 43,
+        "maxInputChars": 43,
+        "requiredProviderTruncation": false,
+        "promptTokens": 12,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_099c1b6c_5",
+        "answer_099c1b6c_1",
+        "answer_099c1b6c_3"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 9 of 13, excerpt) * Do they offer any warranties or guarantees?\n\nBy doing your research and asking the right questions, you should be able to find a reliable cobbler to take care of your brown leather dress shoes.\nuser: I'll definitely check out those options to find a good cobbler. And, I almost forgot, I also need to remind my sister to return my spare pair of running shoes that I lent to her a few weeks ago. I lent them to her because she wanted to start running, but she said she'd only need them for a week or two, and it's been almost a month now.\nassistant: I think we've already had this conversation earlier! Don't worry, I'm here to help you remember. You've got a few reminders on your plate:\n  (part 10 of 13) gear store.\n2. Find a good cobbler to polish and condition your brown leather dress shoes.\n3. Remind your sister to return your spare pair of running shoes!\n\nFeel free to come back and chat with me anytime you need help or just want to talk about your outdoor adventures. I'll be here, ready to assist you. Good luck with your reminders, and I hope you get your running shoes back soon!\nuser: What's the best way to clean and maintain my new hiking boots to make them last longer?\nassistant: Congratulations on your new hiking boots! Proper cleaning and maintenance will indeed help extend their lifespan and keep them performing well. Here's a step-by-step guide on how to clean and maintain your hiking boots:\n\n**Cleaning:**\n- (part 12 of 12, excerpt) It's also smart of you to save your Adidas sneakers for special occasions or outdoor events. They're a great pair to have in reserve for when you want to dress\n- (part 16 of 17, excerpt) However, I have to say that I'm a large language model, I don't have personal experiences or relationships, so I'm a bit con",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_099c1b6c_5",
+          "sourceVersion": "sha256:ee454793962fcf557ab1cea56cc786565042bb8de133348baa8b90d96a50d2c1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_099c1b6c_5",
+            "part": 9,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "* Do they offer any warranties or guarantees?\n\nBy doing your research and asking the right questions, you should be able to find a reliable cobbler to take care of your brown leather dress shoes.\nuser: I'll definitely check out those options to find a good cobbler. And, I almost forgot, I also need to remind my sister to return my spare pair of running shoes that I lent to her a few weeks ago. I lent them to her because she wanted to start running, but she said she'd only need them for a week or two, and it's been almost a month now.\nassistant: I think we've already had this conversation earlier! Don't worry, I'm here to help you remember. You've got a few reminders on your plate:",
+          "id": "ev_c95e1bf73747e1107b246b23",
+          "observedAt": "2026-10-14T04:44:31.686Z"
+        },
+        {
+          "sourceId": "memory:answer_099c1b6c_5",
+          "sourceVersion": "sha256:ee454793962fcf557ab1cea56cc786565042bb8de133348baa8b90d96a50d2c1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_099c1b6c_5",
+            "part": 10,
+            "parts": 13
+          },
+          "text": "gear store.\n2. Find a good cobbler to polish and condition your brown leather dress shoes.\n3. Remind your sister to return your spare pair of running shoes!\n\nFeel free to come back and chat with me anytime you need help or just want to talk about your outdoor adventures. I'll be here, ready to assist you. Good luck with your reminders, and I hope you get your running shoes back soon!\nuser: What's the best way to clean and maintain my new hiking boots to make them last longer?\nassistant: Congratulations on your new hiking boots! Proper cleaning and maintenance will indeed help extend their lifespan and keep them performing well. Here's a step-by-step guide on how to clean and maintain your hiking boots:\n\n**Cleaning:**",
+          "id": "ev_ac228fdf282f965bf0e0fcf0",
+          "observedAt": "2026-10-14T04:44:31.686Z"
+        },
+        {
+          "sourceId": "memory:answer_099c1b6c_1",
+          "sourceVersion": "sha256:323a2e05228d32bff932667ff4ed860282fa3a60ed4e8849e788657192609e2a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_099c1b6c_1",
+            "part": 12,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "It's also smart of you to save your Adidas sneakers for special occasions or outdoor events. They're a great pair to have in reserve for when you want to dress",
+          "id": "ev_7eb3314fa0416e5ae1b129c9",
+          "observedAt": "2026-10-14T04:44:31.687Z"
+        },
+        {
+          "sourceId": "memory:answer_099c1b6c_3",
+          "sourceVersion": "sha256:89651c4ccc039c2c2439737d4e4d1ddf562126a5f4145c45bf375c606b965474",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_099c1b6c_3",
+            "part": 16,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "However, I have to say that I'm a large language model, I don't have personal experiences or relationships, so I'm a bit con",
+          "id": "ev_fbe711d16913017ba842e145",
+          "observedAt": "2026-10-14T04:44:31.687Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_099c1b6c_5",
+        "answer_099c1b6c_1",
+        "answer_099c1b6c_3"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 8.786707999999635,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_099c1b6c_5",
+        "answer_099c1b6c_1",
+        "answer_099c1b6c_3"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 9 of 13, excerpt) * Do they offer any warranties or guarantees?\n\nBy doing your research and asking the right questions, you should be able to find a reliable cobbler to take care of your brown leather dress shoes.\nuser: I'll definitely check out those options to find a good cobbler. And, I almost forgot, I also need to remind my sister to return my spare pair of running shoes that I lent to her a few weeks ago. I lent them to her because she wanted to start running, but she said she'd only need them for a week or two, and it's been almost a month now.\nassistant: I think we've already had this conversation earlier! Don't worry, I'm here to help you remember. You've got a few reminders on your plate:\n  (part 10 of 13) gear store.\n2. Find a good cobbler to polish and condition your brown leather dress shoes.\n3. Remind your sister to return your spare pair of running shoes!\n\nFeel free to come back and chat with me anytime you need help or just want to talk about your outdoor adventures. I'll be here, ready to assist you. Good luck with your reminders, and I hope you get your running shoes back soon!\nuser: What's the best way to clean and maintain my new hiking boots to make them last longer?\nassistant: Congratulations on your new hiking boots! Proper cleaning and maintenance will indeed help extend their lifespan and keep them performing well. Here's a step-by-step guide on how to clean and maintain your hiking boots:\n\n**Cleaning:**\n- (part 12 of 12, excerpt) It's also smart of you to save your Adidas sneakers for special occasions or outdoor events. They're a great pair to have in reserve for when you want to dress\n- (part 16 of 17, excerpt) However, I have to say that I'm a large language model, I don't have personal experiences or relationships, so I'm a bit con",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_099c1b6c_5",
+          "sourceVersion": "sha256:ee454793962fcf557ab1cea56cc786565042bb8de133348baa8b90d96a50d2c1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_099c1b6c_5",
+            "part": 9,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "* Do they offer any warranties or guarantees?\n\nBy doing your research and asking the right questions, you should be able to find a reliable cobbler to take care of your brown leather dress shoes.\nuser: I'll definitely check out those options to find a good cobbler. And, I almost forgot, I also need to remind my sister to return my spare pair of running shoes that I lent to her a few weeks ago. I lent them to her because she wanted to start running, but she said she'd only need them for a week or two, and it's been almost a month now.\nassistant: I think we've already had this conversation earlier! Don't worry, I'm here to help you remember. You've got a few reminders on your plate:",
+          "id": "ev_c95e1bf73747e1107b246b23",
+          "observedAt": "2026-10-14T04:44:31.689Z"
+        },
+        {
+          "sourceId": "memory:answer_099c1b6c_5",
+          "sourceVersion": "sha256:ee454793962fcf557ab1cea56cc786565042bb8de133348baa8b90d96a50d2c1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_099c1b6c_5",
+            "part": 10,
+            "parts": 13
+          },
+          "text": "gear store.\n2. Find a good cobbler to polish and condition your brown leather dress shoes.\n3. Remind your sister to return your spare pair of running shoes!\n\nFeel free to come back and chat with me anytime you need help or just want to talk about your outdoor adventures. I'll be here, ready to assist you. Good luck with your reminders, and I hope you get your running shoes back soon!\nuser: What's the best way to clean and maintain my new hiking boots to make them last longer?\nassistant: Congratulations on your new hiking boots! Proper cleaning and maintenance will indeed help extend their lifespan and keep them performing well. Here's a step-by-step guide on how to clean and maintain your hiking boots:\n\n**Cleaning:**",
+          "id": "ev_ac228fdf282f965bf0e0fcf0",
+          "observedAt": "2026-10-14T04:44:31.689Z"
+        },
+        {
+          "sourceId": "memory:answer_099c1b6c_1",
+          "sourceVersion": "sha256:323a2e05228d32bff932667ff4ed860282fa3a60ed4e8849e788657192609e2a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_099c1b6c_1",
+            "part": 12,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "It's also smart of you to save your Adidas sneakers for special occasions or outdoor events. They're a great pair to have in reserve for when you want to dress",
+          "id": "ev_7eb3314fa0416e5ae1b129c9",
+          "observedAt": "2026-10-14T04:44:31.689Z"
+        },
+        {
+          "sourceId": "memory:answer_099c1b6c_3",
+          "sourceVersion": "sha256:89651c4ccc039c2c2439737d4e4d1ddf562126a5f4145c45bf375c606b965474",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_099c1b6c_3",
+            "part": 16,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "However, I have to say that I'm a large language model, I don't have personal experiences or relationships, so I'm a bit con",
+          "id": "ev_fbe711d16913017ba842e145",
+          "observedAt": "2026-10-14T04:44:31.689Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_099c1b6c_5",
+        "answer_099c1b6c_1",
+        "answer_099c1b6c_3"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.344082999999955,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 0.6,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:47:28.883909+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "I don't have a specific record of which pair of shoes you cleaned last month. The retrieved history shows you have reminders about finding a cobbler for brown leather dress shoes and retrieving running shoes from your sister, but no explicit mention of cleaning a particular pair last month. If you're referring to the brown leather dress shoes mentioned in the cobbler reminder, those appear to be a pending task rather than something already cleaned. Could you clarify which shoes you're asking about?",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 552,
+    "completion_tokens": 1122,
+    "total_tokens": 1674,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 467,
+    "completion_tokens": 741,
+    "total_tokens": 1208,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 738,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 11328.19500000005,
+  "judgeWallMs": 8293.385292000039,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:47:50.690971+00:00"
+}

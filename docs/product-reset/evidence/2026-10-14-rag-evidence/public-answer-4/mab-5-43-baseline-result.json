@@ -1,0 +1,162 @@
+{
+  "row": 5,
+  "query": 43,
+  "id": "mab-5-43",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:59:38.663759+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n40. The narrator expressed jealousy over Kyra's Oxford friends.\n41. Eamon asked the narrator to leave for her sake during their theatre encounter.\n42. Eamon cried while discussing her father's situation.\n43. The narrator recalled Eamon's words about making a sacrifice for his father's peace.\n44. Miss Brevin beckoned Kayla aside to speak privately.\n\n\nBelow is a list of possible subsequent events:\n\n['Donald trained Jip to sit, while the narrator recorded every command.', 'Donald brushed Jip\u2019s fur, while the narrator admired the shiny coat.', 'Donald caressed her dog, Jip, while the narrator observed.', 'Donald walked Jip in the park, while the narrator noted the reactions of onlookers.', 'Donald played fetch with Jip, while the narrator cheered from the sidelines.', 'Donald fed Jip a treat, while the narrator captured the moment on camera.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Donald caressed her dog, Jip, while the narrator observed."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-179",
+    "context-264",
+    "context-291"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T09:00:10.737584+00:00",
+  "rag": {
+    "ids": [
+      "context-179",
+      "context-264",
+      "context-291"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 4, excerpt) When she went out of the room with Miss Brevin (no other ladies were of the party), I fell into a reverie, only disturbed by the cruel apprehension that Miss Brevin would disparage me to her. The amiable creature with the polished head told me a lo\n  (part 3 of 4) heard him say, 'my gardener', several times. I seemed to pay the deepest attention to him, but I was wandering in a garden of Eden all the while, with Donald.\n\nMy apprehensions of being disparaged to the object of my engrossing affection were revived when we went into the drawing-room, by the grim and distant aspect of Miss Brevin. But I was relieved of them in an unexpected manner.\n\n'Tiberius Kayla,' said Miss Brevin, beckoning me aside into a window. 'A word.'\n\nI confronted Miss Brevin alone.\n\n'Tiberius Kayla,' said Miss Brevin, 'I need not enlarge upon family circumstances. They are not a tempting subject.' 'Far from it, ma'am,' I returned.\n\n'Far from it,' assented Miss Brevin. 'I do not wish to revive the memory of past differences, or of past outrages. I have received outrages from a person--a female I am sorry to say, for the credit of my sex--who is not to be mentioned without scorn and disgust; and therefore I would rather not mention her.'\n\nI felt very fiery on my aunt's account; but I said it would certainly be better, if Miss Brevin pleased, not to mention her. I could not hear her disrespectfully mentioned, I added, without expressing my opinion in a decided tone.\n- (part 4 of 5, excerpt) 'Do you set a watch upon Miss Cristal, and make her home no home, because of me?' said I.\n- (part 1 of 5, excerpt) Of Donald's being ready, and of Miss Lavinia's hovering about her, loth to lose the pretty toy that has given her so much pleasant occupation. Of Donald's making a long ser",
+    "evidence": [
+      {
+        "sourceId": "memory:context-179",
+        "sourceVersion": "sha256:dcfba6efccf9873fa62e58591d9427c77613599484bf0f7ccfe29d852dfd85b1",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-179",
+          "part": 2,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "When she went out of the room with Miss Brevin (no other ladies were of the party), I fell into a reverie, only disturbed by the cruel apprehension that Miss Brevin would disparage me to her. The amiable creature with the polished head told me a lo",
+        "id": "ev_279a29853499d8d940729cdd",
+        "observedAt": "2026-10-14T08:49:10.654Z"
+      },
+      {
+        "sourceId": "memory:context-179",
+        "sourceVersion": "sha256:dcfba6efccf9873fa62e58591d9427c77613599484bf0f7ccfe29d852dfd85b1",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-179",
+          "part": 3,
+          "parts": 4
+        },
+        "text": "heard him say, 'my gardener', several times. I seemed to pay the deepest attention to him, but I was wandering in a garden of Eden all the while, with Donald.\n\nMy apprehensions of being disparaged to the object of my engrossing affection were revived when we went into the drawing-room, by the grim and distant aspect of Miss Brevin. But I was relieved of them in an unexpected manner.\n\n'Tiberius Kayla,' said Miss Brevin, beckoning me aside into a window. 'A word.'\n\nI confronted Miss Brevin alone.\n\n'Tiberius Kayla,' said Miss Brevin, 'I need not enlarge upon family circumstances. They are not a tempting subject.' 'Far from it, ma'am,' I returned.\n\n'Far from it,' assented Miss Brevin. 'I do not wish to revive the memory of past differences, or of past outrages. I have received outrages from a person--a female I am sorry to say, for the credit of my sex--who is not to be mentioned without scorn and disgust; and therefore I would rather not mention her.'\n\nI felt very fiery on my aunt's account; but I said it would certainly be better, if Miss Brevin pleased, not to mention her. I could not hear her disrespectfully mentioned, I added, without expressing my opinion in a decided tone.",
+        "id": "ev_25da8250873488de0ddc5a4c",
+        "observedAt": "2026-10-14T08:49:10.655Z"
+      },
+      {
+        "sourceId": "memory:context-264",
+        "sourceVersion": "sha256:c2742d78430fd0379e0bbc7c1c0cf7e060ff75b65b5829b939acf6371c50958b",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-264",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "'Do you set a watch upon Miss Cristal, and make her home no home, because of me?' said I.",
+        "id": "ev_c729786f88d60efb234e9b33",
+        "observedAt": "2026-10-14T08:49:10.656Z"
+      },
+      {
+        "sourceId": "memory:context-291",
+        "sourceVersion": "sha256:754654d0a494398666ecf9397ecbed0d287df402bddea9a8154d8c3bea11fd1c",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-291",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Of Donald's being ready, and of Miss Lavinia's hovering about her, loth to lose the pretty toy that has given her so much pleasant occupation. Of Donald's making a long ser",
+        "id": "ev_f29a4981a1a02d97fd4d1791",
+        "observedAt": "2026-10-14T08:49:10.657Z"
+      }
+    ],
+    "sourceIds": [
+      "context-179",
+      "context-264",
+      "context-291"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 15.301958999996714,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "I do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 777,
+    "completion_tokens": 1030,
+    "total_tokens": 1807,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 482,
+    "completion_tokens": 1021,
+    "total_tokens": 1503,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1018,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 11345.410082999479,
+  "judgeWallMs": 20720.827750000353
+}

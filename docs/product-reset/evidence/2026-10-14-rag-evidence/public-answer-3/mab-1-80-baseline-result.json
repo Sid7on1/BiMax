@@ -1,0 +1,181 @@
+{
+  "row": 1,
+  "query": 80,
+  "id": "mab-1-80",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:47:48.753962+00:00",
+  "valid": true,
+  "question": "What is the county seat of the county where East Lempster, New Hampshire is located?",
+  "references": [
+    "Newport"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-349",
+    "context-425",
+    "context-159"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:48:08.172715+00:00",
+  "rag": {
+    "ids": [
+      "context-349",
+      "context-425",
+      "context-159"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) dy\" Cauble. He was a self-made millionaire known for his flamboyance as a Texas-size businessman who struck it rich as a wildcatter. In the 1970s, he founded two high-end retail western wear stores comprising Cutter Bill Western World named after Cauble's world champion cutting horse, Cutter Bill; one store was located in Houston, the other in Dallas.\n\nDocument 2521:\nNarrow Hills Provincial Park\nNarrow Hills Provincial Park is provincial park in Saskatchewan, Canada. It contains a series of recreational facilities and a variety of lakes within its boundaries. These include the Gem Lakes, Lower Fishing Lake, Upper Fishing Lake and others.\n\nDocument 2522:\nLempster, New Hampshire\nLempster is a town in Sullivan County, New Hampshire, United States. The population was 1,154 at the 2010 census. Settlements include the town center (Lempster village) and the village of East Lempster.\n  (part 2 of 5, excerpt) Hampshire, United States. The population was 1,154 at the 2010 census. Settlements include the town center (Lempster village) and the village of East Lempster.\n\nDocument 2523:\nAlaeddin Pasha (vizier)\n- (part 2 of 6, excerpt) Document 3070:\nEast Lempster, New Hampshire\nEast Lempster is an unincorporated community in the town of Lempster in Sullivan County, New Hampshire, United States.\n  (part 3 of 6, excerpt) 3070:\nEast Lempster, New Hampshire\nEast Lempster is an unincorporated community in the town of Lempster in Sullivan County, New Hampshire, United States.\n\nDocument 3071:\nWalk of Life\n- (part 2 of 5, excerpt) Miner Memorial Library is the public library of Lempster, New Hampshire, located at 3 Second New Hampshire Turnpike. The library occupies a single-story wood frame structure built in 1845 as a church for a Universalist congregation. Despite signi",
+    "evidence": [
+      {
+        "sourceId": "memory:context-349",
+        "sourceVersion": "sha256:3b826d4583c41ad6e6182bd07e12f010f219cf0a3b4944ad69a1c0ebe23664aa",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-349",
+          "part": 1,
+          "parts": 5
+        },
+        "text": "dy\" Cauble. He was a self-made millionaire known for his flamboyance as a Texas-size businessman who struck it rich as a wildcatter. In the 1970s, he founded two high-end retail western wear stores comprising Cutter Bill Western World named after Cauble's world champion cutting horse, Cutter Bill; one store was located in Houston, the other in Dallas.\n\nDocument 2521:\nNarrow Hills Provincial Park\nNarrow Hills Provincial Park is provincial park in Saskatchewan, Canada. It contains a series of recreational facilities and a variety of lakes within its boundaries. These include the Gem Lakes, Lower Fishing Lake, Upper Fishing Lake and others.\n\nDocument 2522:\nLempster, New Hampshire\nLempster is a town in Sullivan County, New Hampshire, United States. The population was 1,154 at the 2010 census. Settlements include the town center (Lempster village) and the village of East Lempster.",
+        "id": "ev_113ba6e2f85a81b0692097d6",
+        "observedAt": "2026-10-14T08:41:10.694Z"
+      },
+      {
+        "sourceId": "memory:context-349",
+        "sourceVersion": "sha256:3b826d4583c41ad6e6182bd07e12f010f219cf0a3b4944ad69a1c0ebe23664aa",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-349",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Hampshire, United States. The population was 1,154 at the 2010 census. Settlements include the town center (Lempster village) and the village of East Lempster.\n\nDocument 2523:\nAlaeddin Pasha (vizier)",
+        "id": "ev_627570d3b6627ee1a94390e6",
+        "observedAt": "2026-10-14T08:41:10.694Z"
+      },
+      {
+        "sourceId": "memory:context-425",
+        "sourceVersion": "sha256:661bcc9ec1d6844de1b5b63756a5ec64725255fc30ce26d8074e2ccd46c0cc1b",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-425",
+          "part": 2,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "Document 3070:\nEast Lempster, New Hampshire\nEast Lempster is an unincorporated community in the town of Lempster in Sullivan County, New Hampshire, United States.",
+        "id": "ev_6466234e35eef56aac995c50",
+        "observedAt": "2026-10-14T08:41:10.695Z"
+      },
+      {
+        "sourceId": "memory:context-425",
+        "sourceVersion": "sha256:661bcc9ec1d6844de1b5b63756a5ec64725255fc30ce26d8074e2ccd46c0cc1b",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-425",
+          "part": 3,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "3070:\nEast Lempster, New Hampshire\nEast Lempster is an unincorporated community in the town of Lempster in Sullivan County, New Hampshire, United States.\n\nDocument 3071:\nWalk of Life",
+        "id": "ev_af2c4a2f62d478fcb71980c4",
+        "observedAt": "2026-10-14T08:41:10.695Z"
+      },
+      {
+        "sourceId": "memory:context-159",
+        "sourceVersion": "sha256:2b7b97615fdb3f7eb25ee57c2e125c821ac45f24a84084f42f6ea05b2648caf5",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-159",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Miner Memorial Library is the public library of Lempster, New Hampshire, located at 3 Second New Hampshire Turnpike. The library occupies a single-story wood frame structure built in 1845 as a church for a Universalist congregation. Despite signi",
+        "id": "ev_0a446d2db4ea5d30f240f6a6",
+        "observedAt": "2026-10-14T08:41:10.695Z"
+      }
+    ],
+    "sourceIds": [
+      "context-349",
+      "context-425",
+      "context-159"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 5.694916000007652,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "The retrieved history does not specify the county seat of Sullivan County, New Hampshire.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 585,
+    "completion_tokens": 1041,
+    "total_tokens": 1626,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 263,
+    "completion_tokens": 657,
+    "total_tokens": 920,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 654,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10314.70604199967,
+  "judgeWallMs": 8716.372916999717
+}

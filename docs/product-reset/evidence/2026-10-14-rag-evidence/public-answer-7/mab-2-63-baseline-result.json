@@ -1,0 +1,162 @@
+{
+  "row": 2,
+  "query": 63,
+  "id": "mab-2-63",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:55:40.092193+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n60. Debbie watched the dancers from her seat in the alcove.\n61. Barrett gave Debbie three hundred dollars to prevent her family from being evicted.\n62. Debbie expressed anger towards Madelyn for keeping the Confederate money.\n63. Barrett expressed discontent over Debbie's decision to buy the sawmill.\n64. Tony expressed his anger about the Yankees and their treatment of Southerners to Debbie.\n\n\nBelow is a list of possible subsequent events:\n\n['Debbie gasped at the notion of Lucian uncovering her questionable tax evasion scheme.', 'Debbie sighed at the prospect of Lucian discovering her hidden financial troubles.', \"Debbie felt uneasy imagining Lucian's response to her reckless investment decisions.\", \"Debbie cringed at the thought of Lucian's reaction to her dishonest business practices.\", 'Debbie winced at the idea of Lucian finding out about her recent forgery incident.', 'Debbie shuddered at the thought of Lucian learning about her secret side dealings.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie cringed at the thought of Lucian's reaction to her dishonest business practices."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-282",
+    "context-44",
+    "context-360"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:56:07.922204+00:00",
+  "rag": {
+    "ids": [
+      "context-282",
+      "context-44",
+      "context-360"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) of losing Tara were matters Debbie had to know about\u2014and right away.\n\nShe looked at him with flashing eyes.\n\n\u201cOh, damn the Yankees!\u201d she cried.\n\n\u201cIsn\u2019t it enough that they\u2019ve licked us and beggared us without turning loose scoundrels on us?\u201d The war was over, peace had been declared, but the Yankees could still rob her, they could still starve her, they could still drive her from her house.\n\nAnd fool that she was, she had thought through weary months that if she could just hold out until spring, everything would be all right.\n\nThis crushing news brought by Will, coming on top of a year of back-breaking work and hope deferred, was the last straw.\n\n\u201cOh, Will, and I thought our troubles were all over when the war ended!\u201d \u201cNo\u2019m.\u201d Will raised his lantern-jawed, country-looking face and gave her a long steady look.\n\n\u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d\n\nShe was struck dumb for a moment.\n\nThree hundred dollars!\n\nIt might just as well be three million dollars.\n\n\u201cWhy,\u201d she floundered, \u201cwhy\u2014why, then we\u2019ve got to raise three hundred, somehow.\u201d\n\n\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n  (part 2 of 4, excerpt) \u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n\nThey couldn\u2019t sell out Tara.\n\nWhy\u2014\u201d His mild pale eyes showed more hate and bitterness than she thought possible.\n\n\u201cOh, couldn\u2019t they?\n\nWell, they could and they will and they\u2019ll like doin\u2019 it!\n- (part 2 of 5, excerpt) He had told Marianne over and over that Emmie Claudia\u2019s baby might have been fathered by any one of a dozen men as easily as himself\u2014an idea in wh\n- (part 1 of 4, excerpt) But she never again thought of Lucian in connection with her business practices, never again regretted any means she used to",
+    "evidence": [
+      {
+        "sourceId": "memory:context-282",
+        "sourceVersion": "sha256:7b808cb8e944e6bc25789f76db6995b9f1f0619d869ec669168efb2778d2f464",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-282",
+          "part": 1,
+          "parts": 4
+        },
+        "text": "of losing Tara were matters Debbie had to know about\u2014and right away.\n\nShe looked at him with flashing eyes.\n\n\u201cOh, damn the Yankees!\u201d she cried.\n\n\u201cIsn\u2019t it enough that they\u2019ve licked us and beggared us without turning loose scoundrels on us?\u201d The war was over, peace had been declared, but the Yankees could still rob her, they could still starve her, they could still drive her from her house.\n\nAnd fool that she was, she had thought through weary months that if she could just hold out until spring, everything would be all right.\n\nThis crushing news brought by Will, coming on top of a year of back-breaking work and hope deferred, was the last straw.\n\n\u201cOh, Will, and I thought our troubles were all over when the war ended!\u201d \u201cNo\u2019m.\u201d Will raised his lantern-jawed, country-looking face and gave her a long steady look.\n\n\u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d\n\nShe was struck dumb for a moment.\n\nThree hundred dollars!\n\nIt might just as well be three million dollars.\n\n\u201cWhy,\u201d she floundered, \u201cwhy\u2014why, then we\u2019ve got to raise three hundred, somehow.\u201d\n\n\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!",
+        "id": "ev_9b6f23d0647cd3e810a75ab9",
+        "observedAt": "2026-10-14T08:45:28.432Z"
+      },
+      {
+        "sourceId": "memory:context-282",
+        "sourceVersion": "sha256:7b808cb8e944e6bc25789f76db6995b9f1f0619d869ec669168efb2778d2f464",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-282",
+          "part": 2,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n\nThey couldn\u2019t sell out Tara.\n\nWhy\u2014\u201d His mild pale eyes showed more hate and bitterness than she thought possible.\n\n\u201cOh, couldn\u2019t they?\n\nWell, they could and they will and they\u2019ll like doin\u2019 it!",
+        "id": "ev_32e4b799f0a84086eb89d89a",
+        "observedAt": "2026-10-14T08:45:28.432Z"
+      },
+      {
+        "sourceId": "memory:context-44",
+        "sourceVersion": "sha256:17903c96841620d35e138adb2847461a758d47305a251624b5a4d6061fd1f235",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-44",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "He had told Marianne over and over that Emmie Claudia\u2019s baby might have been fathered by any one of a dozen men as easily as himself\u2014an idea in wh",
+        "id": "ev_30078ee0d32b18cfea112b83",
+        "observedAt": "2026-10-14T08:45:28.433Z"
+      },
+      {
+        "sourceId": "memory:context-360",
+        "sourceVersion": "sha256:3643cf6fe5dd6440f5526e0f7b9932064b1da8c2d745d4b094083c4cea6aa0d7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-360",
+          "part": 1,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "But she never again thought of Lucian in connection with her business practices, never again regretted any means she used to",
+        "id": "ev_912158afd052fc18e7471f49",
+        "observedAt": "2026-10-14T08:45:28.433Z"
+      }
+    ],
+    "sourceIds": [
+      "context-282",
+      "context-44",
+      "context-360"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 29.071125000002212,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Debbie gasped at the notion of Lucian uncovering her questionable tax evasion scheme.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.3333333333333333
+  },
+  "readerUsage": {
+    "prompt_tokens": 792,
+    "completion_tokens": 1043,
+    "total_tokens": 1835,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 516,
+    "completion_tokens": 1026,
+    "total_tokens": 1542,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 14713.183417000437,
+  "judgeWallMs": 12167.87179199946
+}

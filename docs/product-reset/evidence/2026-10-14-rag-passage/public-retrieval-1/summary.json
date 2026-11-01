@@ -1,0 +1,83 @@
+{
+  "scope": "Owner-authorized fresh balanced25classicLongMemEval_S+25MemoryAgentBench,paired100answer arms; excludes all record96+97 IDs and normalized questions. Small pilot,shared public corpora,not independent population/official leaderboard.",
+  "expectedQuestions": 50,
+  "attemptedQuestions": 50,
+  "validQuestions": 50,
+  "invalid": [],
+  "datasets": {
+    "longmemeval": {
+      "questions": 25,
+      "baselineCurrentPromptEqual": 0,
+      "baselineCurrentSourcesEqual": 25,
+      "validProvenance": 25,
+      "answerSourceQuestions": 25,
+      "meanAnswerSourceRecallAt3": 0.8466666666666667,
+      "completeAnswerSources": 19,
+      "referenceTextPresent": 17,
+      "strata": {
+        "knowledge-update": {
+          "questions": 5,
+          "referenceTextPresent": 4
+        },
+        "multi-session": {
+          "questions": 5,
+          "referenceTextPresent": 3
+        },
+        "single-session-assistant": {
+          "questions": 5,
+          "referenceTextPresent": 4
+        },
+        "single-session-preference": {
+          "questions": 2,
+          "referenceTextPresent": 0
+        },
+        "single-session-user": {
+          "questions": 4,
+          "referenceTextPresent": 4
+        },
+        "temporal-reasoning": {
+          "questions": 4,
+          "referenceTextPresent": 2
+        }
+      }
+    },
+    "memoryagentbench": {
+      "questions": 25,
+      "baselineCurrentPromptEqual": 0,
+      "baselineCurrentSourcesEqual": 25,
+      "validProvenance": 25,
+      "answerSourceQuestions": 0,
+      "meanAnswerSourceRecallAt3": null,
+      "completeAnswerSources": 0,
+      "referenceTextPresent": 8,
+      "strata": {
+        "eventqa_131072": {
+          "questions": 5,
+          "referenceTextPresent": 0
+        },
+        "eventqa_65536": {
+          "questions": 4,
+          "referenceTextPresent": 0
+        },
+        "eventqa_full": {
+          "questions": 4,
+          "referenceTextPresent": 0
+        },
+        "longmemeval_s*": {
+          "questions": 4,
+          "referenceTextPresent": 2
+        },
+        "ruler_qa1_197K": {
+          "questions": 4,
+          "referenceTextPresent": 4
+        },
+        "ruler_qa2_421K": {
+          "questions": 4,
+          "referenceTextPresent": 2
+        }
+      }
+    }
+  },
+  "ended": "2026-10-14T15:32:02.530946+00:00",
+  "modelAnswerAccuracy": "unmeasured; no reader/judge invoked"
+}

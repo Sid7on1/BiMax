@@ -1,0 +1,311 @@
+{
+  "row": 1,
+  "query": 91,
+  "id": "mab-1-91",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "question": "Which American film director hosted the 18th Independent Spirit Awards in 2002?",
+  "references": [
+    "John Waters"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 233.4668329999986,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 79,
+        "maxInputChars": 79,
+        "requiredProviderTruncation": false,
+        "promptTokens": 15,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-369",
+        "context-453",
+        "context-263"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) play in Thailand professional football league. The club nickname is \"The Fighting Fish\" (Thai call; \"Pla Kud Nak Su\"), the most popular fish in the province.\n\nDocument 2663:\n32nd Independent Spirit Awards\nThe 32nd Independent Spirit Awards (2017) nominees were announced by Film Independent, the nonprofit arts organization that produces them, on November 22, 2016. The ceremony, hosted by Nick Kroll and John Mulaney, took place on Saturday, February 25, 2017, and was broadcast live on IFC at 2:00 pm PT. Online streaming service Sundance Now live-streamed the Spirit Awards concurrently with the telecast, with an on-demand version available on Sundance Now.\n  (part 3 of 5, excerpt) PT. Online streaming service Sundance Now live-streamed the Spirit Awards concurrently with the telecast, with an on-demand version available on Sundance Now.\n\nDocument 2664:\nSpringfield, Missouri\n- (part 4 of 5, excerpt) Document 3268:\n28th Independent Spirit Awards\nThe 2012 Independent Spirit Awards was the 28th annual occasion of the Film Independent Spirit Awards. It announced its nominees on November 27, 2012. The winners were announced on February 23, 2013 during an awards ceremony hosted by Andy Samberg.\n  (part 5 of 5, excerpt) Awards. It announced its nominees on November 27, 2012. The winners were announced on February 23, 2013 during an awards ceremony hosted by Andy Samberg.\n\nDocument 3269:\nThe Perfect Storm (film)\n- (part 1 of 5, excerpt) The Film Independent Spirit Awards (abbreviated \"Spirit Awards\" and originally known as the FINDIE or Friends of Independents Awards), founded in 1984, are awards dedicated to independent filmmakers. Winners were typically presented with acrylic glass pyramids containing suspended shoestrings representing the paltry budgets of ind",
+      "evidence": [
+        {
+          "sourceId": "memory:context-369",
+          "sourceVersion": "sha256:8ee17000608e2662e7bf27a0bd5db35ff275754be169eaa69f98f2e6c318a287",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-369",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "play in Thailand professional football league. The club nickname is \"The Fighting Fish\" (Thai call; \"Pla Kud Nak Su\"), the most popular fish in the province.\n\nDocument 2663:\n32nd Independent Spirit Awards\nThe 32nd Independent Spirit Awards (2017) nominees were announced by Film Independent, the nonprofit arts organization that produces them, on November 22, 2016. The ceremony, hosted by Nick Kroll and John Mulaney, took place on Saturday, February 25, 2017, and was broadcast live on IFC at 2:00 pm PT. Online streaming service Sundance Now live-streamed the Spirit Awards concurrently with the telecast, with an on-demand version available on Sundance Now.",
+          "id": "ev_0a5a1cb58704a0c035addc2b",
+          "observedAt": "2026-10-14T04:49:03.734Z"
+        },
+        {
+          "sourceId": "memory:context-369",
+          "sourceVersion": "sha256:8ee17000608e2662e7bf27a0bd5db35ff275754be169eaa69f98f2e6c318a287",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-369",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "PT. Online streaming service Sundance Now live-streamed the Spirit Awards concurrently with the telecast, with an on-demand version available on Sundance Now.\n\nDocument 2664:\nSpringfield, Missouri",
+          "id": "ev_0fc04e90f4149ba833d3b315",
+          "observedAt": "2026-10-14T04:49:03.734Z"
+        },
+        {
+          "sourceId": "memory:context-453",
+          "sourceVersion": "sha256:8bfe62da53c349a834fa8a7156a180aebd4ceeea86b16e3b3d54eb760a3b507c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-453",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 3268:\n28th Independent Spirit Awards\nThe 2012 Independent Spirit Awards was the 28th annual occasion of the Film Independent Spirit Awards. It announced its nominees on November 27, 2012. The winners were announced on February 23, 2013 during an awards ceremony hosted by Andy Samberg.",
+          "id": "ev_8b8d5548f4e1d11d17cf7feb",
+          "observedAt": "2026-10-14T04:49:03.736Z"
+        },
+        {
+          "sourceId": "memory:context-453",
+          "sourceVersion": "sha256:8bfe62da53c349a834fa8a7156a180aebd4ceeea86b16e3b3d54eb760a3b507c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-453",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Awards. It announced its nominees on November 27, 2012. The winners were announced on February 23, 2013 during an awards ceremony hosted by Andy Samberg.\n\nDocument 3269:\nThe Perfect Storm (film)",
+          "id": "ev_193b70e6e7b3beda6642e72b",
+          "observedAt": "2026-10-14T04:49:03.736Z"
+        },
+        {
+          "sourceId": "memory:context-263",
+          "sourceVersion": "sha256:ee5ee02bab73504bbba93f4df4a4239a69510a5d6fd7dda0c313b732a0ac4039",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-263",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The Film Independent Spirit Awards (abbreviated \"Spirit Awards\" and originally known as the FINDIE or Friends of Independents Awards), founded in 1984, are awards dedicated to independent filmmakers. Winners were typically presented with acrylic glass pyramids containing suspended shoestrings representing the paltry budgets of ind",
+          "id": "ev_46f8771708172da41ab7a40b",
+          "observedAt": "2026-10-14T04:49:03.736Z"
+        }
+      ],
+      "sourceIds": [
+        "context-369",
+        "context-453",
+        "context-263"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.344500000006519,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-369",
+        "context-453",
+        "context-263"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) play in Thailand professional football league. The club nickname is \"The Fighting Fish\" (Thai call; \"Pla Kud Nak Su\"), the most popular fish in the province.\n\nDocument 2663:\n32nd Independent Spirit Awards\nThe 32nd Independent Spirit Awards (2017) nominees were announced by Film Independent, the nonprofit arts organization that produces them, on November 22, 2016. The ceremony, hosted by Nick Kroll and John Mulaney, took place on Saturday, February 25, 2017, and was broadcast live on IFC at 2:00 pm PT. Online streaming service Sundance Now live-streamed the Spirit Awards concurrently with the telecast, with an on-demand version available on Sundance Now.\n  (part 3 of 5, excerpt) PT. Online streaming service Sundance Now live-streamed the Spirit Awards concurrently with the telecast, with an on-demand version available on Sundance Now.\n\nDocument 2664:\nSpringfield, Missouri\n- (part 4 of 5, excerpt) Document 3268:\n28th Independent Spirit Awards\nThe 2012 Independent Spirit Awards was the 28th annual occasion of the Film Independent Spirit Awards. It announced its nominees on November 27, 2012. The winners were announced on February 23, 2013 during an awards ceremony hosted by Andy Samberg.\n  (part 5 of 5, excerpt) Awards. It announced its nominees on November 27, 2012. The winners were announced on February 23, 2013 during an awards ceremony hosted by Andy Samberg.\n\nDocument 3269:\nThe Perfect Storm (film)\n- (part 1 of 5, excerpt) The Film Independent Spirit Awards (abbreviated \"Spirit Awards\" and originally known as the FINDIE or Friends of Independents Awards), founded in 1984, are awards dedicated to independent filmmakers. Winners were typically presented with acrylic glass pyramids containing suspended shoestrings representing the paltry budgets of ind",
+      "evidence": [
+        {
+          "sourceId": "memory:context-369",
+          "sourceVersion": "sha256:8ee17000608e2662e7bf27a0bd5db35ff275754be169eaa69f98f2e6c318a287",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-369",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "play in Thailand professional football league. The club nickname is \"The Fighting Fish\" (Thai call; \"Pla Kud Nak Su\"), the most popular fish in the province.\n\nDocument 2663:\n32nd Independent Spirit Awards\nThe 32nd Independent Spirit Awards (2017) nominees were announced by Film Independent, the nonprofit arts organization that produces them, on November 22, 2016. The ceremony, hosted by Nick Kroll and John Mulaney, took place on Saturday, February 25, 2017, and was broadcast live on IFC at 2:00 pm PT. Online streaming service Sundance Now live-streamed the Spirit Awards concurrently with the telecast, with an on-demand version available on Sundance Now.",
+          "id": "ev_0a5a1cb58704a0c035addc2b",
+          "observedAt": "2026-10-14T04:49:03.742Z"
+        },
+        {
+          "sourceId": "memory:context-369",
+          "sourceVersion": "sha256:8ee17000608e2662e7bf27a0bd5db35ff275754be169eaa69f98f2e6c318a287",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-369",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "PT. Online streaming service Sundance Now live-streamed the Spirit Awards concurrently with the telecast, with an on-demand version available on Sundance Now.\n\nDocument 2664:\nSpringfield, Missouri",
+          "id": "ev_0fc04e90f4149ba833d3b315",
+          "observedAt": "2026-10-14T04:49:03.742Z"
+        },
+        {
+          "sourceId": "memory:context-453",
+          "sourceVersion": "sha256:8bfe62da53c349a834fa8a7156a180aebd4ceeea86b16e3b3d54eb760a3b507c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-453",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 3268:\n28th Independent Spirit Awards\nThe 2012 Independent Spirit Awards was the 28th annual occasion of the Film Independent Spirit Awards. It announced its nominees on November 27, 2012. The winners were announced on February 23, 2013 during an awards ceremony hosted by Andy Samberg.",
+          "id": "ev_8b8d5548f4e1d11d17cf7feb",
+          "observedAt": "2026-10-14T04:49:03.742Z"
+        },
+        {
+          "sourceId": "memory:context-453",
+          "sourceVersion": "sha256:8bfe62da53c349a834fa8a7156a180aebd4ceeea86b16e3b3d54eb760a3b507c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-453",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Awards. It announced its nominees on November 27, 2012. The winners were announced on February 23, 2013 during an awards ceremony hosted by Andy Samberg.\n\nDocument 3269:\nThe Perfect Storm (film)",
+          "id": "ev_193b70e6e7b3beda6642e72b",
+          "observedAt": "2026-10-14T04:49:03.742Z"
+        },
+        {
+          "sourceId": "memory:context-263",
+          "sourceVersion": "sha256:ee5ee02bab73504bbba93f4df4a4239a69510a5d6fd7dda0c313b732a0ac4039",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-263",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The Film Independent Spirit Awards (abbreviated \"Spirit Awards\" and originally known as the FINDIE or Friends of Independents Awards), founded in 1984, are awards dedicated to independent filmmakers. Winners were typically presented with acrylic glass pyramids containing suspended shoestrings representing the paltry budgets of ind",
+          "id": "ev_46f8771708172da41ab7a40b",
+          "observedAt": "2026-10-14T04:49:03.742Z"
+        }
+      ],
+      "sourceIds": [
+        "context-369",
+        "context-453",
+        "context-263"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.595249999998487,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:53:15.870937+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "I do not know.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 578,
+    "completion_tokens": 714,
+    "total_tokens": 1292,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 707,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 254,
+    "completion_tokens": 396,
+    "total_tokens": 650,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 393,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 8438.833666999926,
+  "judgeWallMs": 4911.930624999968,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:53:29.225539+00:00"
+}

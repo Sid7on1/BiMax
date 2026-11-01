@@ -6,6 +6,9 @@ import {
 import { CompletionItem, ControlsMsg, UiSnapshot } from '../protocol';
 import { cn } from '../lib/cn';
 import { AttachmentWell, FileTile, type Attachment } from './AttachmentWell';
+import { ComputerRunControls } from './ComputerRunControls';
+import { ComputerUseOptions } from './ComputerUseOptions';
+import { computerRequest, computerCompletion, type ComputerRoute, type ComputerMode } from '../../../shared/computer';
 import { MicButton } from './MicButton';
 import { useDictation } from '../useDictation';
 import { BASIC_VOICE_TIP, talkIsStatus, talkLine, useTalk } from '../useTalk';
@@ -20,8 +23,7 @@ import {
 } from '../composer.model';
 
 /**
- * Code-only composer for the agentic IDE. The strip under the input contains project autonomy,
- * model routing, attachment, and live context controls; there is no host-computer lane.
+ * Shared task composer. Computer Use is an explicit per-message app/window choice.
  */
 
 /**
@@ -78,7 +80,7 @@ export function Composer({
   snapshot: UiSnapshot | null;
   streamedChars: number;
   completions: CompletionItem[];
-  onSubmit: (text: string, engineText?: string) => void;
+  onSubmit: (text: string, engineText?: string, route?: ComputerRoute) => void | Promise<void>;
   onInterrupt: () => void;
   onControls: (controls: Omit<ControlsMsg, 't'>) => void;
   onCommand: (cmd: string) => void;
@@ -95,7 +97,12 @@ export function Composer({
   const setText = (value: string | ((previous: string) => string)): void => {
     setDraft(current => ({ ...current, text: typeof value === 'function' ? value(current.text) : value }));
   };
-  const [queued, setQueued] = useState<{ draft: ComposerDraft; attachments: Attachment[] } | null>(null);
+  const [queued, setQueued] = useState<{ draft: ComposerDraft; attachments: Attachment[]; mode: ComputerMode } | null>(null);
+  const [cuMode, setCuMode] = useState<ComputerMode>('do');
+  const [sending, setSending] = useState(false);
+  const sendingRef = useRef(false);
+  const cuRequest = computerRequest(text.trimStart());
+  useEffect(() => { if (cuRequest === null) setCuMode('do'); }, [cuRequest === null]);
   const [saved, setSaved] = useState(true);
   const [error, setError] = useState('');
   const [sel, setSel] = useState(0);
@@ -115,6 +122,7 @@ export function Composer({
   const historyRef = useRef<string[]>(readHistory(draftKey));
   const histIdxRef = useRef(-1);
   const mounted = useRef(true);
+  const draftEpoch = useRef(0);
   const ingestJobs = useRef(new Map<string, symbol>());
   const submissionLock = useRef(false);
   const activeMention = mentionAt(text, caret);
@@ -122,7 +130,10 @@ export function Composer({
   // filtered out of this list unconditionally and `onCommand` was never called, so every slash
   // command the engine offers was unreachable from the one input the product points people at.
   const activeCommand = commandPrefix(text, caret);
-  const visibleCompletions = completions
+  const visibleCompletions = [
+    ...(computerCompletion(text, caret) ? [{ value: '@CU', label: '@CU · Computer Use', desc: 'Let Bimax use your computer', kind: 'symbol' as const }] : []),
+    ...completions.filter(item => item.value.toLowerCase() !== '@cu'),
+  ]
     .filter(item => (activeCommand !== null ? item.kind === 'command' : item.kind !== 'command'))
     .slice(0, 8);
   const showDropdown = (!!activeMention || activeCommand !== null) && visibleCompletions.length > 0;
@@ -147,7 +158,7 @@ export function Composer({
   const available = runtime?.phase === 'ready' || runtime?.phase === 'degraded';
   const unread = attachments.some(a => a.state !== 'read');
   const pendingCommand = attachments.length ? null : slashCommand(text);
-  const canSubmit = !!text.trim() && available && !unread && !queued;
+  const canSubmit = !!text.trim() && available && !unread && !queued && !sending && (cuRequest === null || !!cuRequest);
 
   useEffect(() => {
     mounted.current = true;
@@ -162,8 +173,9 @@ export function Composer({
   useEffect(() => window.bimax.onMessage?.((msg, sourceThreadId) => {
     if (sourceThreadId !== threadId) return;
     if (msg.t !== 'event' || (msg.name !== 'clear' && !(msg.name === 'session_restore' && available))) return;
+    draftEpoch.current++;
     ingestJobs.current.clear();
-    setQueued(null); setAttachments([]); setDraft(emptyDraft()); setError('');
+    setQueued(null); setCuMode('do'); setAttachments([]); setDraft(emptyDraft()); setError('');
     // History survives a task boundary. Clearing the transcript resets the ENGINE's context; what
     // the person typed is theirs, and ↑ after New Task is how a similar request gets restarted.
     historyRef.current = readHistory(draftKey); histIdxRef.current = -1;
@@ -220,20 +232,25 @@ export function Composer({
     setText(value); setError(''); histIdxRef.current = -1;
     queryAt(value, position);
   };
-  const send = (next: ComposerDraft, files: Attachment[]): boolean => {
+  const send = async (next: ComposerDraft, files: Attachment[], mode: ComputerMode): Promise<boolean> => {
+    if (sendingRef.current) return false;
+    const epoch = draftEpoch.current;
+    sendingRef.current = true; setSending(true);
     try {
       const message = composeMessage(next, files.map(file => file.path));
       const display = composeMessage(next) + (files.length ? `\n\nAttached: ${files.map(f => f.name).join(', ')}` : '');
-      onSubmit(display, message);
+      const route = computerRequest(next.text.trimStart()) !== null ? { kind: 'computer-use' as const, mode } : undefined;
+      await onSubmit(display, message, route);
+      if (!mounted.current || draftEpoch.current !== epoch) return true;
       historyRef.current = pushHistory(draftKey, next.text);
       onClearCompletions();
       return true;
-    } catch {
-      setError('Your message was not sent. Your draft is still here.');
+    } catch (error) {
+      if (mounted.current) setError((error as Error).message || 'Your message was not sent. Your draft is still here.');
       return false;
-    }
+    } finally { sendingRef.current = false; if (mounted.current) setSending(false); }
   };
-  const submit = (): void => {
+  const submit = async (): Promise<void> => {
     if (!canSubmit || submissionLock.current) return;
     submissionLock.current = true;
     // A slash command is an instruction to the application, not a turn for the model. It runs now
@@ -250,17 +267,21 @@ export function Composer({
     }
     if (busy) {
       // This is a reviewable follow-up, never silently replayed after a crash or a task switch.
-      setQueued({ draft: { ...draft }, attachments: [...attachments] });
+      setQueued({ draft: { ...draft }, attachments: [...attachments], mode: cuMode });
       return;
     }
-    if (!send(draft, attachments)) { submissionLock.current = false; return; }
-    setDraft(emptyDraft()); setAttachments([]);
+    const epoch = draftEpoch.current;
+    if (!await send(draft, attachments, cuMode)) { submissionLock.current = false; return; }
+    if (!mounted.current || draftEpoch.current !== epoch) return;
+    setDraft(emptyDraft()); setCuMode('do'); setAttachments([]);
     ingestJobs.current.clear(); histIdxRef.current = -1;
   };
-  const sendQueued = (): void => {
+  const sendQueued = async (): Promise<void> => {
     if (!queued || busy || !available || submissionLock.current) return;
     submissionLock.current = true;
-    if (send(queued.draft, queued.attachments)) {
+    const epoch = draftEpoch.current;
+    if (await send(queued.draft, queued.attachments, queued.mode)) {
+      if (!mounted.current || draftEpoch.current !== epoch) return;
       setQueued(null); setDraft(emptyDraft()); setAttachments([]);
     } else submissionLock.current = false;
   };
@@ -578,6 +599,8 @@ export function Composer({
           </div>
         )}
 
+        <ComputerRunControls threadId={threadId} onReuse={change} />
+        {cuRequest !== null && <ComputerUseOptions mode={cuMode} onMode={setCuMode} onRecipe={change} threadId={threadId} disabled={!!queued || sending} onRemove={() => change(cuRequest)} />}
         <div className="flex items-end gap-3 px-4 pt-3.5 pb-1">
           <textarea
             ref={taRef}
@@ -586,7 +609,7 @@ export function Composer({
             aria-label="Describe what you want Bimax to do"
             data-bimax-composer=""
             placeholder={busy ? 'Write the next step. Save it for review…' : 'Ask a question, build something, or bring your work here…'}
-            readOnly={!!queued}
+            readOnly={!!queued || sending}
             aria-describedby="composer-help"
             aria-controls={showDropdown ? 'composer-suggestions' : undefined}
             aria-expanded={showDropdown}
@@ -756,7 +779,7 @@ export function Composer({
           </Button>
         </div>
       </div>
-        {/* The permanent "Enter to send · ⇧⏎ new line · @ context · / commands" line is gone from
+        {/* The permanent "Enter to send · ⇧⏎ new line · @ context · @CU computer use · / commands" line is gone from
             the screen, but NOT from the accessibility tree: every one of those four affordances is
             discoverable by typing the character, which is no help at all to someone who cannot see
             the result. It stays as the textarea's description, read on focus and rendered nowhere.
@@ -764,7 +787,7 @@ export function Composer({
             What is still drawn is only the three things that are actual state — a blocked send, a
             slash command about to run instead of a message, and drafts not persisting — and the row
             is absent entirely when none of them is true, rather than sitting there empty. */}
-        <span id="composer-help" className="sr-only">Enter to send · ⇧⏎ new line · @ context · / commands</span>
+        <span id="composer-help" className="sr-only">Enter to send · ⇧⏎ new line · @ context · @CU computer use · / commands</span>
         {(unread || pendingCommand || !saved) && (
           <div className="mt-2 flex items-center justify-between gap-3 px-3 text-[10px] text-faint">
             <span className="truncate">{unread ? 'Files must finish reading. Retry or remove any failed files.'

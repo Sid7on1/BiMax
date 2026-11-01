@@ -28,6 +28,8 @@ vendor/
 # God's Land's notch helper compiles this vendored MIT library from source (app/native/notch/Vendor/DynamicNotchKit/
 # BIMAX_CHANGES.md); the rule above matches it on a case-insensitive disk.
 !app/native/notch/Vendor/
+# Record 80: the complete reviewed Arc snapshot is source owned by Bimax CU.
+!app/native/computer/vendor/
 
 # macOS Finder litter
 .DS_Store
@@ -122,6 +124,14 @@ benchmarks/cu-baseline/baseline-*.json
 # never becomes a 584 MB commit into the engine/app repository. bimax-app-build-independence: the
 # desktop build must not write into the site, and the site is not an input to it.
 site/
+# The complete pinned arc-cua source snapshot includes its upstream site.
+# Keep that reviewed source trackable without changing the Bimax website/build-output exclusions.
+!app/native/computer/vendor/arc-cua/site/
+!app/native/computer/vendor/arc-cua/site/**
+# The archived dependency's package notice lives below dist; admit that metadata only.
+!archive/computer-use/2026-10-04-retired-cua-driver/driver-dependencies/@ubjs/core/dist/
+!archive/computer-use/2026-10-04-retired-cua-driver/driver-dependencies/@ubjs/core/dist/cjs/
+!archive/computer-use/2026-10-04-retired-cua-driver/driver-dependencies/@ubjs/core/dist/cjs/package.json
 
 # Other agents' per-machine state. Not ours to track and not ours to archive.
 .opencode/
@@ -136,3 +146,15 @@ app/intents/
 
 # Lock file of the agent-skills installer (developer tooling, not the product)
 skills-lock.json
+
+# Generated standalone arc runtime; rebuild from the pinned import and dependency lock.
+/app/arc-runtime/
+
+# App-owned Bimax CU native staging
+app/cu-runtime/
+
+# App-only generated descriptor-relative filesystem helper
+app/project-files/
+
+# Disposable compiled engine used by record 102's local qualification; rebuild from source.
+/docs/product-reset/evidence/2026-10-18-memory-integrity-bots/qualification/staged-engine/

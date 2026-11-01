@@ -1,0 +1,142 @@
+{
+  "row": 1,
+  "query": 5,
+  "id": "mab-1-5",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:40:46.077801+00:00",
+  "valid": true,
+  "question": "2014 S/S is the debut album of a South Korean boy group that was formed by who?",
+  "references": [
+    "YG Entertainment"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-145",
+    "context-241",
+    "context-455"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T15:41:30.420179+00:00",
+  "rag": {
+    "ids": [
+      "context-145",
+      "context-241",
+      "context-455"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) Kenneth Mars as King Triton and Pat Carroll as Ursula. Other voice actors include Edan Gross and Bradley Pierce as Flounder, and Jeff Bennett as Prince Eric.\n\nDocument 1036:\nBTS discography\nThe following is the discography of South Korean boy group BTS. The group debuted in South Korea on June 2013 with single album, \"2 Cool 4 Skool\", at number 5 on South Korean Week 31 Gaon Weekly Chart. They made a comeback on September 2013 with an extended play, \"O!RUL8,2?\", which peaked at number 4 on Week 38 Gaon Weekly Chart. BTS then released their second extended play, \"Skool Luv Affair\", in February 2014, where it charted at number 1 on Week 18 Gaon Weekly Chart. This also marked the first time their album charted on international charts, Billboard World Albums and Japan's Oricon Chart, specifically. A repackaged version of the album, \"Skool Luv Affair Special Addition\" which was released in May 2014, also peaked at number 1 on Week 21 Gaon Weekly Chart.\n- (part 3 of 5) Android\u00a04.0 introduced a new visual appearance codenamed \"Holo\", which is built around a cleaner, minimalist design, and a new default typeface named Roboto.\n\nDocument 1717:\nCho Kyuhyun\nCho Kyu-hyun (born February 3, 1988), better known mononymously as Kyuhyun, is a South Korean singer and musical theatre actor. He is best known as a member of South Korean boy group Super Junior, its sub-groups Super Junior-K.R.Y., Super Junior-M and a former member of the South Korean ballad group S.M. the Ballad. He is one of the first four Korean artists to appear on Chinese postage stamps.\n- (part 5 of 5, excerpt) Ravi is a South Korean rapper, songwriter and producer, signed under Jellyfish Entertainment. He began his career as a rapper in 2012 in the South Korean boy group VIXX, and later formed VIXX's",
+    "evidence": [
+      {
+        "sourceId": "memory:context-145",
+        "sourceVersion": "sha256:26358c73fac9a336093ee8e91737c40da725cbf8dae78c15b973164446360856",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-145",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "Kenneth Mars as King Triton and Pat Carroll as Ursula. Other voice actors include Edan Gross and Bradley Pierce as Flounder, and Jeff Bennett as Prince Eric.\n\nDocument 1036:\nBTS discography\nThe following is the discography of South Korean boy group BTS. The group debuted in South Korea on June 2013 with single album, \"2 Cool 4 Skool\", at number 5 on South Korean Week 31 Gaon Weekly Chart. They made a comeback on September 2013 with an extended play, \"O!RUL8,2?\", which peaked at number 4 on Week 38 Gaon Weekly Chart. BTS then released their second extended play, \"Skool Luv Affair\", in February 2014, where it charted at number 1 on Week 18 Gaon Weekly Chart. This also marked the first time their album charted on international charts, Billboard World Albums and Japan's Oricon Chart, specifically. A repackaged version of the album, \"Skool Luv Affair Special Addition\" which was released in May 2014, also peaked at number 1 on Week 21 Gaon Weekly Chart.",
+        "id": "ev_b7041be0b27f63f8f924e101",
+        "observedAt": "2026-10-14T15:19:21.337Z"
+      },
+      {
+        "sourceId": "memory:context-241",
+        "sourceVersion": "sha256:f4c672356fb31f5878243b108f100f7d333e716b24ce667e33a9300a7f64cccf",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-241",
+          "part": 3,
+          "parts": 5
+        },
+        "text": "Android\u00a04.0 introduced a new visual appearance codenamed \"Holo\", which is built around a cleaner, minimalist design, and a new default typeface named Roboto.\n\nDocument 1717:\nCho Kyuhyun\nCho Kyu-hyun (born February 3, 1988), better known mononymously as Kyuhyun, is a South Korean singer and musical theatre actor. He is best known as a member of South Korean boy group Super Junior, its sub-groups Super Junior-K.R.Y., Super Junior-M and a former member of the South Korean ballad group S.M. the Ballad. He is one of the first four Korean artists to appear on Chinese postage stamps.",
+        "id": "ev_bf0eae6d243ba997347b8e55",
+        "observedAt": "2026-10-14T15:19:21.337Z"
+      },
+      {
+        "sourceId": "memory:context-455",
+        "sourceVersion": "sha256:cd11efe43a06445b6199b2ded4e36584f8f64679617e5e62eebc9092090245b8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-455",
+          "part": 5,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Ravi is a South Korean rapper, songwriter and producer, signed under Jellyfish Entertainment. He began his career as a rapper in 2012 in the South Korean boy group VIXX, and later formed VIXX's",
+        "id": "ev_e1dd49740959407d52703807",
+        "observedAt": "2026-10-14T15:19:21.337Z"
+      }
+    ],
+    "sourceIds": [
+      "context-145",
+      "context-241",
+      "context-455"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 4.610999999999876,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+  "prediction": "The retrieved history does not contain information about a 2014 S/S debut album by a South Korean boy group. The available documents reference BTS's 2013 debut, Super Junior, VIXX, and unrelated content, but none match the query. Therefore, based solely on the provided history, I do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 603,
+    "completion_tokens": 1095,
+    "total_tokens": 1698,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 323,
+    "completion_tokens": 549,
+    "total_tokens": 872,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 546,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 38097.96354199898,
+  "judgeWallMs": 6240.6324579987995
+}

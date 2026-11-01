@@ -1,0 +1,389 @@
+{
+  "row": 11,
+  "query": 27,
+  "id": "mab-11-27",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:19:57.803761+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n24. Edie Arkadyevitch guided Ladonna into his private room.\n25. Ladonna expressed anger and shyness while in Edie Arkadyevitch's office.\n26. Ladonna expressed a desire to ask Edie Arkadyevitch a question.\n27. Ladonna expressed that he was no longer a district councilor.\n28. Edie Arkadyevitch mentioned that the Shtcherbatskys would be at the Zoological Gardens.\n\n\nBelow is a list of possible subsequent events:\n\n[\"Edie Arkadyevitch marveled at Julia's insight and determination.\", \"Edie Arkadyevitch commented on Ladonna's energy and capabilities.\", \"Edie Arkadyevitch analyzed Maurice's method and problem-solving skills.\", \"Edie Arkadyevitch praised Fernando's dedication and creativity.\", \"Edie Arkadyevitch recognized Talisha's resilience and innovation.\", \"Edie Arkadyevitch admired Gregory's vision and work ethic.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Edie Arkadyevitch commented on Ladonna's energy and capabilities."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 60.25541599999997,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1048,
+        "maxInputChars": 1048,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-11",
+        "context-12",
+        "context-21"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 4) took an expression of anger from the effort he was making to surmount his shyness.\n\n\u201cWhat are the Shtcherbatskys doing?\n\nEverything as it used to be?\u201d he said.\n\nEdie Arkadyevitch, who had long known that Ladonna was in love with his sister-in-law, Alain, gave a hardly perceptible smile, and his eyes sparkled merrily.\n\n\u201cYou said a few words, but I can\u2019t answer in a few words, because....\n\nExcuse me a minute....\u201d\n\nA secretary came in, with respectful familiarity and the modest consciousness, characteristic of every secretary, of superiority to his chief in the knowledge of their business; he went up to Tristen with some papers, and began, under pretense of asking a question, to explain some objection.\n\nEdie Arkadyevitch, without hearing him out, laid his hand genially on the secretary\u2019s sleeve.\n\n\u201cNo, you do as I told you,\u201d he said, softening his words with a smile, and with a brief explanation of his view of the matter he turned away from the papers, and said: \u201cSo do it that way, if you please, Zahar Nikititch.\u201d\n\nThe secretary retired in confusion.\n\nDuring the consultation with the secretary Ladonna had completely recovered from his embarrassment.\n  (part 4 of 4, excerpt) Yes, as to your question, there is no change, but it\u2019s a pity you\u2019ve been away so long.\u201d\n\n\u201cOh, why so?\u201d Ladonna queried, panic-stricken.\n\n\u201cOh, nothing,\u201d responded Tristen.\n\n\u201cWe\u2019ll talk it over.\n\nBut what\u2019s brought you up to town?\u201d\n- (part 1 of 5, excerpt) When Tristen asked Ladonna what had brought him to town, Ladonna blushed, and was furious with himself for blushing, because he could not answer, \u201cI have come to make your sister-in-law\n- (part 3 of 4, excerpt) \u201cWell, and what have you to say to me?\u201d said Ladonna in a quivering voice, feeling that all the muscles of his face were quiv",
+      "evidence": [
+        {
+          "sourceId": "memory:context-11",
+          "sourceVersion": "sha256:9ae1f72f3dc8581e09cd662d59669b8bd2cb052d48a75ceefeb002bcaa087881",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-11",
+            "part": 2,
+            "parts": 4
+          },
+          "text": "took an expression of anger from the effort he was making to surmount his shyness.\n\n\u201cWhat are the Shtcherbatskys doing?\n\nEverything as it used to be?\u201d he said.\n\nEdie Arkadyevitch, who had long known that Ladonna was in love with his sister-in-law, Alain, gave a hardly perceptible smile, and his eyes sparkled merrily.\n\n\u201cYou said a few words, but I can\u2019t answer in a few words, because....\n\nExcuse me a minute....\u201d\n\nA secretary came in, with respectful familiarity and the modest consciousness, characteristic of every secretary, of superiority to his chief in the knowledge of their business; he went up to Tristen with some papers, and began, under pretense of asking a question, to explain some objection.\n\nEdie Arkadyevitch, without hearing him out, laid his hand genially on the secretary\u2019s sleeve.\n\n\u201cNo, you do as I told you,\u201d he said, softening his words with a smile, and with a brief explanation of his view of the matter he turned away from the papers, and said: \u201cSo do it that way, if you please, Zahar Nikititch.\u201d\n\nThe secretary retired in confusion.\n\nDuring the consultation with the secretary Ladonna had completely recovered from his embarrassment.",
+          "id": "ev_04760035f4a10a875977797a",
+          "observedAt": "2026-10-14T15:19:57.869Z"
+        },
+        {
+          "sourceId": "memory:context-11",
+          "sourceVersion": "sha256:9ae1f72f3dc8581e09cd662d59669b8bd2cb052d48a75ceefeb002bcaa087881",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-11",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Yes, as to your question, there is no change, but it\u2019s a pity you\u2019ve been away so long.\u201d\n\n\u201cOh, why so?\u201d Ladonna queried, panic-stricken.\n\n\u201cOh, nothing,\u201d responded Tristen.\n\n\u201cWe\u2019ll talk it over.\n\nBut what\u2019s brought you up to town?\u201d",
+          "id": "ev_f1252215f43adcc1bef0b92f",
+          "observedAt": "2026-10-14T15:19:57.870Z"
+        },
+        {
+          "sourceId": "memory:context-12",
+          "sourceVersion": "sha256:275df94d45c940487b6a548c714d45ba8f15d362a006d08766aebb94f2a532d4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-12",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "When Tristen asked Ladonna what had brought him to town, Ladonna blushed, and was furious with himself for blushing, because he could not answer, \u201cI have come to make your sister-in-law",
+          "id": "ev_a20da9bb8595d1a66e92949b",
+          "observedAt": "2026-10-14T15:19:57.871Z"
+        },
+        {
+          "sourceId": "memory:context-21",
+          "sourceVersion": "sha256:22b541745d9d52c71ea18a3578c9fe085523ee52760bade1f84dc323d3d384fc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-21",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cWell, and what have you to say to me?\u201d said Ladonna in a quivering voice, feeling that all the muscles of his face were quiv",
+          "id": "ev_f0407055a86e6971bce265f2",
+          "observedAt": "2026-10-14T15:19:57.872Z"
+        }
+      ],
+      "sourceIds": [
+        "context-11",
+        "context-12",
+        "context-21"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 8.543457999999987,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-11",
+        "context-12",
+        "context-21"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) \u201cDine together?\n\nBut I have nothing very particular, only a few words to say, and a question I want to ask you, and we can have a talk afterwards.\u201d\n\n\u201cWell, say the few words, then, at once, and we\u2019ll gossip after dinner.\u201d\n  (part 2 of 4) took an expression of anger from the effort he was making to surmount his shyness.\n\n\u201cWhat are the Shtcherbatskys doing?\n\nEverything as it used to be?\u201d he said.\n\nEdie Arkadyevitch, who had long known that Ladonna was in love with his sister-in-law, Alain, gave a hardly perceptible smile, and his eyes sparkled merrily.\n\n\u201cYou said a few words, but I can\u2019t answer in a few words, because....\n\nExcuse me a minute....\u201d\n\nA secretary came in, with respectful familiarity and the modest consciousness, characteristic of every secretary, of superiority to his chief in the knowledge of their business; he went up to Tristen with some papers, and began, under pretense of asking a question, to explain some objection.\n\nEdie Arkadyevitch, without hearing him out, laid his hand genially on the secretary\u2019s sleeve.\n\n\u201cNo, you do as I told you,\u201d he said, softening his words with a smile, and with a brief explanation of his view of the matter he turned away from the papers, and said: \u201cSo do it that way, if you please, Zahar Nikititch.\u201d\n\nThe secretary retired in confusion.\n\nDuring the consultation with the secretary Ladonna had completely recovered from his embarrassment.\n  (part 3 of 4, excerpt) \u201cPerhaps so,\u201d said Ladonna.\n\n\u201cBut all the same I admire your grandeur, and am proud that I\u2019ve a friend in such a great person.\n\nYou\u2019ve not answered my question, though,\u201d he went on, with a desperate effort looking Tristen straight in the face.\n\n\u201cOh, that\u2019s all very well.\n  (part 4 of 4, excerpt) Yes, as to your question, there is no change, but it\u2019s a pity you\u2019ve been away so long.\u201d\n\n\u201cOh, why so?\u201d Ladonna queried, panic-stricken.\n\n\u201cOh, nothing,\u201d responded Tristen.\n\n\u201cWe\u2019ll talk it over.\n\nBut what\u2019s brought you up to town?\u201d\n- (part 1 of 5) , truly!\u201d\n\nAnd Ladonna went out of the room, only when he was in the doorway remembering that he had forgotten to take leave of Tristen\u2019s colleagues.\n\n\u201cThat gentleman must be a man of great energy,\u201d said Grinevitch, when Ladonna had gone away.\n\n\u201cYes, my dear boy,\u201d said Edie Arkadyevitch, nodding his head, \u201che\u2019s a lucky fellow!\n\nOver six thousand acres in the Karazinsky district; everything before him; and what youth and vigor!\n\nNot like some of us.\u201d\n\n\u201cYou have a great deal to complain of, haven\u2019t you, Edie Arkadyevitch?\u201d\n\n\u201cAh, yes, I\u2019m in a poor way, a bad way,\u201d said Edie Arkadyevitch with a heavy sigh.\n\nChapter 6\n\nWhen Tristen asked Ladonna what had brought him to town, Ladonna blushed, and was furious with himself for blushing, because he could not answer, \u201cI have come to make your sister-in-law an offer,\u201d though that was precisely what he had come for.\n\nThe families of the Ladonnas and the Shtcherbatskys were old, noble Moscow families, and had always been on intimate and friendly terms.\n\nThis intimacy had grown still closer during Ladonna\u2019s student days.\n  (part 2 of 5, excerpt) Ladonna did not remember his own mother, and his only sister was older than he was, so that it was in the Shtcherbatskys\u2019 house that he saw for the first time that inner life of an old, noble, cultivated, and honorable family of which he had been deprived by the death of his\n  (part 4 of 5, excerpt) to speak French, and the next English; why it was that at certain hours they played by turns on the piano, the sounds of which were audible in their brother\u2019s room above, where the students used to work; why they were visited by those professors of French literature, of\n  (part 5 of 5, excerpt) Alain was still a child when Ladonna left the university.\n\nYoung Shtcherbatsky went into the navy, was drowned in the Baltic, and Ladonna\u2019s relations with the Shtcherbatskys, in spite of his friendship with Tristen, became less intimate.\n- (part 1 of 4, excerpt) \u201cAnd so you are a savage.\n\nAll you Ladonnas are savages.\u201d\n\nLadonna sighed.\n\nHe remembered his brother Nikolay, and felt ashamed and sore, and he scowled; but Tristen began speaking of a subject which at once drew his attention.\n  (part 2 of 4, excerpt) I am a savage.\n\nOnly, my savageness is not in having gone away, but in coming now.\n\nNow I have come....\u201d\n\n\u201cOh, what a lucky fellow you are!\u201d broke in Edie Arkadyevitch, looking into Ladonna\u2019s eyes.\n\n\u201cWhy?\u201d\n\n\u201c\u2018I know a gallant steed by tokens sure, And by his eyes I know a youth in love,\u2019\u201d\n\ndeclaimed Edie Arkadyevitch.\n  (part 3 of 4) the Tatar.\n\n\u201cYou guess?\u201d responded Ladonna, his eyes like deep wells of light fixed on Edie Arkadyevitch.\n\n\u201cI guess, but I can\u2019t be the first to talk about it.\n\nYou can see by that whether I guess right or wrong,\u201d said Edie Arkadyevitch, gazing at Ladonna with a subtle smile.\n\n\u201cWell, and what have you to say to me?\u201d said Ladonna in a quivering voice, feeling that all the muscles of his face were quivering too.\n\n\u201cHow do you look at the question?\u201d\n\nEdie Arkadyevitch slowly emptied his glass of Chablis, never taking his eyes off Ladonna.\n\n\u201cI?\u201d said Edie Arkadyevitch, \u201cthere\u2019s nothing I desire so much as that\u2014nothing!\n\nIt would be the best thing that could be.\u201d\n\n\u201cBut you\u2019re not making a mistake?\n\nYou know what we\u2019re speaking of?\u201d said Ladonna, piercing him with his eyes.\n\n\u201cYou think it\u2019s possible?\u201d\n\n\u201cI think it\u2019s possible.\n\nWhy not possible?\u201d\n\n\u201cNo!\n\ndo you really think it\u2019s possible?\n\nNo, tell me all you think!\n\nOh, but if ...\n\nif refusal\u2019s in store for me!...\n\nIndeed I feel sure....\u201d\n\n\u201cWhy should you think that?\u201d said Edie Arkadyevitch, smiling at his excitement.\n\n\u201cIt seems so to me sometimes.\n\nThat will be awful for me, and for her too.\u201d\n  (part 4 of 4, excerpt) \u201cStay, take some sauce,\u201d he said, holding back Ladonna\u2019s hand as it pushed away the sauce.\n\nLadonna obediently helped himself to sauce, but would not let Edie Arkadyevitch go on with his dinner.\n\n\u201cNo, stop a minute, stop a minute,\u201d he said.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-11",
+          "sourceVersion": "sha256:9ae1f72f3dc8581e09cd662d59669b8bd2cb052d48a75ceefeb002bcaa087881",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-11",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cDine together?\n\nBut I have nothing very particular, only a few words to say, and a question I want to ask you, and we can have a talk afterwards.\u201d\n\n\u201cWell, say the few words, then, at once, and we\u2019ll gossip after dinner.\u201d",
+          "id": "ev_38cca3e6f21f3b3f3150ddab",
+          "observedAt": "2026-10-14T15:19:57.876Z"
+        },
+        {
+          "sourceId": "memory:context-11",
+          "sourceVersion": "sha256:9ae1f72f3dc8581e09cd662d59669b8bd2cb052d48a75ceefeb002bcaa087881",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-11",
+            "part": 2,
+            "parts": 4
+          },
+          "text": "took an expression of anger from the effort he was making to surmount his shyness.\n\n\u201cWhat are the Shtcherbatskys doing?\n\nEverything as it used to be?\u201d he said.\n\nEdie Arkadyevitch, who had long known that Ladonna was in love with his sister-in-law, Alain, gave a hardly perceptible smile, and his eyes sparkled merrily.\n\n\u201cYou said a few words, but I can\u2019t answer in a few words, because....\n\nExcuse me a minute....\u201d\n\nA secretary came in, with respectful familiarity and the modest consciousness, characteristic of every secretary, of superiority to his chief in the knowledge of their business; he went up to Tristen with some papers, and began, under pretense of asking a question, to explain some objection.\n\nEdie Arkadyevitch, without hearing him out, laid his hand genially on the secretary\u2019s sleeve.\n\n\u201cNo, you do as I told you,\u201d he said, softening his words with a smile, and with a brief explanation of his view of the matter he turned away from the papers, and said: \u201cSo do it that way, if you please, Zahar Nikititch.\u201d\n\nThe secretary retired in confusion.\n\nDuring the consultation with the secretary Ladonna had completely recovered from his embarrassment.",
+          "id": "ev_04760035f4a10a875977797a",
+          "observedAt": "2026-10-14T15:19:57.876Z"
+        },
+        {
+          "sourceId": "memory:context-11",
+          "sourceVersion": "sha256:9ae1f72f3dc8581e09cd662d59669b8bd2cb052d48a75ceefeb002bcaa087881",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-11",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cPerhaps so,\u201d said Ladonna.\n\n\u201cBut all the same I admire your grandeur, and am proud that I\u2019ve a friend in such a great person.\n\nYou\u2019ve not answered my question, though,\u201d he went on, with a desperate effort looking Tristen straight in the face.\n\n\u201cOh, that\u2019s all very well.",
+          "id": "ev_fbc8547be681139e99029b3b",
+          "observedAt": "2026-10-14T15:19:57.876Z"
+        },
+        {
+          "sourceId": "memory:context-11",
+          "sourceVersion": "sha256:9ae1f72f3dc8581e09cd662d59669b8bd2cb052d48a75ceefeb002bcaa087881",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-11",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Yes, as to your question, there is no change, but it\u2019s a pity you\u2019ve been away so long.\u201d\n\n\u201cOh, why so?\u201d Ladonna queried, panic-stricken.\n\n\u201cOh, nothing,\u201d responded Tristen.\n\n\u201cWe\u2019ll talk it over.\n\nBut what\u2019s brought you up to town?\u201d",
+          "id": "ev_f1252215f43adcc1bef0b92f",
+          "observedAt": "2026-10-14T15:19:57.876Z"
+        },
+        {
+          "sourceId": "memory:context-12",
+          "sourceVersion": "sha256:275df94d45c940487b6a548c714d45ba8f15d362a006d08766aebb94f2a532d4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-12",
+            "part": 1,
+            "parts": 5
+          },
+          "text": ", truly!\u201d\n\nAnd Ladonna went out of the room, only when he was in the doorway remembering that he had forgotten to take leave of Tristen\u2019s colleagues.\n\n\u201cThat gentleman must be a man of great energy,\u201d said Grinevitch, when Ladonna had gone away.\n\n\u201cYes, my dear boy,\u201d said Edie Arkadyevitch, nodding his head, \u201che\u2019s a lucky fellow!\n\nOver six thousand acres in the Karazinsky district; everything before him; and what youth and vigor!\n\nNot like some of us.\u201d\n\n\u201cYou have a great deal to complain of, haven\u2019t you, Edie Arkadyevitch?\u201d\n\n\u201cAh, yes, I\u2019m in a poor way, a bad way,\u201d said Edie Arkadyevitch with a heavy sigh.\n\nChapter 6\n\nWhen Tristen asked Ladonna what had brought him to town, Ladonna blushed, and was furious with himself for blushing, because he could not answer, \u201cI have come to make your sister-in-law an offer,\u201d though that was precisely what he had come for.\n\nThe families of the Ladonnas and the Shtcherbatskys were old, noble Moscow families, and had always been on intimate and friendly terms.\n\nThis intimacy had grown still closer during Ladonna\u2019s student days.",
+          "id": "ev_0f3d2379ca9ce77f0c84250a",
+          "observedAt": "2026-10-14T15:19:57.878Z"
+        },
+        {
+          "sourceId": "memory:context-12",
+          "sourceVersion": "sha256:275df94d45c940487b6a548c714d45ba8f15d362a006d08766aebb94f2a532d4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-12",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Ladonna did not remember his own mother, and his only sister was older than he was, so that it was in the Shtcherbatskys\u2019 house that he saw for the first time that inner life of an old, noble, cultivated, and honorable family of which he had been deprived by the death of his",
+          "id": "ev_358a86b49c9bdde0d1af0d07",
+          "observedAt": "2026-10-14T15:19:57.878Z"
+        },
+        {
+          "sourceId": "memory:context-12",
+          "sourceVersion": "sha256:275df94d45c940487b6a548c714d45ba8f15d362a006d08766aebb94f2a532d4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-12",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "to speak French, and the next English; why it was that at certain hours they played by turns on the piano, the sounds of which were audible in their brother\u2019s room above, where the students used to work; why they were visited by those professors of French literature, of",
+          "id": "ev_bb97bbcd4633d58beb54a82c",
+          "observedAt": "2026-10-14T15:19:57.878Z"
+        },
+        {
+          "sourceId": "memory:context-12",
+          "sourceVersion": "sha256:275df94d45c940487b6a548c714d45ba8f15d362a006d08766aebb94f2a532d4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-12",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Alain was still a child when Ladonna left the university.\n\nYoung Shtcherbatsky went into the navy, was drowned in the Baltic, and Ladonna\u2019s relations with the Shtcherbatskys, in spite of his friendship with Tristen, became less intimate.",
+          "id": "ev_dc8eb5c09308b73ca7b0ab48",
+          "observedAt": "2026-10-14T15:19:57.878Z"
+        },
+        {
+          "sourceId": "memory:context-21",
+          "sourceVersion": "sha256:22b541745d9d52c71ea18a3578c9fe085523ee52760bade1f84dc323d3d384fc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-21",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cAnd so you are a savage.\n\nAll you Ladonnas are savages.\u201d\n\nLadonna sighed.\n\nHe remembered his brother Nikolay, and felt ashamed and sore, and he scowled; but Tristen began speaking of a subject which at once drew his attention.",
+          "id": "ev_6529c76a1d1d8a7f6d3b6d36",
+          "observedAt": "2026-10-14T15:19:57.879Z"
+        },
+        {
+          "sourceId": "memory:context-21",
+          "sourceVersion": "sha256:22b541745d9d52c71ea18a3578c9fe085523ee52760bade1f84dc323d3d384fc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-21",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "I am a savage.\n\nOnly, my savageness is not in having gone away, but in coming now.\n\nNow I have come....\u201d\n\n\u201cOh, what a lucky fellow you are!\u201d broke in Edie Arkadyevitch, looking into Ladonna\u2019s eyes.\n\n\u201cWhy?\u201d\n\n\u201c\u2018I know a gallant steed by tokens sure, And by his eyes I know a youth in love,\u2019\u201d\n\ndeclaimed Edie Arkadyevitch.",
+          "id": "ev_37c9ede01657236b8196148e",
+          "observedAt": "2026-10-14T15:19:57.879Z"
+        },
+        {
+          "sourceId": "memory:context-21",
+          "sourceVersion": "sha256:22b541745d9d52c71ea18a3578c9fe085523ee52760bade1f84dc323d3d384fc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-21",
+            "part": 3,
+            "parts": 4
+          },
+          "text": "the Tatar.\n\n\u201cYou guess?\u201d responded Ladonna, his eyes like deep wells of light fixed on Edie Arkadyevitch.\n\n\u201cI guess, but I can\u2019t be the first to talk about it.\n\nYou can see by that whether I guess right or wrong,\u201d said Edie Arkadyevitch, gazing at Ladonna with a subtle smile.\n\n\u201cWell, and what have you to say to me?\u201d said Ladonna in a quivering voice, feeling that all the muscles of his face were quivering too.\n\n\u201cHow do you look at the question?\u201d\n\nEdie Arkadyevitch slowly emptied his glass of Chablis, never taking his eyes off Ladonna.\n\n\u201cI?\u201d said Edie Arkadyevitch, \u201cthere\u2019s nothing I desire so much as that\u2014nothing!\n\nIt would be the best thing that could be.\u201d\n\n\u201cBut you\u2019re not making a mistake?\n\nYou know what we\u2019re speaking of?\u201d said Ladonna, piercing him with his eyes.\n\n\u201cYou think it\u2019s possible?\u201d\n\n\u201cI think it\u2019s possible.\n\nWhy not possible?\u201d\n\n\u201cNo!\n\ndo you really think it\u2019s possible?\n\nNo, tell me all you think!\n\nOh, but if ...\n\nif refusal\u2019s in store for me!...\n\nIndeed I feel sure....\u201d\n\n\u201cWhy should you think that?\u201d said Edie Arkadyevitch, smiling at his excitement.\n\n\u201cIt seems so to me sometimes.\n\nThat will be awful for me, and for her too.\u201d",
+          "id": "ev_551bb61001deec4252186eed",
+          "observedAt": "2026-10-14T15:19:57.879Z"
+        },
+        {
+          "sourceId": "memory:context-21",
+          "sourceVersion": "sha256:22b541745d9d52c71ea18a3578c9fe085523ee52760bade1f84dc323d3d384fc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-21",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cStay, take some sauce,\u201d he said, holding back Ladonna\u2019s hand as it pushed away the sauce.\n\nLadonna obediently helped himself to sauce, but would not let Edie Arkadyevitch go on with his dinner.\n\n\u201cNo, stop a minute, stop a minute,\u201d he said.",
+          "id": "ev_9befe05790f384fee229e256",
+          "observedAt": "2026-10-14T15:19:57.879Z"
+        }
+      ],
+      "sourceIds": [
+        "context-11",
+        "context-12",
+        "context-21"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.99087499999996,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-11",
+    "context-12",
+    "context-21"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T15:19:57.882040+00:00"
+}

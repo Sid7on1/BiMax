@@ -21,12 +21,13 @@
 // Additive, so the major stays 3 and the `catalog` feature flag gates it.
 export const PROTOCOL_VERSION = 3;
 /** Semantic wire release. Major compatibility remains available to v2 clients. */
-export const PROTOCOL_SEMVER = '3.6.0';
+export const PROTOCOL_SEMVER = '3.8.0';
 export const PROTOCOL_MIN_COMPATIBLE_MAJOR = 2;
 export const PROTOCOL_MAX_COMPATIBLE_MAJOR = 3;
 
 /** Negotiated features. Clients must hide/degrade features that are not advertised. */
 export const PROTOCOL_FEATURES = [
+  'rich-presentation',
   'approvals',
   'boot',
   'catalog',
@@ -38,6 +39,7 @@ export const PROTOCOL_FEATURES = [
   'review-snapshot',
   'outcome-snapshot',
   'host-call',
+  'turn-tool-scope',
 ] as const;
 
 // A JSON-safe value. The codec guarantees only these cross the wire (sanitizeArgs strips the rest).
@@ -277,9 +279,14 @@ export interface ReplyMsg {
 }
 
 /** A submitted prompt line — a user turn OR a slash command (engine decides, as handleSubmit does). */
+/** Host-selected per-turn tool boundary. It cannot install a tool or create host authority. */
+export interface TurnToolScope { names: string[]; required?: string }
 export interface InputMsg {
   t: 'input';
   text: string;
+  toolScope?: TurnToolScope;
+  /** User-visible words, without host context added to text. */
+  displayText?: string;
 }
 
 /** Cancel the in-flight turn (Ctrl-C / Esc in the front-end). */
@@ -470,6 +477,7 @@ export const FORWARDED_EVENTS: readonly string[] = [
   'outcome_update',
   // The driver re-emits each reply token here so the out-of-process front-end can render the stream.
   'stream_token',
+  'engine_notice',
   // Footer state read from engine singletons; snapshotted for the out-of-process front-end.
   'ui_snapshot',
 ];
@@ -522,3 +530,6 @@ export function sanitizeArgs(args: any[]): JsonValue[] {
 // (app/src/__tests__/module.boundaries.test.ts).
 export { requiresBuildVerification, verificationState, verificationCovers } from '../review/review.verdict';
 export type { VerificationState, VerdictChange, VerdictRun } from '../review/review.verdict';
+
+export { presentationParts } from './presentation';
+export type { EngineNotice, OutputFormat, OutputRecord, OutputVersion, OutputDocument, PresentationPart } from './presentation';

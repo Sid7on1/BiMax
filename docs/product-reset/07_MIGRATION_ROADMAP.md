@@ -1,5 +1,102 @@
 # Migration roadmap
 
+## Bounded messaging verification — 2026-10-11, record 84
+
+[Record 84](84_MESSAGING_RELIABILITY.md) adds a Mac-owned SEND_MESSAGE workflow:
+exact recipient/draft evidence, a fresh check after each approval, exactly one
+added outgoing row and a cleared composer. Only that consumed draft is retired;
+ordinary persistent-field checks remain strict. Ambiguity, unknown completion and
+missing proof stop without replay. Visible outgoing evidence is not delivery.
+This remains built-in Bimax CU, with direct @CU and per-input approvals.
+WhatsApp contact selection, full M01, repeated native/model-tier reliability and
+release qualification remain Target. The local signed alpha is installed. A selected-conversation fixture subcase is
+locally Measured with one Send and injected Pause/Resume. The record retains the
+initial no-input failure, 189 tests, nine source faults and fifteen grader faults;
+none establishes broad reliability.
+
+
+## Direct @CU experience — 2026-10-11, record 83
+
+[Record 83](83_DIRECT_AT_CU_EXPERIENCE.md) supersedes records 81–82’s required app/window picker at the
+owner’s request. Send `@CU <task>` in either composer: Do is the default, and the
+CU model discovers actual running apps/windows after dispatch. Guide/Teach and
+saved workflows are optional. Read grants, per-input approval, exact observations,
+Pause/Stop and no-replay barriers remain. Main-owned ephemeral single-use admission
+refuses restored/expired requests; discovery metadata grants no input authority.
+Mac owns CU through its private host channel. Broader model reliability, full M02/X01
+and release qualification remain Target. The signed local arm64 app is installed;
+one direct saved-model Do task is Measured on the owned fixture (two verified
+inputs, exact text, exactly one Save). Local typecheck, 392 regression tests, ten
+renderer checks and seven source faults pass; record 83 scopes the receipts.
+
+
+## CU modes and verification recovery — 2026-10-11, record 82
+
+[Record 82](82_CU_MODES_AND_VERIFICATION_RECOVERY.md) adds Do/Guide/Teach,
+revision-bound in-panel approvals, Pause/Take over/Resume/Stop, and explicit
+read-only correction of a changed unexpected status. Guide has no native input;
+Teach saves only verified literal instructions and reuse requires a fresh target
+and consent. Exact postconditions and no-replay barriers remain. Local host and
+renderer contracts are scoped in record 82; assisted correction is not autonomous
+model inference. The signed local arm64 v2 app is installed. Individual Teach
+(assisted), Guide (zero native inputs) and Do outcomes are Measured on one owned
+fixture; 33 grader faults are rejected. Interrupted/rejected attempts remain
+recorded. Broader model planning/prose reliability, repeated model tiers, full
+M02/X01 and distribution remain Target.
+
+## Explicit @CU messages — 2026-10-10, record 81
+
+[Record 81](81_AT_CU_MESSAGE_ROUTING.md) implements per-message Computer Use in the project composer
+and ⌘2 floating bar: autocomplete, a visible chip and explicit running-app/window
+selection. Main-owned single-use receipts and native enforcement bind the exact
+window; the engine advertises and executes only CU plus clarification for that
+turn. Ordinary coding messages cannot activate CU by guessing its tool name.
+Picker consent is separate from task read/input approvals. Queued/restarted routes
+never silently become coding turns. Native ownership remains Bimax for Mac through
+its private host channel, without an MCP connector. Local contracts, renderer end
+states and assertion-caught faults are scoped in record 81. Full M02/X01, repeated
+model reliability and release/performance qualification remain Target.
+
+## Full Arc source owned by Bimax CU — 2026-10-07, record 80
+
+[Record 80](80_FULL_ARC_SOURCE_AND_BUILT_IN_CU_FEATURE.md) places all 100 original
+Arc files inside `app/native/computer/vendor/arc-cua/` and ships that full source
+snapshot plus all 34 Python package modules inside Bimax CU. Original MIT identity,
+authorship and byte hashes remain. The upstream MCP/CLI code is retained; Bimax's
+entry refuses its `mcp`/`run` commands and exposes only the private app component.
+Computer Use is a File menu action and readable chat activity. Its engine connection
+remains the birth-transferred internal MessagePort, never a managed MCP connector.
+Record 79's module exclusions and the earlier third_party location are superseded.
+The installed v4 app is **Measured** on one owned fixture with the saved gpt-oss-20b:
+one verified field edit, one verified Save click, exact persisted text and save count
+one, plus independent native AX read-back. Flat arguments, safe read correction and
+standalone window-target import defects are fixed. Failed attempts remain recorded.
+Full native/saved-model M02/X01, clean-Mac distribution and performance remain Target.
+
+
+## Internal Bimax CU — 2026-10-07, record 79
+
+[Record 79](79_INTERNAL_BIMAX_CU_AND_WORKFLOW_RELIABILITY.md) supersedes record 78's
+MCP connection at the owner's explicit request. Bimax for Mac owns a built-in
+`BimaxCuTool`, transferred to its engine worker through a private MessagePort at
+worker creation. No MCP descriptor, proxy, socket route or detachable connection
+supplies CU. The pinned MIT Arc Driver remains the native backend; Bimax's archived
+commit-label and executable-identity policies are selected first-party components,
+combined with ordered workflow execution and independent UI read-back. Product
+identity is Bimax CU; original Arc authorship/license/provenance remain intact.
+Terminal owns no native binary, permission or native tool implementation. Legacy
+CUA/COMPUTER_CONTROL routes remain refused. Local contracts/builds qualify only
+what record 79's receipts prove; full M02/X01, model tiers and release remain Target.
+
+
+## CU source import delivered — 2026-10-07
+
+[Record 77](77_CU_SOURCE_IMPORT_RECORD.md) copies all pinned arc-cua tracked files
+and returns the complete archived Bimax source snapshot into dedicated repository
+folders. It changes source availability, not runtime admission. No legacy restore,
+replacement-driver integration, dependency installation or CU rollout is scheduled
+by this copy. Record 66 remains the product runtime boundary.
+
 ## Computer Use retired — owner decision, 2026-10-04
 
 The owner explicitly withdrew Computer Use: “roll off the bimax cu completely keep it in archive again i dont

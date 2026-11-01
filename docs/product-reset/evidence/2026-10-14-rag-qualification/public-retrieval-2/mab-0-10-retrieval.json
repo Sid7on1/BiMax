@@ -1,0 +1,235 @@
+{
+  "row": 0,
+  "query": 10,
+  "id": "mab-0-10",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:44:31.595406+00:00",
+  "valid": true,
+  "question": "When was the Duchy of Normandy founded?",
+  "references": [
+    "911",
+    "911",
+    "911"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 8.278832999996666,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 39,
+        "maxInputChars": 39,
+        "requiredProviderTruncation": false,
+        "promptTokens": 10,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-238",
+        "context-203",
+        "context-202"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture an\n  (part 2 of 5) the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n\nDocument 1193:\nIn the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"renaissance\" of Norman art and scholarship were Mont-Saint-Michel, F\u00e9camp, Jumi\u00e8ges, Bec, Saint-Ouen, Saint-Evroul, and Saint-Wandrille. These centres were in contact with the so-called \"Winchester school\", which channeled a pure Carolingian artistic tradition to Normandy. In the final decade of the 11th and first of the 12th century, Normandy experienced a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.\n- (part 1 of 5, excerpt) tection against further Viking incursions. The area corresponded to the northern part of present-day Upper Normandy down to the river Se\n- (part 5 of 5, excerpt) In the course of the 10th century, the initially destructive incursions of Norse war bands into the rivers of France evolved",
+      "evidence": [
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture an",
+          "id": "ev_2677a246c7246b84ef89936e",
+          "observedAt": "2026-10-14T04:44:31.604Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n\nDocument 1193:\nIn the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"renaissance\" of Norman art and scholarship were Mont-Saint-Michel, F\u00e9camp, Jumi\u00e8ges, Bec, Saint-Ouen, Saint-Evroul, and Saint-Wandrille. These centres were in contact with the so-called \"Winchester school\", which channeled a pure Carolingian artistic tradition to Normandy. In the final decade of the 11th and first of the 12th century, Normandy experienced a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.",
+          "id": "ev_67ccc53433eaadaa83674ec1",
+          "observedAt": "2026-10-14T04:44:31.604Z"
+        },
+        {
+          "sourceId": "memory:context-203",
+          "sourceVersion": "sha256:d30626130eee535ba6d456687a511e458ba3c3dfeadc4bdf18e1cc015e84a789",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-203",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "tection against further Viking incursions. The area corresponded to the northern part of present-day Upper Normandy down to the river Se",
+          "id": "ev_6f9b4b47c4e55114ccf2481d",
+          "observedAt": "2026-10-14T04:44:31.604Z"
+        },
+        {
+          "sourceId": "memory:context-202",
+          "sourceVersion": "sha256:4fd23721be4626a705fa81c91811c5ce111e77aca3b7189dc52e5a4b23774031",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-202",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In the course of the 10th century, the initially destructive incursions of Norse war bands into the rivers of France evolved",
+          "id": "ev_b98b85b34d42e1bbd2d71081",
+          "observedAt": "2026-10-14T04:44:31.604Z"
+        }
+      ],
+      "sourceIds": [
+        "context-238",
+        "context-203",
+        "context-202"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.3112079999991693,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-238",
+        "context-203",
+        "context-202"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture an\n  (part 2 of 5) the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n\nDocument 1193:\nIn the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"renaissance\" of Norman art and scholarship were Mont-Saint-Michel, F\u00e9camp, Jumi\u00e8ges, Bec, Saint-Ouen, Saint-Evroul, and Saint-Wandrille. These centres were in contact with the so-called \"Winchester school\", which channeled a pure Carolingian artistic tradition to Normandy. In the final decade of the 11th and first of the 12th century, Normandy experienced a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.\n- (part 1 of 5, excerpt) tection against further Viking incursions. The area corresponded to the northern part of present-day Upper Normandy down to the river Se\n- (part 5 of 5, excerpt) In the course of the 10th century, the initially destructive incursions of Norse war bands into the rivers of France evolved",
+      "evidence": [
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture an",
+          "id": "ev_2677a246c7246b84ef89936e",
+          "observedAt": "2026-10-14T04:44:31.606Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n\nDocument 1193:\nIn the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"renaissance\" of Norman art and scholarship were Mont-Saint-Michel, F\u00e9camp, Jumi\u00e8ges, Bec, Saint-Ouen, Saint-Evroul, and Saint-Wandrille. These centres were in contact with the so-called \"Winchester school\", which channeled a pure Carolingian artistic tradition to Normandy. In the final decade of the 11th and first of the 12th century, Normandy experienced a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.",
+          "id": "ev_67ccc53433eaadaa83674ec1",
+          "observedAt": "2026-10-14T04:44:31.606Z"
+        },
+        {
+          "sourceId": "memory:context-203",
+          "sourceVersion": "sha256:d30626130eee535ba6d456687a511e458ba3c3dfeadc4bdf18e1cc015e84a789",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-203",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "tection against further Viking incursions. The area corresponded to the northern part of present-day Upper Normandy down to the river Se",
+          "id": "ev_6f9b4b47c4e55114ccf2481d",
+          "observedAt": "2026-10-14T04:44:31.606Z"
+        },
+        {
+          "sourceId": "memory:context-202",
+          "sourceVersion": "sha256:4fd23721be4626a705fa81c91811c5ce111e77aca3b7189dc52e5a4b23774031",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-202",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In the course of the 10th century, the initially destructive incursions of Norse war bands into the rivers of France evolved",
+          "id": "ev_b98b85b34d42e1bbd2d71081",
+          "observedAt": "2026-10-14T04:44:31.606Z"
+        }
+      ],
+      "sourceIds": [
+        "context-238",
+        "context-203",
+        "context-202"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.25224999999773,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:44:31.606603+00:00"
+}

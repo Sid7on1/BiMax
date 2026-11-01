@@ -58,8 +58,19 @@ Prefer GrepTool when you know the exact token (error code, identifier, string li
       const connected = typeof activeIndex.connectedFiles === 'function'
         ? await activeIndex.connectedFiles(hits.map((h) => h.path)).catch(() => [])
         : [];
+      // A ranked hit may be the importer rather than the declaration. Show both ends of each
+      // returned edge, so changing rank never hides the matched file's import relationship.
+      const relations = new Set<string>();
+      for (const connection of connected) {
+        relations.add(`- ${connection.path} — ${connection.relation}`);
+        if (connection.relation.startsWith('imported by ')) {
+          relations.add(`- ${connection.relation.slice('imported by '.length)} — imports ${connection.path}`);
+        } else if (connection.relation.startsWith('imports ')) {
+          relations.add(`- ${connection.relation.slice('imports '.length)} — imported by ${connection.path}`);
+        }
+      }
       const connectedText = connected.length
-        ? `\nConnected by imports (not matched by the query; read them before changing the results above):\n${connected.map((c) => `- ${c.path} — ${c.relation}`).join('\n')}`
+        ? `\nConnected by imports (index relationships, including matched files; read connected files before changing the results above):\n${[...relations].join('\n')}`
         : '';
       return hits
         .map((h) => {

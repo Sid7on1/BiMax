@@ -1,0 +1,162 @@
+{
+  "row": 1,
+  "query": 95,
+  "id": "mab-1-95",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:46:07.540725+00:00",
+  "valid": true,
+  "question": "Tysons Galleria is located in what county?",
+  "references": [
+    "Fairfax County"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-215",
+    "context-224",
+    "context-34"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:46:25.953357+00:00",
+  "rag": {
+    "ids": [
+      "context-215",
+      "context-224",
+      "context-34"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) ld of Theoretical and Mathematical physics.\n\nDocument 1522:\nBaron Melchett\nBaron Melchett, of Landford in the County of Southampton, is a title in the Peerage of the United Kingdom. It was created on 5 June 1928 for Sir Alfred Mond, 1st Baronet, Chairman of Imperial Chemical Industries and a former First Commissioner of Works and Minister of Health. He had already been created a Baronet, of Hartford Hill in Great Budworth in the County of Chester, on 8 July 1910. He was succeeded by his only son, the second Baron. He was also a politician and businessman. His second but only surviving son, the third Baron, was a businessman. s of 2010 the titles are held by the latter's son, the fourth Baron, who succeeded in 1973. He held political office under James Callaghan in the late 1970s and was later Executive Director of Greenpeace UK.\n\nDocument 1523:\nTysons Galleria\nTysons Galleria is a three-level super-regional mall owned by General Growth Properties located at 2001 International Drive, McLean, Virginia, in Tysons Corner. It is the second-largest mall in McLean/Tysons Corner, and one of the largest in the Washington metropolitan area.\n  (part 2 of 5, excerpt) Drive, McLean, Virginia, in Tysons Corner. It is the second-largest mall in McLean/Tysons Corner, and one of the largest in the Washington metropolitan area.\n\nDocument 1524:\nPatsy Swayze\n- (part 1 of 5, excerpt) Tysons, or formerly \u201cTysons Corner\u201d is a census-designated place (CDP) and unincorporated community in Fairfax County, Virginia, United States. Located in Northern Virginia between the community of McLean and the town of Vienna along the Capita\n- (part 2 of 5, excerpt) The Poughkeepsie Galleria (locally known as \"The Galleria\") is an upscale shopping center on U.S. 9 in the Town of Poughkeeps",
+    "evidence": [
+      {
+        "sourceId": "memory:context-215",
+        "sourceVersion": "sha256:0458235d4f0968bed91215b7adb4f232cd5b13685ba64973f79992929b2c0f86",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-215",
+          "part": 1,
+          "parts": 5
+        },
+        "text": "ld of Theoretical and Mathematical physics.\n\nDocument 1522:\nBaron Melchett\nBaron Melchett, of Landford in the County of Southampton, is a title in the Peerage of the United Kingdom. It was created on 5 June 1928 for Sir Alfred Mond, 1st Baronet, Chairman of Imperial Chemical Industries and a former First Commissioner of Works and Minister of Health. He had already been created a Baronet, of Hartford Hill in Great Budworth in the County of Chester, on 8 July 1910. He was succeeded by his only son, the second Baron. He was also a politician and businessman. His second but only surviving son, the third Baron, was a businessman. s of 2010 the titles are held by the latter's son, the fourth Baron, who succeeded in 1973. He held political office under James Callaghan in the late 1970s and was later Executive Director of Greenpeace UK.\n\nDocument 1523:\nTysons Galleria\nTysons Galleria is a three-level super-regional mall owned by General Growth Properties located at 2001 International Drive, McLean, Virginia, in Tysons Corner. It is the second-largest mall in McLean/Tysons Corner, and one of the largest in the Washington metropolitan area.",
+        "id": "ev_98ccd7996749e1ad35ec801b",
+        "observedAt": "2026-10-14T08:41:06.979Z"
+      },
+      {
+        "sourceId": "memory:context-215",
+        "sourceVersion": "sha256:0458235d4f0968bed91215b7adb4f232cd5b13685ba64973f79992929b2c0f86",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-215",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Drive, McLean, Virginia, in Tysons Corner. It is the second-largest mall in McLean/Tysons Corner, and one of the largest in the Washington metropolitan area.\n\nDocument 1524:\nPatsy Swayze",
+        "id": "ev_7b1db371722da0493d535080",
+        "observedAt": "2026-10-14T08:41:06.979Z"
+      },
+      {
+        "sourceId": "memory:context-224",
+        "sourceVersion": "sha256:23978f6d1c3dd2fadd57b914c5030e0d4067f080356f5fa380ea31f8e077b032",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-224",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Tysons, or formerly \u201cTysons Corner\u201d is a census-designated place (CDP) and unincorporated community in Fairfax County, Virginia, United States. Located in Northern Virginia between the community of McLean and the town of Vienna along the Capita",
+        "id": "ev_603aee0b7a4b3dccaf67fc60",
+        "observedAt": "2026-10-14T08:41:06.980Z"
+      },
+      {
+        "sourceId": "memory:context-34",
+        "sourceVersion": "sha256:b0f789c5c52f16d424e6c92b7c353ecb7696bad74e602297f87ee39f04861b2f",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-34",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "The Poughkeepsie Galleria (locally known as \"The Galleria\") is an upscale shopping center on U.S. 9 in the Town of Poughkeeps",
+        "id": "ev_6ce6d7e28fae87fc06cb6131",
+        "observedAt": "2026-10-14T08:41:06.980Z"
+      }
+    ],
+    "sourceIds": [
+      "context-215",
+      "context-224",
+      "context-34"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 22.12316699999792,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Tysons Galleria is located in Fairfax County, Virginia.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.4
+  },
+  "readerUsage": {
+    "prompt_tokens": 583,
+    "completion_tokens": 417,
+    "total_tokens": 1000,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 401,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 255,
+    "completion_tokens": 612,
+    "total_tokens": 867,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 609,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 4604.340957999739,
+  "judgeWallMs": 12284.109874999558
+}

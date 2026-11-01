@@ -45,15 +45,25 @@ export interface ThreadSummary {
   bookmark?: { note: string; at: number };
   /** Messages accepted and not yet sent to the engine. Filled in for lists; never saved. */
   queued?: number;
-  /** Why queued messages wait: another task holds the folder, the engine is not ready, or the task is stopped. Never saved. */
-  waiting?: 'folder' | 'engine' | 'resume';
+  /** Why queued messages wait: folder ownership, engine startup, stopped task or failed saving. Never saved. */
+  waiting?: 'folder' | 'engine' | 'resume' | 'storage';
 }
 export interface ThreadSelection { id: string; state: EngineUiState }
 /** The tallest the ⌘2 bar may grow, as a share of its screen's work area (main clamps, the bar follows text at it). */
 export const QUICK_BAR_MAX_HEIGHT_SHARE = 0.72;
 /** Most recent of at most five binned conversations, recoverable privately for five minutes. */
 export interface ThreadBinUndo { id: string; title: string; expiresAt: number }
+/** A retained snapshot that cannot safely be opened; no filesystem path crosses the bridge. */
+export interface ThreadRecoveryEntry {
+  id: string;
+  archived: boolean;
+  backup?: boolean;
+  bytes: number;
+  reason: 'oversized' | 'unreadable' | 'capacity';
+}
 export interface ThreadList {
+  savingError?: string | null;
+  recovery?: ThreadRecoveryEntry[];
   undoBin?: ThreadBinUndo;
   activeId: string | null;
   threads: ThreadSummary[];
@@ -118,6 +128,10 @@ export function threadActivity(t: ActivityFields): { label: string; short: strin
   const n = t.queued ?? 0;
   const queued = `${n} message${n === 1 ? '' : 's'} queued`;
   const also = (label: string): string => (n ? `${label} · ${queued}` : label);
+  if (t.waiting === 'storage') return {
+    label: `${t.status === 'working' ? 'Working · follow-up not sent' : t.status === 'needs-you' ? 'Needs your decision · follow-up not sent' : 'Waiting for saving to recover'} · ${queued}`,
+    short: 'not sent · saving failed',
+  };
   if (t.status === 'working') return { label: also('Working'), short: 'working' };
   if (t.status === 'needs-you') return { label: also('Needs your decision'), short: 'needs you' };
   if (t.status === 'starting') return { label: also('Starting'), short: 'working' };

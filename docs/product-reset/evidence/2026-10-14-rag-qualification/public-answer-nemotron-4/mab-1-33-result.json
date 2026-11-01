@@ -1,0 +1,235 @@
+{
+  "row": 1,
+  "query": 33,
+  "id": "mab-1-33",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "question": "Are Freakonomics and In the Realm of the Hackers both American documentaries?",
+  "references": [
+    "no"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 531.9603329999954,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 77,
+        "maxInputChars": 77,
+        "requiredProviderTruncation": false,
+        "promptTokens": 18,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-453",
+        "context-167",
+        "context-437"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 5) Awards. It announced its nominees on November 27, 2012. The winners were announced on February 23, 2013 during an awards ceremony hosted by Andy Samberg.\n\nDocument 3269:\nThe Perfect Storm (film)\nThe Perfect Storm is a 2000 American biographical disaster drama film directed by Wolfgang Petersen and based on the 1997 non-fiction book of the same name by Sebastian Junger. The film tells the story of the \"Andrea Gail\", a commercial fishing vessel that was lost at sea with all hands after being caught in the Perfect Storm of 1991. The film stars George Clooney, Mark Wahlberg, William Fichtner, John C. Reilly, Diane Lane, Karen Allen and Mary Elizabeth Mastrantonio. It was released on June 30, 2000, by Warner Bros.\n\nDocument 3270:\nIn the Realm of the Hackers\nIn The Realm of the Hackers is a 2003 Australian documentary directed by Kevin Anderson about the prominent hacker community, centered in Melbourne, Australia in the late 1980s until early 1990. The storyline is centered on the Australian teenagers going by the hacker names \"Electron\" and \"Phoenix\",\n- (part 1 of 5, excerpt) Document 1191:\nFreakonomics (film)\nFreakonomics: The Movie is a 2010 American documentary film based on the 2005 book \"Freakonomics: A Rogue Economist Explores the Hidden Side of Everything\" by economist Steven D. Levitt and writer Stephen J. Dubner. The film premiered at the Tribeca Film Festival in April 2010 with a theatrical release later in the year. The film received a lukewarm reception and a 65% fresh rating at Rottentomatoes.\n\nDocument 1192:\nEuxoa pleuritica\n- (part 1 of 5, excerpt) ackers is a 1995 American crime film directed by Iain Softley and starring Jonny Lee Miller, Angelina Jolie, Renoly Santiago, Matthew Lillard, Jesse Bradford, Lorraine Bracco, and Fisher Stevens.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-453",
+          "sourceVersion": "sha256:8bfe62da53c349a834fa8a7156a180aebd4ceeea86b16e3b3d54eb760a3b507c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-453",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "Awards. It announced its nominees on November 27, 2012. The winners were announced on February 23, 2013 during an awards ceremony hosted by Andy Samberg.\n\nDocument 3269:\nThe Perfect Storm (film)\nThe Perfect Storm is a 2000 American biographical disaster drama film directed by Wolfgang Petersen and based on the 1997 non-fiction book of the same name by Sebastian Junger. The film tells the story of the \"Andrea Gail\", a commercial fishing vessel that was lost at sea with all hands after being caught in the Perfect Storm of 1991. The film stars George Clooney, Mark Wahlberg, William Fichtner, John C. Reilly, Diane Lane, Karen Allen and Mary Elizabeth Mastrantonio. It was released on June 30, 2000, by Warner Bros.\n\nDocument 3270:\nIn the Realm of the Hackers\nIn The Realm of the Hackers is a 2003 Australian documentary directed by Kevin Anderson about the prominent hacker community, centered in Melbourne, Australia in the late 1980s until early 1990. The storyline is centered on the Australian teenagers going by the hacker names \"Electron\" and \"Phoenix\",",
+          "id": "ev_9600704f8425613233ff3131",
+          "observedAt": "2026-10-14T04:49:03.488Z"
+        },
+        {
+          "sourceId": "memory:context-167",
+          "sourceVersion": "sha256:441f5767dc874733e773dba6237623f7a5a0dd43cc8c78d79bc9559d1a18fd4c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-167",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 1191:\nFreakonomics (film)\nFreakonomics: The Movie is a 2010 American documentary film based on the 2005 book \"Freakonomics: A Rogue Economist Explores the Hidden Side of Everything\" by economist Steven D. Levitt and writer Stephen J. Dubner. The film premiered at the Tribeca Film Festival in April 2010 with a theatrical release later in the year. The film received a lukewarm reception and a 65% fresh rating at Rottentomatoes.\n\nDocument 1192:\nEuxoa pleuritica",
+          "id": "ev_1b05a54e793bbbdda3a2aedb",
+          "observedAt": "2026-10-14T04:49:03.488Z"
+        },
+        {
+          "sourceId": "memory:context-437",
+          "sourceVersion": "sha256:aeb84a2a6fee8e1d6dc146c6b4f5077957b908d01ba24a227f0bb38bf0ad33cd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-437",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "ackers is a 1995 American crime film directed by Iain Softley and starring Jonny Lee Miller, Angelina Jolie, Renoly Santiago, Matthew Lillard, Jesse Bradford, Lorraine Bracco, and Fisher Stevens.",
+          "id": "ev_c72667ffa652bfed440437ce",
+          "observedAt": "2026-10-14T04:49:03.488Z"
+        }
+      ],
+      "sourceIds": [
+        "context-453",
+        "context-167",
+        "context-437"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.909583000000566,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-453",
+        "context-167",
+        "context-437"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 5) Awards. It announced its nominees on November 27, 2012. The winners were announced on February 23, 2013 during an awards ceremony hosted by Andy Samberg.\n\nDocument 3269:\nThe Perfect Storm (film)\nThe Perfect Storm is a 2000 American biographical disaster drama film directed by Wolfgang Petersen and based on the 1997 non-fiction book of the same name by Sebastian Junger. The film tells the story of the \"Andrea Gail\", a commercial fishing vessel that was lost at sea with all hands after being caught in the Perfect Storm of 1991. The film stars George Clooney, Mark Wahlberg, William Fichtner, John C. Reilly, Diane Lane, Karen Allen and Mary Elizabeth Mastrantonio. It was released on June 30, 2000, by Warner Bros.\n\nDocument 3270:\nIn the Realm of the Hackers\nIn The Realm of the Hackers is a 2003 Australian documentary directed by Kevin Anderson about the prominent hacker community, centered in Melbourne, Australia in the late 1980s until early 1990. The storyline is centered on the Australian teenagers going by the hacker names \"Electron\" and \"Phoenix\",\n- (part 1 of 5, excerpt) Document 1191:\nFreakonomics (film)\nFreakonomics: The Movie is a 2010 American documentary film based on the 2005 book \"Freakonomics: A Rogue Economist Explores the Hidden Side of Everything\" by economist Steven D. Levitt and writer Stephen J. Dubner. The film premiered at the Tribeca Film Festival in April 2010 with a theatrical release later in the year. The film received a lukewarm reception and a 65% fresh rating at Rottentomatoes.\n\nDocument 1192:\nEuxoa pleuritica\n- (part 1 of 5, excerpt) ackers is a 1995 American crime film directed by Iain Softley and starring Jonny Lee Miller, Angelina Jolie, Renoly Santiago, Matthew Lillard, Jesse Bradford, Lorraine Bracco, and Fisher Stevens.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-453",
+          "sourceVersion": "sha256:8bfe62da53c349a834fa8a7156a180aebd4ceeea86b16e3b3d54eb760a3b507c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-453",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "Awards. It announced its nominees on November 27, 2012. The winners were announced on February 23, 2013 during an awards ceremony hosted by Andy Samberg.\n\nDocument 3269:\nThe Perfect Storm (film)\nThe Perfect Storm is a 2000 American biographical disaster drama film directed by Wolfgang Petersen and based on the 1997 non-fiction book of the same name by Sebastian Junger. The film tells the story of the \"Andrea Gail\", a commercial fishing vessel that was lost at sea with all hands after being caught in the Perfect Storm of 1991. The film stars George Clooney, Mark Wahlberg, William Fichtner, John C. Reilly, Diane Lane, Karen Allen and Mary Elizabeth Mastrantonio. It was released on June 30, 2000, by Warner Bros.\n\nDocument 3270:\nIn the Realm of the Hackers\nIn The Realm of the Hackers is a 2003 Australian documentary directed by Kevin Anderson about the prominent hacker community, centered in Melbourne, Australia in the late 1980s until early 1990. The storyline is centered on the Australian teenagers going by the hacker names \"Electron\" and \"Phoenix\",",
+          "id": "ev_9600704f8425613233ff3131",
+          "observedAt": "2026-10-14T04:49:03.493Z"
+        },
+        {
+          "sourceId": "memory:context-167",
+          "sourceVersion": "sha256:441f5767dc874733e773dba6237623f7a5a0dd43cc8c78d79bc9559d1a18fd4c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-167",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 1191:\nFreakonomics (film)\nFreakonomics: The Movie is a 2010 American documentary film based on the 2005 book \"Freakonomics: A Rogue Economist Explores the Hidden Side of Everything\" by economist Steven D. Levitt and writer Stephen J. Dubner. The film premiered at the Tribeca Film Festival in April 2010 with a theatrical release later in the year. The film received a lukewarm reception and a 65% fresh rating at Rottentomatoes.\n\nDocument 1192:\nEuxoa pleuritica",
+          "id": "ev_1b05a54e793bbbdda3a2aedb",
+          "observedAt": "2026-10-14T04:49:03.493Z"
+        },
+        {
+          "sourceId": "memory:context-437",
+          "sourceVersion": "sha256:aeb84a2a6fee8e1d6dc146c6b4f5077957b908d01ba24a227f0bb38bf0ad33cd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-437",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "ackers is a 1995 American crime film directed by Iain Softley and starring Jonny Lee Miller, Angelina Jolie, Renoly Santiago, Matthew Lillard, Jesse Bradford, Lorraine Bracco, and Fisher Stevens.",
+          "id": "ev_c72667ffa652bfed440437ce",
+          "observedAt": "2026-10-14T04:49:03.493Z"
+        }
+      ],
+      "sourceIds": [
+        "context-453",
+        "context-167",
+        "context-437"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.906125000008615,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:56:26.175827+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "No. Freakonomics is an American documentary (2010), while In the Realm of the Hackers is an Australian documentary (2003).",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 605,
+    "completion_tokens": 549,
+    "total_tokens": 1154,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 513,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 280,
+    "completion_tokens": 759,
+    "total_tokens": 1039,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 756,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 8795.208125000045,
+  "judgeWallMs": 6572.6859579999655,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.125
+  },
+  "ended": "2026-10-14T07:56:41.546309+00:00"
+}

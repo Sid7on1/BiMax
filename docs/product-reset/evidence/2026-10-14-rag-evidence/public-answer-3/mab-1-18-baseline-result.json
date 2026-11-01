@@ -1,0 +1,162 @@
+{
+  "row": 1,
+  "query": 18,
+  "id": "mab-1-18",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:45:54.446052+00:00",
+  "valid": true,
+  "question": "Roger O. Egeberg was Assistant Secretary for Health and Scientific Affairs during the administration of a president that served during what years?",
+  "references": [
+    "1969 until 1974"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-457",
+    "context-184",
+    "context-377"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:46:11.533388+00:00",
+  "rag": {
+    "ids": [
+      "context-457",
+      "context-184",
+      "context-377"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 6) Robin Wright, Justin Long, Evan Rachel Wood, Jonathan Groff, Tom Wilkinson, Alexis Bledel, Kevin Kline, John Cullum, Toby Kebbell, and James Badge Dale.\n\nDocument 3294:\nRoger O. Egeberg\nRoger Olaf Egeberg, M.D. (13 November 1902 \u2013 13 September 1997 Washington, D.C.) was an American medical educator, administrator and advocate of public health. He was General Douglas MacArthur's personal physician during World War II in the Pacific theater. His other roles included Assistant Secretary for Health and Scientific Affairs in the Department of Health, Education, and Welfare (now the United States Department of Health and Human Services) during the Nixon administration and Dean of the University of Southern California's medical school.\n  (part 4 of 6, excerpt) the United States Department of Health and Human Services) during the Nixon administration and Dean of the University of Southern California's medical school.\n\nDocument 3295:\nThe Sondheim Review\nThe Sondheim Review is a quarterly magazine published in Chicago, United States, since 1994 and, per its tagline, is \"Dedicated to the work of the Musical Theatre's foremost composer and lyricist,\" Stephen Sondheim. It is edited by Cincinnati theatre critic Rick Pender, and its editorial board includes theatre columnist John Olson and drama critic Eric Grode. Sondheim himself has written occasional short items for the magazine, although he is not formally connected with the magazine in any way.\n- (part 1 of 5, excerpt) Steven Kenneth Galson (born 1956) is an American public health physician. He is currently Senior Vice President for Global Regulatory Affairs at A\n- (part 1 of 5, excerpt) Secretary for Employee Benefits Security of the United States Department of Labor (DOL), the official in charge of the Employ",
+    "evidence": [
+      {
+        "sourceId": "memory:context-457",
+        "sourceVersion": "sha256:26d1b0722992df86f1f7bbcec95168f12ad54e79cb771b47d12dd49a0f6b2fa2",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-457",
+          "part": 3,
+          "parts": 6
+        },
+        "text": "Robin Wright, Justin Long, Evan Rachel Wood, Jonathan Groff, Tom Wilkinson, Alexis Bledel, Kevin Kline, John Cullum, Toby Kebbell, and James Badge Dale.\n\nDocument 3294:\nRoger O. Egeberg\nRoger Olaf Egeberg, M.D. (13 November 1902 \u2013 13 September 1997 Washington, D.C.) was an American medical educator, administrator and advocate of public health. He was General Douglas MacArthur's personal physician during World War II in the Pacific theater. His other roles included Assistant Secretary for Health and Scientific Affairs in the Department of Health, Education, and Welfare (now the United States Department of Health and Human Services) during the Nixon administration and Dean of the University of Southern California's medical school.",
+        "id": "ev_8accc4d7961386c636fa08e0",
+        "observedAt": "2026-10-14T08:41:07.594Z"
+      },
+      {
+        "sourceId": "memory:context-457",
+        "sourceVersion": "sha256:26d1b0722992df86f1f7bbcec95168f12ad54e79cb771b47d12dd49a0f6b2fa2",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-457",
+          "part": 4,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "the United States Department of Health and Human Services) during the Nixon administration and Dean of the University of Southern California's medical school.\n\nDocument 3295:\nThe Sondheim Review\nThe Sondheim Review is a quarterly magazine published in Chicago, United States, since 1994 and, per its tagline, is \"Dedicated to the work of the Musical Theatre's foremost composer and lyricist,\" Stephen Sondheim. It is edited by Cincinnati theatre critic Rick Pender, and its editorial board includes theatre columnist John Olson and drama critic Eric Grode. Sondheim himself has written occasional short items for the magazine, although he is not formally connected with the magazine in any way.",
+        "id": "ev_ca06212426eb50e9dda208ac",
+        "observedAt": "2026-10-14T08:41:07.594Z"
+      },
+      {
+        "sourceId": "memory:context-184",
+        "sourceVersion": "sha256:631c6cfe50526c9d266fdf8c6bda223a7a6e6996be141674f320d372044a3092",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-184",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Steven Kenneth Galson (born 1956) is an American public health physician. He is currently Senior Vice President for Global Regulatory Affairs at A",
+        "id": "ev_6d5873192d07d1aafd8284f8",
+        "observedAt": "2026-10-14T08:41:07.595Z"
+      },
+      {
+        "sourceId": "memory:context-377",
+        "sourceVersion": "sha256:7eaac0e1f97bcbf2e6a20ed571d517c7b8688b5f1d40a25e71384c6fb7634f3e",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-377",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Secretary for Employee Benefits Security of the United States Department of Labor (DOL), the official in charge of the Employ",
+        "id": "ev_004921a90e636df59f0cbce5",
+        "observedAt": "2026-10-14T08:41:07.595Z"
+      }
+    ],
+    "sourceIds": [
+      "context-457",
+      "context-184",
+      "context-377"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 6.101041000001715,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Roger O. Egeberg served as Assistant Secretary for Health and Scientific Affairs during the Nixon administration, which spanned from 1969 to 1974.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.16666666666666666
+  },
+  "readerUsage": {
+    "prompt_tokens": 528,
+    "completion_tokens": 741,
+    "total_tokens": 1269,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 703,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 300,
+    "completion_tokens": 607,
+    "total_tokens": 907,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 604,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 9230.310208999981,
+  "judgeWallMs": 6619.9509999996735
+}

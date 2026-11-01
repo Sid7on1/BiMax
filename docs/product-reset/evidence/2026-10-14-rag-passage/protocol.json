@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-14T14:59:18.008219+00:00",
+  "ownerAuthorization": "50 fresh questions,25 per dataset; continue carefully on crashing Mac.",
+  "scope": "Isolated prototype until qualified; no production/CU/UI/config changes during development/evaluation.",
+  "development": "Independent constructed complete-passage/relational constraints; no old question texts/gold/predictions used for implementation choices.",
+  "selection": "Metadata/hash-only balanced25classicLME+25MAB,exclude union of record96+97 IDs and normalized question texts.",
+  "freeze": "Freeze candidate,compiled modules,selection,reader/judge/rubric before inference. Do not tune on the fresh qualification.",
+  "model": "Same configured NVIDIA Nemotron3.5Lightning30BA3B reader/judge; temp0,thinking1024,max2048,existing22passingcontrols under unchanged hashes.",
+  "resourcePolicy": "Persistent raw inputs;stream corpus preparation;one local embedding worker,small serial CPU-only batches;one hostedHTTP at3RPM;nice10;atomic receipts;reuse exact hash-keyed real vectors. No OS/global provider configuration changes.",
+  "adoption": "Require positive paired net judged accuracy in BOTH25-question datasets plus zero source/scope/budget/required-contract faults; report all losses and costs. Otherwise preserve and reject, never tune on this set. Pilot scope only,not official leaderboard/release/Win."
+}

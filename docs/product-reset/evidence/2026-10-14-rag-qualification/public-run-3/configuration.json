@@ -1,0 +1,32 @@
+{
+  "reader": "openai/gpt-oss-20b",
+  "judge": "openai/gpt-oss-20b",
+  "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "embedding": "preinstalled Ollama all-minilm:latest, real 384-dimensional vectors, digest recorded per corpus",
+  "reranker": null,
+  "recallLimit": 3,
+  "recallMaxChars": 1800,
+  "readerMaxTokens": 2048,
+  "judgeMaxTokens": 512,
+  "temperature": 0,
+  "rpm": 40,
+  "workers": 2,
+  "scope": "100 balanced LongMemEval_S questions and 100 balanced MemoryAgentBench Accurate_Retrieval questions; not full-suite scores",
+  "selectionSha256": "7574e4ac67eaa0e9b19cd3915a5160c1892d92bb32a6aa346193437046164c4a",
+  "sourceHashes": {
+    "scripts/bench-rag-public.py": "b65fe6dc09a7aeaecd628fb1dba9ed57540cbf936b907580710e8956d98cf57d",
+    "scripts/rag-public-worker.cjs": "b8d6e6007e90e0122dbc692637d963670724358e5e81d217a47025380eeadf4a",
+    "scripts/lib/rag_public_grader.py": "5516e9f71cfac91c1b6e718b549c14d9a0920d6640a4cfef6fa39a5a9bc57a37",
+    "src/memory/vector.store.ts": "0e660a1650d44e3745d08ad1df3e22425f584c8066a28ef449a8036e02587e9a",
+    "src/memory/recall.ts": "a849be001290b83ef3cc59945232634dd628001780120121d7d9759d9a6ff7ef",
+    "docs/product-reset/evidence/2026-10-14-rag-qualification/compiled/baseline.js": "9b3ebd795e5d2e066234b1564e7892ce8577f0a6412ac37e3bb4686b866962a9",
+    "docs/product-reset/evidence/2026-10-14-rag-qualification/compiled/current.js": "9965c3edcc2db26f2845482ffccfecc0fad453656db7118de6291b20166fc749",
+    "dist/memory/recall.js": "771fd0492c0d04971d12a34e6a814a89cb60a2e04a23bb8b138b5ade602b6671",
+    "dist/memory/chunking.js": "af64858f5c00fb2591d5f3fd2e51ad5cde9dad67ed5140e6db97135a89e174f5"
+  },
+  "promptSourceSha256": "ecce9c4c79dc89d99534ac17b383a5cbb5b9f0c69ee98adaf0684742e3d95251",
+  "modelDifference": "Configured NVIDIA gpt-oss-20b reader/judge; not the benchmark reference models or official leaderboard",
+  "baselineComparison": "Frozen record-95 source must produce identical source IDs/prompt. The same reader response is shared for these identical inputs; no independent accuracy-gain claim.",
+  "protocol": "Fixed 100 + 100 questions before inference, all attempts preserved, no quality tuning on this selection",
+  "started": "2026-10-14T04:11:24.087589+00:00"
+}

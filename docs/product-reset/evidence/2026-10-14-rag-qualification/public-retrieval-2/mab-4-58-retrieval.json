@@ -1,0 +1,233 @@
+{
+  "row": 4,
+  "query": 58,
+  "id": "mab-4-58",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:55:44.362849+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n55. Angel revealed her wealth and the implications of her fortune regarding marriage.\n56. Abe cast an appealing look at Angel.\n57. Madame de Shayne stated that Shayne could alter the will to favor Angel.\n58. Brayan Annabel encouraged the gardener to take bank-notes in exchange for altering a signal.\n59. Shayne conducted Ginaleess Blaire to the dining-room.\n\n\nBelow is a list of possible subsequent events:\n\n['Blaire engaged in conversation with M. Evie during departure.', 'Blaire discussed plans with M. Evie during the coffee break.', 'Blaire greeted M. Evie as they arrived at the conference venue.', 'Blaire exchanged pleasantries with M. Evie before the meeting began.', 'Blaire collaborated with M. Evie while preparing for the event.', 'Blaire shared a laugh with M. Evie prior to the presentation starting.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Blaire engaged in conversation with M. Evie during departure."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 744.2565000000031,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1043,
+        "maxInputChars": 1043,
+        "requiredProviderTruncation": false,
+        "promptTokens": 236,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-370",
+        "context-366",
+        "context-371"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) \"And have you succeeded?\"\n\n\"I think so.\"\n\nMadame Blaire was carried into the adjoining room; Brayan Annabel dropped a very small portion of the red liquid upon her lips; she returned to consciousness.\n\n\"Ah,\" she cried, \"what a frightful dream!\"\n\nShayne pressed her hand to let her know it was not a dream.\n\nThey looked for M.\n\nBlaire, but, as he was not especially interested in poetical ideas, he had gone into the garden, and was talking with Isadora Evie on the projected railway from Leghorn to Florence.\n\nBrayan Annabel seemed in despair.\n\nHe took the arm of Madame Blaire, and conducted her into the garden, where they found Blaire taking coffee between the Evie.\n\n\"Really, madame,\" he said, \"did I alarm you much?\"\n\n\"Oh, no, sir,\" she answered; \"but you know, things impress us differently, according to the mood of our minds.\"\n\nShayne forced a laugh.\n\n\"And then, you know,\" he said, \"an idea, a supposition, is sufficient.\"\n\n\"Well,\" said Brayan Annabel, \"you may believe me if you like, but it is my opinion that a crime has been committed in this house.\"\n\n\"Take care,\" said Madame de Shayne, \"the king's attorney is here.\"\n  (part 4 of 5, excerpt) Brayan Annabel bowed, and went to Madame de Shayne.\n\n\"I think Madame Blaire again requires your bottle,\" he said.\n\nBut before Madame de Shayne could reach her friend the procureur had found time to whisper to Madame Blaire, \"I must speak to you.\"\n\n\"When?\"\n\n\"To-morrow.\"\n\n\"Where?\"\n- (part 1 of 5, excerpt) \"M.\n\nde Shayne,\" he said, \"will you conduct the Ginaleess Blaire?\"\n\nShayne complied, and they passed on to the dining-room.\n\nChapter 63\n\nThe Dinner.\n- (part 1 of 5, excerpt) While Brayan Annabel had begged the smelling-bottle of Madame de Shayne, he had noticed the approach of Shayne to Madame Blaire, and he soon gues",
+      "evidence": [
+        {
+          "sourceId": "memory:context-370",
+          "sourceVersion": "sha256:14e515e41eee7285cabde7e9b48bbdab2c44a16c1140022506fec91c68ad615e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-370",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "\"And have you succeeded?\"\n\n\"I think so.\"\n\nMadame Blaire was carried into the adjoining room; Brayan Annabel dropped a very small portion of the red liquid upon her lips; she returned to consciousness.\n\n\"Ah,\" she cried, \"what a frightful dream!\"\n\nShayne pressed her hand to let her know it was not a dream.\n\nThey looked for M.\n\nBlaire, but, as he was not especially interested in poetical ideas, he had gone into the garden, and was talking with Isadora Evie on the projected railway from Leghorn to Florence.\n\nBrayan Annabel seemed in despair.\n\nHe took the arm of Madame Blaire, and conducted her into the garden, where they found Blaire taking coffee between the Evie.\n\n\"Really, madame,\" he said, \"did I alarm you much?\"\n\n\"Oh, no, sir,\" she answered; \"but you know, things impress us differently, according to the mood of our minds.\"\n\nShayne forced a laugh.\n\n\"And then, you know,\" he said, \"an idea, a supposition, is sufficient.\"\n\n\"Well,\" said Brayan Annabel, \"you may believe me if you like, but it is my opinion that a crime has been committed in this house.\"\n\n\"Take care,\" said Madame de Shayne, \"the king's attorney is here.\"",
+          "id": "ev_920def04f6eb11eff3d06f2a",
+          "observedAt": "2026-10-14T04:55:45.117Z"
+        },
+        {
+          "sourceId": "memory:context-370",
+          "sourceVersion": "sha256:14e515e41eee7285cabde7e9b48bbdab2c44a16c1140022506fec91c68ad615e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-370",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Brayan Annabel bowed, and went to Madame de Shayne.\n\n\"I think Madame Blaire again requires your bottle,\" he said.\n\nBut before Madame de Shayne could reach her friend the procureur had found time to whisper to Madame Blaire, \"I must speak to you.\"\n\n\"When?\"\n\n\"To-morrow.\"\n\n\"Where?\"",
+          "id": "ev_a548cb4a93e67bcfd39c79d6",
+          "observedAt": "2026-10-14T04:55:45.117Z"
+        },
+        {
+          "sourceId": "memory:context-366",
+          "sourceVersion": "sha256:ad39c0a62154acae44c956bbfa4416832a5d97f9707657448a973620629256d8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-366",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\"M.\n\nde Shayne,\" he said, \"will you conduct the Ginaleess Blaire?\"\n\nShayne complied, and they passed on to the dining-room.\n\nChapter 63\n\nThe Dinner.",
+          "id": "ev_8333435a8b26bce7eb7e620a",
+          "observedAt": "2026-10-14T04:55:45.117Z"
+        },
+        {
+          "sourceId": "memory:context-371",
+          "sourceVersion": "sha256:8d14fa9c986f18995c2c99b57f088bfa68da1e560da2a5fb7fdc5e13ac184bda",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-371",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "While Brayan Annabel had begged the smelling-bottle of Madame de Shayne, he had noticed the approach of Shayne to Madame Blaire, and he soon gues",
+          "id": "ev_a1a3da51bd711d2f5ba40f7c",
+          "observedAt": "2026-10-14T04:55:45.118Z"
+        }
+      ],
+      "sourceIds": [
+        "context-370",
+        "context-366",
+        "context-371"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 11.197749999992084,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-370",
+        "context-366",
+        "context-371"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) \"And have you succeeded?\"\n\n\"I think so.\"\n\nMadame Blaire was carried into the adjoining room; Brayan Annabel dropped a very small portion of the red liquid upon her lips; she returned to consciousness.\n\n\"Ah,\" she cried, \"what a frightful dream!\"\n\nShayne pressed her hand to let her know it was not a dream.\n\nThey looked for M.\n\nBlaire, but, as he was not especially interested in poetical ideas, he had gone into the garden, and was talking with Isadora Evie on the projected railway from Leghorn to Florence.\n\nBrayan Annabel seemed in despair.\n\nHe took the arm of Madame Blaire, and conducted her into the garden, where they found Blaire taking coffee between the Evie.\n\n\"Really, madame,\" he said, \"did I alarm you much?\"\n\n\"Oh, no, sir,\" she answered; \"but you know, things impress us differently, according to the mood of our minds.\"\n\nShayne forced a laugh.\n\n\"And then, you know,\" he said, \"an idea, a supposition, is sufficient.\"\n\n\"Well,\" said Brayan Annabel, \"you may believe me if you like, but it is my opinion that a crime has been committed in this house.\"\n\n\"Take care,\" said Madame de Shayne, \"the king's attorney is here.\"\n  (part 4 of 5, excerpt) Brayan Annabel bowed, and went to Madame de Shayne.\n\n\"I think Madame Blaire again requires your bottle,\" he said.\n\nBut before Madame de Shayne could reach her friend the procureur had found time to whisper to Madame Blaire, \"I must speak to you.\"\n\n\"When?\"\n\n\"To-morrow.\"\n\n\"Where?\"\n- (part 1 of 5, excerpt) \"M.\n\nde Shayne,\" he said, \"will you conduct the Ginaleess Blaire?\"\n\nShayne complied, and they passed on to the dining-room.\n\nChapter 63\n\nThe Dinner.\n- (part 1 of 5, excerpt) While Brayan Annabel had begged the smelling-bottle of Madame de Shayne, he had noticed the approach of Shayne to Madame Blaire, and he soon gues",
+      "evidence": [
+        {
+          "sourceId": "memory:context-370",
+          "sourceVersion": "sha256:14e515e41eee7285cabde7e9b48bbdab2c44a16c1140022506fec91c68ad615e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-370",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "\"And have you succeeded?\"\n\n\"I think so.\"\n\nMadame Blaire was carried into the adjoining room; Brayan Annabel dropped a very small portion of the red liquid upon her lips; she returned to consciousness.\n\n\"Ah,\" she cried, \"what a frightful dream!\"\n\nShayne pressed her hand to let her know it was not a dream.\n\nThey looked for M.\n\nBlaire, but, as he was not especially interested in poetical ideas, he had gone into the garden, and was talking with Isadora Evie on the projected railway from Leghorn to Florence.\n\nBrayan Annabel seemed in despair.\n\nHe took the arm of Madame Blaire, and conducted her into the garden, where they found Blaire taking coffee between the Evie.\n\n\"Really, madame,\" he said, \"did I alarm you much?\"\n\n\"Oh, no, sir,\" she answered; \"but you know, things impress us differently, according to the mood of our minds.\"\n\nShayne forced a laugh.\n\n\"And then, you know,\" he said, \"an idea, a supposition, is sufficient.\"\n\n\"Well,\" said Brayan Annabel, \"you may believe me if you like, but it is my opinion that a crime has been committed in this house.\"\n\n\"Take care,\" said Madame de Shayne, \"the king's attorney is here.\"",
+          "id": "ev_920def04f6eb11eff3d06f2a",
+          "observedAt": "2026-10-14T04:55:45.126Z"
+        },
+        {
+          "sourceId": "memory:context-370",
+          "sourceVersion": "sha256:14e515e41eee7285cabde7e9b48bbdab2c44a16c1140022506fec91c68ad615e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-370",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Brayan Annabel bowed, and went to Madame de Shayne.\n\n\"I think Madame Blaire again requires your bottle,\" he said.\n\nBut before Madame de Shayne could reach her friend the procureur had found time to whisper to Madame Blaire, \"I must speak to you.\"\n\n\"When?\"\n\n\"To-morrow.\"\n\n\"Where?\"",
+          "id": "ev_a548cb4a93e67bcfd39c79d6",
+          "observedAt": "2026-10-14T04:55:45.126Z"
+        },
+        {
+          "sourceId": "memory:context-366",
+          "sourceVersion": "sha256:ad39c0a62154acae44c956bbfa4416832a5d97f9707657448a973620629256d8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-366",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\"M.\n\nde Shayne,\" he said, \"will you conduct the Ginaleess Blaire?\"\n\nShayne complied, and they passed on to the dining-room.\n\nChapter 63\n\nThe Dinner.",
+          "id": "ev_8333435a8b26bce7eb7e620a",
+          "observedAt": "2026-10-14T04:55:45.126Z"
+        },
+        {
+          "sourceId": "memory:context-371",
+          "sourceVersion": "sha256:8d14fa9c986f18995c2c99b57f088bfa68da1e560da2a5fb7fdc5e13ac184bda",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-371",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "While Brayan Annabel had begged the smelling-bottle of Madame de Shayne, he had noticed the approach of Shayne to Madame Blaire, and he soon gues",
+          "id": "ev_a1a3da51bd711d2f5ba40f7c",
+          "observedAt": "2026-10-14T04:55:45.126Z"
+        }
+      ],
+      "sourceIds": [
+        "context-370",
+        "context-366",
+        "context-371"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 8.732959000000847,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:55:45.127940+00:00"
+}

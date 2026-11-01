@@ -1,0 +1,235 @@
+{
+  "row": 0,
+  "query": 65,
+  "id": "mab-0-65",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:44:31.573096+00:00",
+  "valid": true,
+  "question": "What ruined Richard's plans to reach Acre?",
+  "references": [
+    "a storm",
+    "a storm",
+    "a storm"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 7.322165999998106,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 42,
+        "maxInputChars": 42,
+        "requiredProviderTruncation": false,
+        "promptTokens": 12,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-89",
+        "context-112",
+        "context-43"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 6) lower sea levels within the various ice ages, the Rhine took a left turn, creating the Channel River, the course of which now lies below the English Channel.\n\nDocument 451:\nVarious princes of the Holy Land arrived in Limassol at the same time, in particular Guy de Lusignan. All declared their support for Richard provided that he support Guy against his rival Conrad of Montferrat. The local barons abandoned Isaac, who considered making peace with Richard, joining him on the crusade, and offering his daughter in marriage to the person named by Richard. But Isaac changed his mind and tried to escape. Richard then proceeded to conquer the whole island, his troops being led by Guy de Lusignan. Isaac surrendered and was confined with silver chains, because Richard had promised that he would not place him in irons. By 1 June, Richard had conquered the whole island. His exploit was well publicized and contributed to his reputation; he also derived significant financial gains from the conquest of the island. Richard left for Acre on 5 June, with his allies. Before his departure, he named two of his Norman generals, Richard de Camville and Robert de Thornham, as governors of Cyprus.\n  (part 3 of 6, excerpt) Acre on 5 June, with his allies. Before his departure, he named two of his Norman generals, Richard de Camville and Robert de Thornham, as governors of Cyprus.\n\nDocument 452:\n- (part 2 of 5, excerpt) In April 1191 Richard the Lion-hearted left Messina with a large fleet in order to reach Acre. But a storm dispersed the fleet. After some searching, it was discovered that the boat carrying his sister and his fia\n- (part 5 of 5, excerpt) News of the two battles reached England in August. After several months of negotiations, the government of the Duke of Newcas",
+      "evidence": [
+        {
+          "sourceId": "memory:context-89",
+          "sourceVersion": "sha256:6bd274d9c4cc3e174b79335b8d679b50691887299085bac82df12ee43c5e3185",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-89",
+            "part": 2,
+            "parts": 6
+          },
+          "text": "lower sea levels within the various ice ages, the Rhine took a left turn, creating the Channel River, the course of which now lies below the English Channel.\n\nDocument 451:\nVarious princes of the Holy Land arrived in Limassol at the same time, in particular Guy de Lusignan. All declared their support for Richard provided that he support Guy against his rival Conrad of Montferrat. The local barons abandoned Isaac, who considered making peace with Richard, joining him on the crusade, and offering his daughter in marriage to the person named by Richard. But Isaac changed his mind and tried to escape. Richard then proceeded to conquer the whole island, his troops being led by Guy de Lusignan. Isaac surrendered and was confined with silver chains, because Richard had promised that he would not place him in irons. By 1 June, Richard had conquered the whole island. His exploit was well publicized and contributed to his reputation; he also derived significant financial gains from the conquest of the island. Richard left for Acre on 5 June, with his allies. Before his departure, he named two of his Norman generals, Richard de Camville and Robert de Thornham, as governors of Cyprus.",
+          "id": "ev_f855a8008d004f19d02e631a",
+          "observedAt": "2026-10-14T04:44:31.581Z"
+        },
+        {
+          "sourceId": "memory:context-89",
+          "sourceVersion": "sha256:6bd274d9c4cc3e174b79335b8d679b50691887299085bac82df12ee43c5e3185",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-89",
+            "part": 3,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Acre on 5 June, with his allies. Before his departure, he named two of his Norman generals, Richard de Camville and Robert de Thornham, as governors of Cyprus.\n\nDocument 452:",
+          "id": "ev_8c28d6a6b07f7edb60041152",
+          "observedAt": "2026-10-14T04:44:31.581Z"
+        },
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:9fe9625a5a6bc47e5f39651d02c26d51137bab1df75360a70aac3596b7a3ffee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In April 1191 Richard the Lion-hearted left Messina with a large fleet in order to reach Acre. But a storm dispersed the fleet. After some searching, it was discovered that the boat carrying his sister and his fia",
+          "id": "ev_07d2801c84b9092bba54b102",
+          "observedAt": "2026-10-14T04:44:31.581Z"
+        },
+        {
+          "sourceId": "memory:context-43",
+          "sourceVersion": "sha256:650d6c814e6e6462ea852576daa524675972cc97076af207720120378e57e436",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-43",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "News of the two battles reached England in August. After several months of negotiations, the government of the Duke of Newcas",
+          "id": "ev_c2e30f4019abde99638f3d17",
+          "observedAt": "2026-10-14T04:44:31.581Z"
+        }
+      ],
+      "sourceIds": [
+        "context-89",
+        "context-112",
+        "context-43"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.5434170000007725,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-89",
+        "context-112",
+        "context-43"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 6) lower sea levels within the various ice ages, the Rhine took a left turn, creating the Channel River, the course of which now lies below the English Channel.\n\nDocument 451:\nVarious princes of the Holy Land arrived in Limassol at the same time, in particular Guy de Lusignan. All declared their support for Richard provided that he support Guy against his rival Conrad of Montferrat. The local barons abandoned Isaac, who considered making peace with Richard, joining him on the crusade, and offering his daughter in marriage to the person named by Richard. But Isaac changed his mind and tried to escape. Richard then proceeded to conquer the whole island, his troops being led by Guy de Lusignan. Isaac surrendered and was confined with silver chains, because Richard had promised that he would not place him in irons. By 1 June, Richard had conquered the whole island. His exploit was well publicized and contributed to his reputation; he also derived significant financial gains from the conquest of the island. Richard left for Acre on 5 June, with his allies. Before his departure, he named two of his Norman generals, Richard de Camville and Robert de Thornham, as governors of Cyprus.\n  (part 3 of 6, excerpt) Acre on 5 June, with his allies. Before his departure, he named two of his Norman generals, Richard de Camville and Robert de Thornham, as governors of Cyprus.\n\nDocument 452:\n- (part 2 of 5, excerpt) In April 1191 Richard the Lion-hearted left Messina with a large fleet in order to reach Acre. But a storm dispersed the fleet. After some searching, it was discovered that the boat carrying his sister and his fia\n- (part 5 of 5, excerpt) News of the two battles reached England in August. After several months of negotiations, the government of the Duke of Newcas",
+      "evidence": [
+        {
+          "sourceId": "memory:context-89",
+          "sourceVersion": "sha256:6bd274d9c4cc3e174b79335b8d679b50691887299085bac82df12ee43c5e3185",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-89",
+            "part": 2,
+            "parts": 6
+          },
+          "text": "lower sea levels within the various ice ages, the Rhine took a left turn, creating the Channel River, the course of which now lies below the English Channel.\n\nDocument 451:\nVarious princes of the Holy Land arrived in Limassol at the same time, in particular Guy de Lusignan. All declared their support for Richard provided that he support Guy against his rival Conrad of Montferrat. The local barons abandoned Isaac, who considered making peace with Richard, joining him on the crusade, and offering his daughter in marriage to the person named by Richard. But Isaac changed his mind and tried to escape. Richard then proceeded to conquer the whole island, his troops being led by Guy de Lusignan. Isaac surrendered and was confined with silver chains, because Richard had promised that he would not place him in irons. By 1 June, Richard had conquered the whole island. His exploit was well publicized and contributed to his reputation; he also derived significant financial gains from the conquest of the island. Richard left for Acre on 5 June, with his allies. Before his departure, he named two of his Norman generals, Richard de Camville and Robert de Thornham, as governors of Cyprus.",
+          "id": "ev_f855a8008d004f19d02e631a",
+          "observedAt": "2026-10-14T04:44:31.583Z"
+        },
+        {
+          "sourceId": "memory:context-89",
+          "sourceVersion": "sha256:6bd274d9c4cc3e174b79335b8d679b50691887299085bac82df12ee43c5e3185",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-89",
+            "part": 3,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Acre on 5 June, with his allies. Before his departure, he named two of his Norman generals, Richard de Camville and Robert de Thornham, as governors of Cyprus.\n\nDocument 452:",
+          "id": "ev_8c28d6a6b07f7edb60041152",
+          "observedAt": "2026-10-14T04:44:31.583Z"
+        },
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:9fe9625a5a6bc47e5f39651d02c26d51137bab1df75360a70aac3596b7a3ffee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In April 1191 Richard the Lion-hearted left Messina with a large fleet in order to reach Acre. But a storm dispersed the fleet. After some searching, it was discovered that the boat carrying his sister and his fia",
+          "id": "ev_07d2801c84b9092bba54b102",
+          "observedAt": "2026-10-14T04:44:31.583Z"
+        },
+        {
+          "sourceId": "memory:context-43",
+          "sourceVersion": "sha256:650d6c814e6e6462ea852576daa524675972cc97076af207720120378e57e436",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-43",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "News of the two battles reached England in August. After several months of negotiations, the government of the Duke of Newcas",
+          "id": "ev_c2e30f4019abde99638f3d17",
+          "observedAt": "2026-10-14T04:44:31.583Z"
+        }
+      ],
+      "sourceIds": [
+        "context-89",
+        "context-112",
+        "context-43"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.3786249999975553,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T04:44:31.583731+00:00"
+}

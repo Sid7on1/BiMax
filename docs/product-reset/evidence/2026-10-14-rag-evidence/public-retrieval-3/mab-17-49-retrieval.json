@@ -1,0 +1,332 @@
+{
+  "row": 17,
+  "query": 49,
+  "id": "mab-17-49",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:58:55.869879+00:00",
+  "valid": true,
+  "question": "Current Date: 2023/05/26 (Fri) 21:10,\n\n Now Answer the Question: What is the total cost of the new food bowl, measuring cup, dental chews, and flea and tick collar I got for Max?",
+  "references": [
+    "$50"
+  ],
+  "kind": "multi-session",
+  "abstention": false,
+  "date": "2023/05/26 (Fri) 21:10",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 9.400875000006636,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 178,
+        "maxInputChars": 178,
+        "requiredProviderTruncation": false,
+        "promptTokens": 52,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-112",
+        "context-111",
+        "context-287"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) )\\n\\nSince the dog bed was a one-time expense, we won't include it in the monthly average.\\n\\nSo, the average monthly cost of Max's supplies is **$60**.\\n\\nDoes this look about right to you?\n\nAre there any other expenses you've been tracking that we haven't accounted for?\"}, {'role': 'user', 'content': \"I think I forgot to mention that I also got a flea and tick collar for Max recently, which was $20, but that's also a one-time expense.\"}, {'role': 'assistant', 'content': \"We can add the flea and tick collar to the list of one-time expenses.\\n\\n**Recurring expenses:**\\n\\n1.\n\nGrain-free kibble: $50/month\\n2.\n\nDental chews: $10/month\\n\\nTotal recurring expenses: $50 + $10 = $60/month\\n\\n**One-time expenses:**\\n\\n1.\n\nDog bed: $40 (one-time expense)\\n2.\n\nFlea and tick collar: $20 (one-time expense)\\n\\nSince both the dog bed and flea and tick collar are one-time expenses, we won't include them in the monthly average.\\n\\nThe average monthly cost of Max's supplies is still **$60**.\\n\\nIf you're tracking expenses over a longer period, you might want to consider factoring in the one-time expenses to get a more accurate picture of your annual or quarterly expenses.\n  (part 2 of 4, excerpt) But for now, the monthly average remains the same.\"}, {'role': 'user', 'content': \"Do you think the dental chews are making a difference in Max's teeth?\n- (part 5 of 5, excerpt) Grain-free kibble: $50/month\\n2.\n\nDental chews: $10/month\\n\\nTotal recurring expenses: $50 + $10 = $60/month\\n\\n**One-time expenses:**\\n\\n1.\n\nDog bed: $40 (one-time expense, not included in monthly average\n- (part 5 of 5, excerpt) Time: 2023/05/26 (Fri) 11:05', [{'role': 'user', 'content': \"I'm thinking of getting Max a new toy to add to his collection.\n\nDo you have any recommendations?",
+      "evidence": [
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:a85d1c8453eca69942a27ae0666629fff24517ee4252e71281c0c1d0d8a38c91",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 1,
+            "parts": 4
+          },
+          "text": ")\\n\\nSince the dog bed was a one-time expense, we won't include it in the monthly average.\\n\\nSo, the average monthly cost of Max's supplies is **$60**.\\n\\nDoes this look about right to you?\n\nAre there any other expenses you've been tracking that we haven't accounted for?\"}, {'role': 'user', 'content': \"I think I forgot to mention that I also got a flea and tick collar for Max recently, which was $20, but that's also a one-time expense.\"}, {'role': 'assistant', 'content': \"We can add the flea and tick collar to the list of one-time expenses.\\n\\n**Recurring expenses:**\\n\\n1.\n\nGrain-free kibble: $50/month\\n2.\n\nDental chews: $10/month\\n\\nTotal recurring expenses: $50 + $10 = $60/month\\n\\n**One-time expenses:**\\n\\n1.\n\nDog bed: $40 (one-time expense)\\n2.\n\nFlea and tick collar: $20 (one-time expense)\\n\\nSince both the dog bed and flea and tick collar are one-time expenses, we won't include them in the monthly average.\\n\\nThe average monthly cost of Max's supplies is still **$60**.\\n\\nIf you're tracking expenses over a longer period, you might want to consider factoring in the one-time expenses to get a more accurate picture of your annual or quarterly expenses.",
+          "id": "ev_59da2abc7e64185cec5cbad9",
+          "observedAt": "2026-10-14T08:58:55.883Z"
+        },
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:a85d1c8453eca69942a27ae0666629fff24517ee4252e71281c0c1d0d8a38c91",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "But for now, the monthly average remains the same.\"}, {'role': 'user', 'content': \"Do you think the dental chews are making a difference in Max's teeth?",
+          "id": "ev_c3e000328b00254d76c0d530",
+          "observedAt": "2026-10-14T08:58:55.883Z"
+        },
+        {
+          "sourceId": "memory:context-111",
+          "sourceVersion": "sha256:4fe3bddb38819a7d55d6f1732b53af4cd78c918ee98d6e06cee55ab61028d284",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-111",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Grain-free kibble: $50/month\\n2.\n\nDental chews: $10/month\\n\\nTotal recurring expenses: $50 + $10 = $60/month\\n\\n**One-time expenses:**\\n\\n1.\n\nDog bed: $40 (one-time expense, not included in monthly average",
+          "id": "ev_dec2fe30bbeaeb8a10b5bbd2",
+          "observedAt": "2026-10-14T08:58:55.883Z"
+        },
+        {
+          "sourceId": "memory:context-287",
+          "sourceVersion": "sha256:b77848a3031c8746880fc09ae31bb06c4e26f133550e58eaba1e5383af500957",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-287",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Time: 2023/05/26 (Fri) 11:05', [{'role': 'user', 'content': \"I'm thinking of getting Max a new toy to add to his collection.\n\nDo you have any recommendations?",
+          "id": "ev_f4de0aaea63c4d8e45c386d8",
+          "observedAt": "2026-10-14T08:58:55.883Z"
+        }
+      ],
+      "sourceIds": [
+        "context-112",
+        "context-111",
+        "context-287"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.70516700000735,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-112",
+        "context-111",
+        "context-287"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) Grain-free kibble: $50/month\\n2.\n\nDental chews: $10/month\\n\\nTotal recurring expenses: $50 + $10 = $60/month\\n\\n**One-time expenses:**\\n\\n1.\n\nDog bed: $40 (one-time expense)\\n2.\n\nFlea and tick collar: $20 (one-time expense)\\n\\nSince both the dog bed and flea and tick collar are one-time expenses, we won't include them in the monthly average.\\n\\nThe average monthly cost of Max's supplies is still **$60**.\\n\\nIf you're tracking expenses over a longer period, you might want to consider factoring in the one-time expenses to get a more accurate picture of your annual or quarterly expenses.\n  (part 2 of 4, excerpt) over a longer period, you might want to consider factoring in the one-time expenses to get a more accurate picture of your annual or quarterly expenses.\n\nBut for now, the monthly average remains the same.\"}, {'role': 'user', 'content': \"Do you think the dental chews are making a difference in Max's teeth?\n\nI'm also curious, what made you decide to start using them?\"}, {'role': 'assistant', 'content': \"As a digital AI assistant, I don't have personal experiences or observations, so I didn't decide to start using dental chews for Max, and I haven't seen the effect of the chews on his teeth.\\n\\nHowever, I can provide general information about dental chews.\n  (part 3 of 4, excerpt) tartar and plaque.\\n\\nIf you're wondering about the effectiveness of the dental chews for Max, you might consider consulting with your veterinarian.\n\nThey can assess Max's oral health and provide guidance on the best ways to care for his teeth.\\n\\nIt's great that you're taking proactive steps to care for Max's teeth, and I'm happy to help you track his expenses!\"}, {'role': 'user', 'content': 'I was wondering if you could help me research some good dog shampoos for Max.\n- (part 2 of 5, excerpt) **Consult a Healthcare Professional**: If you have any underlying health conditions or concerns, consult a healthcare professional or registered dietitian to determine the best whey protein powder for your needs.\\n\\nRemember, whey protein powder is a supplement to your diet, not a replacement.\n\nMake sure to eat a balanced diet and consult with a healthcare professional before starting any new supplement regimen.\"}], 'Chat Time: 2023/05/20 (Sat) 07:49', [{'role': 'user', 'content': \"I'm trying to keep track of my expenses for Max's supplies.\n  (part 3 of 5, excerpt) any new supplement regimen.\"}], 'Chat Time: 2023/05/20 (Sat) 07:49', [{'role': 'user', 'content': \"I'm trying to keep track of my expenses for Max's supplies.\n\nCan you help me calculate the average monthly cost of his supplies?\"}, {'role': 'assistant', 'content': \"I'd be happy to help you calculate the average monthly cost of Max's supplies.\\n\\nTo do this, I'll need some information from you.\n\nCan you please provide the following:\\n\\n1.\n\nA list of the supplies you purchase for Max (e.g., food, toys, vet bills, grooming, etc.)\\n2.\n  (part 4 of 5, excerpt) monthly cost of Max's supplies.\"}, {'role': 'user', 'content': \"I've got a pretty good record of what I've been spending on Max.\n\nLet me think for a sec...\n\nSo, there's the grain-free kibble, which I buy every month, and then there are the occasional expenses like the dental chews - I started using a new one to help with his teeth, and the chews are $10 a pack.\"}, {'role': 'assistant', 'content': \"Let's start with the grain-free kibble.\n\nHow much does a month's supply of kibble cost?\\n\\nAnd how often do you buy the dental chews?\n  (part 5 of 5) 'content': \"Got it!\\n\\nSo, let's calculate the average monthly cost of Max's supplies:\\n\\n**Recurring expenses:**\\n\\n1.\n\nGrain-free kibble: $50/month\\n2.\n\nDental chews: $10/month\\n\\nTotal recurring expenses: $50 + $10 = $60/month\\n\\n**One-time expenses:**\\n\\n1.\n\nDog bed: $40 (one-time expense, not included in monthly average\n- (part 4 of 5) \"XO Tour Llama\"\\n\\n**Classic Rock and Metal:**\\n\\n1.\n\nQueen - \"We Will Rock You\"\\n2.\n\nGuns N\\' Roses - \"Sweet Child O\\' Mine\"\\n3.\n\nAC/DC - \"Thunderstruck\"\\n4.\n\nMetallica - \"Enter Sandman\"\\n5.\n\nFoo Fighters - \"The Pretender\"\\n\\n**Motivational Anthems:**\\n\\n1.\n\nRachel Platten - \"Fight Song\"\\n2.\n\nEminem - \"Not Afraid\"\\n3.\n\nKanye West - \"Stronger\"\\n4.\n\nBeyonc\u00e9 - \"Run the World (Girls)\"\\n5.\n\nP!nk - \"So What\"\\n\\n**Workout Playlists on Music Streaming Platforms:**\\n\\n1.\n\nSpotify: \"Beast Mode\", \"Cardio Kickstart\", \"Workout Motivation\"\\n2.\n\nApple Music: \"Fitness\", \"Workout\", \"Motivation\"\\n3.\n\nAmazon Music: \"Fitness\", \"Workout\", \"Pump Up\"\\n\\nYou can also create your own playlist with your favorite songs that get you pumped up and motivated!\\n\\nRemember, music is a personal preference, so experiment with different genres and playlists to find what works best for you.\\n\\nGet ready to rock out and crush your morning workouts!'}], 'Chat Time: 2023/05/26 (Fri) 11:05', [{'role': 'user', 'content': \"I'm thinking of getting Max a new toy to add to his collection.\n\nDo you have any recommendations?\n  (part 5 of 5) Time: 2023/05/26 (Fri) 11:05', [{'role': 'user', 'content': \"I'm thinking of getting Max a new toy to add to his collection.\n\nDo you have any recommendations?\n\nI just got him a new stainless steel food bowl from Amazon for $15, and a measuring cup from the pet store down the street for $5, which has been working out great for his new grain-free kibble.\"}, {'role': 'assistant', 'content': \"I'm happy to help you with",
+      "evidence": [
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:a85d1c8453eca69942a27ae0666629fff24517ee4252e71281c0c1d0d8a38c91",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Grain-free kibble: $50/month\\n2.\n\nDental chews: $10/month\\n\\nTotal recurring expenses: $50 + $10 = $60/month\\n\\n**One-time expenses:**\\n\\n1.\n\nDog bed: $40 (one-time expense)\\n2.\n\nFlea and tick collar: $20 (one-time expense)\\n\\nSince both the dog bed and flea and tick collar are one-time expenses, we won't include them in the monthly average.\\n\\nThe average monthly cost of Max's supplies is still **$60**.\\n\\nIf you're tracking expenses over a longer period, you might want to consider factoring in the one-time expenses to get a more accurate picture of your annual or quarterly expenses.",
+          "id": "ev_f042c046dad1be4f11202d0e",
+          "observedAt": "2026-10-14T08:58:55.889Z"
+        },
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:a85d1c8453eca69942a27ae0666629fff24517ee4252e71281c0c1d0d8a38c91",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "over a longer period, you might want to consider factoring in the one-time expenses to get a more accurate picture of your annual or quarterly expenses.\n\nBut for now, the monthly average remains the same.\"}, {'role': 'user', 'content': \"Do you think the dental chews are making a difference in Max's teeth?\n\nI'm also curious, what made you decide to start using them?\"}, {'role': 'assistant', 'content': \"As a digital AI assistant, I don't have personal experiences or observations, so I didn't decide to start using dental chews for Max, and I haven't seen the effect of the chews on his teeth.\\n\\nHowever, I can provide general information about dental chews.",
+          "id": "ev_c6bd80a7d6c10e2b78b0a7f0",
+          "observedAt": "2026-10-14T08:58:55.889Z"
+        },
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:a85d1c8453eca69942a27ae0666629fff24517ee4252e71281c0c1d0d8a38c91",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "tartar and plaque.\\n\\nIf you're wondering about the effectiveness of the dental chews for Max, you might consider consulting with your veterinarian.\n\nThey can assess Max's oral health and provide guidance on the best ways to care for his teeth.\\n\\nIt's great that you're taking proactive steps to care for Max's teeth, and I'm happy to help you track his expenses!\"}, {'role': 'user', 'content': 'I was wondering if you could help me research some good dog shampoos for Max.",
+          "id": "ev_3acf545df12ed8b01519d6c2",
+          "observedAt": "2026-10-14T08:58:55.889Z"
+        },
+        {
+          "sourceId": "memory:context-111",
+          "sourceVersion": "sha256:4fe3bddb38819a7d55d6f1732b53af4cd78c918ee98d6e06cee55ab61028d284",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-111",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "**Consult a Healthcare Professional**: If you have any underlying health conditions or concerns, consult a healthcare professional or registered dietitian to determine the best whey protein powder for your needs.\\n\\nRemember, whey protein powder is a supplement to your diet, not a replacement.\n\nMake sure to eat a balanced diet and consult with a healthcare professional before starting any new supplement regimen.\"}], 'Chat Time: 2023/05/20 (Sat) 07:49', [{'role': 'user', 'content': \"I'm trying to keep track of my expenses for Max's supplies.",
+          "id": "ev_8c343c01235bffc0afa2029a",
+          "observedAt": "2026-10-14T08:58:55.890Z"
+        },
+        {
+          "sourceId": "memory:context-111",
+          "sourceVersion": "sha256:4fe3bddb38819a7d55d6f1732b53af4cd78c918ee98d6e06cee55ab61028d284",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-111",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "any new supplement regimen.\"}], 'Chat Time: 2023/05/20 (Sat) 07:49', [{'role': 'user', 'content': \"I'm trying to keep track of my expenses for Max's supplies.\n\nCan you help me calculate the average monthly cost of his supplies?\"}, {'role': 'assistant', 'content': \"I'd be happy to help you calculate the average monthly cost of Max's supplies.\\n\\nTo do this, I'll need some information from you.\n\nCan you please provide the following:\\n\\n1.\n\nA list of the supplies you purchase for Max (e.g., food, toys, vet bills, grooming, etc.)\\n2.",
+          "id": "ev_edd74a9bab2b826225c0212c",
+          "observedAt": "2026-10-14T08:58:55.890Z"
+        },
+        {
+          "sourceId": "memory:context-111",
+          "sourceVersion": "sha256:4fe3bddb38819a7d55d6f1732b53af4cd78c918ee98d6e06cee55ab61028d284",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-111",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "monthly cost of Max's supplies.\"}, {'role': 'user', 'content': \"I've got a pretty good record of what I've been spending on Max.\n\nLet me think for a sec...\n\nSo, there's the grain-free kibble, which I buy every month, and then there are the occasional expenses like the dental chews - I started using a new one to help with his teeth, and the chews are $10 a pack.\"}, {'role': 'assistant', 'content': \"Let's start with the grain-free kibble.\n\nHow much does a month's supply of kibble cost?\\n\\nAnd how often do you buy the dental chews?",
+          "id": "ev_8ef909f3aa756e5228046de5",
+          "observedAt": "2026-10-14T08:58:55.890Z"
+        },
+        {
+          "sourceId": "memory:context-111",
+          "sourceVersion": "sha256:4fe3bddb38819a7d55d6f1732b53af4cd78c918ee98d6e06cee55ab61028d284",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-111",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "'content': \"Got it!\\n\\nSo, let's calculate the average monthly cost of Max's supplies:\\n\\n**Recurring expenses:**\\n\\n1.\n\nGrain-free kibble: $50/month\\n2.\n\nDental chews: $10/month\\n\\nTotal recurring expenses: $50 + $10 = $60/month\\n\\n**One-time expenses:**\\n\\n1.\n\nDog bed: $40 (one-time expense, not included in monthly average",
+          "id": "ev_8adc0c310bd23064c90791e6",
+          "observedAt": "2026-10-14T08:58:55.890Z"
+        },
+        {
+          "sourceId": "memory:context-287",
+          "sourceVersion": "sha256:b77848a3031c8746880fc09ae31bb06c4e26f133550e58eaba1e5383af500957",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-287",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "\"XO Tour Llama\"\\n\\n**Classic Rock and Metal:**\\n\\n1.\n\nQueen - \"We Will Rock You\"\\n2.\n\nGuns N\\' Roses - \"Sweet Child O\\' Mine\"\\n3.\n\nAC/DC - \"Thunderstruck\"\\n4.\n\nMetallica - \"Enter Sandman\"\\n5.\n\nFoo Fighters - \"The Pretender\"\\n\\n**Motivational Anthems:**\\n\\n1.\n\nRachel Platten - \"Fight Song\"\\n2.\n\nEminem - \"Not Afraid\"\\n3.\n\nKanye West - \"Stronger\"\\n4.\n\nBeyonc\u00e9 - \"Run the World (Girls)\"\\n5.\n\nP!nk - \"So What\"\\n\\n**Workout Playlists on Music Streaming Platforms:**\\n\\n1.\n\nSpotify: \"Beast Mode\", \"Cardio Kickstart\", \"Workout Motivation\"\\n2.\n\nApple Music: \"Fitness\", \"Workout\", \"Motivation\"\\n3.\n\nAmazon Music: \"Fitness\", \"Workout\", \"Pump Up\"\\n\\nYou can also create your own playlist with your favorite songs that get you pumped up and motivated!\\n\\nRemember, music is a personal preference, so experiment with different genres and playlists to find what works best for you.\\n\\nGet ready to rock out and crush your morning workouts!'}], 'Chat Time: 2023/05/26 (Fri) 11:05', [{'role': 'user', 'content': \"I'm thinking of getting Max a new toy to add to his collection.\n\nDo you have any recommendations?",
+          "id": "ev_626af7382ce03981d9f5057e",
+          "observedAt": "2026-10-14T08:58:55.890Z"
+        },
+        {
+          "sourceId": "memory:context-287",
+          "sourceVersion": "sha256:b77848a3031c8746880fc09ae31bb06c4e26f133550e58eaba1e5383af500957",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-287",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "Time: 2023/05/26 (Fri) 11:05', [{'role': 'user', 'content': \"I'm thinking of getting Max a new toy to add to his collection.\n\nDo you have any recommendations?\n\nI just got him a new stainless steel food bowl from Amazon for $15, and a measuring cup from the pet store down the street for $5, which has been working out great for his new grain-free kibble.\"}, {'role': 'assistant', 'content': \"I'm happy to help you with",
+          "id": "ev_a0885176e145f23b1a37834d",
+          "observedAt": "2026-10-14T08:58:55.890Z"
+        }
+      ],
+      "sourceIds": [
+        "context-112",
+        "context-111",
+        "context-287"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.70008300000336,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-112",
+    "context-111",
+    "context-287"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:58:55.892393+00:00"
+}

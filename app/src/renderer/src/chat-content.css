@@ -1,0 +1,49 @@
+/* Shared verbatim by the Mac Markdown component and the phone's offline renderer. */
+.bimax-message-body { font: var(--chat-font-size,16px)/1.7 "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:var(--color-ink,#f3f3f3); overflow-wrap:anywhere; min-width:0; }
+.bimax-message-body p { margin:8px 0; }
+.bimax-message-body p:first-child { margin-top:0; }
+.bimax-message-body p:last-child { margin-bottom:0; }
+.bimax-message-body a { color:var(--color-ember,#d0bb9b); text-underline-offset:3px; }
+.bimax-message-body strong { font-weight:600; }
+.bimax-message-body .md-h { margin:16px 0 8px; font-weight:600; line-height:1.4; }
+.bimax-message-body .md-h1 { font-size:var(--chat-heading-1,24px); }.bimax-message-body .md-h2 { font-size:var(--chat-heading-2,21px); }
+.bimax-message-body ul { list-style:disc; padding-left:22px; margin:10px 0; }.bimax-message-body ol { list-style:decimal; padding-left:22px; margin:10px 0; }
+.bimax-message-body li { padding-left:3px; margin:4px 0; }
+.bimax-message-body blockquote { margin:12px 0; padding:0 14px; border-left:3px solid var(--color-line,#3b3b3b); color:var(--color-dim,#b4b4b4); }
+.bimax-message-body :not(pre)>code { font:0.88em/1.6 ui-monospace,SFMono-Regular,Menlo,monospace; background:var(--color-raise,#2f2f2f); padding:2px 5px; border-radius:5px; }
+.bimax-message-body pre { margin:12px 0; padding:14px; overflow-x:auto; background:var(--code-block,#111); border:1px solid var(--color-line,#3b3b3b); border-radius:10px; white-space:pre; }
+.bimax-message-body pre code { font:var(--chat-code-size,13px)/1.65 ui-monospace,SFMono-Regular,Menlo,monospace; }
+.bimax-message-body [data-streamdown="code-block"] { margin:12px 0; border:1px solid var(--color-line,#3b3b3b); border-radius:10px; overflow:hidden; background:var(--code-block,#111); }
+.bimax-message-body [data-streamdown="code-block-header"] { display:flex;justify-content:space-between;gap:8px;padding:8px 12px;font-size:11px;color:var(--color-faint,#a0a0a0);border-bottom:1px solid var(--color-line,#3b3b3b); }
+.bimax-message-body [data-streamdown="code-block-body"] { overflow:auto;padding:14px; }
+.bimax-message-body [data-streamdown="table-wrapper"] { max-width:100%;overflow:auto; }
+.bimax-message-body table { width:100%;border-collapse:collapse;margin:12px 0;font-size:var(--chat-table-size,14px); }
+.bimax-message-body th,.bimax-message-body td { border:1px solid var(--color-line,#3b3b3b);padding:8px 10px;text-align:left; }
+.bimax-message-body th { font-weight:600;background:var(--color-raise,#2f2f2f); }
+.bimax-message-body .katex-display,.bimax-message-body [data-streamdown="mermaid"] { max-width:100%;overflow:auto; }
+.bimax-message-body .rich-image { max-width:100%;max-height:420px;object-fit:contain;border-radius:8px; }
+.bimax-message-body .rich-media-placeholder { color:var(--color-faint,#a0a0a0);font-size:13px; }
+.bimax-message-body .keep-output { color:var(--color-dim,#b4b4b4);background:transparent;border:1px solid var(--color-line,#3b3b3b);padding:9px 12px;border-radius:8px;font-size:12px;line-height:1.5;font-family:inherit;cursor:pointer; }
+.theme-moonlight .bimax-message-body [style*="--shiki-dark"] { color:var(--shiki-dark)!important; }
+
+.bimax-message-body :is(p,ul,ol,blockquote,.md-h){max-width:34em}.bimax-message-body .rich-code-output{margin:8px 0 16px}.bimax-message-body .katex-display{padding:8px 0}
+
+.bimax-message-body [data-streamdown="strong"]{font-weight:600}.bimax-message-body [data-streamdown="code-block-body"] pre{border:0;background:transparent;padding:0;margin:0}
+
+/* One code frame and one explicit toolbar; Streamdown still owns parsing and highlighting. */
+.bimax-message-body .rich-code-output { margin:16px 0; border:1px solid var(--color-line);border-radius:12px;background:var(--code-block,#111);overflow:hidden; }
+.bimax-message-body .rich-code-toolbar { display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;padding:0 12px;border-bottom:1px solid var(--color-line); }
+.bimax-message-body .rich-code-language { color:var(--color-faint);font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; }
+.bimax-message-body .rich-code-controls { display:flex;align-items:center;gap:6px;flex-wrap:wrap; }
+.bimax-message-body .rich-code-toolbar .keep-output { min-height:44px;border:0;border-radius:6px;padding:8px;font-size:12px; }
+.bimax-message-body .rich-code-toolbar .keep-output:hover { color:var(--color-ink);background:var(--color-hover); }
+.bimax-message-body .rich-code-output [data-streamdown="code-block"] { border:0;border-radius:0;background:transparent;margin:0;gap:0; }
+.bimax-message-body .rich-code-output [data-streamdown="code-block-header"],
+.bimax-message-body .rich-code-output [data-streamdown="code-block-actions"] { display:none; }
+.bimax-message-body .rich-code-output [data-streamdown="code-block-body"] { padding:16px;border:0;border-radius:0;background:transparent; }
+.bimax-message-body .rich-code-output pre { border:0;border-radius:0;background:transparent;margin:0; }
+/* Tables keep a single scrolling frame, avoiding a box inside another box. */
+.bimax-message-body [data-streamdown="table-wrapper"] { padding:0;border:0;background:transparent;gap:4px; }
+.bimax-message-body [data-streamdown="table-wrapper"] > div { border-radius:10px; }
+.bimax-message-body table { margin:0; }
+.bimax-message-body :is(th,td) { font-size:inherit; }

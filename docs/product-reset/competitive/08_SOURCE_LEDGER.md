@@ -1,5 +1,81 @@
 # Competitive source ledger
 
+## 2026-10-25 — local embedder and saved workspace source, record 114
+
+[Record 114](../114_WORKSPACE_CHATS_RETRIEVAL_AND_CANVAS.md) uses actual saved settings, failed local service probes, current ThreadManager/root lifecycle, responder/journal/Noise paths and shared rendering sources. Primary [Ollama macOS](https://docs.ollama.com/macos) and [embeddings](https://docs.ollama.com/capabilities/embeddings) checked today. Installed all-minilm manifests already exist; no download/model/cloud switch. One actual-backend inert probe returns 384-dimensional unit vectors with margin 0.1277, not a broad retrieval-quality result. Source/browser/package checks, owner-confirmed Mac opening and still-pending physical phone acceptance are separately identified.
+
+## 2026-10-25 — phone motion and network loading, record 112
+
+[Record 112](../112_PHONE_PREFERENCES_AND_CONNECTION_SETTINGS.md) uses inspected Desktop Settings/ThinkingIndicator/renderer, phone transport/session/storage and installed RN Web Switch/Animated sources. Fresh primary [Expo Start developing](https://docs.expo.dev/get-started/start-developing/) confirms same-Wi-Fi LAN development loading and the separate tunnel alternative. [Apple iPhone Mirroring](https://support.apple.com/en-us/120421) requires a nearby locked iPhone with Wi-Fi/Bluetooth on; two local attempts timed out. Local source establishes Mac storage/encrypted Cloudflare transport; no physical cellular run or new external service configuration is inferred.
+
+## 2026-10-25 — owner-confirmed chat and shared presentation, record 111
+
+[Record 111](../111_SHARED_MESSAGES_AND_PHONE_DRAWER.md) records the owner’s direct physical phone → Mac → reply confirmation and remaining UI dissatisfaction. Actual current Desktop Transcript/Markdown/CSS, phone route/storage and rendered source fixtures guide the work. No external API, provider, account configuration, cryptography, transport or competitor source is changed.
+
+## 2026-10-25 — trusted live phone connection (record 110)
+
+[Record 110](../110_TRUSTED_PHONE_LIVE_CONNECTION.md) records the owner’s consent/sync failure and explicit pair-once/away-access policy. [Expo LocalAuthentication](https://docs.expo.dev/versions/latest/sdk/local-authentication/) and installed SDK-58 Swift source guide OS-passcode fallback only in Expo Go. Supabase changelog and the existing project’s public ES256 JWKS were checked; no project/account/RLS/signing changes. Read-only deployment metadata found the relay absent and an older model gateway; a separate relay and additive D1 credential column are now deployed. Inert actual Workers/D1/KV and public TLS/Noise fixtures qualify transport, not a physical account/device journey. No competitor source, pricing assumptions or new model-gateway rollout is involved.
+
+## 2026-10-24 — shared phone transcript and selected history (record 109)
+
+Primary sources checked: [Expo WebView](https://docs.expo.dev/versions/latest/sdk/webview/) (Expo Go; 14.0.1), [WebView API](https://github.com/react-native-webview/react-native-webview/blob/master/docs/Reference.md), installed SDK-58 bundledNativeModules, and actual installed Streamdown/Tailwind/plugin sources. Local evidence separates encrypted history/security and actual rendered component end states from the owner’s pairing/list observation. [Record 109](../109_PHONE_CONVERSATIONS_AND_SHARED_RENDERER.md) qualifies scope; native device/resource/public-release claims remain Target.
+
+## Native socket upgrade headers — 2026-10-24, record 108
+
+[Record 108](../108_NATIVE_PHONE_PAIRING_ADMISSION.md) inspects installed RN 0.88 `RCTWebSocketModule.mm`, `WebSocket.js`, Android `WebSocketModule.kt` and CocoaPods `helpers.rb` (SocketRocket 0.7.1). The matching primary [SocketRocket upgrade builder](https://github.com/facebookincubator/SocketRocket/blob/0.7.1/SocketRocket/Internal/Utilities/SRHTTPConnectMessage.m) sets default Origin then applies supplied headers. A real local server/native-header shim reproduces admission behavior; it is not a captured physical iOS packet or completed phone pairing. Source traces guide the phone adapter; no upstream implementation is copied into product code.
+
+
+## Expo native streaming and current phone delivery — 2026-10-24, record 107
+
+[Record 107](../107_PHONE_CHAT_RECOVERY_AND_DARK_UI.md) checks [Expo's fetch/streaming documentation](https://docs.expo.dev/versions/latest/sdk/expo/#expofetch-api) and installed Expo 58.0.19 `src/winter/fetch/fetch.ts`/native abort plumbing. The streaming transport requires the Expo binding, not a successful injected Node fetch fixture. Read-only Cloudflare settings/deployment metadata show an allowed GPT OSS route, a NVIDIA key binding, older deployed code and absent new admission bindings; no values of secret bindings are read. One live NVIDIA probe returns HTTP 200/content/DONE in 44,915 ms; the owner later confirms an iPhone answer after reload. These are scoped observations, not a provider SLA or hardened cloud qualification. Exact current RN Web screens/controls and the installed Mac welcome window are separately observed. No competitor implementation or branding is copied.
+
+
+## Memory coordination and personal bots — 2026-10-18, records 101–102
+
+Current first-party source and audit 100 guide [design 101](../101_MEMORY_INTEGRITY_AND_PERSONAL_BOTS_PLAN.md) and [record 102](../102_MEMORY_REPAIRS_AND_BOT_KERNEL.md). Fresh primary references checked 2026-10-18:
+
+- [SQLite transactions](https://www.sqlite.org/lang_transaction.html): qualify an immediate write reservation for cooperating JSON writers; no database migration or universal durability claim.
+- [SQLite locking](https://www.sqlite.org/lockingv3.html): OS-mediated coordination and local-filesystem limitations; do not steal live holders with time-based expiry.
+- [Anthropic multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system): explicit bounded assignments and separate contexts inform the handoff design; no Bimax performance inference.
+- [Claude Code custom subagents](https://code.claude.com/docs/en/sub-agents): user configuration, tools and memory are design references, not copied implementation.
+- [LangGraph persistence](https://docs.langchain.com/oss/javascript/langgraph/persistence): distinguish run checkpoints from longer-lived scoped memory. No framework dependency is added.
+
+Source-fault tests run in disposable copies; real local worker/process and HTTP fixtures grade Bimax's actual outcomes. No competitor source, new package or hosted benchmark is imported. The missing capability matrix supplies no evidence. Bot UI, schedules, broader authority, independent answer quality and installed reliability remain Target.
+
+## Native mobile host controls — 2026-10-16
+
+[Record 99](../99_MOBILE_HOST_CONTROLS.md) uses current first-party adapter/security source and installed Electron 43.3.0 `app/node_modules/electron/electron.d.ts` (MessageBoxOptions.signal: macOS cancellation requires a parent). The native fixture directly checks that behavior. Evidence is in `../evidence/2026-10-16-mobile-host/`; no competitor implementation, new runtime dependency or general reliability claim.
+
+## Memory RAG completeness and warm work — 2026-10-14, record 95
+
+[Record 95](../95_RAG_EVIDENCE_AND_RETRIEVAL_WORK.md) uses inspected first-party source and frozen starting bytes. Newly checked primary references: [Elastic RRF](https://www.elastic.co/docs/reference/elasticsearch/rest-apis/reciprocal-rank-fusion) (retain ranks/window semantics); [Anthropic contextual retrieval](https://www.anthropic.com/engineering/contextual-retrieval) (contextual BM25/embeddings/reranking; vendor results are not Bimax gains); [Lost in the Middle](https://aclanthology.org/2024.tacl-1.9/) and [programmatic context management](https://arxiv.org/abs/2608.21690) (evidence placement/management research); official [LongMemEval-V2](https://github.com/xiaowu0162/LongMemEval-V2) and [MemoryAgentBench](https://github.com/HUST-AI-HYZ/MemoryAgentBench) (external evaluation candidates, not executed here). User attachments are hypotheses, not benchmark receipts. No upstream code/dependency/dataset/model import. Preserved local samples, grader controls, source faults and defer decisions are under `../evidence/2026-10-14-rag/`; public/independent heldout/live answer-quality results remain Target.
+
+## Exact context serialization and bounded continuation work — 2026-10-13, record 94
+
+[Record 94](../94_LESS_CONTEXT_WORK.md) uses newly inspected first-party Bimax source and frozen starting bytes. Newly read primary references: [ECMAScript JSON serialization](https://tc39.es/ecma262/multipage/structured-data.html#sec-json.stringify) (living draft: hooks, own enumerable fields, quoting and errors), and [Node 22 proxy detection](https://nodejs.org/download/release/v22.15.0/docs/api/util.html#utiltypesisproxyvalue). The shortcut applies only to plain data with a primitive-string lower bound; proxies, getters, hooks, nested values and possible serialization errors retain native JSON behavior. No upstream code/dependency is imported. Exact-result tests and local paired measurements establish this Bimax slice; references do not prove model quality or product acceleration. Research and all samples are under `../evidence/2026-10-13-context-work/`.
+
+## Context compaction, bounded work and cancellation — 2026-10-13, record 93
+
+[Record 93](../93_CONTEXT_ORCHESTRATION.md) records inspected Bimax context/request/recall/continuation/evidence source and frozen working-tree baselines. Newly read primary references: [Anthropic context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) (2025-09-29: compaction, structured notes and just-in-time references; tradeoffs, not a Bimax-quality result), and [Node 22 AbortSignal](https://nodejs.org/download/release/v22.15.0/docs/api/globals.html) (cancellation propagation and throwing the abort reason). Bimax's existing request-deadline helper is reused; no competitor source, new package, remote provider call or claim of superior model performance. The research index and retained samples are in `../evidence/2026-10-13-context-orchestration/`.
+
+## Indexing membership, bounded signatures and OCR diagnosis — 2026-10-13, record 92
+
+[Record 92](../92_LESS_INDEXING_WORK.md) freezes current first-party source, records every paired phase/heap sample and checks exact outputs plus assertion-caught faults. Primary mechanisms: [ECMAScript Set](https://tc39.es/ecma262/multipage/keyed-collections.html#sec-set-objects), [split limit](https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.split), [Microsoft Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API), and [Node Buffer encodings](https://nodejs.org/api/buffer.html#buffers-and-character-encodings). Apple confidence HTML/Markdown was inaccessible for substantive browsing; the installed Vision header hash and actual owned native outputs are recorded in `../evidence/2026-10-13-indexing-work/research.json`. Accurate/fast confidence is preserved, not inflated. No upstream code, dependency/runtime upgrade, installed performance or competitive claim. Final local checks pass: 4,291 Jest, 133 Bun, three script tests, builds/typechecks, zero lint errors and seven staged-engine exchanges. Earlier native OCR failures remain evidence; this later pass does not qualify general reliability.
+
+## Compiler state and heap measurement — 2026-10-13, record 91
+
+[Record 91](../91_COMPILER_STATE_LIFETIME.md) freezes current first-party sources and records all paired compiler-memory samples, collection/end-state contracts and eight source faults. Fresh primary references: [Microsoft Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API), [Node 22 memoryUsage](https://nodejs.org/docs/latest-v22.x/api/process.html#processmemoryusage) and [V8 Orinoco GC](https://v8.dev/blog/trash-talk). Applicability and the initial sampler correction are in `../evidence/2026-10-13-index-memory/research.json`. No upstream implementation/dependency import, forced production GC, installed RSS/energy or competitive claim.
+
+The first full-suite MCP timeout failure is retained; four deterministic settlement tests and three further source faults qualify a deadline-clock correction against the [Node timer scheduling contract](https://nodejs.org/api/timers.html#scheduling-timers). Final Jest passes 4,270 tests; Bun remains 132/133 due to a repeated native OCR confidence failure, so the complete offline/release gate stays open.
+
+## Graph performance mechanisms — 2026-10-13, record 90
+
+[Record 90](../90_GRAPH_PERFORMANCE.md) records current first-party baselines, exact output checks, eight source faults and all paired graph/heap timings. Fresh primary references: [NetworkX BFS layers](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.traversal.breadth_first_search.bfs_layers.html), [Boost circular-buffer semantics](https://www.boost.org/doc/libs/develop/doc/html/circular_buffer.html), and [Lucene 10.3.1 priority queue](https://lucene.apache.org/core/10_3_1/core/org/apache/lucene/util/PriorityQueue.html). Applicability is in `../evidence/2026-10-13-performance/research.json`. Bimax freshly implements its FIFO/batch filtering; the heap portfolio is rejected by measured tradeoffs. No upstream code/library import, product-wide acceleration, peak-RSS/energy result or competitive claim follows from these references.
+
+## Graph freshness and rejected heap candidate — 2026-10-13, record 89
+
+[Record 89](../89_GRAPH_FRESHNESS_AND_LINT.md) records inspected first-party source, local source faults, a graph-checkpoint process kill and the rejected bounded-heap experiment. Freshly read primary references: [Node 22 filesystem stat fields](https://nodejs.org/docs/latest-v22.x/api/fs.html), [TypeScript Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API), [SQLite atomic commit](https://www.sqlite.org/atomiccommit.html), and [Lucene priority queue](https://lucene.apache.org/core/10_3_1/core/org/apache/lucene/util/PriorityQueue.html). Applicability and constraints are in `../evidence/2026-10-13-graph-freshness/research.json`. These references support mechanisms, not Bimax performance or recovery claims. No upstream implementation/dependency import, model qualification or competitive Win.
+
 ## Algorithm research and scoped local evidence — 2026-10-12, record 88
 
 [Record 88](../88_ALGORITHM_AUDIT_AND_UPGRADE.md) and its [27-source research index](../evidence/2026-10-12-algorithm-upgrade/research.json) record newly checked primary references, applicability and adoption/defer decisions. Sources describe mechanics; none proves Bimax outcomes merely through citation.
@@ -10,6 +86,194 @@
 - [Caffeine](https://github.com/ben-manes/caffeine/wiki/Efficiency), [HNSW](https://arxiv.org/abs/1603.09320), [Microsoft DiskANN](https://github.com/microsoft/DiskANN), [Netflix concurrency limits](https://github.com/Netflix/concurrency-limits), [Datadog DDSketch](https://www.datadoghq.com/blog/engineering/computing-accurate-percentiles-with-ddsketch/): investigated candidates, not adopted without workload/recall/memory/fairness/error evidence. Historical legal commentary on Caffeine's page is not a current legal conclusion.
 - [AWS retries/jitter](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/), [Google overload](https://sre.google/sre-book/handling-overload/), Elastic RRF/ranking, SQLite FTS5/atomic commit/WAL, original PageRank and long-context research, Node buffering, TypeScript/Tree-sitter, SciPy/scikit-learn and HMAC references inform retain/investigate decisions; direct URLs and boundaries are in the index.
 - Frozen first-party baselines, structural manifests, exact fixtures, twelve assertion-caught source faults and every final paired timing are under `../evidence/2026-10-12-algorithm-upgrade/`. Initial accumulator regressions and the initial unqualified mutation-grader result remain recorded. No competitor code, new dependency, installed-app/model-tier qualification or competitive Win.
+
+## Messaging reliability evidence — 2026-10-11, record 84
+
+- Inspected first-party workflow, native authority, schemas and interruption code;
+  evidence and source/grader faults: `../evidence/2026-10-11-messaging-reliability/`.
+- Owned AppKit Messaging Proof fixture, preserved v1/v2 source and independent
+  stored-message/AX end states. The first installed model attempt stopped before
+  input and remains a product failure, not a discarded provider run.
+- WhatsApp 2.26.38.74 was observed locally through its current native home UI using
+  cua_repl. No personal conversation was selected, drafted into or sent to; private
+  chat text is excluded from saved evidence. This establishes availability only.
+- Installed v2 saved gpt-oss-20b Low / Do: one selected-conversation fixture Send
+  passed independent stored-message/AX grading with injected Pause/Resume. Record
+  84 preserves the exact prompt, build hash, five approvals and two human control
+  interventions. 189 tests, nine source faults and fifteen grader faults pass;
+  deterministic repetitions remain separate from native/provider qualification.
+- No new competitor code, dependency or external compatibility claim. Existing
+  pinned Arc MIT inventory and Mac-only/private-channel ownership remain unchanged.
+
+
+## Direct @CU experience — 2026-10-11, record 83
+
+[Record 83](../83_DIRECT_AT_CU_EXPERIENCE.md) supersedes records 81–82’s required app/window picker at the
+owner’s request. Send `@CU <task>` in either composer: Do is the default, and the
+CU model discovers actual running apps/windows after dispatch. Guide/Teach and
+saved workflows are optional. Read grants, per-input approval, exact observations,
+Pause/Stop and no-replay barriers remain. Main-owned ephemeral single-use admission
+refuses restored/expired requests; discovery metadata grants no input authority.
+Mac owns CU through its private host channel. Broader model reliability, full M02/X01
+and release qualification remain Target. The signed local arm64 app is installed;
+one direct saved-model Do task is Measured on the owned fixture (two verified
+inputs, exact text, exactly one Save). Local typecheck, 392 regression tests, ten
+renderer checks and seven source faults pass; record 83 scopes the receipts.
+
+
+## CU modes and verification recovery — 2026-10-11, record 82
+
+[Record 82](../82_CU_MODES_AND_VERIFICATION_RECOVERY.md) adds Do/Guide/Teach,
+revision-bound in-panel approvals, Pause/Take over/Resume/Stop, and explicit
+read-only correction of a changed unexpected status. Guide has no native input;
+Teach saves only verified literal instructions and reuse requires a fresh target
+and consent. Exact postconditions and no-replay barriers remain. Local host and
+renderer contracts are scoped in record 82; assisted correction is not autonomous
+model inference. The signed local arm64 v2 app is installed. Individual Teach
+(assisted), Guide (zero native inputs) and Do outcomes are Measured on one owned
+fixture; 33 grader faults are rejected. Interrupted/rejected attempts remain
+recorded. Broader model planning/prose reliability, repeated model tiers, full
+M02/X01 and distribution remain Target.
+
+## Explicit @CU messages — 2026-10-10, record 81
+
+[Record 81](../81_AT_CU_MESSAGE_ROUTING.md) implements per-message Computer Use in the project composer
+and ⌘2 floating bar: autocomplete, a visible chip and explicit running-app/window
+selection. Main-owned single-use receipts and native enforcement bind the exact
+window; the engine advertises and executes only CU plus clarification for that
+turn. Ordinary coding messages cannot activate CU by guessing its tool name.
+Picker consent is separate from task read/input approvals. Queued/restarted routes
+never silently become coding turns. Native ownership remains Bimax for Mac through
+its private host channel, without an MCP connector. Local contracts, renderer end
+states and assertion-caught faults are scoped in record 81. Full M02/X01, repeated
+model reliability and release/performance qualification remain Target.
+The signed local arm64 v2 app is installed with matching staged bytes and preserved
+profile/history. One saved gpt-oss-20b request with an explicit full postcondition
+is Measured: two verified inputs and exactly one additional persisted Save. An
+earlier inferred-postcondition attempt remains partial; repeated reliability is
+Target. Record 81 scopes the native/dialog and distribution evidence.
+
+## Full Arc source owned by Bimax CU — 2026-10-07, record 80
+
+[Record 80](../80_FULL_ARC_SOURCE_AND_BUILT_IN_CU_FEATURE.md) places all 100 original
+Arc files inside `app/native/computer/vendor/arc-cua/` and ships that full source
+snapshot plus all 34 Python package modules inside Bimax CU. Original MIT identity,
+authorship and byte hashes remain. The upstream MCP/CLI code is retained; Bimax's
+entry refuses its `mcp`/`run` commands and exposes only the private app component.
+Computer Use is a File menu action and readable chat activity. Its engine connection
+remains the birth-transferred internal MessagePort, never a managed MCP connector.
+Record 79's module exclusions and the earlier third_party location are superseded.
+The installed v4 app is **Measured** on one owned fixture with the saved gpt-oss-20b:
+one verified field edit, one verified Save click, exact persisted text and save count
+one, plus independent native AX read-back. Flat arguments, safe read correction and
+standalone window-target import defects are fixed. Failed attempts remain recorded.
+Full native/saved-model M02/X01, clean-Mac distribution and performance remain Target.
+
+
+## Internal Bimax CU and saved-model sequencing — 2026-10-07
+
+[Record 79](../79_INTERNAL_BIMAX_CU_AND_WORKFLOW_RELIABILITY.md): internal app-owned
+capability and bounded ordered workflow are **Implemented**. This supersedes
+record 78's active MCP route and Arc product identity. The pinned Arc backend and
+license are preserved; two selected first-party archived Bimax policies now serve
+the active implementation. Native ownership stays in Mac; the engine receives only
+a generic transferred host channel. Remove native MCP approval exceptions and
+prevent environment descriptors from installing Mac CU. Clarification duplicates
+are suppressed within a user run; cancelled questions release the run.
+
+Qualification order: internal channel and workflow contracts → assertion-caught
+fault mutations → native freeze and app/engine/package gates → independent native
+fixture end-state → installed app/saved-model test. Consult record 79's current
+receipts for exactly how far this sequence ran. Native/provider full M02/X01,
+clean-Mac/Intel, private API distribution and performance remain **Target**. No
+Product-ready or Win upgrade follows from a component test.
+
+The record 78 section below describes the superseded MCP build and its receipts.
+
+
+## Arc runtime activation — 2026-10-07
+
+[Record 78](../78_ARC_APP_INTEGRATION.md): **Implemented**, with a locally graded
+native fixture through MCP → authenticated broker → Mac authority → frozen arc
+Driver. Pinned source `74ffae1108b1cb4b1f6b161084af12646f544ba5`, version 0.1.1,
+MIT; all 100 imported files remain unchanged. The full driver supplies AX, hybrid
+OCR, window-bound background inputs and menu operations. Bimax's existing model
+chooses tools; arc's standalone JEV decision loop is not connected or required.
+Package Python 3.13.1, PyObjC 12.2.2 and PyInstaller 6.20.0 from the checked-in lock;
+retain dependency licenses. Source inspected locally; no new competitor win claimed. Final signed arm64 app installed; bundle hashes and user-data preservation checked. Actual main performed approved native CLICK and SET_VALUE; deterministic final packaged fixture saved the exact text once. The saved model's multistep run was invalid; general model reliability remains unqualified.
+No legacy path is restored. Full M02/X01, provider reliability, clean-Mac/Intel,
+private-API release compatibility and performance remain **Target/unmeasured**.
+
+
+## CU source import — checked 2026-10-07
+
+[Record 77](../77_CU_SOURCE_IMPORT_RECORD.md) now imports source rather than merely
+inspecting it: all 100 tracked files from arc-cua
+`74ffae1108b1cb4b1f6b161084af12646f544ba5`, including its original
+[MIT license](../../../third_party/arc-cua/LICENSE), are copied unchanged.
+[Local import manifest](../../../third_party/arc-cua.BIMAX_IMPORT.json) records Git
+blob/mode/size/SHA-256 identities; the first-party clone matches record 76's revision.
+
+All 55 Bimax archive source files, original manifest/README, and seven dependency
+package/license notices are copied separately; the original external archive stays
+intact. [Archive import manifest](../../../archive/computer-use/2026-10-04-retired-cua-driver.BIMAX_IMPORT.json)
+records their hashes. The retained native-runtime notice identifies MPL-2.0; no
+native binary or compiled dependency is redistributed by this source copy.
+Private chats/settings and runtime state are excluded. No runtime source is
+adapted, no package is installed, and no provider/platform capability is inferred.
+
+## arc-cua versus archived Bimax CU — checked 2026-10-06
+
+[Record 76](../76_ARC_CUA_AND_ARCHIVED_BIMAX_COMPARISON.md) compares arc-cua 0.1.1 at
+`74ffae1108b1cb4b1f6b161084af12646f544ba5` with Bimax's latest retired 0.31.0-driver
+integration. All 55 archived manifest source hashes matched. Current record 66 still retires CU.
+
+- [Driver contract](https://github.com/shhivv/arc-cua/blob/74ffae1108b1cb4b1f6b161084af12646f544ba5/docs/driver.md):
+  model-free Python/MCP, exact window/snapshot scope, structural-change/semantic guards and opt-in settling.
+- [Choice policy](https://github.com/shhivv/arc-cua/blob/74ffae1108b1cb4b1f6b161084af12646f544ba5/src/arc_cua/policies/choice.py)
+  and [validation](https://github.com/shhivv/arc-cua/blob/74ffae1108b1cb4b1f6b161084af12646f544ba5/src/arc_cua/validation.py):
+  finite observed IDs, supplied input keys, validated choices; not proof of correct target selection.
+- [Runtime](https://github.com/shhivv/arc-cua/blob/74ffae1108b1cb4b1f6b161084af12646f544ba5/src/arc_cua/runtime.py)
+  and [safety](https://github.com/shhivv/arc-cua/blob/74ffae1108b1cb4b1f6b161084af12646f544ba5/src/arc_cua/safety.py):
+  optional verifier; cooperative cancellation/deadline checks; named CLICK/DOUBLE_CLICK risk filter.
+  Six controlled fake-policy/backend assertions qualify only these runtime behaviors.
+- [Hybrid observation](https://github.com/shhivv/arc-cua/blob/74ffae1108b1cb4b1f6b161084af12646f544ba5/src/arc_cua/backends/macos_hybrid.py),
+  [background input](https://github.com/shhivv/arc-cua/blob/74ffae1108b1cb4b1f6b161084af12646f544ba5/src/arc_cua/backends/macos_background.py),
+  [parking](https://github.com/shhivv/arc-cua/blob/74ffae1108b1cb4b1f6b161084af12646f544ba5/src/arc_cua/backends/macos_parking.py)
+  and [Chrome](https://github.com/shhivv/arc-cua/blob/74ffae1108b1cb4b1f6b161084af12646f544ba5/src/arc_cua/backends/chrome.py):
+  conditional Vision OCR, private SkyLight/virtual-display mechanisms and a separate DOM/CDP backend.
+  No native behavior, permissions, distribution or performance was exercised here.
+- [Benchmark contract](https://github.com/shhivv/arc-cua/blob/74ffae1108b1cb4b1f6b161084af12646f544ba5/benchmarks/README.md):
+  upstream primitive/workflow checks and independent effects; no run or comparative timing accepted.
+- [MIT LICENSE](https://github.com/shhivv/arc-cua/blob/74ffae1108b1cb4b1f6b161084af12646f544ba5/LICENSE)
+  and [package metadata](https://github.com/shhivv/arc-cua/blob/74ffae1108b1cb4b1f6b161084af12646f544ba5/pyproject.toml):
+  actual license and Python 3.12+ packaging inspected. No runtime code/dependency was imported.
+
+Bimax source inspection covers archived service/driver/grants/commit/manifest/observation/identity
+and retained failed installed Music attempts in record 65. Executable-file hashing is not full ASAR
+identity; exact typed-value read-back is not whole-task verification. No Product-ready/Win status
+or restoration was inferred. The absent capability matrix remains unavailable.
+
+## Chat experience and renderer work — checked 2026-10-06
+
+[Record 75](../75_CHAT_EXPERIENCE_AND_RENDERING_SPRINT.md) uses inspected preload, useEngine,
+EngineStore/reducer, ThreadQuickBar, ThreadManager, StreamCoalescer, Markdown and clipboard code.
+The existing manager already coalesces list/tray/activity broadcasts; no full-snapshot-per-token
+claim was accepted. No dependency or competitor source was imported.
+
+- [React useMemo](https://react.dev/reference/react/useMemo): caches calculation results between
+  updates while dependencies are unchanged. It does not speed up the initial render. Applied to
+  pure lexing/highlighting with content/language dependencies; context consumers remain live.
+- [React memo](https://react.dev/reference/react/memo): consulted for comparison, not introduced.
+- [Electron performance](https://www.electronjs.org/docs/latest/tutorial/performance): renderer work
+  and profiling inform the investigation. No first-paint/CPU/energy result is inferred from advice.
+
+The inspected runtime (React 18.3.1, marked 18.0.6, highlight.js 11.11.1; Electron 43.3.0) and actual libraries are exercised in the production-browser probe.
+Retained library-call counts compare original and repaired Markdown using the same fixture. DOM
+checks qualify selected chat/card and rendering; a synthetic preload API cannot qualify installed
+IPC, native clipboard or provider behavior. Missing P01/matrix/record 34 and invalid exploratory
+fixtures are explicit in record 75. Current Mac vision V03, record 57 and C01/R01 guide scope;
+Product-ready/Win, installed latency and broader journeys remain unmeasured/Target.
 
 ## Fault audit and provider pricing — checked 2026-10-04
 
@@ -771,3 +1035,143 @@ reported in record 73. First-party API text is evidence of semantics, not a succ
 
 General OCR, clean-Mac tooling/distribution, installed/provider journeys and resource/performance
 qualification remain Target. Details and exploratory fixture exclusions are retained with record 74.
+
+## 2026-10-14 — RAG resources and public qualification, record 96
+
+[Record 96](../96_RAG_RESOURCE_AND_PUBLIC_QUALIFICATION.md) uses inspected current memory retrieval, frozen record-95 and pre-95 source, exact-output contracts and retained measurements. Current first-party benchmark sources were checked before inference; their status does not imply a completed or reference-comparable Bimax benchmark.
+
+- [Classic LongMemEval repository](https://github.com/xiaowu0162/LongMemEval), pinned code revision `9e0b455f4ef0e2ab8f2e582289761153549043fc`; [official task-specific judge](https://github.com/xiaowu0162/LongMemEval/blob/9e0b455f4ef0e2ab8f2e582289761153549043fc/src/evaluation/evaluate_qa.py) and [MIT license](https://github.com/xiaowu0162/LongMemEval/blob/9e0b455f4ef0e2ab8f2e582289761153549043fc/LICENSE). Only `get_anscheck_prompt` is executed through AST extraction in the evaluator; its exact source and Di Wu copyright/license are preserved in record-96 `research/`. No upstream evaluator imports/driver run. Configured NVIDIA gpt-oss-20b differs from the listed reference judges. An initial model control rejected the published temporal off-by-one tolerance; the system instruction now spells out that same rule, with negative controls, before public answers are generated.
+- [LongMemEval cleaned dataset](https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/tree/98d7416c24c778c2fee6e6f3006e7a073259d48f): pinned revision, 500-question `longmemeval_s_cleaned.json`, MIT metadata, 277,383,467 bytes, downloaded SHA-256 `d6f21ea9d60a0d56f34a05b609c79c88a451d2ae03597821ea3d5a9678c3a442`. Exact content-range resumptions and schema/size checks preserve failed downloads; full data is outside the repository. The selected 100 histories exclude answer annotations from retrieval input.
+- [MemoryAgentBench](https://github.com/HUST-AI-HYZ/MemoryAgentBench), pinned code revision `538026089d1a8a8eff05121d0db89b388f360eba`; [evaluation utilities](https://github.com/HUST-AI-HYZ/MemoryAgentBench/blob/538026089d1a8a8eff05121d0db89b388f360eba/utils/eval_other_utils.py) and [MIT license](https://github.com/HUST-AI-HYZ/MemoryAgentBench/blob/538026089d1a8a8eff05121d0db89b388f360eba/LICENSE) inspected and retained as references, with their source attribution. EventQA's published recall requires every answer element; RULER QA reference answers are alternatives. The qualification judge follows these distinctions; normalized EM/F1 are supplementary, and its model-judge score is not an official MemoryAgentBench leaderboard metric. No upstream utility module or network/chunking helpers are imported into production.
+- [MemoryAgentBench dataset](https://huggingface.co/datasets/ai-hyz/MemoryAgentBench/tree/7ea066982b140a19337e17e60d45d4076e042faf): pinned revision, `Accurate_Retrieval` has 22 contexts/2,000 questions, MIT metadata, 20,024,386-byte parquet, SHA-256 `56c3cd80fb6731a3e53cd1a6be3148f54df60ff2d290ee50e28f8acebf9655c1`. Fixed balanced selection takes 100 questions across six families and 21 contexts. The whole context is ingested; oracle evidence-session metadata stays outside the index. Other competencies are unmeasured.
+- [LongMemEval-V2](https://github.com/xiaowu0162/LongMemEval-V2) is a distinct newer benchmark inspected during scope research. Classic LongMemEval_S results must never be labelled V2 results. V2 remains Target.
+
+`research/source-provenance.json` records exact source URLs, revisions and SHA-256 hashes; the previously downloaded judge bytes match the pinned revision. The owner's selected 200-question balanced qualification uses real preinstalled all-minilm embeddings and configured NVIDIA gpt-oss-20b for answering/judging, with provider/model differences disclosed. Baseline/current prompt equality shares one reader observation per question, so it cannot establish independent accuracy improvement. Source licenses allow this benchmark-reference reuse; no competitor product implementation is copied. Installed/full-suite/reference-model/independent-judge/rival/release gates remain Target.
+
+The retained MemoryAgentBench reference utilities attribute DensePhrases. Its pinned Apache-2.0 license is preserved alongside the MIT benchmark license (`research/DensePhrases-LICENSE` and license-provenance JSON); no DensePhrases module is imported or executed. Adapter provenance allows only production chunker whitespace changes, retaining exact source hashes and shown spans. all-minilm context overflow is explicitly measured per batch and permits declared provider prefix truncation, rather than silent corpus loss or fabricated vectors.
+
+The pinned Hugging Face tree APIs independently confirm both downloaded file SHA-256 values against their LFS OIDs (`dataset-lfs-verification.json`). A selected-history shape audit confirms aligned session/date arrays and string messages, but finds three repeated session IDs with differing dated text. The qualification adapter assigns occurrence IDs while retaining original benchmark aliases outside the embedding text; all histories stay intact. None of those duplicated IDs is a gold answer-session label. This is a declared input-identity repair, not evidence of a production quality gain. Failed uniqueness assumptions and the first raw retrieval run are retained.
+
+## 2026-10-14 — Power-loss recovery and configured alternate model
+
+The Mac shut down after local retrieval qualification completed. All 200 corrected contexts and their source/prompt/provenance observations survived; the temporary raw dataset cache did not. `power-recovery.json` verifies the current production, worker, compiled and recall/chunking dependency hashes against the saved retrieval run. Answering from those saved contexts requires neither redownloading the public datasets nor re-embedding 90,648 chunks. The original Python 3.13 runtime remains installed; the post-reboot shell defaults to Python 3.14/Node 24, so historical resource timings retain their original Node 22 runtime attribution. No cross-runtime speed comparison is made.
+
+The owner explicitly authorized another configured model after checking availability. Readonly global configuration names `nvidia/nemotron-3.5-lightning-30b-a3b`; a real availability probe returned HTTP 200, complete `READY`, in 959 ms (`alternate-model-availability-1.json`). Presence/one response qualifies availability only. Its non-thinking judge pilot failed abbreviation and temporal-tolerance controls and produces no public score. A fresh bounded-reasoning profile keeps the question set, retrieval, rules and expected labels unchanged.
+
+- [NVIDIA model API example](https://build.nvidia.com/nvidia/nemotron-3.5-lightning-30b-a3b/build), checked 2026-10-14: exact served model ID, compatible endpoint and `chat_template_kwargs.enable_thinking` example.
+- [NVIDIA inference reference](https://docs.api.nvidia.com/nim/reference/nvidia-nemotron-3-5-lightning-30b-a3b-infer), checked 2026-10-14: maximum generation tokens, reasoning budget applying when thinking is enabled, JSON/SSE responses and distinction between completed 200 and pending 202. The completed judge qualification uses explicit 1,024-token reasoning with a 2,048-token completion cap; pending/error/truncated observations cannot become valid answers.
+
+These first-party API facts do not prove Bimax answer quality. Current model choices are per-invocation benchmark flags; user config and credentials remain unchanged. All gpt-oss timeout/control failures and alternate pilots are retained separately, never merged into an accuracy denominator.
+
+Before selected-question inference, bounded-reasoning pilots exposed wrapper ambiguities: a reused concrete example distracted the correct-target case, and “exact entity” was read as exact wording. The wrapper now explicitly accepts equivalent meanings/abbreviations while requiring the requested subject/relation, consistent with the published rubric. No expected labels or selected questions changed. The final Lightning profile passes all 17 controls; all failed pilots are preserved.
+
+The final `public-answer-nemotron-4` run completes 200/200 valid selected questions: classic LongMemEval judged accuracy 40/100 (26/85 answerable), MemoryAgentBench custom judged accuracy 39/100. `public-answer-qualified.json` verifies raw reader prompts/predictions, raw judge verdicts, counts and all frozen source/dependency hashes. Licensed upstream MemoryAgentBench helpers produce 22.00% EM, 35.25% token F1 and 37.00% substring EM under the published family postprocessing; ROUGE/full official evaluation is absent. These are balanced-subset observations with a different model/backend, not official scores, quality improvements, population estimates or competitive claims. The 94.06% answerable source-session recall does not establish sufficient shown evidence or correct answers.
+
+Five separately recorded preference/all-elements controls also pass under the frozen profile after main inference; their inputs were declared before completion, contain no benchmark cases, and cause no grading or production changes. All raw requests, wrong answers, invalid attempts and failed pilots remain intact. Final-run usage is 571,839 total tokens including its initial controls/failed attempts with usage; the five extra controls add 4,193 tokens. Endpoint currency cost is unavailable and not inferred. Reader/judge accepted-attempt latency, retries/pacing, embedding truncation, resource samples, test failures and nominal-interval limitations are separately attributed in record 96. Independent judging, heldout evidence-sufficiency experiments, full suites and installed/release gates remain Target.
+
+## 2026-10-14 — RAG answering evidence, record 97
+
+[Record 97](../97_RAG_ANSWERING_EVIDENCE.md) develops source-window/date preservation and bounded evidence allocation on independent constructed fixtures. The old 200 scored questions are excluded by ID and normalized question text from the new paired qualification; production and reader/judge profiles freeze before scoring. No competitor implementation or new dependency is copied.
+
+- [LongMemEval first-party repository](https://github.com/xiaowu0162/LongMemEval), opened again 2026-10-14: timestamped sessions, explicit source/evaluation annotation separation, turn/session retrieval granularities, and reader experiments that extract relevant information before reasoning. This supports preserving actual source dates and separately checking shown evidence; it does not prove a Bimax accuracy gain. Classic and V2 remain distinct. Record 96's pinned MIT rubric/dataset bytes remain the evaluation references.
+- [Anthropic Contextual Retrieval](https://www.anthropic.com/engineering/contextual-retrieval), opened 2026-10-14: discusses context loss in isolated chunks and adding context before embedding/lexical indexing. Bimax's change quotes existing source headers at reading time; it does **not** implement Anthropic's generated contextual-embedding method or inherit its reported gains.
+- [Sentence Transformers Retrieve & Re-Rank](https://sbert.net/examples/sentence_transformer/applications/retrieve_rerank/README.html), opened 2026-10-14: separates efficient candidate retrieval from joint query/passage scoring. This is a reference for retaining separate stage-quality measurements. This round keeps existing ranking/reranker behavior and measures evidence assembly; it does not introduce or qualify a new cross-encoder.
+
+Independent fixtures reproduce long-line head truncation, source/chunk starvation and lost date headers. Ten evidence cases, focused/context suites and nine assertion-caught real source faults scope local implementation; the unchanged context benchmark remains 43/43. The new default excerpt allowance is 6,000 versus 1,800 characters, with caller overrides retained; token/latency/resource costs must accompany any answer gain. Real all-minilm vectors, explicit truncation and a benchmark-only digest/role/text-addressed cache remain declared. Same configured Nemotron reader/judge and exact frozen rubric/functions are used in both arms. The complete paired audit now measures a rejected prototype; final results and rejection are recorded below. Installed/full-suite/independent-judge/release/Win remain Target.
+
+NVIDIA serving repeatedly returns HTTP 429 during qualification, including below the configured 40-request/minute ceiling. [NVIDIA RAG troubleshooting](https://docs.nvidia.com/rag/latest/troubleshooting.html), rechecked 2026-10-14, identifies 429 as an API service limit; it supplies no exact limit or credit balance for this endpoint. [NVIDIA Data Designer's model-stack notes](https://docs.nvidia.com/nemo/datadesigner/dev-notes/owning-the-model-stack), rechecked 2026-10-14, describe shared capacity feedback, reduced concurrency and Retry-After-aware cooldown, keeping capacity signals distinct from transient transport faults. These support a benchmark-only transport recovery wrapper; no NVIDIA implementation is copied and no production provider policy changes. The first wrapper admits at most ten requests/minute and two simultaneous HTTP calls; its conservative successor admits three requests/minute and one HTTP call. Both record actual HTTP and admission wait separately and preserve every valid answer across resume regardless of correctness. It does not prove the cause of this account's throttling or a product performance gain.
+
+Following reported Mac crashes, a readonly diagnostic check finds watchdog reports without establishing cause. The new benchmark-only durable wrapper preserves frozen request/judge/source/selection semantics and uses file/directory fsync plus create-only atomic publication. Five tiny offline end-state/process-termination checks, an assertion-caught direct-overwrite fault and a fake-transport exact-body preflight support this receipt writer only. `public-answer-8` reuses 321 valid arms at nice 10, three requests/minute and one HTTP call; one client snapshot is about 59 MiB RSS and 0% CPU. No local embedding or broad build/test rerun, macOS settings change, hardware durability or installed C04 claim. A 43 MiB same-volume recovery archive has every file hash verified; it is not a disk-failure backup. Current diagnostic/recovery receipts are in record-97 evidence.
+
+The final record-97 paired audit completes 400 valid arms: classic LongMemEval 43→64/100, answerable 29→49/85, MemoryAgentBench custom judge 51→45/100. All three EventQA family totals decline, so the predeclared adoption rule rejects the candidate; production recall and generated runtime return to starting behavior. Reader input rises 2.45×. All 1195 attempts,334 throttling responses,1,413,836 reported tokens, source/raw request/usage audits and five failing observation faults remain preserved. The rejected source/tests are archived without weakening assertions;32 restored recall/RAG tests pass. An explicit hash-checked source snapshot permits reproducible re-audit after production restoration. The owner authorizes only 50 fresh questions (25 per dataset) for the next qualification; no result from that revision is yet measured.
+
+## 2026-10-14 — Complete passages and fresh 50 pilot, record 98
+
+[Record 98](../98_RAG_COMPLETE_PASSAGES.md) keeps its revision isolated after rejecting record 97. Newly checked first-party [LlamaIndex parser documentation](https://developers.llamaindex.ai/python/framework/module_guides/loading/node_parsers/modules/) distinguishes complete sentences, reader context windows and hierarchical expansion. Bimax preserves complete existing matched passages; it imports no parser/auto-merging implementation and claims no inherited gains. [Ollama embed API](https://docs.ollama.com/api/embed), [FAQ](https://docs.ollama.com/faq) and [official typed options](https://github.com/ollama/ollama/blob/main/api/types.go) document runtime options/truncation/keep-alive and num_gpu/num_thread fields. Installed 0.40.4 independently returns real 384-dimensional all-minilm embeddings with zero loaded VRAM for the CPU control. Cached original vectors retain exact model-digest/role/text identity and conservative flags; a read-only seed and separate batched overlay avoid copying the large cache. Streamed preparation,14 fixtures,11 source faults, cache rollback controls and hashes scope local evidence. The 50-question paired pilot excludes all earlier 400 IDs/normalized questions and remains unmeasured until all 100 arms pass audit. No production, OS settings, configuration, CU/UI, installed or release change.
+
+The completed record-98 pilot audits all 100 valid arms and rejects the isolated candidate under its unchanged rule: classic LongMemEval judged answers 6→13/25, MemoryAgentBench custom judged answers 15→15/25 with three gains/three losses and two declining EventQA families. These new paired denominators cannot be compared directly to earlier subsets. Reader input rises 31,179→78,279 tokens (2.51×); all 259 attempts and 360,145 reported total tokens remain recorded. Same-model semantic agreement remains unqualified: one lost response ends with the reference choice after long analysis, but the frozen judge marks it false. No score/profile/parser change follows this observation. Preserved upstream MAB helpers yield EM 36→40%, F1 45.77→49.48% and substring EM 52→56%; these do not override the adoption rule. All 19 frozen dependencies, 41 raw corpora and 722 shown spans match; five altered observations are caught. Production source/vector store/staging engine remain at baseline. One 256-MiB heap-limited regression invocation aborts; one identical-assertion 512-MiB-cap retry passes all 32 tests, observing 626,491,392 bytes maximum RSS and zero process swaps. No installed, crash-fix, population/reference leaderboard, release or Win claim follows. The authorized fresh 50-question scope is complete.
+
+## Rich conversation and saved output implementation — 2026-10-19
+
+Owner-authorized follow-through on records 67/75, documented in record 103. Current first-party
+sources rechecked before adopting the contracts below; versions are pinned in app/package-lock.json.
+
+| Source | Decision / limit |
+| --- | --- |
+| [Streamdown usage](https://streamdown.ai/docs/usage), [memoization](https://streamdown.ai/docs/memoization), [security](https://streamdown.ai/docs/security), [Mermaid](https://streamdown.ai/docs/plugins/mermaid) | Qualify 2.7.1 behind the existing Markdown interface. Override complete plugin arrays deliberately; preserve GFM and sanitization. Raw HTML becomes literal text. No automatic remote media. Expensive plugins load on demand. |
+| [Vega interpreter](https://vega.github.io/vega/usage/interpreter/), [Vega-Lite parameters](https://vega.github.io/vega-lite/docs/parameter.html) | Use AST parsing and View `expr` interpreter, SVG, bounded inline data and denied resource loader. Keep the trusted renderer's no-unsafe-eval CSP. Local interactions need no model call. |
+| [MCP Apps quickstart](https://apps.extensions.modelcontextprotocol.io/api/documents/quickstart.html), [host overview](https://apps.extensions.modelcontextprotocol.io/api/documents/overview.html) | Preserve tool `_meta.ui.resourceUri`, input/result and structured content. Use the pinned MIT AppBridge SDK in a separate offline host, opaque sandbox iframe, connection-bound expiring grants and existing governed tool execution. Only the producing tool is callable in this first host. Resource/domain permissions, sibling app-only tools and automatic context injection are unsupported. |
+| [Electron security](https://www.electronjs.org/docs/latest/tutorial/security), [WebContentsView](https://www.electronjs.org/docs/latest/api/web-contents-view) | Separate memory-only session, sandbox, no Node/Bimax preload in generated code, denied network/navigation/downloads/permissions, explicit teardown. This is scoped local qualification, not a universal security claim. |
+| [AG-UI events](https://docs.ag-ui.com/concepts/events), [A2UI catalog](https://a2ui.org/guides/defining-your-own-catalog/) | Adopt additive event/presentation separation and a client-owned bounded form catalog. No new conversation runtime, full protocol adapter or arbitrary declarative action authority. |
+| [Tiptap](https://tiptap.dev/docs/editor/getting-started/overview) and installed MIT package manifests | Core document editing only; immutable local snapshots and comparison are Bimax-owned. Paid tracked-changes/collaboration products are not used. |
+
+Libraries are upstream package dependencies, not copied competitor source. Licenses and current
+npm audit findings are recorded with the implementation evidence. No benchmark, installed speed,
+model-quality or competitive Win follows from these documents.
+
+Runtime qualification follow-up: Electron's [WebRTC policy](https://www.electronjs.org/docs/latest/api/web-contents/#contentssetwebrtciphandlingpolicypolicy)
+controls UDP exposure but still permits TCP. The current [CSP3 WebRTC directive](https://www.w3.org/TR/CSP/#directive-webrtc)
+is a draft and the installed Electron 43.3.0 reports it unrecognized. It was not adopted as an
+enforcement boundary. The preview instead combines the session request deny rule/CSP with
+`disable_non_proxied_udp` and a loopback deny proxy with loopback bypass disabled. Actual local
+STUN-UDP and TURN-TCP fixtures grade zero packets/connections and no ICE candidates. This scoped
+check does not replace a dedicated browser/runtime security review.
+
+## Security/mobile integration source inspection — 2026-10-24
+
+[Record 104](../104_SECURITY_BOUNDARIES_AND_MOBILE_LINK.md) uses inspected current local source: `app/src/main/security.ts`, main IPC and file ownership, `src/governor/governor.ts`, Node HTTP(S)/DNS lookup paths and installed Electron 43.3.0 declarations/runtime. The linked mobile first-party sources are `/Users/vishsiddharth/Desktop/bimax-mobile/apps/mobile/lib/approvals/approvals.ts`, `packages/core/src/crypto/keys.ts`, `apps/desktop-responder/src/approvals.ts` and its fourteen-case integration suite. Installed package links, protocol package versions and actual signed-decision end states were checked. No competitor/platform capability claim or new external research decision is made. Linux CI, clean-machine packaging and physical phones were not measured. Keep record 99's older 13-case receipt historical; record 104 validates the current 14-case contract through structured results.
+
+## Phone Settings, Expo Go and Node-24 qualification — 2026-10-24
+
+[Record 105](../105_PHONE_PAIRING_AND_DESKTOP_TESTS.md) inspects both current repos, installed Node 24.15/Electron 43.3.0 interfaces, actual `node:sqlite` FTS5, real worker heap outputs, Streamdown 2.7.1 exports and qrcode-generator 2.0.4 source/types/license (MIT). The QR library is a package dependency, not copied competitor code. Shared first-party relay code is moved into mobile core and reused; no alternate protocol implementation.
+
+Official evidence rechecked: [Expo start developing](https://docs.expo.dev/get-started/start-developing/) supports same-Wi-Fi Expo Go; [LocalAuthentication](https://docs.expo.dev/versions/latest/sdk/local-authentication/) excludes Face ID in Expo Go; [version mismatch](https://docs.expo.dev/troubleshooting/expo-go-version-mismatch/) requires SDK/runtime agreement. The inspected project is SDK 57; the owner's installed Expo Go version was not independently observed. [Apple TN3179](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy) requires a local-network purpose and scopes reliable Mac identity to Apple-issued signing. Both native manifests now declare the purpose; the delivered local certificate is not Developer ID, and actual native network permission remains unqualified. Do not infer native-device behavior from loopback fixtures or a Hermes export.
+
+### 2026-10-24 continuation — phone-settings final evidence
+
+- Inspected current `MobileSettings.tsx`, `mobile.connection.ts`, linked mobile LAN relay and
+  responder integration runner. Actual Electron delayed-Enable regression covers reachable Stop;
+  concurrent fourteen-case runners use distinct child-reported OS-assigned sockets.
+- Persistent evidence: `evidence/2026-10-24-phone-settings/final-checks/`. Earlier temporary build,
+  logs and initial record-105 snapshot were unavailable at resume; only retained historical files
+  and fresh measured receipts support the final claim. The resume preservation baseline has a
+  narrower start time than record 104's independently retained receipt.
+- Broader touched-file lint still has two inherited main-process errors; targeted phone lint passes.
+  No physical iPhone or native permission observation follows from these local fixtures.
+
+- Fresh Expo sources checked 2026-10-24: [SDK mismatch guide](https://docs.expo.dev/troubleshooting/expo-go-version-mismatch/)
+  requires matching SDKs and directs physical iOS SDK 54+ toward `eas go`/TestFlight;
+  [SDK 58 release notes](https://expo.dev/changelog/sdk-58) describe forthcoming store builds.
+  The repository remains SDK 57; the owner's installed Expo Go runtime is unknown. These
+  sources are not used to infer successful physical execution or automatically change SDKs.
+
+### 2026-10-24 owner-observed SDK-58 mismatch and upgrade
+
+- The owner's physical Expo Go displayed an incompatibility error requesting SDK 58 after the
+  initial SDK-57 launch QR. This is evidence of that runtime requirement, not successful Bimax
+  execution. It supersedes the earlier unknown-runtime assumption.
+- [Official upgrade guide](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/) and
+  [SDK-58 release/upgrade notes](https://expo.dev/changelog/sdk-58) guided the scoped upgrade.
+  Inspected installed Expo 58.0.19 `bundledNativeModules.json`, file-system SDK-58 declarations
+  (`readBytes` returns a Promise) and Expo config evaluation/static-base merging.
+- Current module versions/override resolution, full checks, 20/20 Doctor, iOS export and installed
+  protocol qualification are recorded under `evidence/2026-10-24-phone-settings/sdk58/`. Existing
+  dependency advisories remain Target; source/native-package checks do not prove phone execution.
+
+### 2026-10-24 mobile Auth recovery — record 106
+
+Observed DNS ENOTFOUND for configured Auth host; connected Supabase tools report the exact `bimax`
+project INACTIVE under its existing Free organization. Current project URL/public-key lookup,
+aggregate logs, security/performance advisors and restore response are inspected. No schema or
+auth policy changed. Changelog index fetched; modern-TLS/restore notes reviewed.
+[Supabase pausing](https://supabase.com/docs/guides/platform/free-project-pausing),
+[passwordless email](https://supabase.com/docs/guides/auth/auth-email-passwordless) and
+[Expo OAuth](https://docs.expo.dev/guides/authentication/) distinguish service recovery,
+actual email delivery and installed OAuth callback qualification. Raw receipts and exact local
+assertions are retained under `evidence/2026-10-24-phone-login/`.
+
+Record-106 live end state: same project ACTIVE_HEALTHY; unchanged-key Auth health/settings HTTP
+200, Google/GitHub/email enabled, actual application health helper succeeds and read-only database
+probe returns 1. Active security advisory flags existing leaked-password protection disabled:
+[remediation](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
+No password-policy/billing change was made. Email delivery and phone authentication remain unmeasured.

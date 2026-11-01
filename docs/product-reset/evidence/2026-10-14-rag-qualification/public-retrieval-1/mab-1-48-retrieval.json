@@ -1,0 +1,233 @@
+{
+  "row": 1,
+  "query": 48,
+  "id": "mab-1-48",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:49:00.611172+00:00",
+  "valid": true,
+  "question": "Are Ferocactus and Silene both types of plant?",
+  "references": [
+    "yes"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 741.9234579999902,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 46,
+        "maxInputChars": 46,
+        "requiredProviderTruncation": false,
+        "promptTokens": 15,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-424",
+        "context-57",
+        "context-68"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6) California, United States. The academy pulled out of the London site at the end of the lease in October 2009, and the California branch closed soon after.\n\nDocument 3064:\nSex determination in Silene\n\"Silene\" are a flowering plant that evolved a dioecious reproductive system. This is made possible through heteromorphic sex chromosomes expressed as XY. \"Silene\" recently evolved sex chromosomes 5-10 million years ago and are widely used by geneticists and biologists to study the mechanisms of sex determination since they are one of only 39 species across 14 families of angiosperm that possess sex-determining genes. \"Silene\" are studied because of their ability to produce offspring with a plethora of reproductive systems. The common inference drawn from such studies is that the sex of the offspring is determined by the Y chromosome.\n  (part 5 of 6, excerpt) with a plethora of reproductive systems. The common inference drawn from such studies is that the sex of the offspring is determined by the Y chromosome.\n\nDocument 3065:\nLa fanciulla del West\nLa fanciulla del West (\"The Girl of the West\") is an opera in three acts by Giacomo Puccini to an Italian libretto by and , based on the play \"The Girl of the Golden West\" by the American author David Belasco. \"Fanciulla\" followed \"Madama Butterfly\", which was also based on a Belasco play. The opera has fewer of the show-stopping highlights that are characteristic of other Puccini works, but is admired for\n- (part 6 of 6, excerpt) Silene conoidea is a species of flowering plant in the pink family known by the common names weed silene and large sand catchfly. It is n\n- (part 1 of 4, excerpt) Silene menziesii is a species of flowering plant in the pink family known by the common names Menzies' campion and Menzies' c",
+      "evidence": [
+        {
+          "sourceId": "memory:context-424",
+          "sourceVersion": "sha256:ee67cfb5096f2f025dbe9e8c05393944992b12cf93bd7064898c031c22413561",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-424",
+            "part": 4,
+            "parts": 6
+          },
+          "text": "California, United States. The academy pulled out of the London site at the end of the lease in October 2009, and the California branch closed soon after.\n\nDocument 3064:\nSex determination in Silene\n\"Silene\" are a flowering plant that evolved a dioecious reproductive system. This is made possible through heteromorphic sex chromosomes expressed as XY. \"Silene\" recently evolved sex chromosomes 5-10 million years ago and are widely used by geneticists and biologists to study the mechanisms of sex determination since they are one of only 39 species across 14 families of angiosperm that possess sex-determining genes. \"Silene\" are studied because of their ability to produce offspring with a plethora of reproductive systems. The common inference drawn from such studies is that the sex of the offspring is determined by the Y chromosome.",
+          "id": "ev_2aaa1f827be333176a3ca728",
+          "observedAt": "2026-10-14T04:49:01.357Z"
+        },
+        {
+          "sourceId": "memory:context-424",
+          "sourceVersion": "sha256:ee67cfb5096f2f025dbe9e8c05393944992b12cf93bd7064898c031c22413561",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-424",
+            "part": 5,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "with a plethora of reproductive systems. The common inference drawn from such studies is that the sex of the offspring is determined by the Y chromosome.\n\nDocument 3065:\nLa fanciulla del West\nLa fanciulla del West (\"The Girl of the West\") is an opera in three acts by Giacomo Puccini to an Italian libretto by and , based on the play \"The Girl of the Golden West\" by the American author David Belasco. \"Fanciulla\" followed \"Madama Butterfly\", which was also based on a Belasco play. The opera has fewer of the show-stopping highlights that are characteristic of other Puccini works, but is admired for",
+          "id": "ev_4439311e23c08a7c0eb5f6b1",
+          "observedAt": "2026-10-14T04:49:01.357Z"
+        },
+        {
+          "sourceId": "memory:context-57",
+          "sourceVersion": "sha256:1318e217bd0d68fdd6b6de1617e5335fd40e87ee974ff38704196b177a5f376c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-57",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Silene conoidea is a species of flowering plant in the pink family known by the common names weed silene and large sand catchfly. It is n",
+          "id": "ev_eeaea9582a0b2a9317d0793b",
+          "observedAt": "2026-10-14T04:49:01.357Z"
+        },
+        {
+          "sourceId": "memory:context-68",
+          "sourceVersion": "sha256:392c6365a023554fc405357b8676431b78e1676e64fcacb41d31064b88d5ddd6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-68",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Silene menziesii is a species of flowering plant in the pink family known by the common names Menzies' campion and Menzies' c",
+          "id": "ev_b153f7a5439e4ce61df2a995",
+          "observedAt": "2026-10-14T04:49:01.358Z"
+        }
+      ],
+      "sourceIds": [
+        "context-424",
+        "context-57",
+        "context-68"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.241167000000132,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-424",
+        "context-57",
+        "context-68"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6) California, United States. The academy pulled out of the London site at the end of the lease in October 2009, and the California branch closed soon after.\n\nDocument 3064:\nSex determination in Silene\n\"Silene\" are a flowering plant that evolved a dioecious reproductive system. This is made possible through heteromorphic sex chromosomes expressed as XY. \"Silene\" recently evolved sex chromosomes 5-10 million years ago and are widely used by geneticists and biologists to study the mechanisms of sex determination since they are one of only 39 species across 14 families of angiosperm that possess sex-determining genes. \"Silene\" are studied because of their ability to produce offspring with a plethora of reproductive systems. The common inference drawn from such studies is that the sex of the offspring is determined by the Y chromosome.\n  (part 5 of 6, excerpt) with a plethora of reproductive systems. The common inference drawn from such studies is that the sex of the offspring is determined by the Y chromosome.\n\nDocument 3065:\nLa fanciulla del West\nLa fanciulla del West (\"The Girl of the West\") is an opera in three acts by Giacomo Puccini to an Italian libretto by and , based on the play \"The Girl of the Golden West\" by the American author David Belasco. \"Fanciulla\" followed \"Madama Butterfly\", which was also based on a Belasco play. The opera has fewer of the show-stopping highlights that are characteristic of other Puccini works, but is admired for\n- (part 6 of 6, excerpt) Silene conoidea is a species of flowering plant in the pink family known by the common names weed silene and large sand catchfly. It is n\n- (part 1 of 4, excerpt) Silene menziesii is a species of flowering plant in the pink family known by the common names Menzies' campion and Menzies' c",
+      "evidence": [
+        {
+          "sourceId": "memory:context-424",
+          "sourceVersion": "sha256:ee67cfb5096f2f025dbe9e8c05393944992b12cf93bd7064898c031c22413561",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-424",
+            "part": 4,
+            "parts": 6
+          },
+          "text": "California, United States. The academy pulled out of the London site at the end of the lease in October 2009, and the California branch closed soon after.\n\nDocument 3064:\nSex determination in Silene\n\"Silene\" are a flowering plant that evolved a dioecious reproductive system. This is made possible through heteromorphic sex chromosomes expressed as XY. \"Silene\" recently evolved sex chromosomes 5-10 million years ago and are widely used by geneticists and biologists to study the mechanisms of sex determination since they are one of only 39 species across 14 families of angiosperm that possess sex-determining genes. \"Silene\" are studied because of their ability to produce offspring with a plethora of reproductive systems. The common inference drawn from such studies is that the sex of the offspring is determined by the Y chromosome.",
+          "id": "ev_2aaa1f827be333176a3ca728",
+          "observedAt": "2026-10-14T04:49:01.363Z"
+        },
+        {
+          "sourceId": "memory:context-424",
+          "sourceVersion": "sha256:ee67cfb5096f2f025dbe9e8c05393944992b12cf93bd7064898c031c22413561",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-424",
+            "part": 5,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "with a plethora of reproductive systems. The common inference drawn from such studies is that the sex of the offspring is determined by the Y chromosome.\n\nDocument 3065:\nLa fanciulla del West\nLa fanciulla del West (\"The Girl of the West\") is an opera in three acts by Giacomo Puccini to an Italian libretto by and , based on the play \"The Girl of the Golden West\" by the American author David Belasco. \"Fanciulla\" followed \"Madama Butterfly\", which was also based on a Belasco play. The opera has fewer of the show-stopping highlights that are characteristic of other Puccini works, but is admired for",
+          "id": "ev_4439311e23c08a7c0eb5f6b1",
+          "observedAt": "2026-10-14T04:49:01.363Z"
+        },
+        {
+          "sourceId": "memory:context-57",
+          "sourceVersion": "sha256:1318e217bd0d68fdd6b6de1617e5335fd40e87ee974ff38704196b177a5f376c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-57",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Silene conoidea is a species of flowering plant in the pink family known by the common names weed silene and large sand catchfly. It is n",
+          "id": "ev_eeaea9582a0b2a9317d0793b",
+          "observedAt": "2026-10-14T04:49:01.363Z"
+        },
+        {
+          "sourceId": "memory:context-68",
+          "sourceVersion": "sha256:392c6365a023554fc405357b8676431b78e1676e64fcacb41d31064b88d5ddd6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-68",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Silene menziesii is a species of flowering plant in the pink family known by the common names Menzies' campion and Menzies' c",
+          "id": "ev_b153f7a5439e4ce61df2a995",
+          "observedAt": "2026-10-14T04:49:01.364Z"
+        }
+      ],
+      "sourceIds": [
+        "context-424",
+        "context-57",
+        "context-68"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.798290999999153,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:49:01.365122+00:00"
+}

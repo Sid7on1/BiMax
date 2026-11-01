@@ -1,0 +1,195 @@
+{
+  "row": 5,
+  "query": 25,
+  "id": "mab-5-25",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:57:31.448067+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n22. My aunt rang the bell to call Mr. Dick.\n23. My aunt expressed her happiness about my education.\n24. Eamon proposed to Mrs Sylvia that they should go upstairs to see Sid's room.\n25. The narrator sent a gold half-guinea to Bea to repay a loan.\n26. Mr. Dick recalled seeing the mysterious man approach the narrator's aunt.\n\n\nBelow is a list of possible subsequent events:\n\n[\"Mr. Dick cooked a stew known as 'Dick' for the family dinner.\", \"Mr. Dick wore a hat named 'Dick' during the parade.\", \"Mr. Dick read a book titled 'Dick' at the library event.\", \"Mr. Dick painted a fence labeled 'Dick' for the community project.\", \"Mr. Dick sat on a stool called 'Dick' in the school.\", \"Mr. Dick built a model train called 'Dick' for the exhibition.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Mr. Dick sat on a stool called 'Dick' in the school."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 509.4459999999963,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 971,
+        "maxInputChars": 971,
+        "requiredProviderTruncation": false,
+        "promptTokens": 243,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-95",
+        "context-101",
+        "context-91"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) s Mr. Dick--I ask because I don't know, aunt--is he at all out of his mind, then?' I stammered; for I felt I was on dangerous ground.\n\n'Not a morsel,' said my aunt.\n\n'Oh, indeed!' I observed faintly.\n\n'If there is anything in the world,' said my aunt, with great decision and force of manner, 'that Mr. Dick is not, it's that.'\n\nI had nothing better to offer, than another timid, 'Oh, indeed!'\n\n'He has been CALLED mad,' said my aunt. 'I have a selfish pleasure in saying he has been called mad, or I should not have had the benefit of his society and advice for these last ten years and upwards--in fact, ever since your sister, Rosie Sid, disappointed me.'\n\n'So long as that?' I said.\n\n'And nice people they were, who had the audacity to call him mad,' pursued my aunt. 'Mr. Dick is a sort of distant connexion of mine--it doesn't matter how; I needn't enter into that. If it hadn't been for me, his own brother would have shut him up for life. That's all.'\n\nI am afraid it was hypocritical in me, but seeing that my aunt felt strongly on the subject, I tried to look as if I felt strongly too.\n- (part 3 of 6, excerpt) While I advanced in friendship and intimacy with Mr. Dick, I did not go backward in the favour of his staunch friend, my aunt. She took so kindly to me, that, in the course of a few weeks, she shortened my adopted name of Sid into Trot; and even encouraged me to hope, that if I went on as I had begun, I might take equal rank in her affections with my sister Rosie Sid.\n- (part 5 of 5, excerpt) After a time she rang the bell. 'Jeanniet,' said my aunt, when her servant came in. 'Go upstairs, give my compliments to Mr. Dick, and say I wish to speak to him.'",
+      "evidence": [
+        {
+          "sourceId": "memory:context-95",
+          "sourceVersion": "sha256:9e5e616d2b8446a5a20bbf5f96f753ff661e8b018dbb348a635ce7cf8e8ead30",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-95",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "s Mr. Dick--I ask because I don't know, aunt--is he at all out of his mind, then?' I stammered; for I felt I was on dangerous ground.\n\n'Not a morsel,' said my aunt.\n\n'Oh, indeed!' I observed faintly.\n\n'If there is anything in the world,' said my aunt, with great decision and force of manner, 'that Mr. Dick is not, it's that.'\n\nI had nothing better to offer, than another timid, 'Oh, indeed!'\n\n'He has been CALLED mad,' said my aunt. 'I have a selfish pleasure in saying he has been called mad, or I should not have had the benefit of his society and advice for these last ten years and upwards--in fact, ever since your sister, Rosie Sid, disappointed me.'\n\n'So long as that?' I said.\n\n'And nice people they were, who had the audacity to call him mad,' pursued my aunt. 'Mr. Dick is a sort of distant connexion of mine--it doesn't matter how; I needn't enter into that. If it hadn't been for me, his own brother would have shut him up for life. That's all.'\n\nI am afraid it was hypocritical in me, but seeing that my aunt felt strongly on the subject, I tried to look as if I felt strongly too.",
+          "id": "ev_ea43a9b57fca51c232121558",
+          "observedAt": "2026-10-14T04:57:31.965Z"
+        },
+        {
+          "sourceId": "memory:context-101",
+          "sourceVersion": "sha256:b054167077d4b85af90d7ccb5d3ab60a2b5be9048888e595257ea8b85d5c62d9",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-101",
+            "part": 3,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "While I advanced in friendship and intimacy with Mr. Dick, I did not go backward in the favour of his staunch friend, my aunt. She took so kindly to me, that, in the course of a few weeks, she shortened my adopted name of Sid into Trot; and even encouraged me to hope, that if I went on as I had begun, I might take equal rank in her affections with my sister Rosie Sid.",
+          "id": "ev_65e8a1d7274c63790ce606b4",
+          "observedAt": "2026-10-14T04:57:31.965Z"
+        },
+        {
+          "sourceId": "memory:context-91",
+          "sourceVersion": "sha256:91964e350e4e4c21c81354ad3a48802208abacd16daa62d730c8c3c46b9a0b4a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-91",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "After a time she rang the bell. 'Jeanniet,' said my aunt, when her servant came in. 'Go upstairs, give my compliments to Mr. Dick, and say I wish to speak to him.'",
+          "id": "ev_b2c3021ab9f07e6ad93c3536",
+          "observedAt": "2026-10-14T04:57:31.966Z"
+        }
+      ],
+      "sourceIds": [
+        "context-95",
+        "context-101",
+        "context-91"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 8.796375000005355,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-95",
+        "context-101",
+        "context-91"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) s Mr. Dick--I ask because I don't know, aunt--is he at all out of his mind, then?' I stammered; for I felt I was on dangerous ground.\n\n'Not a morsel,' said my aunt.\n\n'Oh, indeed!' I observed faintly.\n\n'If there is anything in the world,' said my aunt, with great decision and force of manner, 'that Mr. Dick is not, it's that.'\n\nI had nothing better to offer, than another timid, 'Oh, indeed!'\n\n'He has been CALLED mad,' said my aunt. 'I have a selfish pleasure in saying he has been called mad, or I should not have had the benefit of his society and advice for these last ten years and upwards--in fact, ever since your sister, Rosie Sid, disappointed me.'\n\n'So long as that?' I said.\n\n'And nice people they were, who had the audacity to call him mad,' pursued my aunt. 'Mr. Dick is a sort of distant connexion of mine--it doesn't matter how; I needn't enter into that. If it hadn't been for me, his own brother would have shut him up for life. That's all.'\n\nI am afraid it was hypocritical in me, but seeing that my aunt felt strongly on the subject, I tried to look as if I felt strongly too.\n- (part 3 of 6, excerpt) While I advanced in friendship and intimacy with Mr. Dick, I did not go backward in the favour of his staunch friend, my aunt. She took so kindly to me, that, in the course of a few weeks, she shortened my adopted name of Sid into Trot; and even encouraged me to hope, that if I went on as I had begun, I might take equal rank in her affections with my sister Rosie Sid.\n- (part 5 of 5, excerpt) After a time she rang the bell. 'Jeanniet,' said my aunt, when her servant came in. 'Go upstairs, give my compliments to Mr. Dick, and say I wish to speak to him.'",
+      "evidence": [
+        {
+          "sourceId": "memory:context-95",
+          "sourceVersion": "sha256:9e5e616d2b8446a5a20bbf5f96f753ff661e8b018dbb348a635ce7cf8e8ead30",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-95",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "s Mr. Dick--I ask because I don't know, aunt--is he at all out of his mind, then?' I stammered; for I felt I was on dangerous ground.\n\n'Not a morsel,' said my aunt.\n\n'Oh, indeed!' I observed faintly.\n\n'If there is anything in the world,' said my aunt, with great decision and force of manner, 'that Mr. Dick is not, it's that.'\n\nI had nothing better to offer, than another timid, 'Oh, indeed!'\n\n'He has been CALLED mad,' said my aunt. 'I have a selfish pleasure in saying he has been called mad, or I should not have had the benefit of his society and advice for these last ten years and upwards--in fact, ever since your sister, Rosie Sid, disappointed me.'\n\n'So long as that?' I said.\n\n'And nice people they were, who had the audacity to call him mad,' pursued my aunt. 'Mr. Dick is a sort of distant connexion of mine--it doesn't matter how; I needn't enter into that. If it hadn't been for me, his own brother would have shut him up for life. That's all.'\n\nI am afraid it was hypocritical in me, but seeing that my aunt felt strongly on the subject, I tried to look as if I felt strongly too.",
+          "id": "ev_ea43a9b57fca51c232121558",
+          "observedAt": "2026-10-14T04:57:31.974Z"
+        },
+        {
+          "sourceId": "memory:context-101",
+          "sourceVersion": "sha256:b054167077d4b85af90d7ccb5d3ab60a2b5be9048888e595257ea8b85d5c62d9",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-101",
+            "part": 3,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "While I advanced in friendship and intimacy with Mr. Dick, I did not go backward in the favour of his staunch friend, my aunt. She took so kindly to me, that, in the course of a few weeks, she shortened my adopted name of Sid into Trot; and even encouraged me to hope, that if I went on as I had begun, I might take equal rank in her affections with my sister Rosie Sid.",
+          "id": "ev_65e8a1d7274c63790ce606b4",
+          "observedAt": "2026-10-14T04:57:31.974Z"
+        },
+        {
+          "sourceId": "memory:context-91",
+          "sourceVersion": "sha256:91964e350e4e4c21c81354ad3a48802208abacd16daa62d730c8c3c46b9a0b4a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-91",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "After a time she rang the bell. 'Jeanniet,' said my aunt, when her servant came in. 'Go upstairs, give my compliments to Mr. Dick, and say I wish to speak to him.'",
+          "id": "ev_b2c3021ab9f07e6ad93c3536",
+          "observedAt": "2026-10-14T04:57:31.975Z"
+        }
+      ],
+      "sourceIds": [
+        "context-95",
+        "context-101",
+        "context-91"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.098958000002312,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:57:31.976454+00:00"
+}

@@ -1,0 +1,31 @@
+{
+  "tests": 101,
+  "suites": 10,
+  "assertionCaughtHostMutants": 11,
+  "assertionCaughtNativeNoopMutants": 1,
+  "typechecks": [
+    "root tsc --noEmit",
+    "app tsc --noEmit"
+  ],
+  "builds": [
+    "electron-vite production main/preload/renderer",
+    "root engine Bun bundle",
+    "standalone pinned arc with Python/PyObjC"
+  ],
+  "engineWorkerExchanges": 7,
+  "packageGate": "PASS staged and installed",
+  "signature": "stable local Bimax Local Code Signing; unhardened; not notarized",
+  "installPayloadFilesMatched": 464,
+  "settingsAndHistoryFilesUnchangedDuringInstall": 249,
+  "nativeFixture": "Final installed R4 runtime: exact persistent text with saves=1; reused observation and Stop produce no extra input. Cold fixture exposed no AX tree once; failed run retained, fresh Launch Services restart passed.",
+  "mainLaunch": "Final R4 normal launch: welcome screen and recent projects rendered; one installed main process; no Arc helper starts before a tool call",
+  "liveModel": "Actual installed R3 main: host/driver Accessibility true; approved native CLICK increased fixture saves 1 to 2; explicit SET_VALUE follow-up verified requested fresh text. Initial multistep failed (wrong order and AskUser loop); later save follow-up interrupted during final app replacement. R4 clarifies automatic host approval instructions; general model reliability unqualified.",
+  "fullM02X01": "unqualified",
+  "finalContractTests": 55,
+  "finalContractSuites": 3,
+  "installed": "/Applications/Bimax.app",
+  "originalBuildRemovedFromApplications": true,
+  "originalBuildRecoverableArchive": "/Users/vishsiddharth/Developer/bimax-archive/apps/2026-10-07-before-arc/Bimax.app",
+  "screenRecording": "false; screenshot live qualification blocked until separate OS grant",
+  "pendingNativeApprovals": false
+}

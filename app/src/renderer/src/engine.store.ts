@@ -50,7 +50,7 @@ export class EngineStore {
         request: s.request, awaitingNewTurn: s.awaitingNewTurn,
       }), state),
       review: new EngineDomain((s) => ({ review: s.review }), state),
-      settings: new EngineDomain((s) => ({ snapshot: s.snapshot, mode: s.mode, tier: s.tier }), state),
+      settings: new EngineDomain((s) => ({ snapshot: s.snapshot, mode: s.mode, tier: s.tier, notices: s.notices }), state),
       // Migration facade for the workspace shell. Text never crosses this subscription; the
       // boolean only changes when the live tail appears/disappears (home-view visibility).
       workspace: new EngineDomain((s) => {

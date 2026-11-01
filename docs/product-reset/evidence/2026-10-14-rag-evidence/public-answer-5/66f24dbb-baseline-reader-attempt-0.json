@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T09:22:46.911379+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 0,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/30 (Tue) 17:09\nQuestion: What did I buy for my sister's birthday gift?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 6) Once we get started, you can add or edit the list as needed. This will help you keep track of your gifts and make it easier to plan for future occasions.\n\nLet's get organized!\nuser: Here's a start - I've bought gifts for my sister's birthday, my mom, my neighbor Mrs. Johnson, coworkers, my best friend's baby shower, and my brother's new apartment.\nassistant: Let's break down each occasion and gift. Please feel free to add more details as we go along.\n\n**Sister's Birthday**\n\n* Occasion: Sister's birthday\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mom**\n\n* Occasion: Just because/No specific occasion\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mrs. Johnson**\n\n* Occasion: _______________________________________ (was it a holiday, just because, or another reason?)\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Coworkers**\n\n* Occasion: _______________________________________ (was it a holiday, team-building, or another reason?)\n* Gift(s): _______________________________________ (what did you get them? e.g., individual gifts or a group gift?)\n  (part 4 of 6, excerpt) Next up!\n\n**Gift for Mrs. Johnson**\n\n* Occasion: _______________________________________ (was it a holiday, just because, or another reason?)\n* Gift(s): _______________________________________ (what did you get her?)\n\nWhat's the occasion and gift for Mrs. Johnson?\n- (part 12 of 13, excerpt) user: Now that I have a good idea for the gift, do you think I should include a personal message or a birthday card with the gift, or is the gift\n- (part 18 of 19, excerpt) including your story, inspiration, and what drives your creativity. This helps attendees connect with you on a personal lev"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 71875.6889589995
+}

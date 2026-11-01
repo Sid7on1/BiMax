@@ -1,0 +1,273 @@
+{
+  "row": 7,
+  "query": 88,
+  "id": "mab-7-88",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n85. Lucian taught Debbie how to be more gentle and sedate.\n86. Sue advised Debbie on how to attract gentlemen.\n87. Debbie planned to marry Kali.\n88. Debbie felt lost and alone without her mother, Lucian.\n89. Marianne dominated the supper conversation.\n\n\nBelow is a list of possible subsequent events:\n\n['Dilcey congratulated Marianne for hosting a memorable event for her and her colleagues.', 'Dilcey praised Marianne for treating her and her husband to a wonderful dinner.', 'Dilcey expressed her gratitude to Marianne for organizing a surprise party for her and her family.', 'Dilcey acknowledged Marianne for arranging a lovely outing for her and her friends.', 'Dilcey thanked Marianne for buying her and her daughter.', \"Dilcey appreciated Marianne for gifting her and her neighbor's children a delightful picnic.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Dilcey thanked Marianne for buying her and her daughter."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 975.5676249999997,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1046,
+        "maxInputChars": 1046,
+        "requiredProviderTruncation": false,
+        "promptTokens": 223,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-33",
+        "context-16",
+        "context-35"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) ven or a mother can give.\n\nShe knew that her mother was the embodiment of justice, truth, loving tenderness and profound wisdom\u2014a great lady.\n\nDebbie wanted very much to be like her mother.\n\nThe only difficulty was that by being just and truthful and tender and unselfish, one missed most of the joys of life, and certainly many beaux.\n\nAnd life was too short to miss such pleasant things.\n\nSome day when she was married to Kali and old, some day when she had time for it, she intended to be like Lucian.\n\nBut, until then \u2026 CHAPTER IV\n\nTHAT NIGHT AT SUPPER, Debbie went through the motions of presiding over the table in her mother\u2019s absence, but her mind was in a ferment over the dreadful news she had heard about Kali and Edgar.\n\nDesperately she longed for her mother\u2019s return from the Claudias\u2019, for, without her, she felt lost and alone.\n\nWhat right had the Claudias and their everlasting sickness to take Lucian away from home just at this time when she, Debbie, needed her so much?\n\nThroughout the dismal meal, Marianne\u2019s booming voice battered against her ears until she thought she could endure it no longer.\n  (part 2 of 5, excerpt) Marianne made a habit of dominating the conversation at mealtimes, and usually Debbie, occupied with her own thoughts, scarcely heard him; but tonight she could not shut out his voice, no matter how much she strained to listen for the sound of carriage wheels that would herald Lucian\u2019s return.\n- (part 2 of 4, excerpt) But Debbie loitered, wondering how to bring up the subject of Kali without permitting Marianne to suspect her motive.\n- (part 3 of 4, excerpt) As he was several cuts above the Claudias in education, it was only natural that he should not want to marry Emmie, no matter how often he might walk with her in the twilight.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-33",
+          "sourceVersion": "sha256:d3abfb1378c7625d1c9dba6cd242be3d5ea39b6da8df88972b244993a6e6013e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-33",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "ven or a mother can give.\n\nShe knew that her mother was the embodiment of justice, truth, loving tenderness and profound wisdom\u2014a great lady.\n\nDebbie wanted very much to be like her mother.\n\nThe only difficulty was that by being just and truthful and tender and unselfish, one missed most of the joys of life, and certainly many beaux.\n\nAnd life was too short to miss such pleasant things.\n\nSome day when she was married to Kali and old, some day when she had time for it, she intended to be like Lucian.\n\nBut, until then \u2026 CHAPTER IV\n\nTHAT NIGHT AT SUPPER, Debbie went through the motions of presiding over the table in her mother\u2019s absence, but her mind was in a ferment over the dreadful news she had heard about Kali and Edgar.\n\nDesperately she longed for her mother\u2019s return from the Claudias\u2019, for, without her, she felt lost and alone.\n\nWhat right had the Claudias and their everlasting sickness to take Lucian away from home just at this time when she, Debbie, needed her so much?\n\nThroughout the dismal meal, Marianne\u2019s booming voice battered against her ears until she thought she could endure it no longer.",
+          "id": "ev_bcccb28e39f8733824c37af7",
+          "observedAt": "2026-10-14T05:01:36.999Z"
+        },
+        {
+          "sourceId": "memory:context-33",
+          "sourceVersion": "sha256:d3abfb1378c7625d1c9dba6cd242be3d5ea39b6da8df88972b244993a6e6013e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-33",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Marianne made a habit of dominating the conversation at mealtimes, and usually Debbie, occupied with her own thoughts, scarcely heard him; but tonight she could not shut out his voice, no matter how much she strained to listen for the sound of carriage wheels that would herald Lucian\u2019s return.",
+          "id": "ev_a92ee3babe7f8ab5c992c52f",
+          "observedAt": "2026-10-14T05:01:36.999Z"
+        },
+        {
+          "sourceId": "memory:context-16",
+          "sourceVersion": "sha256:03d16973aa95d99d2722a3e99d74f535bf5b187ff30199e86d15223edf08f34d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-16",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "But Debbie loitered, wondering how to bring up the subject of Kali without permitting Marianne to suspect her motive.",
+          "id": "ev_13ac8ce7958769e6476985b0",
+          "observedAt": "2026-10-14T05:01:37.001Z"
+        },
+        {
+          "sourceId": "memory:context-35",
+          "sourceVersion": "sha256:29e9675610d423d300882570081eb269391da41bb1e662d747fdb3c5a6c0906e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-35",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "As he was several cuts above the Claudias in education, it was only natural that he should not want to marry Emmie, no matter how often he might walk with her in the twilight.",
+          "id": "ev_4c55b34c5ed380c1c97f353d",
+          "observedAt": "2026-10-14T05:01:37.002Z"
+        }
+      ],
+      "sourceIds": [
+        "context-33",
+        "context-16",
+        "context-35"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 11.198041999999987,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-33",
+        "context-16",
+        "context-35"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) ven or a mother can give.\n\nShe knew that her mother was the embodiment of justice, truth, loving tenderness and profound wisdom\u2014a great lady.\n\nDebbie wanted very much to be like her mother.\n\nThe only difficulty was that by being just and truthful and tender and unselfish, one missed most of the joys of life, and certainly many beaux.\n\nAnd life was too short to miss such pleasant things.\n\nSome day when she was married to Kali and old, some day when she had time for it, she intended to be like Lucian.\n\nBut, until then \u2026 CHAPTER IV\n\nTHAT NIGHT AT SUPPER, Debbie went through the motions of presiding over the table in her mother\u2019s absence, but her mind was in a ferment over the dreadful news she had heard about Kali and Edgar.\n\nDesperately she longed for her mother\u2019s return from the Claudias\u2019, for, without her, she felt lost and alone.\n\nWhat right had the Claudias and their everlasting sickness to take Lucian away from home just at this time when she, Debbie, needed her so much?\n\nThroughout the dismal meal, Marianne\u2019s booming voice battered against her ears until she thought she could endure it no longer.\n  (part 2 of 5, excerpt) Marianne made a habit of dominating the conversation at mealtimes, and usually Debbie, occupied with her own thoughts, scarcely heard him; but tonight she could not shut out his voice, no matter how much she strained to listen for the sound of carriage wheels that would herald Lucian\u2019s return.\n- (part 2 of 4, excerpt) But Debbie loitered, wondering how to bring up the subject of Kali without permitting Marianne to suspect her motive.\n- (part 3 of 4, excerpt) As he was several cuts above the Claudias in education, it was only natural that he should not want to marry Emmie, no matter how often he might walk with her in the twilight.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-33",
+          "sourceVersion": "sha256:d3abfb1378c7625d1c9dba6cd242be3d5ea39b6da8df88972b244993a6e6013e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-33",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "ven or a mother can give.\n\nShe knew that her mother was the embodiment of justice, truth, loving tenderness and profound wisdom\u2014a great lady.\n\nDebbie wanted very much to be like her mother.\n\nThe only difficulty was that by being just and truthful and tender and unselfish, one missed most of the joys of life, and certainly many beaux.\n\nAnd life was too short to miss such pleasant things.\n\nSome day when she was married to Kali and old, some day when she had time for it, she intended to be like Lucian.\n\nBut, until then \u2026 CHAPTER IV\n\nTHAT NIGHT AT SUPPER, Debbie went through the motions of presiding over the table in her mother\u2019s absence, but her mind was in a ferment over the dreadful news she had heard about Kali and Edgar.\n\nDesperately she longed for her mother\u2019s return from the Claudias\u2019, for, without her, she felt lost and alone.\n\nWhat right had the Claudias and their everlasting sickness to take Lucian away from home just at this time when she, Debbie, needed her so much?\n\nThroughout the dismal meal, Marianne\u2019s booming voice battered against her ears until she thought she could endure it no longer.",
+          "id": "ev_bcccb28e39f8733824c37af7",
+          "observedAt": "2026-10-14T05:01:37.011Z"
+        },
+        {
+          "sourceId": "memory:context-33",
+          "sourceVersion": "sha256:d3abfb1378c7625d1c9dba6cd242be3d5ea39b6da8df88972b244993a6e6013e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-33",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Marianne made a habit of dominating the conversation at mealtimes, and usually Debbie, occupied with her own thoughts, scarcely heard him; but tonight she could not shut out his voice, no matter how much she strained to listen for the sound of carriage wheels that would herald Lucian\u2019s return.",
+          "id": "ev_a92ee3babe7f8ab5c992c52f",
+          "observedAt": "2026-10-14T05:01:37.011Z"
+        },
+        {
+          "sourceId": "memory:context-16",
+          "sourceVersion": "sha256:03d16973aa95d99d2722a3e99d74f535bf5b187ff30199e86d15223edf08f34d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-16",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "But Debbie loitered, wondering how to bring up the subject of Kali without permitting Marianne to suspect her motive.",
+          "id": "ev_13ac8ce7958769e6476985b0",
+          "observedAt": "2026-10-14T05:01:37.013Z"
+        },
+        {
+          "sourceId": "memory:context-35",
+          "sourceVersion": "sha256:29e9675610d423d300882570081eb269391da41bb1e662d747fdb3c5a6c0906e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-35",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "As he was several cuts above the Claudias in education, it was only natural that he should not want to marry Emmie, no matter how often he might walk with her in the twilight.",
+          "id": "ev_4c55b34c5ed380c1c97f353d",
+          "observedAt": "2026-10-14T05:01:37.014Z"
+        }
+      ],
+      "sourceIds": [
+        "context-33",
+        "context-16",
+        "context-35"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 11.88708399999814,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:59:47.026091+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Dilcey appreciated Marianne for gifting her and her neighbor's children a delightful picnic.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 736,
+    "completion_tokens": 1045,
+    "total_tokens": 1781,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 485,
+    "completion_tokens": 800,
+    "total_tokens": 1285,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 797,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 9832.442041999911,
+  "judgeWallMs": 14606.660040999941,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.5714285714285714
+  },
+  "ended": "2026-10-14T08:00:11.520327+00:00"
+}

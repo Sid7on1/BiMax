@@ -12,7 +12,9 @@ import { IGraphStore } from '../graph/models';
 import { crossRepoMapSync } from '../graph/cross.repo';
 import { compressBacklog, proxyCompress, recordCompression, looksLikeCode } from './headroom.compress';
 import { engineEvents } from '../engine/events';
-import { encode } from 'gpt-tokenizer';
+import { latestHumanRequest, retainRecentHistory } from '../context/history';
+import { withRequestDeadline } from '../utils/request.deadline';
+import { types } from 'node:util';
 
 
 export type ContextMode = 'smart' | 'full';
@@ -104,36 +106,52 @@ export function injectRepoMap(messages: Message[], outline: string): Message[] {
  *
  * Under the limit this is exactly `JSON.stringify(messages)`, byte for byte.
  */
-export function boundSummaryInput(messages: { role: string; content: unknown }[], limitChars: number): string {
-  const whole = JSON.stringify(messages);
-  if (whole.length <= limitChars) return whole;
-
-  const encoded = messages.map(m => JSON.stringify(m));
-  // Half the budget to each end, minus room for the elision marker itself.
-  const perEnd = Math.max(0, Math.floor((limitChars - 120) / 2));
-  const head: string[] = [];
-  const tail: string[] = [];
-  let headChars = 0;
-  let tailChars = 0;
-  let lo = 0;
-  let hi = encoded.length - 1;
-  while (lo <= hi) {
-    if (headChars <= tailChars) {
-      if (headChars + encoded[lo].length > perEnd) break;
-      headChars += encoded[lo].length + 1;
-      head.push(encoded[lo++]);
-    } else {
-      if (tailChars + encoded[hi].length > perEnd) break;
-      tailChars += encoded[hi].length + 1;
-      tail.unshift(encoded[hi--]);
+function serializeSummaryMessage(message: { role: string; content: unknown }, limitChars: number): string | null {
+  // JSON quoting cannot shorten a primitive string. Skip copies of a provably unselectable
+  // plain record, but preserve native behavior for hooks, accessors, proxies and nested values.
+  if (message && typeof message === 'object' && !types.isProxy(message)) {
+    const content = Object.getOwnPropertyDescriptor(message, 'content');
+    if (content?.enumerable && 'value' in content && typeof content.value === 'string'
+      && content.value.length > limitChars) {
+      const prototype = Object.getPrototypeOf(message);
+      if ((prototype === Object.prototype || prototype === null) && !('toJSON' in message)) {
+        const fields = Object.values(Object.getOwnPropertyDescriptors(message));
+        if (fields.every(field => 'value' in field && (field.value === null
+          || ['string', 'number', 'boolean', 'undefined'].includes(typeof field.value)))) return null;
+      }
     }
   }
+  return JSON.stringify(message);
+}
+
+export function boundSummaryInput(messages: { role: string; content: unknown }[], limitChars: number): string {
+  if (!Number.isFinite(limitChars) || limitChars < 2) throw new RangeError('Summary input budget must hold a JSON array.');
+  limitChars = Math.floor(limitChars);
+  const encoded = messages.map(m => serializeSummaryMessage(m, limitChars));
+  const wholeLength = 2 + encoded.reduce((n, text) => n + (text?.length ?? limitChars + 1), 0) + Math.max(0, encoded.length - 1);
+  if (wholeLength <= limitChars) return `[${encoded.join(',')}]`;
+
+  const markerFor = (dropped: number): string => JSON.stringify({ role: 'system', content: `[${dropped} message(s) omitted from this summarization input — consult the continuation state or archive for retained evidence]` });
+  // Reserve the actual largest marker, including commas. Tiny budgets still return valid bounded JSON.
+  let remaining = limitChars - 2 - markerFor(encoded.length).length;
+  if (remaining < 0) return '[]';
+  const head: string[] = [], tail: string[] = [];
+  let headChars = 0, tailChars = 0, lo = 0, hi = encoded.length - 1;
+  let headBlocked = false, tailBlocked = false;
+  while (lo <= hi && !(headBlocked && tailBlocked)) {
+    const takeHead = !headBlocked && (tailBlocked || headChars <= tailChars);
+    const text = encoded[takeHead ? lo : hi];
+    const cost = text === null ? Number.POSITIVE_INFINITY : text.length + 1;
+    if (text === null || cost > remaining) {
+      if (takeHead) headBlocked = true; else tailBlocked = true;
+      continue;
+    }
+    remaining -= cost;
+    if (takeHead) { head.push(text); lo++; headChars += cost; }
+    else { tail.push(text); hi--; tailChars += cost; }
+  }
   const dropped = encoded.length - head.length - tail.length;
-  if (!dropped) return whole;
-  // The marker is a JSON element so the whole payload stays parseable, and it says what is missing
-  // rather than pretending the backlog was contiguous.
-  const marker = JSON.stringify({ role: 'system', content: `[${dropped} middle message(s) omitted from this summarization input — they remain in the continuation state]` });
-  return `[${[...head, marker, ...tail].join(',')}]`;
+  return `[${[...head, markerFor(dropped), ...tail.reverse()].join(',')}]`;
 }
 
 export class ContextManager {
@@ -246,7 +264,8 @@ export class ContextManager {
    * still recovers on a 413). In SMART mode it applies the cheap passes always, then summarizes
    * only if still over the token threshold.
    */
-  async checkAndCompact(messages: Message[], mode: ContextMode = 'smart'): Promise<Message[]> {
+  async checkAndCompact(messages: Message[], mode: ContextMode = 'smart', signal?: AbortSignal): Promise<Message[]> {
+    signal?.throwIfAborted();
     if (mode === 'full') {
       // Even with no compaction, record what we're sending so updateTokens can calibrate overhead.
       this.lastSentEstimate = this.estimateTokens(messages);
@@ -358,10 +377,11 @@ export class ContextManager {
 
     if (ratio > this.COMPACT_THRESHOLD) {
       Logger.warn(`[ContextManager] ${Math.round(ratio * 100)}% after cheap passes — summarizing older history.`);
-      msgs = await this.compact(msgs);
+      msgs = await this.compact(msgs, signal);
     }
     // What we're actually sending this round — updateTokens diffs the provider's real usage
     // against this to keep the overhead calibration current.
+    signal?.throwIfAborted();
     this.lastSentEstimate = this.estimateTokens(msgs);
     return msgs;
   }
@@ -530,42 +550,24 @@ export class ContextManager {
     const pressure = this.effectiveTokens(messages) / this.MAX_TOKENS;
     if (pressure < this.SNIP_PRESSURE && nonSystem.length <= this.SNIP_HARD_MESSAGES) return messages;
 
-    const tail = this.dropLeadingOrphanToolMessages(nonSystem.slice(-this.SNIP_KEEP_TAIL));
+    const tail = retainRecentHistory(nonSystem, this.SNIP_KEEP_TAIL);
+    this.compactionEpoch++;
     this.continuation.absorb(nonSystem.filter(m => !tail.includes(m)), (text) => this.archive(text));
     const system = messages.filter(m => m.role === 'system' && !isContinuationMessage(m));
     Logger.warn(`[ContextManager] Snipped ${nonSystem.length - tail.length} old message(s) (runaway history guard).`);
     return [...system, ...this.continuationMessages(), ...tail];
   }
 
-  /**
-   * A `tool` message is only valid immediately after the assistant `tool_calls` that produced it.
-   * When a window starts partway through a tool exchange, the leading `tool` messages are orphaned
-   * and the API rejects the request — so drop them until the window begins on a user/assistant turn.
-   */
-  private dropLeadingOrphanToolMessages(messages: Message[]): Message[] {
-    let start = 0;
-    while (start < messages.length && messages[start].role === 'tool') start++;
-    return messages.slice(start);
-  }
-
-  // Per-message token counts, keyed by message identity. The compaction passes preserve object
-  // identity for every message they don't touch, and a message's content never mutates in place —
-  // so across a long session only the handful of NEW/rewritten messages are ever re-tokenized.
-  // (The old implementation re-encoded the ENTIRE conversation with gpt-tokenizer on every single
-  // turn — an O(session) CPU spike per turn that grew with the thing it was supposed to manage.)
-  private tokenCache = new WeakMap<object, { content: unknown; reasoning: unknown; tokens: number }>();
+  // Identity avoids re-tokenizing unchanged strings. Mutable content parts are compared as rendered text.
+  private tokenCache = new WeakMap<object, { text: string; reasoning: unknown; tokens: number }>();
 
   private countMessageTokens(m: Message): number {
     const key = m as unknown as object;
+    const text = contentToText(m.content);
     const hit = this.tokenCache.get(key);
-    if (hit && hit.content === m.content && hit.reasoning === m.reasoning_content) return hit.tokens;
-    let tokens: number;
-    try {
-      tokens = encode(`${contentToText(m.content)}${m.reasoning_content || ''}`).length;
-    } catch {
-      tokens = Math.ceil(`${String(contentToText(m.content) ?? '')}${m.reasoning_content || ''}`.length / 4);
-    }
-    this.tokenCache.set(key, { content: m.content, reasoning: m.reasoning_content, tokens });
+    if (hit && hit.text === text && hit.reasoning === m.reasoning_content) return hit.tokens;
+    const tokens = countTokens(`${text}${m.reasoning_content || ''}`);
+    this.tokenCache.set(key, { text, reasoning: m.reasoning_content, tokens });
     return tokens;
   }
 
@@ -577,7 +579,8 @@ export class ContextManager {
   }
 
   /** Layer 4 — summarize older messages into a single system note (the one LLM-backed pass). */
-  async compact(messages: Message[]): Promise<Message[]> {
+  async compact(messages: Message[], signal?: AbortSignal): Promise<Message[]> {
+    signal?.throwIfAborted();
     this.adoptCarriedContinuation(messages);
     // Keep only DURABLE system messages (C2). Transients are either superseded by this compact
     // (the previous summary — folded into the new summarization input below — and the previous
@@ -590,9 +593,7 @@ export class ContextManager {
 
     // Preserve the last 15 messages. Trim any leading orphan tool results so the window can't
     // begin with a `tool` message whose parent assistant tool_calls was cut.
-    const recentMessages = this.dropLeadingOrphanToolMessages(
-      messages.filter(m => m.role !== 'system').slice(-15)
-    );
+    const recentMessages = retainRecentHistory(messages, 15);
 
     const olderMessages = messages.filter(m =>
       m.role !== 'system' && !recentMessages.includes(m)
@@ -618,6 +619,9 @@ export class ContextManager {
     // into the NEW summary instead of being silently dropped with the transient strip above.
     const olderForSummary = [
       ...priorSummaries.map(m => ({ role: 'system' as const, content: contentToText(m.content) })),
+      // The active request stays verbatim in the main window, but the summarizer also needs its
+      // goal: it may otherwise see only tool activity or a summary of a previous request.
+      ...(latestHumanRequest(messages) ? [{ role: 'user' as const, content: contentToText(latestHumanRequest(messages)!.content) }] : []),
       ...olderMessages.map(m => ({ ...m, content: contentToText(m.content) })),
     ];
 
@@ -649,38 +653,23 @@ Comma-separated list of files created, modified, or important to the task.`,
 
     let summaryText = '';
     try {
-      // Summarization is cheap aux work — route it to the lite model when one is configured.
-      const generator = this.llm.chat(summaryPrompt, { lite: true });
-      for await (const event of generator) {
-        if (event.type === 'token') summaryText += event.text;
-      }
+      summaryText = await this.collectSummary(summaryPrompt, signal);
     } catch (e: any) {
-      // The input is already bounded by SUMMARY_INPUT_CHARS, but that bound is sized for the
-      // smallest lite model we can reasonably expect, not for one the user has actually
-      // configured — and `lite` is precisely where a small, cheap, short-window model gets put.
-      // A single failure here used to discard the entire backlog narrative in one line, which is
-      // the worst possible moment to lose it: the session is long, which is why we are here.
-      // So an overflow gets one retry at a quarter of the budget before anything is given up.
+      signal?.throwIfAborted();
       const overflowed = /too long|too large|maximum context|context length|context window/i.test(String(e?.message ?? ''))
         || e?.code === 'context_length_exceeded' || e?.code === 'prompt_too_long' || e?.status === 413;
       if (overflowed) {
-        Logger.warn(`[ContextManager] Summarizer rejected the input (${e.message}) — retrying at a quarter of the budget.`);
+        Logger.warn('[ContextManager] Summarizer rejected the input — retrying at a quarter of the budget.');
         try {
-          const retry = [summaryPrompt[0], { role: 'user' as const, content: `Summarize these messages into the five sections above:\n${boundSummaryInput(olderForSummary, Math.floor(this.SUMMARY_INPUT_CHARS / 4))}` }];
-          const generator = this.llm.chat(retry as Message[], { lite: true });
-          for await (const event of generator) {
-            if (event.type === 'token') summaryText += event.text;
-          }
+          const retry: Message[] = [summaryPrompt[0], { role: 'user', content: `Summarize these messages into the five sections above:\n${boundSummaryInput(olderForSummary, Math.floor(this.SUMMARY_INPUT_CHARS / 4))}` }];
+          summaryText = await this.collectSummary(retry, signal);
         } catch (retryError: any) {
-          Logger.error(`[ContextManager] Summarizer rejected the reduced input too: ${retryError.message}`);
+          signal?.throwIfAborted();
+          Logger.error(`[ContextManager] Reduced summary failed: ${retryError.message}`);
         }
-      } else {
-        Logger.error(`[ContextManager] Failed to summarize context: ${e.message}`);
-      }
-      // The continuation state below still holds the user's words, the commands run and the
-      // assistant's claims verbatim, so this line is the loss of the NARRATIVE, not of the facts.
-      if (!summaryText.trim()) summaryText = '[Older conversation history dropped due to context limits]';
+      } else Logger.error(`[ContextManager] Failed to summarize context: ${e.message}`);
     }
+    signal?.throwIfAborted();
 
     // If another compact() call ran while we were awaiting the LLM, our result is stale —
     // return original messages unchanged so the later epoch's result takes precedence.
@@ -695,7 +684,7 @@ Comma-separated list of files created, modified, or important to the task.`,
     };
     // The summary is a narrative a summarizer may get wrong or leave empty, so it is not the only record: the
     // continuation state keeps what these messages said, word for word (record 50 step 6).
-    this.continuation.absorb(olderMessages, (text) => this.archive(text));
+    // Continuation and evidence publish together only after asynchronous restoration validates this epoch.
 
     // Post-compact file restoration: re-inject recently-read files as synthetic attachments
     // so the model doesn't need to re-read files it was actively working with. Bounded by a TOTAL
@@ -705,6 +694,8 @@ Comma-separated list of files created, modified, or important to the task.`,
     const recentReads = fileStateCache.getRecentReads();
     const fileAttachments: Message[] = [];
     let restoreUsed = 0, restoreSkipped = 0, restoreStale = 0;
+    const sourceVersions: Array<{ id: string; version: string | null }> = [];
+    const restoredEvidence: ReturnType<typeof fileEvidence>[] = [];
     for (const f of recentReads) {
       if (restoreUsed + f.content.length > this.RESTORE_BUDGET_CHARS) { restoreSkipped++; continue; }
       // Cached content whose file was edited externally (or deleted) since the read must NEVER be
@@ -716,8 +707,9 @@ Comma-separated list of files created, modified, or important to the task.`,
       // a large file has neither, so it is never restored as the file. The comparison runs through the
       // session's evidence, so an earlier restoration of a file that has since changed goes stale too.
       const claimed = f.fileHash ? `sha256:${f.fileHash}` : f.complete ? versionOfText(f.content) : null;
-      const current = await fileVersion(f.path);
-      this.evidence.sourceChanged(`file:${f.path}`, current);
+      const current = await fileVersion(f.path, signal);
+      signal?.throwIfAborted();
+      sourceVersions.push({ id: `file:${f.path}`, version: current });
       let mtimeHolds = false;
       try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -733,16 +725,51 @@ Comma-separated list of files created, modified, or important to the task.`,
         role: 'system' as const,
         content: `[Post-Compact Restoration — ${f.path} — ${scope}, verified unchanged on disk]\n${f.content}`,
       });
-      this.evidence.admit(fileEvidence(f.path, f.content, claimed, { partial: !f.complete }));
+      restoredEvidence.push(fileEvidence(f.path, f.content, claimed, { partial: !f.complete }));
     }
 
     if (fileAttachments.length > 0 || restoreSkipped > 0 || restoreStale > 0) {
       Logger.info(`[ContextManager] Restored ${fileAttachments.length} recently-read file(s) post-compact${restoreSkipped ? ` (${restoreSkipped} skipped — over the ${this.RESTORE_BUDGET_CHARS}-char budget)` : ''}${restoreStale ? ` (${restoreStale} not restored — not verified unchanged on disk)` : ''}.`);
     }
 
+    signal?.throwIfAborted();
+    if (this.compactionEpoch !== myEpoch) return messages;
+    if (!summaryText.trim()) {
+      const saved = this.archive(JSON.stringify(olderForSummary));
+      const prior = priorSummaries.map(m => contentToText(m.content)).join('\n');
+      summaryText = `${prior ? `${prior}\n` : ''}[Context summary unavailable; ${saved ? `earlier conversation archived as ${saved} (ContextArchiveTool)` : 'only the bounded continuation evidence is retained'}]`;
+      summaryMsg.content = `[Previous Context Summary]\n${summaryText}`;
+    }
+    this.continuation.absorb(olderMessages, (text) => this.archive(text));
+    for (const source of sourceVersions) this.evidence.sourceChanged(source.id, source.version);
+    this.evidence.admitAll(restoredEvidence);
+
     const compacted = [...systemMessages, summaryMsg, ...this.continuationMessages(), ...fileAttachments, ...recentMessages];
     this.currentTokens = this.estimateTokens(compacted);
     return compacted;
+  }
+
+  /** Aux requests have a whole-operation deadline; late tokens never publish into live context. */
+  private async collectSummary(messages: Message[], parent?: AbortSignal): Promise<string> {
+    return withRequestDeadline(180_000, parent, () => new Error('Context summary deadline exceeded.'), async (signal) => {
+      let text = '';
+      for await (const event of this.llm.chat(messages, { lite: true, signal })) {
+        signal.throwIfAborted();
+        if (event.type === 'error') {
+          const error = new Error(event.message) as Error & { code?: string };
+          if (event.kind === 'context') error.code = 'context_length_exceeded';
+          throw error;
+        }
+        if (event.type === 'truncated') throw new Error('Context summary was truncated.');
+        if (event.type === 'token') {
+          text += event.text;
+          if (text.length > 32_000) throw new Error('Context summary exceeded its output bound.');
+        }
+      }
+      signal.throwIfAborted();
+      if (!text.trim()) throw new Error('Context summary was empty.');
+      return text;
+    });
   }
 
   /**
@@ -773,7 +800,10 @@ Comma-separated list of files created, modified, or important to the task.`,
     this.lastRequest = record;
   }
 
-  private toolCallTokens = new WeakMap<object, number>();
+  private toolCallTokens = new WeakMap<object, {
+    calls: Array<{ id: string; type: string; name: string; args: string; extra: string | undefined }>;
+    tokens: number;
+  }>();
 
   /** Tokens the messages take in a request: their content, the tool calls they carry, and each message's framing. */
   requestTokens(messages: Message[]): number {
@@ -783,12 +813,24 @@ Comma-separated list of files created, modified, or important to the task.`,
       const calls = (m as { tool_calls?: unknown[] }).tool_calls;
       if (calls?.length) {
         const key = calls as unknown as object;
-        let tokens = this.toolCallTokens.get(key);
-        if (tokens === undefined) {
-          tokens = countTokens(JSON.stringify(calls));
-          this.toolCallTokens.set(key, tokens);
+        let hit = this.toolCallTokens.get(key);
+        // Arguments are immutable strings, even when their enclosing call mutates. Comparing
+        // protocol fields avoids copying/tokenizing large unchanged arguments on every pressure
+        // check. Opaque provider metadata can be nested, so compare its serialized value too.
+        const snapshot = (m.tool_calls ?? []).map(call => ({
+          id: call.id, type: call.type, name: call.function.name, args: call.function.arguments,
+          extra: call.extra_content === undefined ? undefined : JSON.stringify(call.extra_content),
+        }));
+        const unchanged = hit && hit.calls.length === snapshot.length && snapshot.every((call, i) => {
+          const prior = hit!.calls[i];
+          return prior.id === call.id && prior.type === call.type && prior.name === call.name
+            && prior.args === call.args && prior.extra === call.extra;
+        });
+        if (!unchanged) {
+          hit = { calls: snapshot, tokens: countTokens(JSON.stringify(calls)) };
+          this.toolCallTokens.set(key, hit);
         }
-        total += tokens;
+        total += hit!.tokens;
       }
     }
     return total;
@@ -801,8 +843,9 @@ Comma-separated list of files created, modified, or important to the task.`,
    * leaves goes through the continuation state, and the latest user message never leaves. The caller checks whether
    * the result fits and refuses to send it when it does not.
    */
-  async fitWithin(messages: Message[], budget: number): Promise<{ messages: Message[]; tokens: number; steps: string[] }> {
+  async fitWithin(messages: Message[], budget: number, signal?: AbortSignal): Promise<{ messages: Message[]; tokens: number; steps: string[] }> {
     this.adoptCarriedContinuation(messages);
+    signal?.throwIfAborted();
     const steps: string[] = [];
     let out = messages;
     const fits = (): boolean => this.requestTokens(out) <= budget;
@@ -815,7 +858,7 @@ Comma-separated list of files created, modified, or important to the task.`,
       if (drained.changed) { out = drained.messages; steps.push('cleared old tool results'); }
     }
     if (!fits()) {
-      const compacted = await this.compact(out);
+      const compacted = await this.compact(out, signal);
       if (compacted !== out && this.requestTokens(compacted) < this.requestTokens(out)) { out = compacted; steps.push('summarized older turns'); }
     }
     if (!fits()) {
@@ -826,6 +869,7 @@ Comma-separated list of files created, modified, or important to the task.`,
       const shortened = this.shortenContinuation(out, budget);
       if (shortened !== out) { out = shortened; steps.push('shortened the continuation state, archiving the rest'); }
     }
+    signal?.throwIfAborted();
     return { messages: out, tokens: this.requestTokens(out), steps };
   }
 
@@ -840,7 +884,7 @@ Comma-separated list of files created, modified, or important to the task.`,
   private moveOldestTurnsOut(messages: Message[], budget: number): Message[] {
     const system = messages.filter((m) => m.role === 'system' && !isContinuationMessage(m));
     let tail = messages.filter((m) => m.role !== 'system');
-    const latestUser = [...tail].reverse().find((m) => m.role === 'user');
+    const latestUser = latestHumanRequest(tail);
     let current = messages;
     while (tail.length && this.requestTokens(current) > budget) {
       let cut = 1;
@@ -880,12 +924,17 @@ Comma-separated list of files created, modified, or important to the task.`,
     for (const span of this.evidence.all()) {
       if (this.evidence.isStale(span.id)) continue;
       const locator = span.locator;
-      const present = (span.rawHandle !== undefined && handles.has(span.rawHandle))
+      const present = (span.rawHandle !== undefined && handles.has(span.rawHandle) && span.text.length > 0 && contents.some(content => content.includes(span.text)))
         || (locator.kind === 'derived' && exact.has(span.text))
-        || (locator.kind === 'file' && contents.some((content) => content.startsWith(`[Post-Compact Restoration — ${locator.path} —`)));
+        || (locator.kind === 'file' && contents.some((content) => content.startsWith(`[Post-Compact Restoration — ${locator.path} —`) && span.text.length > 0 && content.includes(span.text)));
       if (!present) continue;
       resident.add(span.id);
-      for (const dep of span.derivedFrom) if (dep.sourceId.startsWith('span:')) resident.add(dep.sourceId.slice('span:'.length));
+      for (const dep of span.derivedFrom) {
+        if (!dep.sourceId.startsWith('span:')) continue;
+        const source = this.evidence.get(dep.sourceId.slice('span:'.length));
+        if (source && !this.evidence.isStale(source.id) && source.text.length > 0
+          && contents.some(content => content.includes(source.text))) resident.add(source.id);
+      }
     }
     return [...resident];
   }
@@ -903,6 +952,7 @@ Comma-separated list of files created, modified, or important to the task.`,
       error?.status === 413;
     if (isContextOverflow) {
       Logger.warn(`[ContextManager] Reactive compact triggered by API error: ${error.message}`);
+      this.compactionEpoch++;
       this.currentTokens = this.MAX_TOKENS; // force it
       // Same transient strip as compact() (C6) — an overflow caused by accreted summaries/
       // restorations must actually SHRINK here, or the retry 413s again and the turn dies.
@@ -911,9 +961,7 @@ Comma-separated list of files created, modified, or important to the task.`,
       const durableSystem = messages.filter(m => m.role === 'system' && !this.isTransientSystem(m));
       const lastSummary = [...messages].reverse().find(m =>
         this.isTransientSystem(m) && (m.content as string).startsWith('[Previous Context Summary]'));
-      const recentMessages = this.dropLeadingOrphanToolMessages(
-        messages.filter(m => m.role !== 'system').slice(-5)
-      );
+      const recentMessages = retainRecentHistory(messages, 5);
       this.continuation.absorb(messages.filter(m => m.role !== 'system' && !recentMessages.includes(m)), (text) => this.archive(text));
       return [
         ...durableSystem,

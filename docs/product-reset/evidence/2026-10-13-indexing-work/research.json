@@ -1,0 +1,58 @@
+{
+  "verified_on": "2026-10-13",
+  "scope": "Exact indexing work elimination; inspect native OCR but do not change recognition/confidence without evidence",
+  "sources": [
+    {
+      "title": "ECMAScript Set",
+      "url": "https://tc39.es/ecma262/multipage/keyed-collections.html#sec-set-objects",
+      "applies": "Use a membership set alongside the ordered changed-file array. Preserve existing duplicates in the input array, known-path filtering and threshold control flow; no ordering policy changes."
+    },
+    {
+      "title": "Microsoft TypeScript Compiler API",
+      "url": "https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API",
+      "applies": "SourceFile text and node offsets provide the same declaration substring as getText on real parsed nodes. Keep inclusive 1-based line locations, UTF-16 truncation, LF-only split semantics, trimming and 200-unit cap."
+    },
+    {
+      "title": "Apple VNRecognizedText confidence",
+      "url": "https://developer.apple.com/documentation/vision/vnrecognizedtext/confidence",
+      "applies": "Recognizer confidence is a reported observation, not a number to inflate for a test. The HTML page required JS and its linked Markdown was inaccessible through the browser; inspected the installed Vision API source/actual native output instead of deriving undocumented confidence calibration."
+    },
+    {
+      "title": "ECMAScript String split",
+      "url": "https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.split",
+      "applies": "A limit of one preserves exactly the first LF-delimited segment without creating an array for every body line."
+    },
+    {
+      "title": "Node Buffer character encodings",
+      "url": "https://nodejs.org/api/buffer.html#buffers-and-character-encodings",
+      "applies": "Copy at most 200 UTF-16 units for declarations larger than 4096 units. UTF-16LE round trip preserves lone surrogates and split surrogate pairs; UTF-8 does not. Actual Node 22 tests qualify bytes and retention. latest-v22.x Buffer page was inaccessible; official current stable encoding contract read without upgrading runtime."
+    },
+    {
+      "title": "Installed Apple Vision SDK",
+      "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk/System/Library/Frameworks/Vision.framework/Versions/A/Headers/VNObservation.h",
+      "sha256": "b5a884a017272548da9fc73585b34bb959b026ddb629048dc7947137ad15c470",
+      "applies": "VNRecognizedText confidence is normalized to [0,1]; no assumption of calibration or equivalence across accurate/fast models."
+    }
+  ],
+  "adoption_rule": "Exact current results, mutation-caught work/semantic regressions, reduced measured large-input phase cost, preserve small/unchanged cases and all rejected/regressed measurements. No full-app latency/RSS/energy claim. No upstream code or dependency import.",
+  "candidates": [
+    {
+      "name": "Unbounded sourceFile newline search",
+      "decision": "Rejected by inspection before timing: minified or CR-only text could search beyond the requested node; source retained."
+    },
+    {
+      "name": "Bounded declaration slice plus indexOf",
+      "decision": "First timed stage reduces phase work, but tiny full-project p50 is 3.4527 to 3.7425ms (+0.29ms/~8.4%). Retain all samples and investigate."
+    },
+    {
+      "name": "Bounded first-line extraction, skip search when start/end are on one TS line",
+      "decision": "Exact and ordinary-memory neutral, but the large-padding fixture reveals the original and this candidate both retain 8 MiB through a short signature; replaced by a limited split and bounded UTF-16 copy."
+    },
+    {
+      "name": "Limited split plus detached bounded signatures",
+      "decision": "Final: one segment only; detach <=200 UTF-16 units for declarations >4096. Eight-MiB padding retention 8.089 -> 0.086 MiB. Final timings include a small per-call CPU tradeoff and unchanged/larger project costs."
+    }
+  ],
+  "native_OCR": "Frozen helper diagnosis on owned report recovered eight accurate lines at confidence 1.0; fast read returned eight lines at 0.5 with character errors. Prior record 91 failed twice when fallback won. Native framework variability/accuracy is not repaired by changing a confidence threshold; no OCR source/assertion modification.",
+  "invalid_evidence": "Initial test array comparison included its own spy property; corrected to compare exact ordered elements and separately assert no calls. An exploratory proof run failed test compilation due to String.split overload typing; every fault is explicitly unqualified there. Typed observation-only spies replace the helper; final restored tests and assertion-caught faults are recorded separately."
+}

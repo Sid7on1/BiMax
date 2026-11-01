@@ -1,3 +1,4 @@
+import type { ComputerRoute } from '../../shared/computer';
 import { CapabilityBanner } from './components/CapabilityBanner';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Group, Panel, Separator, type GroupImperativeHandle } from 'react-resizable-panels';
@@ -123,6 +124,10 @@ export function App(): React.ReactElement {
   const [machineHealthOpen, setMachineHealthOpen] = useState(false);
   const [modelsOpen, setModelsOpen] = useState(false);
   const [composerRevision, setComposerRevision] = useState(0);
+  useEffect(()=>{
+    if(settingsOpen || modelsOpen || paletteOpen || machineHealthOpen || workspaceSheet || !inspectorOpen || view!=='chat') window.dispatchEvent(new Event('bimax:stop-preview'));
+  },[settingsOpen,modelsOpen,paletteOpen,machineHealthOpen,workspaceSheet,inspectorOpen,view]);
+
 
   useEffect(() => {
     window.bimax.setAppearance(appearance);
@@ -197,15 +202,40 @@ export function App(): React.ReactElement {
     review: state.review,
     gitStatus,
     hasProject,
+    outputsEnabled: !!window.bimax.outputs,
     isRepo: remote?.isRepo === true,
     ahead: remote?.ahead ?? 0,
     behind: remote?.behind ?? 0,
   }), [state.review, gitStatus, hasProject, remote]);
+  const [outputSelection, setOutputSelection] = React.useState<{id:string;version?:string;grant?:string;nonce:number;owner?:string|null}|null>(null);
   const activeTab = resolveWorkbenchTab(tabs, requestedTab, openFiles);
+
+  React.useEffect(() => {
+    const open = (event: Event) => {
+      const detail = (event as CustomEvent).detail;
+      if (!detail || typeof detail.id !== 'string') return;
+      setOutputSelection({id:detail.id,version:detail.version,nonce:Date.now(),owner:state.threadId});
+      setRequestedTab({kind:'lane',id:'outputs'}); setInspectorOpen(true);
+    };
+    const app = (event:Event) => { const part=(event as CustomEvent).detail; if(part?.kind!=='mcp-app' || typeof part.id!=='string') return; setOutputSelection({id:'',grant:part.id,nonce:Date.now(),owner:state.threadId});setRequestedTab({kind:'lane',id:'outputs'});setInspectorOpen(true); };
+    const keep = async (event: Event) => {
+      const detail = (event as CustomEvent).detail;
+      if (!state.threadId || !window.bimax.outputs || typeof detail?.content !== 'string') { detail?.complete?.('Choose a conversation before keeping an output.');return; }
+      const owner = state.threadId;
+      try {
+        const formats: Record<string,import('../../shared/outputs').OutputFormat> = { html:'html',jsx:'react',tsx:'react',mermaid:'mermaid',markdown:'markdown',md:'markdown',vega:'vega-lite','vega-lite':'vega-lite' };
+        const result = await window.bimax.outputs.save(owner,{key:typeof detail.key==='string' ? detail.key : crypto.randomUUID(),title:`Saved ${detail.language || 'code'} output`,format:formats[detail.language] || 'code',content:detail.content,language:detail.language || undefined});
+        if (!result)throw new Error('Output was not saved.');
+        detail.complete?.();open(new CustomEvent('bimax:open-output',{detail:{id:result.record.id,version:result.version.id}}));
+      } catch (error) { detail.complete?.(String(error)); }
+    };
+    window.addEventListener('bimax:open-mcp-app',app); window.addEventListener('bimax:open-output',open); window.addEventListener('bimax:keep-output',keep);
+    return () => { window.removeEventListener('bimax:open-mcp-app',app); window.removeEventListener('bimax:open-output',open); window.removeEventListener('bimax:keep-output',keep); };
+  }, [state.threadId]);
 
   // --- Shell actions --------------------------------------------------------------------------
 
-  const submitTask = useCallback((text: string, engineText?: string) => submit(text, engineText), [submit]);
+  const submitTask = useCallback((text: string, engineText?: string, route?: ComputerRoute) => submit(text, engineText, route), [submit]);
 
   const openInspector = useCallback((tab: InspectorTabId) => {
     setRequestedTab({ kind: 'lane', id: tab });
@@ -548,6 +578,7 @@ export function App(): React.ReactElement {
                 onPeekLeave={() => peekIntent.leave()}
                 /* The one control that opens the right panel, at the top right — where the panel
                    is. It used to be in the sidebar's footer, bottom left. */
+                onOutputs={() => openInspector('outputs')}
                 inspectorOpen={inspectorOpen}
                 onToggleInspector={() => setInspectorOpen((v) => !v)}
               />
@@ -608,7 +639,7 @@ export function App(): React.ReactElement {
             </div>
           </Panel>
 
-          {hasProject && inspectorMounted && (
+          {(hasProject || activeTab?.kind === 'lane' && activeTab.id === 'outputs') && inspectorMounted && (
             <>
               {/* Carries the canvas tint, and `bg-transparent` is WRONG here even though it sounds right:
                   the window itself is transparent, so a 1px column that paints nothing is a 1px hole
@@ -634,6 +665,8 @@ export function App(): React.ReactElement {
                   onCollapsed={() => setInspectorMounted(false)}
                 >
                   <Inspector
+                    threadId={state.threadId}
+                    outputSelection={outputSelection?.owner===state.threadId ? outputSelection : null}
                     tabs={tabs}
                     active={activeTab}
                     onTab={selectTab}
@@ -671,8 +704,9 @@ export function App(): React.ReactElement {
         />
       )}
 
-      {hasProject && (
-        <SettingsDialog
+      {(<SettingsDialog
+          engineAvailable={hasProject && engineReady}
+          notices={Object.values(state.notices ?? {})}
           open={settingsOpen}
           onClose={() => setSettingsOpen(false)}
           onOpenHealth={() => { setSettingsOpen(false); setMachineHealthOpen(true); }}

@@ -1,0 +1,164 @@
+{
+  "row": 333,
+  "id": "dcfa8644",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T08:59:06.214925+00:00",
+  "valid": true,
+  "question": "How many days had passed since I bought my Adidas running shoes when I realized one of the shoelaces on my old Converse sneakers had broken?",
+  "references": [
+    "14 days. 15 days (including the last day) is also acceptable."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/02/03 (Fri) 17:43",
+  "benchmarkSessionIds": [
+    "answer_5e3eeb12_2",
+    "answer_5e3eeb12_1",
+    "b2243528_1"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:59:28.512749+00:00",
+  "rag": {
+    "ids": [
+      "answer_5e3eeb12_2",
+      "answer_5e3eeb12_1",
+      "b2243528_1"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 15) Session date: 2023/02/03 (Fri) 17:38\nuser: I'm looking for some shoe cleaning tips. I've got a pair of sneakers that I wore to play basketball on February 1st and they got pretty dirty. By the way, speaking of shoes, I realized that one of the shoelaces on my old Converse sneakers had broken on January 24th, so I had to replace it.\nassistant: It sounds like you've had a bit of a shoe-filled month!\n\nNow, let's get to those dirty sneakers! Cleaning them properly will help maintain their appearance, extend their lifespan, and even prevent odors. Here are some shoe cleaning tips to get your kicks looking fresh again:\n\n1.\n\n**Remove loose dirt and debris**: Start by gently brushing off any loose dirt, dust, or debris from the surface of the shoes using a soft-bristled brush or a clean cloth.\n\n2.\n\n**Identify the material**: Check the shoe's material to determine the best cleaning method.\n\nMost sneakers are made of leather, synthetic materials, or a combination of both.\n\n3.\n\n**Use a gentle cleaning solution**: For general cleaning, mix a solution of warm water and mild soap, such as dish soap or hand soap.\n  (part 11 of 15, excerpt) user: I realized I've been meaning to get my favorite pair of Vans back to their original shape. I lent them to my brother when he came to visit last month, and when he returned them on February 10th, I noticed they were a bit tighter than I remembered. I think he might have stretched them out or something. Do you have any ti\n- (part 13 of 16, excerpt) user: I think I'll try cleaning my sneakers at home first, but if the stains are really tough, I might take them to a professional. B\n- (part 5 of 10, excerpt) These are just a few examples, but there are many other brands that offer neutral shoes as well. You can also try searching",
+    "evidence": [
+      {
+        "sourceId": "memory:answer_5e3eeb12_2",
+        "sourceVersion": "sha256:0f99ae83baf8e92e3f93fc023467c170c1af6995324d2d49dd6e7e425f0e7543",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_5e3eeb12_2",
+          "part": 1,
+          "parts": 15
+        },
+        "text": "Session date: 2023/02/03 (Fri) 17:38\nuser: I'm looking for some shoe cleaning tips. I've got a pair of sneakers that I wore to play basketball on February 1st and they got pretty dirty. By the way, speaking of shoes, I realized that one of the shoelaces on my old Converse sneakers had broken on January 24th, so I had to replace it.\nassistant: It sounds like you've had a bit of a shoe-filled month!\n\nNow, let's get to those dirty sneakers! Cleaning them properly will help maintain their appearance, extend their lifespan, and even prevent odors. Here are some shoe cleaning tips to get your kicks looking fresh again:\n\n1.\n\n**Remove loose dirt and debris**: Start by gently brushing off any loose dirt, dust, or debris from the surface of the shoes using a soft-bristled brush or a clean cloth.\n\n2.\n\n**Identify the material**: Check the shoe's material to determine the best cleaning method.\n\nMost sneakers are made of leather, synthetic materials, or a combination of both.\n\n3.\n\n**Use a gentle cleaning solution**: For general cleaning, mix a solution of warm water and mild soap, such as dish soap or hand soap.",
+        "id": "ev_b8ddf77b5fabe9b5f73ae1ac",
+        "observedAt": "2026-10-14T08:48:23.589Z"
+      },
+      {
+        "sourceId": "memory:answer_5e3eeb12_2",
+        "sourceVersion": "sha256:0f99ae83baf8e92e3f93fc023467c170c1af6995324d2d49dd6e7e425f0e7543",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_5e3eeb12_2",
+          "part": 11,
+          "parts": 15,
+          "partial": true
+        },
+        "text": "user: I realized I've been meaning to get my favorite pair of Vans back to their original shape. I lent them to my brother when he came to visit last month, and when he returned them on February 10th, I noticed they were a bit tighter than I remembered. I think he might have stretched them out or something. Do you have any ti",
+        "id": "ev_4732f0637d0e1140a2ed078d",
+        "observedAt": "2026-10-14T08:48:23.590Z"
+      },
+      {
+        "sourceId": "memory:answer_5e3eeb12_1",
+        "sourceVersion": "sha256:b2e77b9ad1d33d4ddaa2f640fbd53c23a6456fd9507093bc69fb3922dee9cfac",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_5e3eeb12_1",
+          "part": 13,
+          "parts": 16,
+          "partial": true
+        },
+        "text": "user: I think I'll try cleaning my sneakers at home first, but if the stains are really tough, I might take them to a professional. B",
+        "id": "ev_4af5e6ee28dff7d1dd2f7c91",
+        "observedAt": "2026-10-14T08:48:23.591Z"
+      },
+      {
+        "sourceId": "memory:b2243528_1",
+        "sourceVersion": "sha256:53da68e6b49316215fcd4a220f1d7b30e5a5431de814ea03c34ef1a8869d7b9c",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "b2243528_1",
+          "part": 5,
+          "parts": 10,
+          "partial": true
+        },
+        "text": "These are just a few examples, but there are many other brands that offer neutral shoes as well. You can also try searching",
+        "id": "ev_f85694ce4b7f855db3f6a023",
+        "observedAt": "2026-10-14T08:48:23.591Z"
+      }
+    ],
+    "sourceIds": [
+      "answer_5e3eeb12_2",
+      "answer_5e3eeb12_1",
+      "b2243528_1"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 22.014624999999796,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "The retrieved history does not mention when you bought your Adidas running shoes, nor does it link that purchase date to the Converse shoelace breaking. Without that information, I cannot calculate the number of days. \n\nI do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.043478260869565216
+  },
+  "readerUsage": {
+    "prompt_tokens": 596,
+    "completion_tokens": 895,
+    "total_tokens": 1491,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 843,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 455,
+    "completion_tokens": 1026,
+    "total_tokens": 1481,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10843.045416999303,
+  "judgeWallMs": 11247.693709000487
+}

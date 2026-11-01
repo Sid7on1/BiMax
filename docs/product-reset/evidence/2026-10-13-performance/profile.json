@@ -1,0 +1,40 @@
+{
+  "node": "v22.13.1",
+  "kind": "exploratory baseline component profile; not repeated qualification",
+  "results": [
+    {
+      "operation": "wide BFS",
+      "n": 1000,
+      "ms": 0.4234169999999722,
+      "output_count": 999
+    },
+    {
+      "operation": "wide BFS",
+      "n": 10000,
+      "ms": 4.995833000000005,
+      "output_count": 9999
+    },
+    {
+      "operation": "wide BFS",
+      "n": 50000,
+      "ms": 168.45658300000002,
+      "output_count": 49999
+    },
+    {
+      "operation": "file graph removal",
+      "n": 1000,
+      "remove": 100,
+      "ms": 16.049957999999947,
+      "removed": 100,
+      "adjacency_rebuilds": 100
+    },
+    {
+      "operation": "file graph removal",
+      "n": 4000,
+      "remove": 1000,
+      "ms": 369.92562499999997,
+      "removed": 1000,
+      "adjacency_rebuilds": 1000
+    }
+  ]
+}

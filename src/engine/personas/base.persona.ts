@@ -430,11 +430,16 @@ export abstract class AgentPersona {
     return messages;
   }
 
-  public async execute(prompt: string, onToken?: (token: string) => void, options?: { maxIterations?: number; planMode?: boolean; useLite?: boolean; images?: string[]; signal?: AbortSignal; internalTurn?: boolean; sessionId?: string }): Promise<string> {
+  public async execute(prompt: string, onToken?: (token: string) => void, options?: { maxIterations?: number; planMode?: boolean; useLite?: boolean; images?: string[]; signal?: AbortSignal; internalTurn?: boolean; sessionId?: string; toolNames?: readonly string[]; requireTool?: string }): Promise<string> {
     return this.executeTurn(prompt, onToken, options);
   }
 
-  private async executeTurn(prompt: string, onToken?: (token: string) => void, options?: { maxIterations?: number; planMode?: boolean; useLite?: boolean; images?: string[]; signal?: AbortSignal; internalTurn?: boolean; sessionId?: string }): Promise<string> {
+  private async executeTurn(prompt: string, onToken?: (token: string) => void, options?: { maxIterations?: number; planMode?: boolean; useLite?: boolean; images?: string[]; signal?: AbortSignal; internalTurn?: boolean; sessionId?: string; toolNames?: readonly string[]; requireTool?: string }): Promise<string> {
+    if (options?.toolNames) {
+      const names = options.toolNames;
+      if (!Array.isArray(names) || !names.length || names.length > 16 || names.some(name => typeof name !== 'string' || !this.toolRegistry.getTool(name))
+        || (options.requireTool && !names.includes(options.requireTool))) throw new Error('The selected task capability is unavailable. No tools were executed.');
+    }
     // Fresh user turn: reset the per-turn "touched" flag so the loop's persistence check only reacts
     // to items THIS turn opens (no spurious "keep going" on an unrelated next message). The list
     // itself is kept — it's re-injected into the prompt so the model never forgets its own phases.
@@ -533,6 +538,7 @@ export abstract class AgentPersona {
     // The volatile per-turn blocks ride a [TurnContext] system message near the tail instead.
     const parts = this.getSystemPromptParts({
       planMode: options?.planMode,
+      toolNames: options?.toolNames,
       memory,
       exemplars,
       contextMode,
@@ -549,6 +555,8 @@ export abstract class AgentPersona {
       useLite: options?.useLite,
       signal: options?.signal,
       sessionId: options?.sessionId,
+      toolNames: options?.toolNames,
+      requireTool: options?.requireTool,
       ...(maxMinutes > 0 ? { maxMinutes } : {}),
     };
     executionLog += await this.runPass(loop, systemPrompt, passOpts, onToken);
@@ -556,7 +564,7 @@ export abstract class AgentPersona {
     // Self-critic loop: review the work and, if defects are found, take one more pass.
     // Skipped in plan mode (nothing was changed), for trivial replies, and when the turn was
     // interrupted (don't spend a model call reviewing work the user just cancelled).
-    if (!options?.signal?.aborted && isSelfCriticEnabled() && !options?.planMode && executionLog.trim().length > 40) {
+    if (!options?.toolNames && !options?.signal?.aborted && isSelfCriticEnabled() && !options?.planMode && executionLog.trim().length > 40) {
       try {
         let review = await this.critique(prompt, executionLog);
         // Assertion extraction rides the critic pass (v2 §3.5.2 — the lite model is
@@ -583,7 +591,7 @@ export abstract class AgentPersona {
     // Adversarial verifier: chains after self-critic. Uses the full model with a red-team
     // framing to find bugs/edge-cases that both the agent and self-critic missed.
     // Only fires when enabled, the turn touched real code, and is NOT in plan mode.
-    if (!options?.signal?.aborted && isAdversarialVerifyEnabled() && !options?.planMode && looksLikeCodeWork(executionLog)) {
+    if (!options?.toolNames && !options?.signal?.aborted && isAdversarialVerifyEnabled() && !options?.planMode && looksLikeCodeWork(executionLog)) {
       try {
         const findings = await runAdversarialVerifier(prompt, executionLog, this.llmAdapter);
         if (findings) {

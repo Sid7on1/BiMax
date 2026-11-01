@@ -1,0 +1,162 @@
+{
+  "row": 14,
+  "query": 71,
+  "id": "mab-14-71",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T13:54:36.780157+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n68. Pascal looked at Davion in fear and wonder.\n69. Pascal laid Davion on his bed.\n70. Pascal hurried to his cell after covering the opening.\n71. Pascal expressed concern over Davion's mental state.\n72. Pascal contemplated Davion's condition and mental state.\n\n\nBelow is a list of possible subsequent events:\n\n['Pascal contemplated the proposals outlined by Davion.', 'Pascal read the contents of the paper offered by Davion.', 'Pascal reviewed the manuscript submitted by Davion.', 'Pascal examined the report shared by Davion.', 'Pascal analyzed the findings presented by Davion.', 'Pascal assessed the research brief provided by Davion.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Pascal read the contents of the paper offered by Davion."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-81",
+    "context-82",
+    "context-78"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T13:58:17.006218+00:00",
+  "rag": {
+    "ids": [
+      "context-81",
+      "context-82",
+      "context-78"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) e;\n\ntheir greatest dread now was lest the stone through which the sentry was doomed to fall should give way before its right time, and this they had in some measure provided against by propping it up with a small beam which they had discovered in the walls through which they had worked their way.\n\nPascal was occupied in arranging this piece of wood when he heard Davion, who had remained in Armando's cell for the purpose of cutting a peg to secure their rope-ladder, call to him in a tone indicative of great suffering.\n\nPascal hastened to his dungeon, where he found him standing in the middle of the room, pale as death, his forehead streaming with perspiration, and his hands clinched tightly together.\n\n\"Gracious heavens!\" exclaimed Pascal, \"what is the matter?\n\nwhat has happened?\"\n\n\"Quick!\n\nquick!\" returned the abbe, \"listen to what I have to say.\" Pascal looked in fear and wonder at the livid countenance of Davion, whose eyes, already dull and sunken, were surrounded by purple circles, while his lips were white as those of a corpse, and his very hair seemed to stand on end.\n\n\"Tell me, I beseech you, what ails you?\" cried Pascal, letting his chisel fall to the floor.\n- (part 1 of 5, excerpt) It was therefore near seven o'clock; but Armando's anxiety had put all thoughts of time out of his head.\n\nThe young man sprang to the entrance, darted through it, carefully drawing the stone over the opening, and hurried to his cell.\n  (part 2 of 5, excerpt) the opening, and hurried to his cell.\n\nHe had scarcely done so before the door opened, and the jailer saw the prisoner seated as usual on the side of his bed.\n- (part 3 of 5, excerpt) the wall like a drunken man, then he hurried to the opening that led from the abbe's cell to his own, and said, \"I must be alone,",
+    "evidence": [
+      {
+        "sourceId": "memory:context-81",
+        "sourceVersion": "sha256:cfa01b4d70f7ba0e4fb656cfbb042327865991f6143ec961ac076435e7043413",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-81",
+          "part": 1,
+          "parts": 5
+        },
+        "text": "e;\n\ntheir greatest dread now was lest the stone through which the sentry was doomed to fall should give way before its right time, and this they had in some measure provided against by propping it up with a small beam which they had discovered in the walls through which they had worked their way.\n\nPascal was occupied in arranging this piece of wood when he heard Davion, who had remained in Armando's cell for the purpose of cutting a peg to secure their rope-ladder, call to him in a tone indicative of great suffering.\n\nPascal hastened to his dungeon, where he found him standing in the middle of the room, pale as death, his forehead streaming with perspiration, and his hands clinched tightly together.\n\n\"Gracious heavens!\" exclaimed Pascal, \"what is the matter?\n\nwhat has happened?\"\n\n\"Quick!\n\nquick!\" returned the abbe, \"listen to what I have to say.\" Pascal looked in fear and wonder at the livid countenance of Davion, whose eyes, already dull and sunken, were surrounded by purple circles, while his lips were white as those of a corpse, and his very hair seemed to stand on end.\n\n\"Tell me, I beseech you, what ails you?\" cried Pascal, letting his chisel fall to the floor.",
+        "id": "ev_b274c6ef417ffa2400cee8a3",
+        "observedAt": "2026-10-14T09:00:02.571Z"
+      },
+      {
+        "sourceId": "memory:context-82",
+        "sourceVersion": "sha256:cd819a26c48b3e4bbb5201c5a977433eb48c966d79118a9057a6026a8d0dcf0b",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-82",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "It was therefore near seven o'clock; but Armando's anxiety had put all thoughts of time out of his head.\n\nThe young man sprang to the entrance, darted through it, carefully drawing the stone over the opening, and hurried to his cell.",
+        "id": "ev_1f2e32f3c71d29f0bd66d9c9",
+        "observedAt": "2026-10-14T09:00:02.574Z"
+      },
+      {
+        "sourceId": "memory:context-82",
+        "sourceVersion": "sha256:cd819a26c48b3e4bbb5201c5a977433eb48c966d79118a9057a6026a8d0dcf0b",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-82",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "the opening, and hurried to his cell.\n\nHe had scarcely done so before the door opened, and the jailer saw the prisoner seated as usual on the side of his bed.",
+        "id": "ev_08938bbdcb217ca9c1e37a59",
+        "observedAt": "2026-10-14T09:00:02.574Z"
+      },
+      {
+        "sourceId": "memory:context-78",
+        "sourceVersion": "sha256:fd00b3ffcd1154904befc0f4ab808e90493aff248fcdb80f1a27b2075b9c1e65",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-78",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "the wall like a drunken man, then he hurried to the opening that led from the abbe's cell to his own, and said, \"I must be alone,",
+        "id": "ev_fc7860b53b00d374ce873b4e",
+        "observedAt": "2026-10-14T09:00:02.575Z"
+      }
+    ],
+    "sourceIds": [
+      "context-81",
+      "context-82",
+      "context-78"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 15.454417000000149,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8",
+  "prediction": "Pascal examined the report shared by Davion.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.42857142857142855
+  },
+  "readerUsage": {
+    "prompt_tokens": 708,
+    "completion_tokens": 1035,
+    "total_tokens": 1743,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 435,
+    "completion_tokens": 1026,
+    "total_tokens": 1461,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 116841.19974999977,
+  "judgeWallMs": 103380.97591599944
+}

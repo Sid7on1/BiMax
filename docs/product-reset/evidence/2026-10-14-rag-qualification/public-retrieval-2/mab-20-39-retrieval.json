@@ -1,0 +1,233 @@
+{
+  "row": 20,
+  "query": 39,
+  "id": "mab-20-39",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:43:47.552529+00:00",
+  "valid": true,
+  "question": "Current Date: 2023/03/28 (Tue) 00:03,\n\n Now Answer the Question: What was the significant buisiness milestone I mentioned four weeks ago?",
+  "references": [
+    "I signed a contract with my first client."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/03/28 (Tue) 00:03",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 421.71791599999415,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 137,
+        "maxInputChars": 137,
+        "requiredProviderTruncation": false,
+        "promptTokens": 38,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-176",
+        "context-326",
+        "context-9"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) spreadsheet:\\n\\n| Name | Email | Phone | Event | Date | Company | Notes | Follow-up Date | Last Contacted |\\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\\n| Rachel | rachel@example.com | | TechConnect | 2023-02-10/11 | Old Company | Catch up and discuss new opportunities | 2023-02-20 | |\\n| Jason | jason@startupx.com | | TechConnect | 2023-02-10/11 | StartupX | Follow up on collaboration opportunities | 2023-02-20 | |\\n| Alex | alex@edtechstartup.com | | WeWork Startup Mixer | 2023-02-15 | EdTech Startup | Discuss potential partnership in edtech space | 2023-03-01 | |\\n| David | david@example.com | | WeWork Startup Mixer | 2023-02-15 | | Introduced me to Google colleagues | | |\\n| Tom | tom@marketingexpert.com | | Chamber of Commerce Speed Networking | 2023-02-22 | Marketing Expert | Offered feedback on startup's marketing strategy | 2023-03-05 | |\\n| Sarah | sarah@financefirm.com | | Chamber of Commerce Speed Networking | 2023-02-22 | Finance Firm | Discussed potential investment opportunities | | |\\n| Michael | michael@techfirm.com | | Chamber of Commerce Speed Networking | 2023-02-22 | Tech Firm | Exchanged contact information | | |\\n| Emily | emily@designstudio.com |\n  (part 2 of 4, excerpt) Keep up the good work!\\n\\nHow do you plan to follow up with Tom about the marketing strategy feedback, and what are your next steps with the other professionals you met at the speed networking event?\"}], 'Chat Time: 2023/05/21 (Sun) 09:11', [\n- (part 3 of 5, excerpt) I'm always here to help!\"}], 'Chat Time: 2023/05/28 (Sun) 14:10', [{'role': 'user', 'content': \"I'm looking to create a new Instagram po\n- (part 2 of 5, excerpt) YOLO.\\n\\nRemember to practice regularly, work on projects that interest you, and stay up-to-date with the latest research and",
+      "evidence": [
+        {
+          "sourceId": "memory:context-176",
+          "sourceVersion": "sha256:6f08167790a4ea15f2cacf81fecd7bbe6b6e51ead27a6702ed32edfe5a950503",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-176",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "spreadsheet:\\n\\n| Name | Email | Phone | Event | Date | Company | Notes | Follow-up Date | Last Contacted |\\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\\n| Rachel | rachel@example.com | | TechConnect | 2023-02-10/11 | Old Company | Catch up and discuss new opportunities | 2023-02-20 | |\\n| Jason | jason@startupx.com | | TechConnect | 2023-02-10/11 | StartupX | Follow up on collaboration opportunities | 2023-02-20 | |\\n| Alex | alex@edtechstartup.com | | WeWork Startup Mixer | 2023-02-15 | EdTech Startup | Discuss potential partnership in edtech space | 2023-03-01 | |\\n| David | david@example.com | | WeWork Startup Mixer | 2023-02-15 | | Introduced me to Google colleagues | | |\\n| Tom | tom@marketingexpert.com | | Chamber of Commerce Speed Networking | 2023-02-22 | Marketing Expert | Offered feedback on startup's marketing strategy | 2023-03-05 | |\\n| Sarah | sarah@financefirm.com | | Chamber of Commerce Speed Networking | 2023-02-22 | Finance Firm | Discussed potential investment opportunities | | |\\n| Michael | michael@techfirm.com | | Chamber of Commerce Speed Networking | 2023-02-22 | Tech Firm | Exchanged contact information | | |\\n| Emily | emily@designstudio.com |",
+          "id": "ev_366d3b824b5ec29d985de911",
+          "observedAt": "2026-10-14T04:43:47.978Z"
+        },
+        {
+          "sourceId": "memory:context-176",
+          "sourceVersion": "sha256:6f08167790a4ea15f2cacf81fecd7bbe6b6e51ead27a6702ed32edfe5a950503",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-176",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Keep up the good work!\\n\\nHow do you plan to follow up with Tom about the marketing strategy feedback, and what are your next steps with the other professionals you met at the speed networking event?\"}], 'Chat Time: 2023/05/21 (Sun) 09:11', [",
+          "id": "ev_f50f573e68a99d6d6a7f8e3d",
+          "observedAt": "2026-10-14T04:43:47.978Z"
+        },
+        {
+          "sourceId": "memory:context-326",
+          "sourceVersion": "sha256:943b1e2bc8c84050af2d8273cf7415ace13637e8369d491e238a1d1f5eba61d3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-326",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "I'm always here to help!\"}], 'Chat Time: 2023/05/28 (Sun) 14:10', [{'role': 'user', 'content': \"I'm looking to create a new Instagram po",
+          "id": "ev_2bc5be4a68a44360e4594f4d",
+          "observedAt": "2026-10-14T04:43:47.979Z"
+        },
+        {
+          "sourceId": "memory:context-9",
+          "sourceVersion": "sha256:90b7bd9a3a3282b594e9779d96db909327b7ee387b74e1451481465f8f5083b1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-9",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "YOLO.\\n\\nRemember to practice regularly, work on projects that interest you, and stay up-to-date with the latest research and",
+          "id": "ev_d18d2898fc77b18fecf2ce54",
+          "observedAt": "2026-10-14T04:43:47.979Z"
+        }
+      ],
+      "sourceIds": [
+        "context-176",
+        "context-326",
+        "context-9"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.254790999999386,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-176",
+        "context-326",
+        "context-9"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) spreadsheet:\\n\\n| Name | Email | Phone | Event | Date | Company | Notes | Follow-up Date | Last Contacted |\\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\\n| Rachel | rachel@example.com | | TechConnect | 2023-02-10/11 | Old Company | Catch up and discuss new opportunities | 2023-02-20 | |\\n| Jason | jason@startupx.com | | TechConnect | 2023-02-10/11 | StartupX | Follow up on collaboration opportunities | 2023-02-20 | |\\n| Alex | alex@edtechstartup.com | | WeWork Startup Mixer | 2023-02-15 | EdTech Startup | Discuss potential partnership in edtech space | 2023-03-01 | |\\n| David | david@example.com | | WeWork Startup Mixer | 2023-02-15 | | Introduced me to Google colleagues | | |\\n| Tom | tom@marketingexpert.com | | Chamber of Commerce Speed Networking | 2023-02-22 | Marketing Expert | Offered feedback on startup's marketing strategy | 2023-03-05 | |\\n| Sarah | sarah@financefirm.com | | Chamber of Commerce Speed Networking | 2023-02-22 | Finance Firm | Discussed potential investment opportunities | | |\\n| Michael | michael@techfirm.com | | Chamber of Commerce Speed Networking | 2023-02-22 | Tech Firm | Exchanged contact information | | |\\n| Emily | emily@designstudio.com |\n  (part 2 of 4, excerpt) Keep up the good work!\\n\\nHow do you plan to follow up with Tom about the marketing strategy feedback, and what are your next steps with the other professionals you met at the speed networking event?\"}], 'Chat Time: 2023/05/21 (Sun) 09:11', [\n- (part 3 of 5, excerpt) I'm always here to help!\"}], 'Chat Time: 2023/05/28 (Sun) 14:10', [{'role': 'user', 'content': \"I'm looking to create a new Instagram po\n- (part 2 of 5, excerpt) YOLO.\\n\\nRemember to practice regularly, work on projects that interest you, and stay up-to-date with the latest research and",
+      "evidence": [
+        {
+          "sourceId": "memory:context-176",
+          "sourceVersion": "sha256:6f08167790a4ea15f2cacf81fecd7bbe6b6e51ead27a6702ed32edfe5a950503",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-176",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "spreadsheet:\\n\\n| Name | Email | Phone | Event | Date | Company | Notes | Follow-up Date | Last Contacted |\\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\\n| Rachel | rachel@example.com | | TechConnect | 2023-02-10/11 | Old Company | Catch up and discuss new opportunities | 2023-02-20 | |\\n| Jason | jason@startupx.com | | TechConnect | 2023-02-10/11 | StartupX | Follow up on collaboration opportunities | 2023-02-20 | |\\n| Alex | alex@edtechstartup.com | | WeWork Startup Mixer | 2023-02-15 | EdTech Startup | Discuss potential partnership in edtech space | 2023-03-01 | |\\n| David | david@example.com | | WeWork Startup Mixer | 2023-02-15 | | Introduced me to Google colleagues | | |\\n| Tom | tom@marketingexpert.com | | Chamber of Commerce Speed Networking | 2023-02-22 | Marketing Expert | Offered feedback on startup's marketing strategy | 2023-03-05 | |\\n| Sarah | sarah@financefirm.com | | Chamber of Commerce Speed Networking | 2023-02-22 | Finance Firm | Discussed potential investment opportunities | | |\\n| Michael | michael@techfirm.com | | Chamber of Commerce Speed Networking | 2023-02-22 | Tech Firm | Exchanged contact information | | |\\n| Emily | emily@designstudio.com |",
+          "id": "ev_366d3b824b5ec29d985de911",
+          "observedAt": "2026-10-14T04:43:47.983Z"
+        },
+        {
+          "sourceId": "memory:context-176",
+          "sourceVersion": "sha256:6f08167790a4ea15f2cacf81fecd7bbe6b6e51ead27a6702ed32edfe5a950503",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-176",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Keep up the good work!\\n\\nHow do you plan to follow up with Tom about the marketing strategy feedback, and what are your next steps with the other professionals you met at the speed networking event?\"}], 'Chat Time: 2023/05/21 (Sun) 09:11', [",
+          "id": "ev_f50f573e68a99d6d6a7f8e3d",
+          "observedAt": "2026-10-14T04:43:47.983Z"
+        },
+        {
+          "sourceId": "memory:context-326",
+          "sourceVersion": "sha256:943b1e2bc8c84050af2d8273cf7415ace13637e8369d491e238a1d1f5eba61d3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-326",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "I'm always here to help!\"}], 'Chat Time: 2023/05/28 (Sun) 14:10', [{'role': 'user', 'content': \"I'm looking to create a new Instagram po",
+          "id": "ev_2bc5be4a68a44360e4594f4d",
+          "observedAt": "2026-10-14T04:43:47.984Z"
+        },
+        {
+          "sourceId": "memory:context-9",
+          "sourceVersion": "sha256:90b7bd9a3a3282b594e9779d96db909327b7ee387b74e1451481465f8f5083b1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-9",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "YOLO.\\n\\nRemember to practice regularly, work on projects that interest you, and stay up-to-date with the latest research and",
+          "id": "ev_d18d2898fc77b18fecf2ce54",
+          "observedAt": "2026-10-14T04:43:47.984Z"
+        }
+      ],
+      "sourceIds": [
+        "context-176",
+        "context-326",
+        "context-9"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.822290999996767,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:43:47.985180+00:00"
+}

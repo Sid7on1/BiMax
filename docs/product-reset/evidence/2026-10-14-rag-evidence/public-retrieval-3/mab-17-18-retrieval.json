@@ -1,0 +1,354 @@
+{
+  "row": 17,
+  "query": 18,
+  "id": "mab-17-18",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:58:55.842215+00:00",
+  "valid": true,
+  "question": "Current Date: 2023/11/30 (Thu) 03:32,\n\n Now Answer the Question: How long have I had my cat, Luna?",
+  "references": [
+    "9 months"
+  ],
+  "kind": "knowledge-update",
+  "abstention": false,
+  "date": "2023/11/30 (Thu) 03:32",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 10.401916999995592,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 98,
+        "maxInputChars": 98,
+        "requiredProviderTruncation": false,
+        "promptTokens": 34,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-356",
+        "context-353",
+        "context-354"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) she ever gets lost.\\n\\nIt's essential to remember that microchipping is not a substitute for a collar and identification tag, but rather a supplement to them.\n\nMake sure to keep your contact information up-to-date with the microchip registry to ensure that you can be reached if Luna is found.\\n\\nConsult with your veterinarian to discuss the microchipping process, costs, and any concerns you may have.\n\nThey can provide guidance and perform the procedure during a regular check-up or appointment.\\n\\nGreat decision, and I'm sure Luna will appreciate the extra layer of protection!\"}, {'role': 'user', 'content': \"I've had Luna for about 6 months now, and I've been meaning to get her microchipped for a while.\n\nI've heard horror stories about pets getting lost, and I don't want to take any chances.\n\nI've already scheduled an appointment for next Friday to get it done.\"}, {'role': 'assistant', 'content': \"That's great to hear!\n\nYou're taking a responsible and proactive step to ensure Luna's safety.\n\nIt's wonderful that you've scheduled an appointment already.\n  (part 4 of 5, excerpt) Are you a bit nervous, or are you feeling more relieved that you've taken this step?\"}], 'Chat Time: 2023/09/30 (Sat) 08:34', [{'role': 'user', 'content': \"I'm looking for some advice on how to manage my inventory for upcoming events.\n\nI have a few big orders coming in and I want to make sure I have enough stock.\n\nCan you help me with that?\n- (part 3 of 5, excerpt) Happy thrifting!'}], 'Chat Time: 2023/08/11 (Fri) 21:17', [{'role': 'user', 'content': \"I'm trying to keep my cat, Luna, healthy and happy.\n- (part 1 of 4, excerpt) Do you have any tips for that?\"}, {'role': 'assistant', 'content': \"Reducing shedding can make a big difference in your home's cleanliness and your cat's ov",
+      "evidence": [
+        {
+          "sourceId": "memory:context-356",
+          "sourceVersion": "sha256:c16f6484bb8152384c11fb483f1cd0fb24767851ca05e2293b72a6812932d1b1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-356",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "she ever gets lost.\\n\\nIt's essential to remember that microchipping is not a substitute for a collar and identification tag, but rather a supplement to them.\n\nMake sure to keep your contact information up-to-date with the microchip registry to ensure that you can be reached if Luna is found.\\n\\nConsult with your veterinarian to discuss the microchipping process, costs, and any concerns you may have.\n\nThey can provide guidance and perform the procedure during a regular check-up or appointment.\\n\\nGreat decision, and I'm sure Luna will appreciate the extra layer of protection!\"}, {'role': 'user', 'content': \"I've had Luna for about 6 months now, and I've been meaning to get her microchipped for a while.\n\nI've heard horror stories about pets getting lost, and I don't want to take any chances.\n\nI've already scheduled an appointment for next Friday to get it done.\"}, {'role': 'assistant', 'content': \"That's great to hear!\n\nYou're taking a responsible and proactive step to ensure Luna's safety.\n\nIt's wonderful that you've scheduled an appointment already.",
+          "id": "ev_bf5b79321c80d66f5afdaebd",
+          "observedAt": "2026-10-14T08:58:55.858Z"
+        },
+        {
+          "sourceId": "memory:context-356",
+          "sourceVersion": "sha256:c16f6484bb8152384c11fb483f1cd0fb24767851ca05e2293b72a6812932d1b1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-356",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Are you a bit nervous, or are you feeling more relieved that you've taken this step?\"}], 'Chat Time: 2023/09/30 (Sat) 08:34', [{'role': 'user', 'content': \"I'm looking for some advice on how to manage my inventory for upcoming events.\n\nI have a few big orders coming in and I want to make sure I have enough stock.\n\nCan you help me with that?",
+          "id": "ev_d6741615493d14a566bb6b62",
+          "observedAt": "2026-10-14T08:58:55.858Z"
+        },
+        {
+          "sourceId": "memory:context-353",
+          "sourceVersion": "sha256:76ce6b98cc38a750eb7ffc841a02589267ebb2255d383908380bc30063c3e8ff",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-353",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Happy thrifting!'}], 'Chat Time: 2023/08/11 (Fri) 21:17', [{'role': 'user', 'content': \"I'm trying to keep my cat, Luna, healthy and happy.",
+          "id": "ev_b1e1c1524250225c42aae787",
+          "observedAt": "2026-10-14T08:58:55.858Z"
+        },
+        {
+          "sourceId": "memory:context-354",
+          "sourceVersion": "sha256:9f73ac0ea87d23daa1a5d97127b5c4a136e0df9320b6a3a4f6f46b149247b931",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-354",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Do you have any tips for that?\"}, {'role': 'assistant', 'content': \"Reducing shedding can make a big difference in your home's cleanliness and your cat's ov",
+          "id": "ev_06a08c7422dc2c9599274f9b",
+          "observedAt": "2026-10-14T08:58:55.858Z"
+        }
+      ],
+      "sourceIds": [
+        "context-356",
+        "context-353",
+        "context-354"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.280792000005022,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-356",
+        "context-353",
+        "context-354"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) er to rotate the toys and activities regularly to keep things fresh and exciting for her.\\n\\nNow, about microchipping: Absolutely, yes!\n\nMicrochipping is an excellent idea!\n\nMicrochipping is a safe, quick, and relatively painless procedure that can greatly increase the chances of Luna being reunited with you if she ever gets lost.\\n\\nHere are some benefits of microchipping:\\n\\n1.\n\n**Permanent identification**: Microchips are a permanent form of identification that can't be removed or lost like a collar or tag.\\n2.\n\n**Increased recovery rates**: Studies have shown that microchipped pets are more likely to be reunited with their owners compared to those without microchips.\\n3.\n  (part 2 of 5, excerpt) she ever gets lost.\\n\\nIt's essential to remember that microchipping is not a substitute for a collar and identification tag, but rather a supplement to them.\n\nMake sure to keep your contact information up-to-date with the microchip registry to ensure that you can be reached if Luna is found.\\n\\nConsult with your veterinarian to discuss the microchipping process, costs, and any concerns you may have.\n  (part 3 of 5, excerpt) But with a microchip, you can rest assured that you've done everything possible to increase the chances of being reunited with her if she ever gets lost.\\n\\nRemember to also make sure your contact information is up-to-date with the microchip registry, and consider registering Luna with a reputable pet recovery service, such as the International Committee for Animal Recording (ICAR) or the American Animal Hospital Association (AAHA).\n  (part 4 of 5, excerpt) Are you a bit nervous, or are you feeling more relieved that you've taken this step?\"}], 'Chat Time: 2023/09/30 (Sat) 08:34', [{'role': 'user', 'content': \"I'm looking for some advice on how to manage my inventory for upcoming events.\n\nI have a few big orders coming in and I want to make sure I have enough stock.\n\nCan you help me with that?\n- (part 3 of 5, excerpt) **Local online selling groups**: Join local online selling groups or Facebook groups focused on buying and selling second-hand items in your area.\n\nYou can find vintage clothing, accessories, and collectibles from people in your community.\\n\\nRemember to always research the seller, read reviews, and check the item\\'s condition before making a purchase online.\n\nHappy thrifting!'}], 'Chat Time: 2023/08/11 (Fri) 21:17', [{'role': 'user', 'content': \"I'm trying to keep my cat, Luna, healthy and happy.\n\nCan you give me some general tips on how to maintain her weight?\"}, {'role': 'assistant', 'content': \"Maintaining a healthy weight is crucial for your cat's overall health and wellbeing.\n\nHere are some general tips to help you keep Luna at a healthy weight:\\n\\n1.\n\n**Monitor her food intake**: Measure her food portions to ensure you're not overfeeding or underfeeding her.\n  (part 4 of 5, excerpt) level.\\n2.\n\n**Choose the right food**: Feed a high-quality, balanced commercial cat food that's appropriate for her life stage (kitten, adult, or senior).\n\nAvoid over-reliance on table scraps or treats, as they can be high in calories and low in nutrients.\\n3.\n\n**Encourage exercise**: Provide opportunities for Luna to engage in physical activity, such as:\\n\\t* Playtime with toys, laser pointers, or feather wands\\n\\t* Climbing structures or cat trees\\n\\t* Hiding and seeking games\\n\\t* Food puzzle toys that challenge her to work for her meals\\n4.\n\n**Limit treats**: Treats should not make up more than 10% of Luna's daily calorie intake.\n\nOpt for low-calorie, nutrient-rich treats, such as baby carrots, green beans, or air-dried chicken strips.\\n5.\n\n**Avoid overfeeding**: Be mindful of Luna's body condition score (BCS).\n\nYou should be able to feel her ribs without excess fat covering them.\n\nIf you're unsure, consult with your vet to assess her BCS.\\n6.\n\n**Keep her hydrated**: Ensure Luna always has access to fresh, clean water.\n- (part 1 of 4, excerpt) Do you have any tips for that?\"}, {'role': 'assistant', 'content': \"Reducing shedding can make a big difference in your home's cleanliness and your cat's overall comfort.\n\nHere are some tips to help minimize Luna's shedding:\\n\\n1.\n  (part 2 of 4, excerpt) shedding can make a big difference in your home's cleanliness and your cat's overall comfort.\n\nHere are some tips to help minimize Luna's shedding:\\n\\n1.\n\n**Brush, brush, brush!**: Regular brushing can help remove loose hair, reduce shedding, and prevent hairballs.\n\nUse a gentle brush or comb specifically designed for cats, and brush in the direction of the fur.\n\nAim for daily brushing sessions, especially during shedding seasons (spring and fall).\\n2.\n\n**Bathe regularly**: Bathing Luna regularly can help loosen and remove dead hair.\n\nUse a gentle, pH-balanced shampoo specifically formulated for cats.\n  (part 3 of 4, excerpt) or sensitivities.\n\nConsider switching to a high-quality, balanced diet that's rich in omega-3 fatty acids, which can help promote healthy skin and coat.\n\nConsult with your vet to determine the best diet for Luna.\\n5.\n\n**Keep her hydrated**: Adequate hydration is essential for maintaining healthy skin and coat.\n\nEnsure Luna always has access to fresh, clean water, and consider adding a water fountain or flavored water to encourage drinking.\\n6.\n\n**Reduce stress**: Stress can contribute to shedding.\n  (part 4 of 4, excerpt) **Consult with your vet**: If Luna's shedding persists or is accompanied by other health issues, consult with your vet to rule out underlying health problems, such as skin allergies or hormonal imbalances.\\n\\nRemember, every cat sheds to some extent, and it's a natural process.\n\nBy following these tips, you can help reduce Luna's shedding and keep her coat healthy and shiny.\"}, {'role': 'user', 'content': \"I've already started brushing her daily with the new brush I got, and it seems to be helping.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-356",
+          "sourceVersion": "sha256:c16f6484bb8152384c11fb483f1cd0fb24767851ca05e2293b72a6812932d1b1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-356",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "er to rotate the toys and activities regularly to keep things fresh and exciting for her.\\n\\nNow, about microchipping: Absolutely, yes!\n\nMicrochipping is an excellent idea!\n\nMicrochipping is a safe, quick, and relatively painless procedure that can greatly increase the chances of Luna being reunited with you if she ever gets lost.\\n\\nHere are some benefits of microchipping:\\n\\n1.\n\n**Permanent identification**: Microchips are a permanent form of identification that can't be removed or lost like a collar or tag.\\n2.\n\n**Increased recovery rates**: Studies have shown that microchipped pets are more likely to be reunited with their owners compared to those without microchips.\\n3.",
+          "id": "ev_f9b697c5e7587e1a43568dce",
+          "observedAt": "2026-10-14T08:58:55.864Z"
+        },
+        {
+          "sourceId": "memory:context-356",
+          "sourceVersion": "sha256:c16f6484bb8152384c11fb483f1cd0fb24767851ca05e2293b72a6812932d1b1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-356",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "she ever gets lost.\\n\\nIt's essential to remember that microchipping is not a substitute for a collar and identification tag, but rather a supplement to them.\n\nMake sure to keep your contact information up-to-date with the microchip registry to ensure that you can be reached if Luna is found.\\n\\nConsult with your veterinarian to discuss the microchipping process, costs, and any concerns you may have.",
+          "id": "ev_b17362feb15c61d044060318",
+          "observedAt": "2026-10-14T08:58:55.864Z"
+        },
+        {
+          "sourceId": "memory:context-356",
+          "sourceVersion": "sha256:c16f6484bb8152384c11fb483f1cd0fb24767851ca05e2293b72a6812932d1b1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-356",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "But with a microchip, you can rest assured that you've done everything possible to increase the chances of being reunited with her if she ever gets lost.\\n\\nRemember to also make sure your contact information is up-to-date with the microchip registry, and consider registering Luna with a reputable pet recovery service, such as the International Committee for Animal Recording (ICAR) or the American Animal Hospital Association (AAHA).",
+          "id": "ev_188f6e6d683639d59bca78a3",
+          "observedAt": "2026-10-14T08:58:55.864Z"
+        },
+        {
+          "sourceId": "memory:context-356",
+          "sourceVersion": "sha256:c16f6484bb8152384c11fb483f1cd0fb24767851ca05e2293b72a6812932d1b1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-356",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Are you a bit nervous, or are you feeling more relieved that you've taken this step?\"}], 'Chat Time: 2023/09/30 (Sat) 08:34', [{'role': 'user', 'content': \"I'm looking for some advice on how to manage my inventory for upcoming events.\n\nI have a few big orders coming in and I want to make sure I have enough stock.\n\nCan you help me with that?",
+          "id": "ev_d6741615493d14a566bb6b62",
+          "observedAt": "2026-10-14T08:58:55.864Z"
+        },
+        {
+          "sourceId": "memory:context-353",
+          "sourceVersion": "sha256:76ce6b98cc38a750eb7ffc841a02589267ebb2255d383908380bc30063c3e8ff",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-353",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "**Local online selling groups**: Join local online selling groups or Facebook groups focused on buying and selling second-hand items in your area.\n\nYou can find vintage clothing, accessories, and collectibles from people in your community.\\n\\nRemember to always research the seller, read reviews, and check the item\\'s condition before making a purchase online.\n\nHappy thrifting!'}], 'Chat Time: 2023/08/11 (Fri) 21:17', [{'role': 'user', 'content': \"I'm trying to keep my cat, Luna, healthy and happy.\n\nCan you give me some general tips on how to maintain her weight?\"}, {'role': 'assistant', 'content': \"Maintaining a healthy weight is crucial for your cat's overall health and wellbeing.\n\nHere are some general tips to help you keep Luna at a healthy weight:\\n\\n1.\n\n**Monitor her food intake**: Measure her food portions to ensure you're not overfeeding or underfeeding her.",
+          "id": "ev_89671ad428c2128506c0522d",
+          "observedAt": "2026-10-14T08:58:55.864Z"
+        },
+        {
+          "sourceId": "memory:context-353",
+          "sourceVersion": "sha256:76ce6b98cc38a750eb7ffc841a02589267ebb2255d383908380bc30063c3e8ff",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-353",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "level.\\n2.\n\n**Choose the right food**: Feed a high-quality, balanced commercial cat food that's appropriate for her life stage (kitten, adult, or senior).\n\nAvoid over-reliance on table scraps or treats, as they can be high in calories and low in nutrients.\\n3.\n\n**Encourage exercise**: Provide opportunities for Luna to engage in physical activity, such as:\\n\\t* Playtime with toys, laser pointers, or feather wands\\n\\t* Climbing structures or cat trees\\n\\t* Hiding and seeking games\\n\\t* Food puzzle toys that challenge her to work for her meals\\n4.\n\n**Limit treats**: Treats should not make up more than 10% of Luna's daily calorie intake.\n\nOpt for low-calorie, nutrient-rich treats, such as baby carrots, green beans, or air-dried chicken strips.\\n5.\n\n**Avoid overfeeding**: Be mindful of Luna's body condition score (BCS).\n\nYou should be able to feel her ribs without excess fat covering them.\n\nIf you're unsure, consult with your vet to assess her BCS.\\n6.\n\n**Keep her hydrated**: Ensure Luna always has access to fresh, clean water.",
+          "id": "ev_2e7bd3b25c4b4cb3d3eeeea2",
+          "observedAt": "2026-10-14T08:58:55.864Z"
+        },
+        {
+          "sourceId": "memory:context-354",
+          "sourceVersion": "sha256:9f73ac0ea87d23daa1a5d97127b5c4a136e0df9320b6a3a4f6f46b149247b931",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-354",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Do you have any tips for that?\"}, {'role': 'assistant', 'content': \"Reducing shedding can make a big difference in your home's cleanliness and your cat's overall comfort.\n\nHere are some tips to help minimize Luna's shedding:\\n\\n1.",
+          "id": "ev_22b46918d584991aade6d171",
+          "observedAt": "2026-10-14T08:58:55.865Z"
+        },
+        {
+          "sourceId": "memory:context-354",
+          "sourceVersion": "sha256:9f73ac0ea87d23daa1a5d97127b5c4a136e0df9320b6a3a4f6f46b149247b931",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-354",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "shedding can make a big difference in your home's cleanliness and your cat's overall comfort.\n\nHere are some tips to help minimize Luna's shedding:\\n\\n1.\n\n**Brush, brush, brush!**: Regular brushing can help remove loose hair, reduce shedding, and prevent hairballs.\n\nUse a gentle brush or comb specifically designed for cats, and brush in the direction of the fur.\n\nAim for daily brushing sessions, especially during shedding seasons (spring and fall).\\n2.\n\n**Bathe regularly**: Bathing Luna regularly can help loosen and remove dead hair.\n\nUse a gentle, pH-balanced shampoo specifically formulated for cats.",
+          "id": "ev_d5bb71f41251ae00e9feb530",
+          "observedAt": "2026-10-14T08:58:55.865Z"
+        },
+        {
+          "sourceId": "memory:context-354",
+          "sourceVersion": "sha256:9f73ac0ea87d23daa1a5d97127b5c4a136e0df9320b6a3a4f6f46b149247b931",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-354",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "or sensitivities.\n\nConsider switching to a high-quality, balanced diet that's rich in omega-3 fatty acids, which can help promote healthy skin and coat.\n\nConsult with your vet to determine the best diet for Luna.\\n5.\n\n**Keep her hydrated**: Adequate hydration is essential for maintaining healthy skin and coat.\n\nEnsure Luna always has access to fresh, clean water, and consider adding a water fountain or flavored water to encourage drinking.\\n6.\n\n**Reduce stress**: Stress can contribute to shedding.",
+          "id": "ev_bbe676938cd224249d2048c8",
+          "observedAt": "2026-10-14T08:58:55.865Z"
+        },
+        {
+          "sourceId": "memory:context-354",
+          "sourceVersion": "sha256:9f73ac0ea87d23daa1a5d97127b5c4a136e0df9320b6a3a4f6f46b149247b931",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-354",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "**Consult with your vet**: If Luna's shedding persists or is accompanied by other health issues, consult with your vet to rule out underlying health problems, such as skin allergies or hormonal imbalances.\\n\\nRemember, every cat sheds to some extent, and it's a natural process.\n\nBy following these tips, you can help reduce Luna's shedding and keep her coat healthy and shiny.\"}, {'role': 'user', 'content': \"I've already started brushing her daily with the new brush I got, and it seems to be helping.",
+          "id": "ev_e016ab66c4f81de0bd358463",
+          "observedAt": "2026-10-14T08:58:55.865Z"
+        }
+      ],
+      "sourceIds": [
+        "context-356",
+        "context-353",
+        "context-354"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.402874999999767,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-356",
+    "context-353",
+    "context-354"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:58:55.868135+00:00"
+}

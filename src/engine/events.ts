@@ -89,6 +89,7 @@ export interface LogEntry {
 }
 
 export interface ToolCallEntry {
+  parts?: import('../protocol/presentation').PresentationPart[];
   id: string;
   toolName: string;
   input: string;

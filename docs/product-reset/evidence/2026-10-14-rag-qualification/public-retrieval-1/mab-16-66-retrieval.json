@@ -1,0 +1,233 @@
+{
+  "row": 16,
+  "query": 66,
+  "id": "mab-16-66",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T05:04:48.149286+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n63. Alexey Alexandrovitch went to his study and read a book until one o'clock.\n64. Alexey Alexandrovitch warned Karissa about her animated conversation with Count Clarisse.\n65. Alexey Alexandrovitch silently snored in bed after their conversation.\n66. Karissa bowed down and sank from the sofa to the floor at Alexey Alexandrovitch's feet.\n67. Ladonna put on his big boots and a cloth jacket, and went out to look after his farm.\n\n\nBelow is a list of possible subsequent events:\n\n['Ladonna analyzed weather forecasts and irrigation plans for the fields with the bailiff.', 'Ladonna reviewed the winter harvest results and upcoming crop strategies with the bailiff.', 'Ladonna inspected equipment maintenance schedules and field layouts for the season with the bailiff.', 'Ladonna discussed spring operations and plans for the farm with the bailiff.', 'Ladonna negotiated supply contracts and labor requirements for planting season with the bailiff.', 'Ladonna evaluated soil conditions and pest management strategies for the orchard with the bailiff.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Ladonna discussed spring operations and plans for the farm with the bailiff."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 1622.6895409999997,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1277,
+        "maxInputChars": 1277,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-89",
+        "context-90",
+        "context-88"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5, excerpt) After admiring the young ones of that year, who were particularly fine\u2014the early calves were the size of a peasant\u2019s cow, and Pava\u2019s daughter, at three months old, was as big as a yearling\u2014Ladonna gave orders for a trough to be brought out and for them to be fed in the paddock.\n  (part 3 of 5) being not wanted in winter, had been carried to the cart-horses\u2019 stable; and there broken, as they were of light construction, only meant for feeding calves.\n\nMoreover, it was apparent also that the harrows and all the agricultural implements, which he had directed to be looked over and repaired in the winter, for which very purpose he had hired three carpenters, had not been put into repair, and the harrows were being repaired when they ought to have been harrowing the field.\n\nLadonna sent for his bailiff, but immediately went off himself to look for him.\n\nThe bailiff, beaming all over, like everyone that day, in a sheepskin bordered with astrachan, came out of the barn, twisting a bit of straw in his hands.\n\n\u201cWhy isn\u2019t the carpenter at the thrashing machine?\u201d\n\n\u201cOh, I meant to tell you yesterday, the harrows want repairing.\n\nHere it\u2019s time they got to work in the fields.\u201d\n\n\u201cBut what were they doing in the winter, then?\u201d\n\n\u201cBut what did you want the carpenter for?\u201d\n\n\u201cWhere are the hurdles for the calves\u2019 paddock?\u201d\n\n\u201cI ordered them to be got ready.\n\nWhat would you have with those peasants!\u201d said the bailiff, with a wave of his hand.\n- (part 2 of 5, excerpt) While they were saddling his horse, Ladonna again called up the bailiff, who was hanging about in sight, to make it up with him, and began talking to hi\n- (part 5 of 5, excerpt) Ladonna put on his big boots, and, for the first time, a cloth jacket, instead of his fur cloak, and went out to look after h",
+      "evidence": [
+        {
+          "sourceId": "memory:context-89",
+          "sourceVersion": "sha256:6e71f4fc0bf5a6c2f5c3daf12b5561fa919e8399f5a35b232e2e6fa08f239bfc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-89",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "After admiring the young ones of that year, who were particularly fine\u2014the early calves were the size of a peasant\u2019s cow, and Pava\u2019s daughter, at three months old, was as big as a yearling\u2014Ladonna gave orders for a trough to be brought out and for them to be fed in the paddock.",
+          "id": "ev_bc5da964ebb8f410cc6563d5",
+          "observedAt": "2026-10-14T05:04:49.802Z"
+        },
+        {
+          "sourceId": "memory:context-89",
+          "sourceVersion": "sha256:6e71f4fc0bf5a6c2f5c3daf12b5561fa919e8399f5a35b232e2e6fa08f239bfc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-89",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "being not wanted in winter, had been carried to the cart-horses\u2019 stable; and there broken, as they were of light construction, only meant for feeding calves.\n\nMoreover, it was apparent also that the harrows and all the agricultural implements, which he had directed to be looked over and repaired in the winter, for which very purpose he had hired three carpenters, had not been put into repair, and the harrows were being repaired when they ought to have been harrowing the field.\n\nLadonna sent for his bailiff, but immediately went off himself to look for him.\n\nThe bailiff, beaming all over, like everyone that day, in a sheepskin bordered with astrachan, came out of the barn, twisting a bit of straw in his hands.\n\n\u201cWhy isn\u2019t the carpenter at the thrashing machine?\u201d\n\n\u201cOh, I meant to tell you yesterday, the harrows want repairing.\n\nHere it\u2019s time they got to work in the fields.\u201d\n\n\u201cBut what were they doing in the winter, then?\u201d\n\n\u201cBut what did you want the carpenter for?\u201d\n\n\u201cWhere are the hurdles for the calves\u2019 paddock?\u201d\n\n\u201cI ordered them to be got ready.\n\nWhat would you have with those peasants!\u201d said the bailiff, with a wave of his hand.",
+          "id": "ev_ba9ae2f959e9cc4bb96b717e",
+          "observedAt": "2026-10-14T05:04:49.802Z"
+        },
+        {
+          "sourceId": "memory:context-90",
+          "sourceVersion": "sha256:fcf8fe1ef0d93f77ae7a390323011ee4d1bb03825e0bbeb7be51584c68078f88",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-90",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "While they were saddling his horse, Ladonna again called up the bailiff, who was hanging about in sight, to make it up with him, and began talking to hi",
+          "id": "ev_2d8d3794cf23a1b67dad06b7",
+          "observedAt": "2026-10-14T05:04:49.804Z"
+        },
+        {
+          "sourceId": "memory:context-88",
+          "sourceVersion": "sha256:7fc0a5dc618a61eb370ed61977e503b74ff1607cf61eedb64512952451e7c5ec",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-88",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Ladonna put on his big boots, and, for the first time, a cloth jacket, instead of his fur cloak, and went out to look after h",
+          "id": "ev_27feed6642aca8302f92762b",
+          "observedAt": "2026-10-14T05:04:49.804Z"
+        }
+      ],
+      "sourceIds": [
+        "context-89",
+        "context-90",
+        "context-88"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 33.40600000000268,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-89",
+        "context-90",
+        "context-88"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5, excerpt) After admiring the young ones of that year, who were particularly fine\u2014the early calves were the size of a peasant\u2019s cow, and Pava\u2019s daughter, at three months old, was as big as a yearling\u2014Ladonna gave orders for a trough to be brought out and for them to be fed in the paddock.\n  (part 3 of 5) being not wanted in winter, had been carried to the cart-horses\u2019 stable; and there broken, as they were of light construction, only meant for feeding calves.\n\nMoreover, it was apparent also that the harrows and all the agricultural implements, which he had directed to be looked over and repaired in the winter, for which very purpose he had hired three carpenters, had not been put into repair, and the harrows were being repaired when they ought to have been harrowing the field.\n\nLadonna sent for his bailiff, but immediately went off himself to look for him.\n\nThe bailiff, beaming all over, like everyone that day, in a sheepskin bordered with astrachan, came out of the barn, twisting a bit of straw in his hands.\n\n\u201cWhy isn\u2019t the carpenter at the thrashing machine?\u201d\n\n\u201cOh, I meant to tell you yesterday, the harrows want repairing.\n\nHere it\u2019s time they got to work in the fields.\u201d\n\n\u201cBut what were they doing in the winter, then?\u201d\n\n\u201cBut what did you want the carpenter for?\u201d\n\n\u201cWhere are the hurdles for the calves\u2019 paddock?\u201d\n\n\u201cI ordered them to be got ready.\n\nWhat would you have with those peasants!\u201d said the bailiff, with a wave of his hand.\n- (part 2 of 5, excerpt) While they were saddling his horse, Ladonna again called up the bailiff, who was hanging about in sight, to make it up with him, and began talking to hi\n- (part 5 of 5, excerpt) Ladonna put on his big boots, and, for the first time, a cloth jacket, instead of his fur cloak, and went out to look after h",
+      "evidence": [
+        {
+          "sourceId": "memory:context-89",
+          "sourceVersion": "sha256:6e71f4fc0bf5a6c2f5c3daf12b5561fa919e8399f5a35b232e2e6fa08f239bfc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-89",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "After admiring the young ones of that year, who were particularly fine\u2014the early calves were the size of a peasant\u2019s cow, and Pava\u2019s daughter, at three months old, was as big as a yearling\u2014Ladonna gave orders for a trough to be brought out and for them to be fed in the paddock.",
+          "id": "ev_bc5da964ebb8f410cc6563d5",
+          "observedAt": "2026-10-14T05:04:49.816Z"
+        },
+        {
+          "sourceId": "memory:context-89",
+          "sourceVersion": "sha256:6e71f4fc0bf5a6c2f5c3daf12b5561fa919e8399f5a35b232e2e6fa08f239bfc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-89",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "being not wanted in winter, had been carried to the cart-horses\u2019 stable; and there broken, as they were of light construction, only meant for feeding calves.\n\nMoreover, it was apparent also that the harrows and all the agricultural implements, which he had directed to be looked over and repaired in the winter, for which very purpose he had hired three carpenters, had not been put into repair, and the harrows were being repaired when they ought to have been harrowing the field.\n\nLadonna sent for his bailiff, but immediately went off himself to look for him.\n\nThe bailiff, beaming all over, like everyone that day, in a sheepskin bordered with astrachan, came out of the barn, twisting a bit of straw in his hands.\n\n\u201cWhy isn\u2019t the carpenter at the thrashing machine?\u201d\n\n\u201cOh, I meant to tell you yesterday, the harrows want repairing.\n\nHere it\u2019s time they got to work in the fields.\u201d\n\n\u201cBut what were they doing in the winter, then?\u201d\n\n\u201cBut what did you want the carpenter for?\u201d\n\n\u201cWhere are the hurdles for the calves\u2019 paddock?\u201d\n\n\u201cI ordered them to be got ready.\n\nWhat would you have with those peasants!\u201d said the bailiff, with a wave of his hand.",
+          "id": "ev_ba9ae2f959e9cc4bb96b717e",
+          "observedAt": "2026-10-14T05:04:49.816Z"
+        },
+        {
+          "sourceId": "memory:context-90",
+          "sourceVersion": "sha256:fcf8fe1ef0d93f77ae7a390323011ee4d1bb03825e0bbeb7be51584c68078f88",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-90",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "While they were saddling his horse, Ladonna again called up the bailiff, who was hanging about in sight, to make it up with him, and began talking to hi",
+          "id": "ev_2d8d3794cf23a1b67dad06b7",
+          "observedAt": "2026-10-14T05:04:49.817Z"
+        },
+        {
+          "sourceId": "memory:context-88",
+          "sourceVersion": "sha256:7fc0a5dc618a61eb370ed61977e503b74ff1607cf61eedb64512952451e7c5ec",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-88",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Ladonna put on his big boots, and, for the first time, a cloth jacket, instead of his fur cloak, and went out to look after h",
+          "id": "ev_27feed6642aca8302f92762b",
+          "observedAt": "2026-10-14T05:04:49.818Z"
+        }
+      ],
+      "sourceIds": [
+        "context-89",
+        "context-90",
+        "context-88"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 13.434042000000773,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:04:49.821259+00:00"
+}

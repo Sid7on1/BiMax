@@ -45,6 +45,8 @@ export class RunState {
   // ── counters and flags ───────────────────────────────────────────────────────────────────────────────────────────
   /** A DocumentTool draft receipt is not a delivered file; the turn may not end on one. */
   documentDraftPending = false;
+  /** Clarifications already answered in this user run; never an input approval cache. */
+  readonly answeredQuestions = new Map<string, string>();
   /** Bounds the regenerate-on-empty correction to one retry, so a model that keeps emitting pure filler can't spin. */
   pureFillerRetried = false;
   /**

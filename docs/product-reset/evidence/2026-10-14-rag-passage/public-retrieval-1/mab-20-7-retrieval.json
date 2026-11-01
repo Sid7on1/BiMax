@@ -1,0 +1,313 @@
+{
+  "row": 20,
+  "query": 7,
+  "id": "mab-20-7",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:18:03.948970+00:00",
+  "valid": true,
+  "question": "Current Date: 2023/05/26 (Fri) 15:32,\n\n Now Answer the Question: I'm looking back at our previous chess game and I was wondering, what was the move you made after 27. Kg2 Bd5+?",
+  "references": [
+    "28. Kg3"
+  ],
+  "kind": "single-session-assistant",
+  "abstention": false,
+  "date": "2023/05/26 (Fri) 15:32",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 44.32708400000001,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 176,
+        "maxInputChars": 176,
+        "requiredProviderTruncation": false,
+        "promptTokens": 55,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-185",
+        "context-184",
+        "context-173"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 4, excerpt) h3 g5 25.\n\ng4 hxg4 26.\n\nhxg4 Rh8 27.\\nKg2 Bd5+'}, {'role': 'assistant', 'content': '28.\n\nKg3 would be my move.'}, {'role': 'user', 'content': 'Be6'}, {'role': 'assistant', 'content': 'Good move, attacking the rook and gaining control of the e-file.\n\nThe position now is:\\n\\n1.\n\ne4 c5 2.\n  (part 3 of 4) hxg4 26.\n\nhxg4 Rh8 27.\n\nKg2 Bd5+ 28.\n\nKg3 Be6'}, {'role': 'user', 'content': \"make a move.\n\nyou're white\\n\\n1.\n\ne4 c5 2.\n\nNf3 Nf6 3.\n\nd4 cxd4 4.\n\nNxd4 Nxe4 5.\n\nBd3 d5 6.\n\nO-O e5 7.\n\nNc3 Nxc3 8.\\nbxc3 exd4 9.\n\ncxd4 Bb4 10.\n\nRb1 a5 11.\n\nRe1+ Bxe1 12.\n\nQxe1+ Qe7 13.\n\nBa3 Qxe1+ 14.\\nRxe1+ Be6 15.\n\nBd6 Kd7 16.\n\nBxb8 Raxb8 17.\n\nRc1 Rhc8 18.\n\na3 h5 19.\n\nc4 dxc4 20.\n\nBxc4\\nBxc4 21.\n\nRe1 Rc7 22.\n\nRe5 f6 23.\n\nRe3 Rbc8 24.\n\nh3 g5 25.\n\ng4 hxg4 26.\n\nhxg4 Rh8 27.\\nKg2 Bd5+ 28.\n\nKg3 Be6\"}, {'role': 'assistant', 'content': '29.\n\nRd3 Rh4'}], 'Chat Time: 2023/05/22 (Mon) 02:36', [{'role': 'user', 'content': \"I'm looking for some new recipe ideas for my toaster oven.\n\nI just got rid of the old toaster and replaced it with a toaster oven that can do so much more, and I'm excited to explore its capabilities.\n\nDo you have any suggestions for easy and healthy meals I can make with it?\"}, {'role': 'assistant', 'content': \"Congratulations on your new toaster oven!\n\nYou're about to discover a world of possibilities beyond just toasting bread.\n\nToaster ovens are incredibly versatile and perfect for cooking a variety of healthy meals with minimal effort.\n- (part 4 of 4, excerpt) My apologies for the typo in my previous message.\"}, {'role': 'user', 'content': 'Rh8'}, {'role': 'assistant', 'content': 'That move is not legal as\n- (part 4 of 5, excerpt) | 2023-04-01 | Talked about shared hobby | 2023-04-15 |\\n\\nYou can customize this template to fit your specific needs and add",
+      "evidence": [
+        {
+          "sourceId": "memory:context-185",
+          "sourceVersion": "sha256:70d65445b110f4b98c58129522418664863e713cad52dac3ecd069b38de6069f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-185",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "h3 g5 25.\n\ng4 hxg4 26.\n\nhxg4 Rh8 27.\\nKg2 Bd5+'}, {'role': 'assistant', 'content': '28.\n\nKg3 would be my move.'}, {'role': 'user', 'content': 'Be6'}, {'role': 'assistant', 'content': 'Good move, attacking the rook and gaining control of the e-file.\n\nThe position now is:\\n\\n1.\n\ne4 c5 2.",
+          "id": "ev_ad9241ee6723af7a2d7bd9bf",
+          "observedAt": "2026-10-14T15:18:04.013Z"
+        },
+        {
+          "sourceId": "memory:context-185",
+          "sourceVersion": "sha256:70d65445b110f4b98c58129522418664863e713cad52dac3ecd069b38de6069f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-185",
+            "part": 3,
+            "parts": 4
+          },
+          "text": "hxg4 26.\n\nhxg4 Rh8 27.\n\nKg2 Bd5+ 28.\n\nKg3 Be6'}, {'role': 'user', 'content': \"make a move.\n\nyou're white\\n\\n1.\n\ne4 c5 2.\n\nNf3 Nf6 3.\n\nd4 cxd4 4.\n\nNxd4 Nxe4 5.\n\nBd3 d5 6.\n\nO-O e5 7.\n\nNc3 Nxc3 8.\\nbxc3 exd4 9.\n\ncxd4 Bb4 10.\n\nRb1 a5 11.\n\nRe1+ Bxe1 12.\n\nQxe1+ Qe7 13.\n\nBa3 Qxe1+ 14.\\nRxe1+ Be6 15.\n\nBd6 Kd7 16.\n\nBxb8 Raxb8 17.\n\nRc1 Rhc8 18.\n\na3 h5 19.\n\nc4 dxc4 20.\n\nBxc4\\nBxc4 21.\n\nRe1 Rc7 22.\n\nRe5 f6 23.\n\nRe3 Rbc8 24.\n\nh3 g5 25.\n\ng4 hxg4 26.\n\nhxg4 Rh8 27.\\nKg2 Bd5+ 28.\n\nKg3 Be6\"}, {'role': 'assistant', 'content': '29.\n\nRd3 Rh4'}], 'Chat Time: 2023/05/22 (Mon) 02:36', [{'role': 'user', 'content': \"I'm looking for some new recipe ideas for my toaster oven.\n\nI just got rid of the old toaster and replaced it with a toaster oven that can do so much more, and I'm excited to explore its capabilities.\n\nDo you have any suggestions for easy and healthy meals I can make with it?\"}, {'role': 'assistant', 'content': \"Congratulations on your new toaster oven!\n\nYou're about to discover a world of possibilities beyond just toasting bread.\n\nToaster ovens are incredibly versatile and perfect for cooking a variety of healthy meals with minimal effort.",
+          "id": "ev_fc03368e49f1d1842d6c5bac",
+          "observedAt": "2026-10-14T15:18:04.013Z"
+        },
+        {
+          "sourceId": "memory:context-184",
+          "sourceVersion": "sha256:851ba39c82cf5964c710158abd98dbade797c422e1168eeb68e55330a2cf3645",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-184",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "My apologies for the typo in my previous message.\"}, {'role': 'user', 'content': 'Rh8'}, {'role': 'assistant', 'content': 'That move is not legal as",
+          "id": "ev_46bb79a2f9f9f6f316909b2c",
+          "observedAt": "2026-10-14T15:18:04.014Z"
+        },
+        {
+          "sourceId": "memory:context-173",
+          "sourceVersion": "sha256:daf9607fcd86c72f4341bb442598b5c0878b7735a1ddc475c84f901b9b089655",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-173",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "| 2023-04-01 | Talked about shared hobby | 2023-04-15 |\\n\\nYou can customize this template to fit your specific needs and add",
+          "id": "ev_898fc8bccfd15adc32ee3dcf",
+          "observedAt": "2026-10-14T15:18:04.014Z"
+        }
+      ],
+      "sourceIds": [
+        "context-185",
+        "context-184",
+        "context-173"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 18.86391599999979,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-185",
+        "context-184",
+        "context-173"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) hxg4 Rh8 \\n\\nmake a legal move bozo'}, {'role': 'assistant', 'content': 'My apologies, I misunderstood the previous message.\n\nI will make a move now.\\n\\n27.\n\nKg2 Bd5+'}, {'role': 'user', 'content': \"you're white\"}, {'role': 'assistant', 'content': \"My apologies for the confusion.\n\nHere's my move:\\n\\n1.\n\nd4\"}, {'role': 'user', 'content': 'you already have a pawn on d4\\n\\n1.\n\ne4 c5 2.\n  (part 2 of 4, excerpt) Bxc4\\nBxc4 21.\n\nRe1 Rc7 22.\n\nRe5 f6 23.\n\nRe3 Rbc8 24.\n\nh3 g5 25.\n\ng4 hxg4 26.\n\nhxg4 Rh8 27.\\nKg2 Bd5+'}, {'role': 'assistant', 'content': '28.\n\nKg3 would be my move.'}, {'role': 'user', 'content': 'Be6'}, {'role': 'assistant', 'content': 'Good move, attacking the rook and gaining control of the e-file.\n\nThe position now is:\\n\\n1.\n\ne4 c5 2.\n\nNf3 Nf6 3.\n\nd4 cxd4 4.\n\nNxd4 Nxe4 5.\n  (part 3 of 4) hxg4 26.\n\nhxg4 Rh8 27.\n\nKg2 Bd5+ 28.\n\nKg3 Be6'}, {'role': 'user', 'content': \"make a move.\n\nyou're white\\n\\n1.\n\ne4 c5 2.\n\nNf3 Nf6 3.\n\nd4 cxd4 4.\n\nNxd4 Nxe4 5.\n\nBd3 d5 6.\n\nO-O e5 7.\n\nNc3 Nxc3 8.\\nbxc3 exd4 9.\n\ncxd4 Bb4 10.\n\nRb1 a5 11.\n\nRe1+ Bxe1 12.\n\nQxe1+ Qe7 13.\n\nBa3 Qxe1+ 14.\\nRxe1+ Be6 15.\n\nBd6 Kd7 16.\n\nBxb8 Raxb8 17.\n\nRc1 Rhc8 18.\n\na3 h5 19.\n\nc4 dxc4 20.\n\nBxc4\\nBxc4 21.\n\nRe1 Rc7 22.\n\nRe5 f6 23.\n\nRe3 Rbc8 24.\n\nh3 g5 25.\n\ng4 hxg4 26.\n\nhxg4 Rh8 27.\\nKg2 Bd5+ 28.\n\nKg3 Be6\"}, {'role': 'assistant', 'content': '29.\n\nRd3 Rh4'}], 'Chat Time: 2023/05/22 (Mon) 02:36', [{'role': 'user', 'content': \"I'm looking for some new recipe ideas for my toaster oven.\n\nI just got rid of the old toaster and replaced it with a toaster oven that can do so much more, and I'm excited to explore its capabilities.\n\nDo you have any suggestions for easy and healthy meals I can make with it?\"}, {'role': 'assistant', 'content': \"Congratulations on your new toaster oven!\n\nYou're about to discover a world of possibilities beyond just toasting bread.\n\nToaster ovens are incredibly versatile and perfect for cooking a variety of healthy meals with minimal effort.\n- (part 3 of 4, excerpt) Travel Awards.\\n\\nBelize is an excellent destination for eco-tourism, offering a unique blend of natural beauty, cultural richness, and conservation efforts.\n\nBy choosing eco-friendly tour operators and accommodations, you\\'ll be supporting sustainable tourism practices that benefit the local community and the environment.'}], 'Chat Time: 2023/05/22 (Mon) 01:17', [{'role': 'user', 'content': '1.\n\ne4 c5 2.\n\nNf3 Nf6 3.\n\nd4 cxd4 4.\n\nNxd4 Nxe4 5.\n\nBd3 d5 6.\n\nO-O e5 7.\n\nNc3 Nxc3 8.\\nbxc3 exd4 9.\n\ncxd4 Bb4 10.\n\nRb1 a5 11.\n\nRe1+ Bxe1 12.\n\nQxe1+ Qe7 13.\n\nBa3 Qxe1+ 14.\\nRxe1+ Be6 15.\n\nBd6 Kd7 16.\n\nBxb8 Raxb8 17.\n\nRc1 Rhc8 18.\n\na3 h5 19.\n\nc4 dxc4 20.\n\nBxc4\\nBxc4 21.\n\nRe1 Rc7 22.\n\nRe5 f6 23.\n\nRe3 Rbc8 24.\n\nh3 g5'}, {'role': 'assistant', 'content': 'Interesting game so far!\n\nMy move will be:\\n\\n25.\n  (part 4 of 4) 'content': 'gxh4.\n\nYour move.'}, {'role': 'user', 'content': 'I think you mean hxg4?\n\ncorrect?'}, {'role': 'assistant', 'content': \"Yes, that's correct.\n\nMy apologies for the typo in my previous message.\"}, {'role': 'user', 'content': 'Rh8'}, {'role': 'assistant', 'content': 'That move is not legal as there is already a rook on h8.\n\nPlease make another move.'}, {'role': 'user', 'content': '1.\n\ne4 c5 2.\n\nNf3 Nf6 3.\n\nd4 cxd4 4.\n\nNxd4 Nxe4 5.\n\nBd3 d5 6.\n\nO-O e5 7.\n\nNc3 Nxc3 8.\\nbxc3 exd4 9.\n\ncxd4 Bb4 10.\n\nRb1 a5 11.\n\nRe1+ Bxe1 12.\n\nQxe1+ Qe7 13.\n\nBa3 Qxe1+ 14.\\nRxe1+ Be6 15.\n\nBd6 Kd7 16.\n\nBxb8 Raxb8 17.\n\nRc1 Rhc8 18.\n\na3 h5 19.\n\nc4 dxc4 20.\n\nBxc4\\nBxc4 21.\n\nRe1 Rc7 22.\n\nRe5 f6 23.\n\nRe3 Rbc8 24.\n\nh3 g5 25.\n\ng4 hxg4 26.\n\nhxg4 Rh8'}, {'role': 'assistant', 'content': 'Nice job!\n\nIt looks like you are playing a good game so far.\n\nIs there anything else I can help you with?'}, {'role': 'user', 'content': 'your move as white'}, {'role': 'assistant', 'content': '1.\n\nd4'}, {'role': 'user', 'content': 'no we never started over'}, {'role': 'assistant', 'content': \"I apologize for the confusion.\n\nHere's the current p\n- (part 2 of 5, excerpt) Let me know if you have any questions or need further guidance.'}], 'Chat Time: 2023/05/21 (Sun) 07:23', [{'role': 'user', 'content': \"I'm trying to organize my contacts and reach out to some people I met at recent events.\n\nCan you help me create a spreadsheet to track my connections and the events where I met them?\"}, {'role': 'assistant', 'content': 'I\\'d be happy to help you create a spreadsheet to track your connections and the events where you met them.\n  (part 3 of 5, excerpt) Name | Email | Phone | Event | Date | Notes | Follow-up Date |\\n| --- | --- | --- | --- | --- | --- | --- |\\n| John Doe | johndoe@example.com | 555-1234 | Industry Conference | 2023-02-15 | Discussed potential collaboration | 2023-03-01 |\\n| Jane Smith | janesmith@example.com |  | Networking Meeting | 2023-03-10 | Exchanged business cards | 2023-03-20 |\\n| Bob Brown | bobbrown@example.com |  | Party | 2023-04-01 | Talked about shared hobby | 2023-04-15 |\\n\\nYou can customize this template to fit your\n  (part 4 of 5) | 2023-04-01 | Talked about shared hobby | 2023-04-15 |\\n\\nYou can customize this template to fit your specific needs and add or remove columns as necessary.\n\nYou can also use filters and sorting to organize your contacts by event, date, or other criteria.\\n\\nTips:\\n\\n* Make sure to keep your spreadsheet organized and up-to-date to ensure you don\\'t miss follow-up opportunities.\\n* Consider setting reminders for your follow-up dates to ensure you stay on track.\\n* You can also use this spreadsheet to track the progress of your relationships and identify patterns or areas for improvement.\\n\\nI hope this helps!\n\nLet me know if you have any questions or need further assistance.'}, {'role': 'user', 'content': 'I think this template is a good starting point.\n\nI\\'ll start filling it out.\n\nBy the way, I met Rachel, an old colleague from my previous company, at the TechConnect conference on February 10th and 11th.\n\nI should catch up with her soon.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-185",
+          "sourceVersion": "sha256:70d65445b110f4b98c58129522418664863e713cad52dac3ecd069b38de6069f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-185",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "hxg4 Rh8 \\n\\nmake a legal move bozo'}, {'role': 'assistant', 'content': 'My apologies, I misunderstood the previous message.\n\nI will make a move now.\\n\\n27.\n\nKg2 Bd5+'}, {'role': 'user', 'content': \"you're white\"}, {'role': 'assistant', 'content': \"My apologies for the confusion.\n\nHere's my move:\\n\\n1.\n\nd4\"}, {'role': 'user', 'content': 'you already have a pawn on d4\\n\\n1.\n\ne4 c5 2.",
+          "id": "ev_d7eaba6a401da37d915f9e5c",
+          "observedAt": "2026-10-14T15:18:04.020Z"
+        },
+        {
+          "sourceId": "memory:context-185",
+          "sourceVersion": "sha256:70d65445b110f4b98c58129522418664863e713cad52dac3ecd069b38de6069f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-185",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Bxc4\\nBxc4 21.\n\nRe1 Rc7 22.\n\nRe5 f6 23.\n\nRe3 Rbc8 24.\n\nh3 g5 25.\n\ng4 hxg4 26.\n\nhxg4 Rh8 27.\\nKg2 Bd5+'}, {'role': 'assistant', 'content': '28.\n\nKg3 would be my move.'}, {'role': 'user', 'content': 'Be6'}, {'role': 'assistant', 'content': 'Good move, attacking the rook and gaining control of the e-file.\n\nThe position now is:\\n\\n1.\n\ne4 c5 2.\n\nNf3 Nf6 3.\n\nd4 cxd4 4.\n\nNxd4 Nxe4 5.",
+          "id": "ev_bbc7a8499a5778bcfecd44e1",
+          "observedAt": "2026-10-14T15:18:04.020Z"
+        },
+        {
+          "sourceId": "memory:context-185",
+          "sourceVersion": "sha256:70d65445b110f4b98c58129522418664863e713cad52dac3ecd069b38de6069f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-185",
+            "part": 3,
+            "parts": 4
+          },
+          "text": "hxg4 26.\n\nhxg4 Rh8 27.\n\nKg2 Bd5+ 28.\n\nKg3 Be6'}, {'role': 'user', 'content': \"make a move.\n\nyou're white\\n\\n1.\n\ne4 c5 2.\n\nNf3 Nf6 3.\n\nd4 cxd4 4.\n\nNxd4 Nxe4 5.\n\nBd3 d5 6.\n\nO-O e5 7.\n\nNc3 Nxc3 8.\\nbxc3 exd4 9.\n\ncxd4 Bb4 10.\n\nRb1 a5 11.\n\nRe1+ Bxe1 12.\n\nQxe1+ Qe7 13.\n\nBa3 Qxe1+ 14.\\nRxe1+ Be6 15.\n\nBd6 Kd7 16.\n\nBxb8 Raxb8 17.\n\nRc1 Rhc8 18.\n\na3 h5 19.\n\nc4 dxc4 20.\n\nBxc4\\nBxc4 21.\n\nRe1 Rc7 22.\n\nRe5 f6 23.\n\nRe3 Rbc8 24.\n\nh3 g5 25.\n\ng4 hxg4 26.\n\nhxg4 Rh8 27.\\nKg2 Bd5+ 28.\n\nKg3 Be6\"}, {'role': 'assistant', 'content': '29.\n\nRd3 Rh4'}], 'Chat Time: 2023/05/22 (Mon) 02:36', [{'role': 'user', 'content': \"I'm looking for some new recipe ideas for my toaster oven.\n\nI just got rid of the old toaster and replaced it with a toaster oven that can do so much more, and I'm excited to explore its capabilities.\n\nDo you have any suggestions for easy and healthy meals I can make with it?\"}, {'role': 'assistant', 'content': \"Congratulations on your new toaster oven!\n\nYou're about to discover a world of possibilities beyond just toasting bread.\n\nToaster ovens are incredibly versatile and perfect for cooking a variety of healthy meals with minimal effort.",
+          "id": "ev_fc03368e49f1d1842d6c5bac",
+          "observedAt": "2026-10-14T15:18:04.020Z"
+        },
+        {
+          "sourceId": "memory:context-184",
+          "sourceVersion": "sha256:851ba39c82cf5964c710158abd98dbade797c422e1168eeb68e55330a2cf3645",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-184",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Travel Awards.\\n\\nBelize is an excellent destination for eco-tourism, offering a unique blend of natural beauty, cultural richness, and conservation efforts.\n\nBy choosing eco-friendly tour operators and accommodations, you\\'ll be supporting sustainable tourism practices that benefit the local community and the environment.'}], 'Chat Time: 2023/05/22 (Mon) 01:17', [{'role': 'user', 'content': '1.\n\ne4 c5 2.\n\nNf3 Nf6 3.\n\nd4 cxd4 4.\n\nNxd4 Nxe4 5.\n\nBd3 d5 6.\n\nO-O e5 7.\n\nNc3 Nxc3 8.\\nbxc3 exd4 9.\n\ncxd4 Bb4 10.\n\nRb1 a5 11.\n\nRe1+ Bxe1 12.\n\nQxe1+ Qe7 13.\n\nBa3 Qxe1+ 14.\\nRxe1+ Be6 15.\n\nBd6 Kd7 16.\n\nBxb8 Raxb8 17.\n\nRc1 Rhc8 18.\n\na3 h5 19.\n\nc4 dxc4 20.\n\nBxc4\\nBxc4 21.\n\nRe1 Rc7 22.\n\nRe5 f6 23.\n\nRe3 Rbc8 24.\n\nh3 g5'}, {'role': 'assistant', 'content': 'Interesting game so far!\n\nMy move will be:\\n\\n25.",
+          "id": "ev_fc26361e97c1488edbd70ccd",
+          "observedAt": "2026-10-14T15:18:04.021Z"
+        },
+        {
+          "sourceId": "memory:context-184",
+          "sourceVersion": "sha256:851ba39c82cf5964c710158abd98dbade797c422e1168eeb68e55330a2cf3645",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-184",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "'content': 'gxh4.\n\nYour move.'}, {'role': 'user', 'content': 'I think you mean hxg4?\n\ncorrect?'}, {'role': 'assistant', 'content': \"Yes, that's correct.\n\nMy apologies for the typo in my previous message.\"}, {'role': 'user', 'content': 'Rh8'}, {'role': 'assistant', 'content': 'That move is not legal as there is already a rook on h8.\n\nPlease make another move.'}, {'role': 'user', 'content': '1.\n\ne4 c5 2.\n\nNf3 Nf6 3.\n\nd4 cxd4 4.\n\nNxd4 Nxe4 5.\n\nBd3 d5 6.\n\nO-O e5 7.\n\nNc3 Nxc3 8.\\nbxc3 exd4 9.\n\ncxd4 Bb4 10.\n\nRb1 a5 11.\n\nRe1+ Bxe1 12.\n\nQxe1+ Qe7 13.\n\nBa3 Qxe1+ 14.\\nRxe1+ Be6 15.\n\nBd6 Kd7 16.\n\nBxb8 Raxb8 17.\n\nRc1 Rhc8 18.\n\na3 h5 19.\n\nc4 dxc4 20.\n\nBxc4\\nBxc4 21.\n\nRe1 Rc7 22.\n\nRe5 f6 23.\n\nRe3 Rbc8 24.\n\nh3 g5 25.\n\ng4 hxg4 26.\n\nhxg4 Rh8'}, {'role': 'assistant', 'content': 'Nice job!\n\nIt looks like you are playing a good game so far.\n\nIs there anything else I can help you with?'}, {'role': 'user', 'content': 'your move as white'}, {'role': 'assistant', 'content': '1.\n\nd4'}, {'role': 'user', 'content': 'no we never started over'}, {'role': 'assistant', 'content': \"I apologize for the confusion.\n\nHere's the current p",
+          "id": "ev_d1c2981027a3ccc2df265429",
+          "observedAt": "2026-10-14T15:18:04.021Z"
+        },
+        {
+          "sourceId": "memory:context-173",
+          "sourceVersion": "sha256:daf9607fcd86c72f4341bb442598b5c0878b7735a1ddc475c84f901b9b089655",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-173",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Let me know if you have any questions or need further guidance.'}], 'Chat Time: 2023/05/21 (Sun) 07:23', [{'role': 'user', 'content': \"I'm trying to organize my contacts and reach out to some people I met at recent events.\n\nCan you help me create a spreadsheet to track my connections and the events where I met them?\"}, {'role': 'assistant', 'content': 'I\\'d be happy to help you create a spreadsheet to track your connections and the events where you met them.",
+          "id": "ev_ec8491d04243b186a54d040a",
+          "observedAt": "2026-10-14T15:18:04.022Z"
+        },
+        {
+          "sourceId": "memory:context-173",
+          "sourceVersion": "sha256:daf9607fcd86c72f4341bb442598b5c0878b7735a1ddc475c84f901b9b089655",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-173",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Name | Email | Phone | Event | Date | Notes | Follow-up Date |\\n| --- | --- | --- | --- | --- | --- | --- |\\n| John Doe | johndoe@example.com | 555-1234 | Industry Conference | 2023-02-15 | Discussed potential collaboration | 2023-03-01 |\\n| Jane Smith | janesmith@example.com |  | Networking Meeting | 2023-03-10 | Exchanged business cards | 2023-03-20 |\\n| Bob Brown | bobbrown@example.com |  | Party | 2023-04-01 | Talked about shared hobby | 2023-04-15 |\\n\\nYou can customize this template to fit your",
+          "id": "ev_088edf3a035ea4ebc69e77a3",
+          "observedAt": "2026-10-14T15:18:04.022Z"
+        },
+        {
+          "sourceId": "memory:context-173",
+          "sourceVersion": "sha256:daf9607fcd86c72f4341bb442598b5c0878b7735a1ddc475c84f901b9b089655",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-173",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "| 2023-04-01 | Talked about shared hobby | 2023-04-15 |\\n\\nYou can customize this template to fit your specific needs and add or remove columns as necessary.\n\nYou can also use filters and sorting to organize your contacts by event, date, or other criteria.\\n\\nTips:\\n\\n* Make sure to keep your spreadsheet organized and up-to-date to ensure you don\\'t miss follow-up opportunities.\\n* Consider setting reminders for your follow-up dates to ensure you stay on track.\\n* You can also use this spreadsheet to track the progress of your relationships and identify patterns or areas for improvement.\\n\\nI hope this helps!\n\nLet me know if you have any questions or need further assistance.'}, {'role': 'user', 'content': 'I think this template is a good starting point.\n\nI\\'ll start filling it out.\n\nBy the way, I met Rachel, an old colleague from my previous company, at the TechConnect conference on February 10th and 11th.\n\nI should catch up with her soon.",
+          "id": "ev_ba00930051025014ef34f7be",
+          "observedAt": "2026-10-14T15:18:04.022Z"
+        }
+      ],
+      "sourceIds": [
+        "context-185",
+        "context-184",
+        "context-173"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 8.017665999999963,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-185",
+    "context-184",
+    "context-173"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T15:18:04.024505+00:00"
+}

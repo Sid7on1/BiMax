@@ -11,9 +11,11 @@ import { resolvePath } from './path.util';
 import { noEffects } from '../evidence/schema';
 
 export interface ToolDef<TArgs = any> {
+  scopeOnly?: boolean;
   name: string;
   description: string;
   schema: any;
+  outputSource?: 'screen';
   isDestructive?: boolean;
   /** Explicit opt-in to bounded read-only workflows; concurrency safety alone is insufficient. */
   workflowReadOnly?: boolean;
@@ -41,9 +43,11 @@ export interface ToolDef<TArgs = any> {
 }
 
 export interface BuiltTool {
+  scopeOnly?: boolean;
   name: string;
   description: string;
   schema: any;
+  outputSource?: 'screen';
   isDestructive: boolean;
   workflowReadOnly?: boolean;
   /** True only when EVERY call of this tool may overlap; a per-call tool reports false here. */
@@ -98,6 +102,8 @@ export function buildTool(def: ToolDef, governor: IGovernor): BuiltTool {
 
   return {
     name: def.name,
+    outputSource: def.outputSource,
+    scopeOnly: def.scopeOnly,
     description: def.description,
     schema: def.schema,
     isDestructive,

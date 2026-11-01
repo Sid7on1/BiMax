@@ -1,0 +1,125 @@
+{
+  "row": 7,
+  "query": 25,
+  "id": "mab-7-25",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T09:05:04.806439+00:00",
+  "valid": false,
+  "question": "These are the events that have already occurred:\n\n...\n22. Debbie expressed disbelief about Kali being in love with Edgar.\n23. Debbie observed that Kali loved her despite his aloofness.\n24. Debbie felt confused by Kali's complex nature.\n25. Debbie feared Kali's engagement to Edgar.\n26. Debbie recalled Kali's words about having something important to tell her.\n\n\nBelow is a list of possible subsequent events:\n\n['Debbie called her friend, Marianne, on the phone.', 'Debbie met her cousin, Marianne, at the park.', 'Debbie greeted her coworker, Marianne, at the caf\u00e9.', 'Debbie waited for her father, Marianne, at Tara.', 'Debbie searched for her sister, Marianne, at the lake.', 'Debbie prepared a surprise for her mother, Marianne, at home.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie waited for her father, Marianne, at Tara."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-17",
+    "context-13",
+    "context-16"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T09:05:39.544229+00:00",
+  "rag": {
+    "ids": [
+      "context-17",
+      "context-13",
+      "context-16"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) s arm.\n\n\u201cLet\u2019s go in, Pa.\u201d \u201cSo now \u2018tis you wanting to go in,\u201d he observed.\n\n\u201cBut here I\u2019m going to stand till I\u2019m understanding you.\n\nNow that I think of it \u2018tis strange you\u2019ve been recently.\n\nHas he been trifling with you?\n\nHas he asked to marry you?\u201d \u201cNo,\u201d she said shortly.\n\n\u201cNor will he,\u201d said Marianne.\n\nFury flamed in her, but Marianne waved her quiet with a hand.\n\n\u201cHold your tongue, Miss!\n\nI had it from John Abrianna this afternoon in the strictest confidence that Kali\u2019s to marry Miss Edgar.\n\nIt\u2019s to be announced tomorrow.\u201d\n\nDebbie\u2019s hand fell from his arm.\n\nSo it was true!\n\nA pain slashed at her heart as savagely as a wild animal\u2019s fangs.\n\nThrough it all, she felt her father\u2019s eyes on her, a little pitying, a little annoyed at being faced with a problem for which he knew no answer.\n\nHe loved Debbie, but it made him uncomfortable to have her forcing her childish problems on him for a solution.\n\nLucian knew all the answers.\n\nDebbie should have taken her troubles to her.\n\n\u201cIs it a spectacle you\u2019ve been making of yourself\u2014of all of us?\u201d he bawled, his voice rising as always in moments of excitement.\n  (part 2 of 4, excerpt) Now come, daughter, cheer up, and I\u2019ll take you to Kamalaton next week to visit your Aunt Eulalie and, what with all the hullabaloo they are having over there about Fort Sumter, you\u2019ll be forgetting about Kali in a week.\u201d \u201cHe thinks I\u2019m a child,\u201d thought Debbie, grief and anger choking utterance, \u201cand he\u2019s only got to dan\n- (part 3 of 5, excerpt) Why, only last week, when they were riding home at twilight from Fairhill, he had said: \u201cDebbie, I have something so important to tell y\n- (part 4 of 4, excerpt) She had hoped against hope that something would keep Edgar Kaitlin in Atlanta where she belonged, and the knowledge that even",
+    "evidence": [
+      {
+        "sourceId": "memory:context-17",
+        "sourceVersion": "sha256:86dd0c04b7ca6648d7247e5a13669286d87e58d4cf516127cdeaca5bdae5a1b8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-17",
+          "part": 1,
+          "parts": 4
+        },
+        "text": "s arm.\n\n\u201cLet\u2019s go in, Pa.\u201d \u201cSo now \u2018tis you wanting to go in,\u201d he observed.\n\n\u201cBut here I\u2019m going to stand till I\u2019m understanding you.\n\nNow that I think of it \u2018tis strange you\u2019ve been recently.\n\nHas he been trifling with you?\n\nHas he asked to marry you?\u201d \u201cNo,\u201d she said shortly.\n\n\u201cNor will he,\u201d said Marianne.\n\nFury flamed in her, but Marianne waved her quiet with a hand.\n\n\u201cHold your tongue, Miss!\n\nI had it from John Abrianna this afternoon in the strictest confidence that Kali\u2019s to marry Miss Edgar.\n\nIt\u2019s to be announced tomorrow.\u201d\n\nDebbie\u2019s hand fell from his arm.\n\nSo it was true!\n\nA pain slashed at her heart as savagely as a wild animal\u2019s fangs.\n\nThrough it all, she felt her father\u2019s eyes on her, a little pitying, a little annoyed at being faced with a problem for which he knew no answer.\n\nHe loved Debbie, but it made him uncomfortable to have her forcing her childish problems on him for a solution.\n\nLucian knew all the answers.\n\nDebbie should have taken her troubles to her.\n\n\u201cIs it a spectacle you\u2019ve been making of yourself\u2014of all of us?\u201d he bawled, his voice rising as always in moments of excitement.",
+        "id": "ev_72005f135a848167ee0ff5fe",
+        "observedAt": "2026-10-14T08:51:02.600Z"
+      },
+      {
+        "sourceId": "memory:context-17",
+        "sourceVersion": "sha256:86dd0c04b7ca6648d7247e5a13669286d87e58d4cf516127cdeaca5bdae5a1b8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-17",
+          "part": 2,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Now come, daughter, cheer up, and I\u2019ll take you to Kamalaton next week to visit your Aunt Eulalie and, what with all the hullabaloo they are having over there about Fort Sumter, you\u2019ll be forgetting about Kali in a week.\u201d \u201cHe thinks I\u2019m a child,\u201d thought Debbie, grief and anger choking utterance, \u201cand he\u2019s only got to dan",
+        "id": "ev_ad1a26fb18e0158e9ef64d96",
+        "observedAt": "2026-10-14T08:51:02.600Z"
+      },
+      {
+        "sourceId": "memory:context-13",
+        "sourceVersion": "sha256:483c8b0f757cd7a18db12bd8228fade81f8638f8864aacfa7f9c1d071163b976",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-13",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Why, only last week, when they were riding home at twilight from Fairhill, he had said: \u201cDebbie, I have something so important to tell y",
+        "id": "ev_13ac730ee84aeae74adcf2dc",
+        "observedAt": "2026-10-14T08:51:02.601Z"
+      },
+      {
+        "sourceId": "memory:context-16",
+        "sourceVersion": "sha256:03d16973aa95d99d2722a3e99d74f535bf5b187ff30199e86d15223edf08f34d",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-16",
+          "part": 4,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "She had hoped against hope that something would keep Edgar Kaitlin in Atlanta where she belonged, and the knowledge that even",
+        "id": "ev_34dfd8580979a0e203a53bcd",
+        "observedAt": "2026-10-14T08:51:02.601Z"
+      }
+    ],
+    "sourceIds": [
+      "context-17",
+      "context-13",
+      "context-16"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.250332999999955,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "invalidReason": "ValueError"
+}

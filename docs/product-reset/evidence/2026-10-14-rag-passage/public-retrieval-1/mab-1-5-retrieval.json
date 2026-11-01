@@ -1,0 +1,234 @@
+{
+  "row": 1,
+  "query": 5,
+  "id": "mab-1-5",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:19:21.318544+00:00",
+  "valid": true,
+  "question": "2014 S/S is the debut album of a South Korean boy group that was formed by who?",
+  "references": [
+    "YG Entertainment"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 14.25366699999995,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 79,
+        "maxInputChars": 79,
+        "requiredProviderTruncation": false,
+        "promptTokens": 22,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-145",
+        "context-241",
+        "context-455"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) Kenneth Mars as King Triton and Pat Carroll as Ursula. Other voice actors include Edan Gross and Bradley Pierce as Flounder, and Jeff Bennett as Prince Eric.\n\nDocument 1036:\nBTS discography\nThe following is the discography of South Korean boy group BTS. The group debuted in South Korea on June 2013 with single album, \"2 Cool 4 Skool\", at number 5 on South Korean Week 31 Gaon Weekly Chart. They made a comeback on September 2013 with an extended play, \"O!RUL8,2?\", which peaked at number 4 on Week 38 Gaon Weekly Chart. BTS then released their second extended play, \"Skool Luv Affair\", in February 2014, where it charted at number 1 on Week 18 Gaon Weekly Chart. This also marked the first time their album charted on international charts, Billboard World Albums and Japan's Oricon Chart, specifically. A repackaged version of the album, \"Skool Luv Affair Special Addition\" which was released in May 2014, also peaked at number 1 on Week 21 Gaon Weekly Chart.\n- (part 3 of 5) Android\u00a04.0 introduced a new visual appearance codenamed \"Holo\", which is built around a cleaner, minimalist design, and a new default typeface named Roboto.\n\nDocument 1717:\nCho Kyuhyun\nCho Kyu-hyun (born February 3, 1988), better known mononymously as Kyuhyun, is a South Korean singer and musical theatre actor. He is best known as a member of South Korean boy group Super Junior, its sub-groups Super Junior-K.R.Y., Super Junior-M and a former member of the South Korean ballad group S.M. the Ballad. He is one of the first four Korean artists to appear on Chinese postage stamps.\n- (part 5 of 5, excerpt) Ravi is a South Korean rapper, songwriter and producer, signed under Jellyfish Entertainment. He began his career as a rapper in 2012 in the South Korean boy group VIXX, and later formed VIXX's",
+      "evidence": [
+        {
+          "sourceId": "memory:context-145",
+          "sourceVersion": "sha256:26358c73fac9a336093ee8e91737c40da725cbf8dae78c15b973164446360856",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-145",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "Kenneth Mars as King Triton and Pat Carroll as Ursula. Other voice actors include Edan Gross and Bradley Pierce as Flounder, and Jeff Bennett as Prince Eric.\n\nDocument 1036:\nBTS discography\nThe following is the discography of South Korean boy group BTS. The group debuted in South Korea on June 2013 with single album, \"2 Cool 4 Skool\", at number 5 on South Korean Week 31 Gaon Weekly Chart. They made a comeback on September 2013 with an extended play, \"O!RUL8,2?\", which peaked at number 4 on Week 38 Gaon Weekly Chart. BTS then released their second extended play, \"Skool Luv Affair\", in February 2014, where it charted at number 1 on Week 18 Gaon Weekly Chart. This also marked the first time their album charted on international charts, Billboard World Albums and Japan's Oricon Chart, specifically. A repackaged version of the album, \"Skool Luv Affair Special Addition\" which was released in May 2014, also peaked at number 1 on Week 21 Gaon Weekly Chart.",
+          "id": "ev_b7041be0b27f63f8f924e101",
+          "observedAt": "2026-10-14T15:19:21.337Z"
+        },
+        {
+          "sourceId": "memory:context-241",
+          "sourceVersion": "sha256:f4c672356fb31f5878243b108f100f7d333e716b24ce667e33a9300a7f64cccf",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-241",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "Android\u00a04.0 introduced a new visual appearance codenamed \"Holo\", which is built around a cleaner, minimalist design, and a new default typeface named Roboto.\n\nDocument 1717:\nCho Kyuhyun\nCho Kyu-hyun (born February 3, 1988), better known mononymously as Kyuhyun, is a South Korean singer and musical theatre actor. He is best known as a member of South Korean boy group Super Junior, its sub-groups Super Junior-K.R.Y., Super Junior-M and a former member of the South Korean ballad group S.M. the Ballad. He is one of the first four Korean artists to appear on Chinese postage stamps.",
+          "id": "ev_bf0eae6d243ba997347b8e55",
+          "observedAt": "2026-10-14T15:19:21.337Z"
+        },
+        {
+          "sourceId": "memory:context-455",
+          "sourceVersion": "sha256:cd11efe43a06445b6199b2ded4e36584f8f64679617e5e62eebc9092090245b8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-455",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Ravi is a South Korean rapper, songwriter and producer, signed under Jellyfish Entertainment. He began his career as a rapper in 2012 in the South Korean boy group VIXX, and later formed VIXX's",
+          "id": "ev_e1dd49740959407d52703807",
+          "observedAt": "2026-10-14T15:19:21.337Z"
+        }
+      ],
+      "sourceIds": [
+        "context-145",
+        "context-241",
+        "context-455"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.610999999999876,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-145",
+        "context-241",
+        "context-455"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) Kenneth Mars as King Triton and Pat Carroll as Ursula. Other voice actors include Edan Gross and Bradley Pierce as Flounder, and Jeff Bennett as Prince Eric.\n\nDocument 1036:\nBTS discography\nThe following is the discography of South Korean boy group BTS. The group debuted in South Korea on June 2013 with single album, \"2 Cool 4 Skool\", at number 5 on South Korean Week 31 Gaon Weekly Chart. They made a comeback on September 2013 with an extended play, \"O!RUL8,2?\", which peaked at number 4 on Week 38 Gaon Weekly Chart. BTS then released their second extended play, \"Skool Luv Affair\", in February 2014, where it charted at number 1 on Week 18 Gaon Weekly Chart. This also marked the first time their album charted on international charts, Billboard World Albums and Japan's Oricon Chart, specifically. A repackaged version of the album, \"Skool Luv Affair Special Addition\" which was released in May 2014, also peaked at number 1 on Week 21 Gaon Weekly Chart.\n- (part 3 of 5) Android\u00a04.0 introduced a new visual appearance codenamed \"Holo\", which is built around a cleaner, minimalist design, and a new default typeface named Roboto.\n\nDocument 1717:\nCho Kyuhyun\nCho Kyu-hyun (born February 3, 1988), better known mononymously as Kyuhyun, is a South Korean singer and musical theatre actor. He is best known as a member of South Korean boy group Super Junior, its sub-groups Super Junior-K.R.Y., Super Junior-M and a former member of the South Korean ballad group S.M. the Ballad. He is one of the first four Korean artists to appear on Chinese postage stamps.\n  (part 4 of 5) Junior-M and a former member of the South Korean ballad group S.M. the Ballad. He is one of the first four Korean artists to appear on Chinese postage stamps.\n\nDocument 1718:\nOregon and Transcontinental Company\nThe Oregon and Transcontinental Company was a 19th-century holding company in the United States, organized by Henry Villard in 1881 to control the Northern Pacific Railroad and Oregon Railway and Navigation Company. It was incorporated in Oregon. New Jersey passed legislation in 1889 to facilitate the control of other companies by another corporation with a goal of encouraging trusts to convert into holding companies and relocate to that state. Oregon and Transcontinental in 1890 re-incorporated as a holding company in New Jersey and became the North American Company so that it could take advantage of these expanded corporate powers and invest in a wider range of businesses.\n\nDocument 1719:\nSachin Bansal\nSachin Bansal (born 5 August 1981) is an Indian Software engineer and Internet entrepreneur known for co-founding India's e-commerce platform Flipkart. Sachin is from Chandigarh and is an engineering graduate from Indian Institute of Technology Delhi.\n- (part 4 of 5) for the CrackLib password-integrity testing library; he is also active in the Open Source software community. He worked as a Software Engineer for Facebook.\n\nDocument 3283:\nNaseer &amp; Shahab\nNaseer & Shahab (Urdu: \u200e ) is a Pakistani soft alternative rock band from Khyber Pakhtunkhwa. Formed in 2010, the band rose to stardom with their debut single \"\"Za Pukhtoon Yam\"\". The band is a duo of Naseer Afridi, who is a lead vocalist, musician and songwriter, and Shahab Qamar, a producer, director and web designer. Naseer & Shahab release singles independently, in mainly Pashtu language, propelled to international success by social media, Naseer & Shahab's four singles \"\"Za Pukhtoon Yam\"\" (2012), \"\"Za Sta Pashan Na Yam\"\" (2012), \"\"Meray Yaar\"\" (2012) and \"\"Ghalti Mein Shta\"\" (2014), tops many charts and made them most influential and first Pashtu rock band of Pakistan.\n  (part 5 of 5) Na Yam\"\" (2012), \"\"Meray Yaar\"\" (2012) and \"\"Ghalti Mein Shta\"\" (2014), tops many charts and made them most influential and first Pashtu rock band of Pakistan.\n\nDocument 3284:\nList of songs written by Ravi\nRavi is a South Korean rapper, songwriter and producer, signed under Jellyfish Entertainment. He began his career as a rapper in 2012 in the South Korean boy group VIXX, and later formed VIXX's first sub-unit VIXX LR with band mate Leo in 2015. Ravi's songwriting career began with his participation in co-writing VIXX's debut single \"Super Hero\". As of November 2016 with the release of \"VIXX 2016 Conception Ker\", Ravi has contributed to the writing and composing of over 46",
+      "evidence": [
+        {
+          "sourceId": "memory:context-145",
+          "sourceVersion": "sha256:26358c73fac9a336093ee8e91737c40da725cbf8dae78c15b973164446360856",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-145",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "Kenneth Mars as King Triton and Pat Carroll as Ursula. Other voice actors include Edan Gross and Bradley Pierce as Flounder, and Jeff Bennett as Prince Eric.\n\nDocument 1036:\nBTS discography\nThe following is the discography of South Korean boy group BTS. The group debuted in South Korea on June 2013 with single album, \"2 Cool 4 Skool\", at number 5 on South Korean Week 31 Gaon Weekly Chart. They made a comeback on September 2013 with an extended play, \"O!RUL8,2?\", which peaked at number 4 on Week 38 Gaon Weekly Chart. BTS then released their second extended play, \"Skool Luv Affair\", in February 2014, where it charted at number 1 on Week 18 Gaon Weekly Chart. This also marked the first time their album charted on international charts, Billboard World Albums and Japan's Oricon Chart, specifically. A repackaged version of the album, \"Skool Luv Affair Special Addition\" which was released in May 2014, also peaked at number 1 on Week 21 Gaon Weekly Chart.",
+          "id": "ev_b7041be0b27f63f8f924e101",
+          "observedAt": "2026-10-14T15:19:21.341Z"
+        },
+        {
+          "sourceId": "memory:context-241",
+          "sourceVersion": "sha256:f4c672356fb31f5878243b108f100f7d333e716b24ce667e33a9300a7f64cccf",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-241",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "Android\u00a04.0 introduced a new visual appearance codenamed \"Holo\", which is built around a cleaner, minimalist design, and a new default typeface named Roboto.\n\nDocument 1717:\nCho Kyuhyun\nCho Kyu-hyun (born February 3, 1988), better known mononymously as Kyuhyun, is a South Korean singer and musical theatre actor. He is best known as a member of South Korean boy group Super Junior, its sub-groups Super Junior-K.R.Y., Super Junior-M and a former member of the South Korean ballad group S.M. the Ballad. He is one of the first four Korean artists to appear on Chinese postage stamps.",
+          "id": "ev_bf0eae6d243ba997347b8e55",
+          "observedAt": "2026-10-14T15:19:21.341Z"
+        },
+        {
+          "sourceId": "memory:context-241",
+          "sourceVersion": "sha256:f4c672356fb31f5878243b108f100f7d333e716b24ce667e33a9300a7f64cccf",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-241",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "Junior-M and a former member of the South Korean ballad group S.M. the Ballad. He is one of the first four Korean artists to appear on Chinese postage stamps.\n\nDocument 1718:\nOregon and Transcontinental Company\nThe Oregon and Transcontinental Company was a 19th-century holding company in the United States, organized by Henry Villard in 1881 to control the Northern Pacific Railroad and Oregon Railway and Navigation Company. It was incorporated in Oregon. New Jersey passed legislation in 1889 to facilitate the control of other companies by another corporation with a goal of encouraging trusts to convert into holding companies and relocate to that state. Oregon and Transcontinental in 1890 re-incorporated as a holding company in New Jersey and became the North American Company so that it could take advantage of these expanded corporate powers and invest in a wider range of businesses.\n\nDocument 1719:\nSachin Bansal\nSachin Bansal (born 5 August 1981) is an Indian Software engineer and Internet entrepreneur known for co-founding India's e-commerce platform Flipkart. Sachin is from Chandigarh and is an engineering graduate from Indian Institute of Technology Delhi.",
+          "id": "ev_071a3fc7657af43e75c78dc0",
+          "observedAt": "2026-10-14T15:19:21.341Z"
+        },
+        {
+          "sourceId": "memory:context-455",
+          "sourceVersion": "sha256:cd11efe43a06445b6199b2ded4e36584f8f64679617e5e62eebc9092090245b8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-455",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "for the CrackLib password-integrity testing library; he is also active in the Open Source software community. He worked as a Software Engineer for Facebook.\n\nDocument 3283:\nNaseer &amp; Shahab\nNaseer & Shahab (Urdu: \u200e ) is a Pakistani soft alternative rock band from Khyber Pakhtunkhwa. Formed in 2010, the band rose to stardom with their debut single \"\"Za Pukhtoon Yam\"\". The band is a duo of Naseer Afridi, who is a lead vocalist, musician and songwriter, and Shahab Qamar, a producer, director and web designer. Naseer & Shahab release singles independently, in mainly Pashtu language, propelled to international success by social media, Naseer & Shahab's four singles \"\"Za Pukhtoon Yam\"\" (2012), \"\"Za Sta Pashan Na Yam\"\" (2012), \"\"Meray Yaar\"\" (2012) and \"\"Ghalti Mein Shta\"\" (2014), tops many charts and made them most influential and first Pashtu rock band of Pakistan.",
+          "id": "ev_732e2775e6323caaf9957c61",
+          "observedAt": "2026-10-14T15:19:21.341Z"
+        },
+        {
+          "sourceId": "memory:context-455",
+          "sourceVersion": "sha256:cd11efe43a06445b6199b2ded4e36584f8f64679617e5e62eebc9092090245b8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-455",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "Na Yam\"\" (2012), \"\"Meray Yaar\"\" (2012) and \"\"Ghalti Mein Shta\"\" (2014), tops many charts and made them most influential and first Pashtu rock band of Pakistan.\n\nDocument 3284:\nList of songs written by Ravi\nRavi is a South Korean rapper, songwriter and producer, signed under Jellyfish Entertainment. He began his career as a rapper in 2012 in the South Korean boy group VIXX, and later formed VIXX's first sub-unit VIXX LR with band mate Leo in 2015. Ravi's songwriting career began with his participation in co-writing VIXX's debut single \"Super Hero\". As of November 2016 with the release of \"VIXX 2016 Conception Ker\", Ravi has contributed to the writing and composing of over 46",
+          "id": "ev_fd85447ec6b82f96ee1a68be",
+          "observedAt": "2026-10-14T15:19:21.341Z"
+        }
+      ],
+      "sourceIds": [
+        "context-145",
+        "context-241",
+        "context-455"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.556416000000354,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-145",
+    "context-241",
+    "context-455"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T15:19:21.343065+00:00"
+}

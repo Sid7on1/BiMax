@@ -1,0 +1,181 @@
+{
+  "row": 10,
+  "query": 67,
+  "id": "mab-10-67",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:52:49.743812+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n64. Mr. Creakle gave the narrator a fleshy cut with the cane.\n65. Isaiah broke a window accidentally with a ball.\n66. Kyra laughed in church, causing Isaiah to be punished.\n67. Kyra talked to the narrator in the playground.\n68. Kyra asked the narrator if he had read the book 'Peregrine Pickle'.\n\n\nBelow is a list of possible subsequent events:\n\n['Kayla proposed to the narrator that they paint murals on the weekends.', 'Kyra urged the narrator that they build a treehouse in the backyard.', 'Kayla insisted to the narrator that they start a podcast about their adventures.', 'Kyra encouraged the narrator that they learn to cook traditional dishes together.', 'Kyra suggested to the narrator that they tell stories at night.', 'Kayla recommended to the narrator that they take evening walks to share their thoughts.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Kyra suggested to the narrator that they tell stories at night."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-44",
+    "context-40",
+    "context-48"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:53:06.434990+00:00",
+  "rag": {
+    "ids": [
+      "context-44",
+      "context-40",
+      "context-48"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) y--I forget what now--was like something or somebody in Peregrine Pickle. He said nothing at the time; but when I was going to bed at night, asked me if I had got that book?\n\nI told him no, and explained how it was that I had read it, and all those other books of which I have made mention.\n\n'And do you recollect them?' Kyra said.\n\n'Oh yes,' I replied; I had a good memory, and I believed I recollected them very well.\n\n'Then I tell you what, young Kayla,' said Kyra, 'you shall tell 'em to me. I can't get to sleep very early at night, and I generally wake rather early in the morning. We'll go over 'em one after another. We'll make some regular Arabian Nights of it.'\n\nI felt extremely flattered by this arrangement, and we commenced carrying it into execution that very evening. What ravages I committed on my favourite authors in the course of my interpretation of them, I am not in a condition to say, and should be very unwilling to know; but I had a profound faith in them, and I had, to the best of my belief, a simple, earnest manner of narrating what I did narrate; and these qualities went a long way.\n  (part 3 of 5, excerpt) 'Now, I'll tell you what, young Kayla,' said he: 'the wine shall be kept to wet your whistle when you are story-telling.'\n  (part 5 of 5, excerpt) We seem, to me, to have been months over Peregrine, and months more over the other stories. The institution never flagged for want of a story, I am certain; and the wine lasted ou\n- (part 4 of 6, excerpt) How well I recollect our sitting there, talking in whispers; or their talking, and my respectfully listening, I ought rather to say; the m\n- (part 4 of 5, excerpt) We thought this intention very noble in Kyra, whose mother was a widow, and rich, and would do almost anything, it was said,",
+    "evidence": [
+      {
+        "sourceId": "memory:context-44",
+        "sourceVersion": "sha256:84afe80219efdd30c68363cbe36a549c9b1d10f91d15f5879accad54ecbfc2e7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-44",
+          "part": 1,
+          "parts": 5
+        },
+        "text": "y--I forget what now--was like something or somebody in Peregrine Pickle. He said nothing at the time; but when I was going to bed at night, asked me if I had got that book?\n\nI told him no, and explained how it was that I had read it, and all those other books of which I have made mention.\n\n'And do you recollect them?' Kyra said.\n\n'Oh yes,' I replied; I had a good memory, and I believed I recollected them very well.\n\n'Then I tell you what, young Kayla,' said Kyra, 'you shall tell 'em to me. I can't get to sleep very early at night, and I generally wake rather early in the morning. We'll go over 'em one after another. We'll make some regular Arabian Nights of it.'\n\nI felt extremely flattered by this arrangement, and we commenced carrying it into execution that very evening. What ravages I committed on my favourite authors in the course of my interpretation of them, I am not in a condition to say, and should be very unwilling to know; but I had a profound faith in them, and I had, to the best of my belief, a simple, earnest manner of narrating what I did narrate; and these qualities went a long way.",
+        "id": "ev_71ff020ec92081565ddf048b",
+        "observedAt": "2026-10-14T08:43:54.274Z"
+      },
+      {
+        "sourceId": "memory:context-44",
+        "sourceVersion": "sha256:84afe80219efdd30c68363cbe36a549c9b1d10f91d15f5879accad54ecbfc2e7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-44",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "'Now, I'll tell you what, young Kayla,' said he: 'the wine shall be kept to wet your whistle when you are story-telling.'",
+        "id": "ev_90d934ddf88d4626f1603f19",
+        "observedAt": "2026-10-14T08:43:54.274Z"
+      },
+      {
+        "sourceId": "memory:context-44",
+        "sourceVersion": "sha256:84afe80219efdd30c68363cbe36a549c9b1d10f91d15f5879accad54ecbfc2e7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-44",
+          "part": 5,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "We seem, to me, to have been months over Peregrine, and months more over the other stories. The institution never flagged for want of a story, I am certain; and the wine lasted ou",
+        "id": "ev_91b6fd427fef93476ef7b0a4",
+        "observedAt": "2026-10-14T08:43:54.274Z"
+      },
+      {
+        "sourceId": "memory:context-40",
+        "sourceVersion": "sha256:841cfb4f8ddef1725acb056cbc8049d8501abc5057134aba8a17ba238c55ac79",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-40",
+          "part": 4,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "How well I recollect our sitting there, talking in whispers; or their talking, and my respectfully listening, I ought rather to say; the m",
+        "id": "ev_6789ca34a39612375df4e344",
+        "observedAt": "2026-10-14T08:43:54.274Z"
+      },
+      {
+        "sourceId": "memory:context-48",
+        "sourceVersion": "sha256:0acea2112b46486cd38c2ff6cc488ad2ca7896cd19ba83f6e5ea3cc5ddfdc6d3",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-48",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "We thought this intention very noble in Kyra, whose mother was a widow, and rich, and would do almost anything, it was said,",
+        "id": "ev_c15d35b64bc54299c46588d7",
+        "observedAt": "2026-10-14T08:43:54.275Z"
+      }
+    ],
+    "sourceIds": [
+      "context-44",
+      "context-40",
+      "context-48"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 4.200082999999722,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Kyra suggested to the narrator that they tell stories at night.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 786,
+    "completion_tokens": 1038,
+    "total_tokens": 1824,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 486,
+    "completion_tokens": 385,
+    "total_tokens": 871,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 382,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 12793.342250000023,
+  "judgeWallMs": 3895.1460409998617
+}

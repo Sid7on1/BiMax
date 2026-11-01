@@ -1,0 +1,165 @@
+{
+  "scope": "100 balanced LongMemEval_S questions and 100 balanced MemoryAgentBench Accurate_Retrieval questions; not full-suite scores",
+  "questions": 200,
+  "corpora": 121,
+  "documents": 11290,
+  "chunks": 90648,
+  "embedding": "ollama:all-minilm:1b226e2802dbb772b5fc32a58f103ca1804ef7501331012de126ab22f67475ef:384",
+  "promptEquality": 200,
+  "provenance": 200,
+  "denseActive": 200,
+  "rerankActive": 0,
+  "embeddingTruncation": {
+    "passageBatches": 1486,
+    "affectedPassageBatches": 1467,
+    "affectedPassageInputBound": [
+      1467,
+      90316
+    ],
+    "affectedQueries": [
+      "mab-12-36",
+      "mab-5-94",
+      "mab-9-21",
+      "mab-16-43",
+      "mab-12-50",
+      "mab-16-59",
+      "mab-16-77",
+      "mab-4-52",
+      "mab-16-80",
+      "mab-11-85",
+      "mab-15-7",
+      "mab-16-66",
+      "mab-11-94",
+      "mab-15-95"
+    ]
+  },
+  "latencyMs": {
+    "queryEmbedding": {
+      "count": 200,
+      "median": 402.94885400000385,
+      "p95": 1162.657459000009,
+      "min": 6.355041999995592,
+      "max": 1622.6895409999997
+    },
+    "currentRecall": {
+      "count": 200,
+      "median": 6.500499500001752,
+      "p95": 18.186040999993565,
+      "min": 1.1317920000001322,
+      "max": 34.22516699999687
+    },
+    "ingestionPerCorpus": {
+      "count": 121,
+      "median": 26337.752582999998,
+      "p95": 100786.025208,
+      "min": 10728.182125,
+      "max": 207877.84075
+    }
+  },
+  "promptChars": {
+    "count": 200,
+    "median": 1912.0,
+    "p95": 1914,
+    "min": 1790,
+    "max": 1914
+  },
+  "datasets": {
+    "longmemeval": {
+      "questions": 100,
+      "answerSourceQuestions": 85,
+      "meanAnswerSourceRecallAt3": 0.9405882352941176,
+      "meanAnswerSourceMrrAt3": 0.9333333333333333,
+      "meanAnswerSourcePrecisionAt3": 0.5058823529411764,
+      "completeAnswerSources": 74,
+      "literalReferenceQuestions": 71,
+      "literalReferencePresent": 36,
+      "strata": {
+        "abstention": {
+          "questions": 15,
+          "literalReferencePresent": 0,
+          "meanAnswerSourceRecallAt3": null
+        },
+        "knowledge-update": {
+          "questions": 15,
+          "literalReferencePresent": 8,
+          "meanAnswerSourceRecallAt3": 0.9333333333333333
+        },
+        "multi-session": {
+          "questions": 14,
+          "literalReferencePresent": 8,
+          "meanAnswerSourceRecallAt3": 0.9107142857142857
+        },
+        "single-session-assistant": {
+          "questions": 14,
+          "literalReferencePresent": 8,
+          "meanAnswerSourceRecallAt3": 1.0
+        },
+        "single-session-preference": {
+          "questions": 14,
+          "literalReferencePresent": 0,
+          "meanAnswerSourceRecallAt3": 1.0
+        },
+        "single-session-user": {
+          "questions": 14,
+          "literalReferencePresent": 11,
+          "meanAnswerSourceRecallAt3": 1.0
+        },
+        "temporal-reasoning": {
+          "questions": 14,
+          "literalReferencePresent": 1,
+          "meanAnswerSourceRecallAt3": 0.8
+        }
+      }
+    },
+    "memoryagentbench": {
+      "questions": 100,
+      "answerSourceQuestions": 0,
+      "meanAnswerSourceRecallAt3": null,
+      "meanAnswerSourceMrrAt3": null,
+      "meanAnswerSourcePrecisionAt3": null,
+      "completeAnswerSources": 0,
+      "literalReferenceQuestions": 98,
+      "literalReferencePresent": 20,
+      "strata": {
+        "eventqa_131072": {
+          "questions": 17,
+          "literalReferencePresent": 0,
+          "meanAnswerSourceRecallAt3": null
+        },
+        "eventqa_65536": {
+          "questions": 17,
+          "literalReferencePresent": 0,
+          "meanAnswerSourceRecallAt3": null
+        },
+        "eventqa_full": {
+          "questions": 17,
+          "literalReferencePresent": 0,
+          "meanAnswerSourceRecallAt3": null
+        },
+        "longmemeval_s*": {
+          "questions": 17,
+          "literalReferencePresent": 2,
+          "meanAnswerSourceRecallAt3": null
+        },
+        "ruler_qa1_197K": {
+          "questions": 16,
+          "literalReferencePresent": 10,
+          "meanAnswerSourceRecallAt3": null
+        },
+        "ruler_qa2_421K": {
+          "questions": 16,
+          "literalReferencePresent": 8,
+          "meanAnswerSourceRecallAt3": null
+        }
+      }
+    }
+  },
+  "modelAnswerAccuracy": null,
+  "limits": [
+    "No hosted answering/judging ran for these retrieval observations.",
+    "Reference-text presence is literal containment, not answer accuracy or semantic evidence sufficiency.",
+    "Abstention excluded from answer-source recall; preference and abstention excluded from classic literal-reference checks.",
+    "No paired public latency speedup claim: shared local load and baseline-first query order.",
+    "Balanced subset and small explicitly truncated all-minilm backend with no reranker; no official leaderboard claim."
+  ]
+}

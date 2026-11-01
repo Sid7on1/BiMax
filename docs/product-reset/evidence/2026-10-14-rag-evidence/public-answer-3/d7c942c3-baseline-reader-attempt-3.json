@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T09:07:12.766105+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 3,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/14 (Sun) 09:58\nQuestion: Is my mom using the same grocery list method as me?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 11, excerpt) user: By the way, I was just thinking, my mom is actually using the same grocery list app as me now, so we can easily share lists and keep track of what we need. Anyway, thanks for the fajita tips, I think I'm all set for tonight's dinner!\n  (part 5 of 11) that you and your mom can share a grocery list app and collaborate on your shopping needs. Technology can be so helpful in making our lives easier, right?\n\nI'm thrilled that I could help with the fajita tips, and I'm confident that your dinner will turn out delicious! If you have any more questions or need any further assistance, feel free to ask. Otherwise, enjoy your meal and the quality time with your family.\n\nBy the way, it's lovely that you're sharing a grocery list with your mom. It's the little things like that which can bring people closer together, don't you think?\n\nHave a fantastic evening, and happy cooking!\nuser: I need to get some fresh herbs like cilantro and parsley for my fajitas, do you have any tips on how to keep them fresh for a longer period?\nassistant: Fresh herbs can make a huge difference in the flavor and aroma of your fajitas. Keeping them fresh for a longer period can be a bit tricky, but don't worry, I've got some tips to share with you:\n\n1.\n\n**Store them in a cool, dry place:** Avoid storing fresh herbs near direct sunlight, heat, or moisture, as they can quickly wilt and lose their flavor.\n- (part 10 of 10, excerpt) Please let me know if there's anything else I can help you with, and I'll do my best to assist you!\n- (part 7 of 14, excerpt) And yay for using a grocery list app! It's always a lifesaver when planning meals and keeping track of ingredients. Which app are you using, by the way?"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 151.34183400004986
+}

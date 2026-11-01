@@ -1,0 +1,193 @@
+{
+  "started": "2026-10-13T13:49:10.034Z",
+  "finished": "2026-10-13T13:49:15.169Z",
+  "scope": "Owned offline phases; fixture/module creation and assertions excluded; discovery uses real refresh control flow with persistence/parser work isolated; project includes real TS parsing + extraction but excludes disk save; no installed latency/RSS/energy claim",
+  "ordering": "AB/BA with GC before operations, no parallel tests/builds",
+  "machine": {
+    "node": "v22.13.1",
+    "typescript": "5.9.3",
+    "arch": "arm64",
+    "cpu": "Apple M3",
+    "cores": 8,
+    "ram_bytes": 8589934592
+  },
+  "results": [
+    {
+      "kind": "discovery",
+      "size": 100,
+      "shape": false,
+      "warmups": 3,
+      "repetitions": 3,
+      "discarded": 0,
+      "before": {
+        "p50_ms": 0.4060000000000059,
+        "p95_ms": 0.41787500000003774,
+        "raw_ms": [
+          0.4060000000000059,
+          0.41787500000003774,
+          0.20924999999999727
+        ]
+      },
+      "correctness_sha256": "6116fee52f9668e5cd84376409b48460b7fba131df2e8445ac23742089474a39"
+    },
+    {
+      "kind": "discovery",
+      "size": 1000,
+      "shape": false,
+      "warmups": 3,
+      "repetitions": 3,
+      "discarded": 0,
+      "before": {
+        "p50_ms": 6.307125000000042,
+        "p95_ms": 6.317207999999994,
+        "raw_ms": [
+          6.317207999999994,
+          6.1063330000000065,
+          6.307125000000042
+        ]
+      },
+      "correctness_sha256": "00ce16b632538cdfb4ca38434b7e509c9b699d66732ccfbc085d6b0d2af96524"
+    },
+    {
+      "kind": "discovery",
+      "size": 10000,
+      "shape": false,
+      "warmups": 3,
+      "repetitions": 3,
+      "discarded": 0,
+      "before": {
+        "p50_ms": 564.6985,
+        "p95_ms": 566.3647920000003,
+        "raw_ms": [
+          563.7439589999999,
+          564.6985,
+          566.3647920000003
+        ]
+      },
+      "correctness_sha256": "cd499edd82388a776292d4ddaa274b12172413ba11b7a0995a26ed413f13ba2b"
+    },
+    {
+      "kind": "discovery",
+      "size": 10000,
+      "shape": true,
+      "warmups": 3,
+      "repetitions": 3,
+      "discarded": 0,
+      "before": {
+        "p50_ms": 5.856833000000279,
+        "p95_ms": 5.871458000000075,
+        "raw_ms": [
+          5.817208000000392,
+          5.871458000000075,
+          5.856833000000279
+        ]
+      },
+      "correctness_sha256": "928d59fcbac1fe2f4767d7d1af51144f2bba7d3ef263dd54536c35a93b2298d2"
+    },
+    {
+      "kind": "signature",
+      "size": 10,
+      "warmups": 3,
+      "repetitions": 3,
+      "discarded": 0,
+      "before": {
+        "p50_ms": 0.23108300000012605,
+        "p95_ms": 0.24283299999979135,
+        "raw_ms": [
+          0.24283299999979135,
+          0.23108300000012605,
+          0.17420800000036252
+        ]
+      },
+      "correctness_sha256": "bcc232f36387363c804efbbc1890f097f8220aa4fefe5d319b2310a8b569c1c8"
+    },
+    {
+      "kind": "signature",
+      "size": 1000,
+      "warmups": 3,
+      "repetitions": 3,
+      "discarded": 0,
+      "before": {
+        "p50_ms": 2.243000000000393,
+        "p95_ms": 2.3661669999992228,
+        "raw_ms": [
+          2.243000000000393,
+          2.3661669999992228,
+          2.162540999999692
+        ]
+      },
+      "correctness_sha256": "2129c4b7653497005d7c0c0c5172aa9588a5259861c6ab6519291735387fe0b7"
+    },
+    {
+      "kind": "signature",
+      "size": 10000,
+      "warmups": 3,
+      "repetitions": 3,
+      "discarded": 0,
+      "before": {
+        "p50_ms": 22.74908400000004,
+        "p95_ms": 22.756249999999454,
+        "raw_ms": [
+          22.74908400000004,
+          22.564374999999927,
+          22.756249999999454
+        ]
+      },
+      "correctness_sha256": "e1baeb1bc16634f2852c3b4d272f79dee5d81d537468bd09410bb1d5dd3c3bc3"
+    },
+    {
+      "kind": "project",
+      "size": 20,
+      "shape": 10,
+      "warmups": 3,
+      "repetitions": 3,
+      "discarded": 0,
+      "before": {
+        "p50_ms": 4.0384589999994205,
+        "p95_ms": 4.09375,
+        "raw_ms": [
+          3.4993750000003274,
+          4.09375,
+          4.0384589999994205
+        ]
+      },
+      "correctness_sha256": "3cb20b96ebc7acfed753bca6611d340378eb9bfffb033dbff1df8c7c936db264"
+    },
+    {
+      "kind": "project",
+      "size": 1,
+      "shape": 10000,
+      "warmups": 3,
+      "repetitions": 3,
+      "discarded": 0,
+      "before": {
+        "p50_ms": 50.46424999999999,
+        "p95_ms": 50.69037499999922,
+        "raw_ms": [
+          50.46424999999999,
+          50.69037499999922,
+          50.07933400000002
+        ]
+      },
+      "correctness_sha256": "e71901f39c06fa2ab887329fe52df80545b4c73d50c843106313542f372c6c5b"
+    },
+    {
+      "kind": "project",
+      "size": 20,
+      "shape": 1000,
+      "warmups": 3,
+      "repetitions": 3,
+      "discarded": 0,
+      "before": {
+        "p50_ms": 89.58079199999975,
+        "p95_ms": 91.22050000000036,
+        "raw_ms": [
+          88.94308399999954,
+          89.58079199999975,
+          91.22050000000036
+        ]
+      },
+      "correctness_sha256": "ecd20ecbafbfc19fb3b437c231a779323a7b741398af7ca3c5499bec0fe92f3c"
+    }
+  ]
+}

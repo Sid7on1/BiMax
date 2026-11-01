@@ -15,8 +15,15 @@ directories:
 
 files:
   - out/**
+  - "!out/mobile-fixture/**"
+  - "!out/main/phone-pairing.fixture.cjs"
   # @lydell/node-pty is externalized by electron-vite (native N-API prebuilds) and must ship;
   # its platform binary lives in a @lydell/node-pty-<platform>-<arch> sibling package.
+  - node_modules/esbuild/**
+  - node_modules/@esbuild/**
+  - node_modules/react/**
+  - node_modules/react-dom/**
+  - node_modules/scheduler/**
   - node_modules/@lydell/**
   # electron-liquid-glass (native Liquid Glass behind the ⌘2 bar) is externalized the same way. It loads its
   # N-API prebuild through node-gyp-build, so that ships too. Without either, the bar falls back to vibrancy.
@@ -25,11 +32,21 @@ files:
 
 # Native binaries can't load from inside the asar archive.
 asarUnpack:
+  # The native preview compiler reads these files outside Electron’s virtual asar filesystem.
+  - node_modules/react/**
+  - node_modules/react-dom/**
+  - node_modules/scheduler/**
+  - node_modules/esbuild/**
+  - node_modules/@esbuild/**
   - node_modules/@lydell/**
   - node_modules/electron-liquid-glass/**
 
 # engine/ holds index.js (the bundle) plus the tree-sitter .wasm assets it loads at runtime.
 extraResources:
+  - from: project-files
+    to: project-files
+  - from: cu-runtime
+    to: cu-runtime
   - from: engine
     to: engine
   # voice/ holds bimax-voice, the on-device dictation helper (native/voice, built by scripts/build-voice.sh).
@@ -75,6 +92,7 @@ mac:
   # nested service. Notarization below remains credential-gated and must never be inferred from a
   # local `codesign` pass alone.
   extendInfo:
+    NSLocalNetworkUsageDescription: Bimax connects to your phone on your local network only when you enable Phone connection.
     NSAppleEventsUsageDescription: Bimax reads the active Finder folder when you open the global thread prompt bar.
     NSMicrophoneUsageDescription: Bimax listens only while you dictate — the mic button is on or right Option is held — and turns your words into text on this Mac.
     # Finder's "Ask Bimax" Quick Action and a drop on the Dock icon hand files to Bimax (backlog N3). Rank None: Bimax

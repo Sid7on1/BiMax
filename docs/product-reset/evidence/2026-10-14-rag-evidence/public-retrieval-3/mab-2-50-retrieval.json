@@ -1,0 +1,258 @@
+{
+  "row": 2,
+  "query": 50,
+  "id": "mab-2-50",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:45:28.897597+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n47. Debbie fought against the flames in the kitchen.\n48. Barrett mentioned that some houses were still standing in Atlanta.\n49. Barrett expressed his condolences to Debbie about her mother.\n50. Debbie visited the Fontaine family and discussed farm problems.\n51. Uncle Peter scolded Debbie and Melly for not returning home to help Aunt Pitty.\n\n\nBelow is a list of possible subsequent events:\n\n['Will told Debbie that the unexpected utility bill came to five hundred dollars.', 'Will shared with Debbie that the unplanned repair expenses amounted to four hundred dollars.', 'Will informed Debbie that the extra tax assessment was three hundred dollars.', 'Will revealed to Debbie that the additional service charge totaled six hundred dollars.', 'Will communicated to Debbie that the recent shipment fee was one thousand dollars.', 'Will mentioned to Debbie that the recent renovation cost approximately two thousand dollars.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Will informed Debbie that the extra tax assessment was three hundred dollars."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 622.6754999999976,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1150,
+        "maxInputChars": 1150,
+        "requiredProviderTruncation": false,
+        "promptTokens": 233,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-266",
+        "context-282",
+        "context-529"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) Before the last year Hugo had never walked a hundred yards in her life and this prospect was anything but pleasing:\u2019 So she stayed at home and nagged and cried and said, once too often: \u201cOh, if only Mother was here!\u201d At that, Debbie gave her the long-promised slap, hitting her so hard it\n  (part 2 of 5) Fontaine had never completely recovered from the heart attack she had the day she led the others in beating out the flames and saving the house.\n\nOld Dr.\n\nFontaine was convalescing slowly from an amputated arm.\n\nAlex and Tony were turning awkward hands to plows and hoe handles.\n\nThey leaned over the fence rail to shake hands with Debbie when she called and they laughed at her rickety wagon, their black eyes bitter, for they were laughing at themselves as well as her.\n\nShe asked to buy seed corn from them and they promised it and fell to discussing farm problems.\n\nThey had twelve chickens, two cows, five hogs and the mule they brought home from the war.\n\nOne of the hogs had just died and they were worried about losing the others.\n\nAt bearing such serious words about hogs from these ex- dandies who had never given life a more serious thought than which cravat was most fashionable, Debbie laughed and this time her laugh was bitter too.\n\nThey had all made her welcome at Mimosa and had insisted on giving, not selling, her the seed corn.\n\nThe quick Fontaine tempers flared when she put a greenback on the table and they flatly refused payment.\n- (part 1 of 4, excerpt) \u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d\n- (part 2 of 5, excerpt) Tara\u2019s the best farm in the County, thanks to you and me, Debbie, but it\u2019s a farm, a two-mule farm, not a plantation.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-266",
+          "sourceVersion": "sha256:f9c2cf1e033ee3764a9d8377850a9ef7a363bd2ad9a4c0e63aab07381524b519",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-266",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Before the last year Hugo had never walked a hundred yards in her life and this prospect was anything but pleasing:\u2019 So she stayed at home and nagged and cried and said, once too often: \u201cOh, if only Mother was here!\u201d At that, Debbie gave her the long-promised slap, hitting her so hard it",
+          "id": "ev_1482c3b9f74503d99aae80de",
+          "observedAt": "2026-10-14T08:45:29.526Z"
+        },
+        {
+          "sourceId": "memory:context-266",
+          "sourceVersion": "sha256:f9c2cf1e033ee3764a9d8377850a9ef7a363bd2ad9a4c0e63aab07381524b519",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-266",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "Fontaine had never completely recovered from the heart attack she had the day she led the others in beating out the flames and saving the house.\n\nOld Dr.\n\nFontaine was convalescing slowly from an amputated arm.\n\nAlex and Tony were turning awkward hands to plows and hoe handles.\n\nThey leaned over the fence rail to shake hands with Debbie when she called and they laughed at her rickety wagon, their black eyes bitter, for they were laughing at themselves as well as her.\n\nShe asked to buy seed corn from them and they promised it and fell to discussing farm problems.\n\nThey had twelve chickens, two cows, five hogs and the mule they brought home from the war.\n\nOne of the hogs had just died and they were worried about losing the others.\n\nAt bearing such serious words about hogs from these ex- dandies who had never given life a more serious thought than which cravat was most fashionable, Debbie laughed and this time her laugh was bitter too.\n\nThey had all made her welcome at Mimosa and had insisted on giving, not selling, her the seed corn.\n\nThe quick Fontaine tempers flared when she put a greenback on the table and they flatly refused payment.",
+          "id": "ev_f667ff0a355f55f28f0defbd",
+          "observedAt": "2026-10-14T08:45:29.526Z"
+        },
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:7b808cb8e944e6bc25789f76db6995b9f1f0619d869ec669168efb2778d2f464",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d",
+          "id": "ev_320be57e5a7d61c21e4803fc",
+          "observedAt": "2026-10-14T08:45:29.527Z"
+        },
+        {
+          "sourceId": "memory:context-529",
+          "sourceVersion": "sha256:6d30e5c90452abb04867f48de8c20e379f1e07c73cbfe01d0f097282ce379a4d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-529",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Tara\u2019s the best farm in the County, thanks to you and me, Debbie, but it\u2019s a farm, a two-mule farm, not a plantation.",
+          "id": "ev_2b580c11c159ec2eba7ca16a",
+          "observedAt": "2026-10-14T08:45:29.527Z"
+        }
+      ],
+      "sourceIds": [
+        "context-266",
+        "context-282",
+        "context-529"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.27941699999792,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-266",
+        "context-282",
+        "context-529"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) arned the right to graze in the pasture and rest.\n\nIf Hugo wanted to go visiting she could go afoot.\n\nBefore the last year Hugo had never walked a hundred yards in her life and this prospect was anything but pleasing:\u2019 So she stayed at home and nagged and cried and said, once too often: \u201cOh, if only Mother was here!\u201d At that, Debbie gave her the long-promised slap, hitting her so hard it knocked her screaming to the bed and caused great consternation throughout the house.\n\nThereafter, Hugo whined the less, at least in Debbie\u2019s presence.\n\nDebbie spoke truthfully when she said she wanted the horse to rest but that was only half of the truth.\n\nThe other half was that she had paid one round of calls on the County in the first month after the surrender and the sight of old friends and old plantations had shaken her courage more than she liked to admit.\n  (part 2 of 5, excerpt) Alex and Tony were turning awkward hands to plows and hoe handles.\n\nThey leaned over the fence rail to shake hands with Debbie when she called and they laughed at her rickety wagon, their black eyes bitter, for they were laughing at themselves as well as her.\n\nShe asked to buy seed corn from them and they promised it and fell to discussing farm problems.\n\nThey had twelve chickens, two cows, five hogs and the mule they brought home from the war.\n\nOne of the hogs had just died and they were worried about losing the others.\n\nAt bearing such serious words about hogs from these ex- dandies who had never given life a more serious thought than which cravat was most fashionable, Debbie laughed and this time her laugh was bitter too.\n\nThey had all made her welcome at Mimosa and had insisted on giving, not selling, her the seed corn.\n\nThe quick Fontaine tempers flared when she put a greenback on the table and they flatly refused payment.\n- (part 1 of 4, excerpt) \u201cIsn\u2019t it enough that they\u2019ve licked us and beggared us without turning loose scoundrels on us?\u201d The war was over, peace had been declared, but the Yankees could still rob her, they could still starve her, they could still drive her from her house.\n\nAnd fool that she was, she had thought through weary months that if she could just hold out until spring, everything would be all right.\n\nThis crushing news brought by Will, coming on top of a year of back-breaking work and hope deferred, was the last straw.\n\n\u201cOh, Will, and I thought our troubles were all over when the war ended!\u201d \u201cNo\u2019m.\u201d Will raised his lantern-jawed, country-looking face and gave her a long steady look.\n\n\u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d\n\nShe was struck dumb for a moment.\n\nThree hundred dollars!\n\nIt might just as well be three million dollars.\n\n\u201cWhy,\u201d she floundered, \u201cwhy\u2014why, then we\u2019ve got to raise three hundred, somehow.\u201d\n  (part 2 of 4, excerpt) They couldn\u2019t sell out Tara.\n\nWhy\u2014\u201d His mild pale eyes showed more hate and bitterness than she thought possible.\n\n\u201cOh, couldn\u2019t they?\n\nWell, they could and they will and they\u2019ll like doin\u2019 it!\n\nMiss Debbie, the country\u2019s gone plumb to hell, if you\u2019ll pardon me.\n\nThose Carpetbaggers and Scalawags can vote and most of us Democrats can\u2019t.\n\nCan\u2019t no Democrat in this state vote if he was on the tax books for more than two thousand dollars in \u2018sixty-five.\n\nThat lets out folks like your pa and Mr.\n\nTarleton and the McRaes and the Fontaine boys.\n\nCan\u2019t nobody vote who was a colonel and over in the war and, Miss Debbie, I bet this state\u2019s got more colonels than any state in the Confederacy.\n\nAnd can\u2019t nobody vote who held office under the Confederate government and that lets out everybody from the notaries to the judges, and the woods are full of folks like that.\n\nFact is, the way the Yankees have framed up that amnesty oath, can\u2019t nobody who was somebody before the war vote at all.\n- (part 2 of 5) that hurt to think about.\n\nShe had driven over the County with Will, trying not to remember when these thousands of fertile acres had stood green with cotton.\n\nNow, plantation after plantation was going back to the forest and dismal fields of broomsedge, scrub oak and runty pines had grown stealthily about silent ruins and over old cotton fields.\n\nOnly one acre was being farmed now where once a hundred had been under the plow.\n\nIt was like moving through a dead land.\n\n\u201cThis section won\u2019t come back for fifty years\u2014if it ever comes back,\u201d Will had said.\n\nTara\u2019s the best farm in the County, thanks to you and me, Debbie, but it\u2019s a farm, a two-mule farm, not a plantation.\n\nAnd the Fontaine place, it comes next to Tare and then the Tarletons.\n\nThey ain\u2019t makin\u2019 much money but they\u2019re getting\u2019 along and they got gumption.\n\nBut most of the rest of the folks, the rest of the farms\u2014\u201d\n\nNo, Debbie did not like to remember the way the deserted County looked.\n\nIt seemed even sadder, in retrospect beside the bustle and prosperity of Atlanta.\n\n\u201cHas anything happened here?\u201d she asked when they were finally home and were seated on the front porch.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-266",
+          "sourceVersion": "sha256:f9c2cf1e033ee3764a9d8377850a9ef7a363bd2ad9a4c0e63aab07381524b519",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-266",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "arned the right to graze in the pasture and rest.\n\nIf Hugo wanted to go visiting she could go afoot.\n\nBefore the last year Hugo had never walked a hundred yards in her life and this prospect was anything but pleasing:\u2019 So she stayed at home and nagged and cried and said, once too often: \u201cOh, if only Mother was here!\u201d At that, Debbie gave her the long-promised slap, hitting her so hard it knocked her screaming to the bed and caused great consternation throughout the house.\n\nThereafter, Hugo whined the less, at least in Debbie\u2019s presence.\n\nDebbie spoke truthfully when she said she wanted the horse to rest but that was only half of the truth.\n\nThe other half was that she had paid one round of calls on the County in the first month after the surrender and the sight of old friends and old plantations had shaken her courage more than she liked to admit.",
+          "id": "ev_5189fd0b61be619447013390",
+          "observedAt": "2026-10-14T08:45:29.533Z"
+        },
+        {
+          "sourceId": "memory:context-266",
+          "sourceVersion": "sha256:f9c2cf1e033ee3764a9d8377850a9ef7a363bd2ad9a4c0e63aab07381524b519",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-266",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Alex and Tony were turning awkward hands to plows and hoe handles.\n\nThey leaned over the fence rail to shake hands with Debbie when she called and they laughed at her rickety wagon, their black eyes bitter, for they were laughing at themselves as well as her.\n\nShe asked to buy seed corn from them and they promised it and fell to discussing farm problems.\n\nThey had twelve chickens, two cows, five hogs and the mule they brought home from the war.\n\nOne of the hogs had just died and they were worried about losing the others.\n\nAt bearing such serious words about hogs from these ex- dandies who had never given life a more serious thought than which cravat was most fashionable, Debbie laughed and this time her laugh was bitter too.\n\nThey had all made her welcome at Mimosa and had insisted on giving, not selling, her the seed corn.\n\nThe quick Fontaine tempers flared when she put a greenback on the table and they flatly refused payment.",
+          "id": "ev_f3681d8383db0b7eb4451c0f",
+          "observedAt": "2026-10-14T08:45:29.533Z"
+        },
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:7b808cb8e944e6bc25789f76db6995b9f1f0619d869ec669168efb2778d2f464",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cIsn\u2019t it enough that they\u2019ve licked us and beggared us without turning loose scoundrels on us?\u201d The war was over, peace had been declared, but the Yankees could still rob her, they could still starve her, they could still drive her from her house.\n\nAnd fool that she was, she had thought through weary months that if she could just hold out until spring, everything would be all right.\n\nThis crushing news brought by Will, coming on top of a year of back-breaking work and hope deferred, was the last straw.\n\n\u201cOh, Will, and I thought our troubles were all over when the war ended!\u201d \u201cNo\u2019m.\u201d Will raised his lantern-jawed, country-looking face and gave her a long steady look.\n\n\u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d\n\nShe was struck dumb for a moment.\n\nThree hundred dollars!\n\nIt might just as well be three million dollars.\n\n\u201cWhy,\u201d she floundered, \u201cwhy\u2014why, then we\u2019ve got to raise three hundred, somehow.\u201d",
+          "id": "ev_f99e54935d4d5b51d7674550",
+          "observedAt": "2026-10-14T08:45:29.533Z"
+        },
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:7b808cb8e944e6bc25789f76db6995b9f1f0619d869ec669168efb2778d2f464",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "They couldn\u2019t sell out Tara.\n\nWhy\u2014\u201d His mild pale eyes showed more hate and bitterness than she thought possible.\n\n\u201cOh, couldn\u2019t they?\n\nWell, they could and they will and they\u2019ll like doin\u2019 it!\n\nMiss Debbie, the country\u2019s gone plumb to hell, if you\u2019ll pardon me.\n\nThose Carpetbaggers and Scalawags can vote and most of us Democrats can\u2019t.\n\nCan\u2019t no Democrat in this state vote if he was on the tax books for more than two thousand dollars in \u2018sixty-five.\n\nThat lets out folks like your pa and Mr.\n\nTarleton and the McRaes and the Fontaine boys.\n\nCan\u2019t nobody vote who was a colonel and over in the war and, Miss Debbie, I bet this state\u2019s got more colonels than any state in the Confederacy.\n\nAnd can\u2019t nobody vote who held office under the Confederate government and that lets out everybody from the notaries to the judges, and the woods are full of folks like that.\n\nFact is, the way the Yankees have framed up that amnesty oath, can\u2019t nobody who was somebody before the war vote at all.",
+          "id": "ev_e00333a8b54b77b400e83946",
+          "observedAt": "2026-10-14T08:45:29.533Z"
+        },
+        {
+          "sourceId": "memory:context-529",
+          "sourceVersion": "sha256:6d30e5c90452abb04867f48de8c20e379f1e07c73cbfe01d0f097282ce379a4d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-529",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "that hurt to think about.\n\nShe had driven over the County with Will, trying not to remember when these thousands of fertile acres had stood green with cotton.\n\nNow, plantation after plantation was going back to the forest and dismal fields of broomsedge, scrub oak and runty pines had grown stealthily about silent ruins and over old cotton fields.\n\nOnly one acre was being farmed now where once a hundred had been under the plow.\n\nIt was like moving through a dead land.\n\n\u201cThis section won\u2019t come back for fifty years\u2014if it ever comes back,\u201d Will had said.\n\nTara\u2019s the best farm in the County, thanks to you and me, Debbie, but it\u2019s a farm, a two-mule farm, not a plantation.\n\nAnd the Fontaine place, it comes next to Tare and then the Tarletons.\n\nThey ain\u2019t makin\u2019 much money but they\u2019re getting\u2019 along and they got gumption.\n\nBut most of the rest of the folks, the rest of the farms\u2014\u201d\n\nNo, Debbie did not like to remember the way the deserted County looked.\n\nIt seemed even sadder, in retrospect beside the bustle and prosperity of Atlanta.\n\n\u201cHas anything happened here?\u201d she asked when they were finally home and were seated on the front porch.",
+          "id": "ev_608429f9fc985280b1c2698e",
+          "observedAt": "2026-10-14T08:45:29.533Z"
+        }
+      ],
+      "sourceIds": [
+        "context-266",
+        "context-282",
+        "context-529"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.694999999999709,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-266",
+    "context-282",
+    "context-529"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:45:29.535462+00:00"
+}

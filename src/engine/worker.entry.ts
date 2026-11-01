@@ -38,6 +38,7 @@ import { createWebSearchTool } from '../tools/implementations/websearch.tool';
 import { globalSkillService } from '../skills/skill.service';
 import { loadHooksConfig } from '../tools/hooks.loader';
 import { globalProjectMemory } from '../memory/project.memory';
+import { createMemoryQueryTool } from '../tools/implementations/memory.tool';
 // LspQueryTool is excluded: it initialises TreeSitter WASM on import, adding ~100 MB per worker
 // thread and a cold-start penalty of 1-2s. Sub-agents use the shared graph store for code context.
 // McpManageTool is excluded: MCP connections belong to the parent process; re-connecting in every
@@ -72,6 +73,9 @@ async function runSubAgentCore(
   inheritRunBudget(config.runBudget instanceof SharedArrayBuffer ? config.runBudget : workerData?.runBudget);
   const episodeFloor = floorRoot();
   if (episodeFloor) SafetyPolicy.allowedWorkspace = episodeFloor;
+  const botPolicy = config.botRun ? await import('../bots/worker.policy') : undefined;
+  const botRun = botPolicy ? await botPolicy.validateBotAssignment(config.botRun, config.cwd) : undefined;
+  if (botRun && episodeFloor) throw new Error('Bot runs are not admitted inside a floored training episode.');
 
   // Nesting: record this worker's depth in its own (thread/process-local) env so the spawn tool
   // inside this agent knows where in the tree it sits. Worker threads get a COPY of process.env,
@@ -171,25 +175,21 @@ async function runSubAgentCore(
     // Shared project memory is a persistence channel out of the episode — floored workers'
     // lessons re-enter only via the dream grader, never directly.
     if (!episodeFloor) toolRegistry.register(createRememberTool(governor, globalProjectMemory));
-    // Same hybrid store as the parent process (see container.ts): without this the worker persona's
-    // auto-recall and remember tool run BM25-only on a second store racing the parent's writes over
-    // the same vectors.json. Floored episodes get no store at all — retrieval is a read of shared
-    // state, and floored lessons must re-enter only through the grader.
+    // Same retrieval policy as the parent; this isolate owns a distinct instance. Shared-file
+    // writes are coordinated by VectorStore's transaction protocol, not a shared JS mutex.
+    // Floored episodes cannot read/write shared memory.
     if (!episodeFloor && apiKeyManager) {
-      const { RemoteEmbeddingBackend } = await import('../memory/embeddings');
-      const { RemoteReranker } = await import('../memory/rerank');
-      const { resolveMemorySettings, rerankURLFor } = await import('../memory/settings');
-      const { VectorStore } = await import('../memory/vector.store');
-      const memorySettings = resolveMemorySettings();
-      const resolveKey = async () => {
-        const key = await apiKeyManager.getNextKey();
-        if (!key.keyStr) return null;
-        return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1', rerankURL: rerankURLFor(key.baseURL || 'https://integrate.api.nvidia.com/v1') };
-      };
-      globalProjectMemory.useStore(new VectorStore(
-        new RemoteEmbeddingBackend({ resolve: resolveKey, model: memorySettings.embeddingModel, dimensions: memorySettings.embeddingDimensions }),
-        new RemoteReranker({ resolve: resolveKey, model: memorySettings.rerankModel }),
-      ));
+      const { createMemoryRetrieval } = await import('../memory/retrieval.factory');
+      const retrieval = createMemoryRetrieval({
+        ...(botRun ? { store: { storePath: botPolicy!.botMemoryFile(botRun) } } : {}),
+        resolveChat: async () => {
+          const key = await apiKeyManager.getNextKey();
+          if (!key.keyStr) return null;
+          return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1' };
+        },
+      });
+      globalProjectMemory.useStore(retrieval.store);
+      if (botRun) toolRegistry.register(createMemoryQueryTool(governor, retrieval.store));
     }
     globalSkillService.load(config.cwd || process.cwd());
     toolRegistry.register(createSkillTool(governor, globalSkillService));
@@ -209,10 +209,13 @@ async function runSubAgentCore(
       const { createSpawnSubagentTool } = await import('../tools/implementations/spawn.tool');
       toolRegistry.register(createSpawnSubagentTool(governor, toolRegistry, llmAdapter));
     }
+    if (botRun) await botPolicy!.applyBotWorkerPolicy(botRun, toolRegistry);
 
     // 2. Instantiate Persona
     let agent: AgentPersona;
-    if (config.agentType === 'Hermes') agent = new HermesPersona(toolRegistry, llmAdapter);
+    if (botRun) agent = new DynamicPersona({ name: botRun.definition.name,
+      roleDescription: botRun.handoff.text, allowedTools: botRun.definition.requestedTools }, toolRegistry, llmAdapter);
+    else if (config.agentType === 'Hermes') agent = new HermesPersona(toolRegistry, llmAdapter);
     else if (config.agentType === 'OpenCode') agent = new OpenCodePersona(toolRegistry, llmAdapter);
     else if (config.agentType === 'OpenClaw') agent = new OpenClawPersona(toolRegistry, llmAdapter);
     else if (config.agentType === 'BiMax') agent = new BiMaxPersona(toolRegistry, llmAdapter);
@@ -247,7 +250,9 @@ async function runSubAgentCore(
 
     // 3. Execute
     try {
-      return await agent.execute(config.prompt, () => { /* streaming ignored in sub-agents */ });
+      // Keep recall anchored to the exact task. Using the entire handoff as its query makes
+      // wrapper/instruction words drown the subject and can trigger lexical abstention.
+      return await agent.execute(botRun?.task ?? config.prompt, () => { /* streaming ignored in sub-agents */ });
     } finally {
       engineEvents.off('tool_call', onCall);
       engineEvents.off('tool_call_result', onResult);

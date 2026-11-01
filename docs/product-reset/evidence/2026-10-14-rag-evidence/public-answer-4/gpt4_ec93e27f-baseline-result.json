@@ -1,0 +1,164 @@
+{
+  "row": 266,
+  "id": "gpt4_ec93e27f",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T08:43:13.063142+00:00",
+  "valid": true,
+  "question": "Which mode of transport did I use most recently, a bus or a train?",
+  "references": [
+    "train"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/05/02 (Tue) 08:12",
+  "benchmarkSessionIds": [
+    "6b63bdc5_2",
+    "answer_e3aa84c4_2",
+    "answer_e3aa84c4_1"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:43:38.664784+00:00",
+  "rag": {
+    "ids": [
+      "6b63bdc5_2",
+      "answer_e3aa84c4_2",
+      "answer_e3aa84c4_1"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 14) Session date: 2023/01/31 (Tue) 19:02\nuser: I'm looking to get some tips on optimizing my daily commute. I've recently moved to a new apartment and started taking the bus to work, which has been great so far. By the way, I managed to squeeze in a 30-minute jog around my parents' neighborhood on Sunday morning, which covered a distance of 0.5 miles. Do you have any suggestions on how to make my bus commute more efficient?\nassistant: Congratulations on your new apartment and new commute routine! It's great that you're enjoying the bus ride so far.\n\nFirstly, kudos on fitting in a jog on Sunday morning! 0.5 miles is a great start, and I'm sure you'll be increasing that distance in no time.\n\nNow, let's get to optimizing your bus commute! Here are some tips to help you make the most of your daily ride:\n\n1.\n\n**Plan your route**: Double-check the bus schedule and route to ensure you're taking the most efficient route to work.\n\nYou can use online tools like Google Maps or Transit to find the best option.\n\n2.\n\n**Leave a little earlier**: Consider leaving your apartment 10-15 minutes earlier than usual to account for any unexpected delays or traffic.\n\n3.\n  (part 2 of 14, excerpt) 3.\n\n**Choose a comfortable seat**: If possible, try to grab a seat near the front of the bus or in a quiet area to minimize distractions and make the most of your commute time.\n\n4.\n- (part 9 of 18, excerpt) * However, some bus companies in Japan are introducing eco-friendly buses, such as hybrid or electric vehicles, which can reduce emissions significantly. For example, the Tokyo Metropolitan Transportation Bureau has introduced hybrid bu\n- (part 10 of 11, excerpt) user: I've actually been taking a lot of trains lately, especially for shorter distances. In fact, I took a train ride to vi",
+    "evidence": [
+      {
+        "sourceId": "memory:6b63bdc5_2",
+        "sourceVersion": "sha256:604ebd657d9f06b4f0101d7e3f58d5f549c232bfed94fd11ba4eb72da8b11178",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "6b63bdc5_2",
+          "part": 1,
+          "parts": 14
+        },
+        "text": "Session date: 2023/01/31 (Tue) 19:02\nuser: I'm looking to get some tips on optimizing my daily commute. I've recently moved to a new apartment and started taking the bus to work, which has been great so far. By the way, I managed to squeeze in a 30-minute jog around my parents' neighborhood on Sunday morning, which covered a distance of 0.5 miles. Do you have any suggestions on how to make my bus commute more efficient?\nassistant: Congratulations on your new apartment and new commute routine! It's great that you're enjoying the bus ride so far.\n\nFirstly, kudos on fitting in a jog on Sunday morning! 0.5 miles is a great start, and I'm sure you'll be increasing that distance in no time.\n\nNow, let's get to optimizing your bus commute! Here are some tips to help you make the most of your daily ride:\n\n1.\n\n**Plan your route**: Double-check the bus schedule and route to ensure you're taking the most efficient route to work.\n\nYou can use online tools like Google Maps or Transit to find the best option.\n\n2.\n\n**Leave a little earlier**: Consider leaving your apartment 10-15 minutes earlier than usual to account for any unexpected delays or traffic.\n\n3.",
+        "id": "ev_7a996cce7f88646b6ff81c5d",
+        "observedAt": "2026-10-14T08:38:53.375Z"
+      },
+      {
+        "sourceId": "memory:6b63bdc5_2",
+        "sourceVersion": "sha256:604ebd657d9f06b4f0101d7e3f58d5f549c232bfed94fd11ba4eb72da8b11178",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "6b63bdc5_2",
+          "part": 2,
+          "parts": 14,
+          "partial": true
+        },
+        "text": "3.\n\n**Choose a comfortable seat**: If possible, try to grab a seat near the front of the bus or in a quiet area to minimize distractions and make the most of your commute time.\n\n4.",
+        "id": "ev_ab009b5f883c5ee79cd8f41c",
+        "observedAt": "2026-10-14T08:38:53.376Z"
+      },
+      {
+        "sourceId": "memory:answer_e3aa84c4_2",
+        "sourceVersion": "sha256:19eddf2539450b207054a4f2fff1c335f27c12c2f5562dad59f1c8aa775363ca",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_e3aa84c4_2",
+          "part": 9,
+          "parts": 18,
+          "partial": true
+        },
+        "text": "* However, some bus companies in Japan are introducing eco-friendly buses, such as hybrid or electric vehicles, which can reduce emissions significantly. For example, the Tokyo Metropolitan Transportation Bureau has introduced hybrid bu",
+        "id": "ev_85fdf51798a80c440056d792",
+        "observedAt": "2026-10-14T08:38:53.376Z"
+      },
+      {
+        "sourceId": "memory:answer_e3aa84c4_1",
+        "sourceVersion": "sha256:27577476d9384a605a51165827d551e9b4c985d252a229160573e03f003b2eca",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_e3aa84c4_1",
+          "part": 10,
+          "parts": 11,
+          "partial": true
+        },
+        "text": "user: I've actually been taking a lot of trains lately, especially for shorter distances. In fact, I took a train ride to vi",
+        "id": "ev_22c1d04e66c993ea4fc20e73",
+        "observedAt": "2026-10-14T08:38:53.377Z"
+      }
+    ],
+    "sourceIds": [
+      "6b63bdc5_2",
+      "answer_e3aa84c4_2",
+      "answer_e3aa84c4_1"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 18.977916999996523,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "The retrieved history does not contain sufficient dated information to determine which mode of transport you used most recently. While a bus commute is mentioned on 2023/01/31, a later reference to train usage appears without a clear date. Given the lack of definitive, recent evidence, I do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.044444444444444446
+  },
+  "readerUsage": {
+    "prompt_tokens": 570,
+    "completion_tokens": 1091,
+    "total_tokens": 1661,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 438,
+    "completion_tokens": 1026,
+    "total_tokens": 1464,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 13919.905500000823,
+  "judgeWallMs": 10652.128375000757
+}

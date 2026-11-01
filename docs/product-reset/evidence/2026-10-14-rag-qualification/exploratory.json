@@ -1,0 +1,4643 @@
+{
+  "scope": "Generated local memory RAG fixtures; controlled vectors; no model answers or independent heldout",
+  "runtime": "v22.13.1",
+  "platform": "darwin",
+  "arch": "arm64",
+  "cpu": "Apple M3",
+  "cores": 8,
+  "memoryBytes": 8589934592,
+  "sourceHashes": {
+    "baseline:src/memory/vector.store.ts": "55400c2e1ff96e0e93db1a29664b2cea6cb17f794d2b1dd523f6aea9e228c3b8",
+    "baseline:src/memory/recall.ts": "a849be001290b83ef3cc59945232634dd628001780120121d7d9759d9a6ff7ef",
+    "current:src/memory/vector.store.ts": "e628782817eaf75d2fa1f22517189993d992c4e26ba0f565815d59967886ae1b",
+    "current:src/memory/recall.ts": "a849be001290b83ef3cc59945232634dd628001780120121d7d9759d9a6ff7ef",
+    "legacy:src/memory/vector.store.ts": "e3d7c7a6b03df729188379844e883884ce76410eb24fb9d87d64feb8c8eff26a",
+    "legacy:src/memory/recall.ts": "ecc51e3e00118ba69a396c9989e28a1ac6af7b6201f5a7785250df60a8171a91"
+  },
+  "quality": [
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 0,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 0,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 0,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 0,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 0,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 0,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 1,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 1,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 1,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 1,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 1,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 1,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 2,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 2,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 2,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 2,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 2,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 2,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 3,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 3,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 3,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 3,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 3,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 3,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 4,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 4,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 4,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 4,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 4,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 4,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 5,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 5,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 5,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 5,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 5,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 5,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 6,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 6,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 6,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 6,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 6,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 6,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 7,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 7,
+      "mode": "lexical",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 7,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 7,
+      "mode": "dense",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "ordinary",
+      "seed": 7,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "ordinary",
+      "seed": 7,
+      "mode": "hybrid",
+      "chunks": 1,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 129,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 0,
+      "mode": "lexical",
+      "chunks": 65,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 812,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 0,
+      "mode": "lexical",
+      "chunks": 65,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 812,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 0,
+      "mode": "dense",
+      "chunks": 65,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 0,
+      "mode": "dense",
+      "chunks": 65,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 0,
+      "mode": "hybrid",
+      "chunks": 65,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 0,
+      "mode": "hybrid",
+      "chunks": 65,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 1,
+      "mode": "lexical",
+      "chunks": 80,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 812,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 1,
+      "mode": "lexical",
+      "chunks": 80,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 812,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 1,
+      "mode": "dense",
+      "chunks": 80,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 1,
+      "mode": "dense",
+      "chunks": 80,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 1,
+      "mode": "hybrid",
+      "chunks": 80,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 1,
+      "mode": "hybrid",
+      "chunks": 80,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 2,
+      "mode": "lexical",
+      "chunks": 100,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 813,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 2,
+      "mode": "lexical",
+      "chunks": 100,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 813,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 2,
+      "mode": "dense",
+      "chunks": 100,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 2,
+      "mode": "dense",
+      "chunks": 100,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 2,
+      "mode": "hybrid",
+      "chunks": 100,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 2,
+      "mode": "hybrid",
+      "chunks": 100,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 3,
+      "mode": "lexical",
+      "chunks": 150,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 813,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 3,
+      "mode": "lexical",
+      "chunks": 150,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 813,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 3,
+      "mode": "dense",
+      "chunks": 150,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 3,
+      "mode": "dense",
+      "chunks": 150,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 3,
+      "mode": "hybrid",
+      "chunks": 150,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 3,
+      "mode": "hybrid",
+      "chunks": 150,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 4,
+      "mode": "lexical",
+      "chunks": 200,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 813,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 4,
+      "mode": "lexical",
+      "chunks": 200,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 813,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 4,
+      "mode": "dense",
+      "chunks": 200,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 4,
+      "mode": "dense",
+      "chunks": 200,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 4,
+      "mode": "hybrid",
+      "chunks": 200,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 4,
+      "mode": "hybrid",
+      "chunks": 200,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 5,
+      "mode": "lexical",
+      "chunks": 256,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 813,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 5,
+      "mode": "lexical",
+      "chunks": 256,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 813,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 5,
+      "mode": "dense",
+      "chunks": 256,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 5,
+      "mode": "dense",
+      "chunks": 256,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 5,
+      "mode": "hybrid",
+      "chunks": 256,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 5,
+      "mode": "hybrid",
+      "chunks": 256,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 6,
+      "mode": "lexical",
+      "chunks": 300,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 813,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 6,
+      "mode": "lexical",
+      "chunks": 300,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 813,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 6,
+      "mode": "dense",
+      "chunks": 300,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 6,
+      "mode": "dense",
+      "chunks": 300,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 6,
+      "mode": "hybrid",
+      "chunks": 300,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 6,
+      "mode": "hybrid",
+      "chunks": 300,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 7,
+      "mode": "lexical",
+      "chunks": 512,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 813,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 7,
+      "mode": "lexical",
+      "chunks": 512,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 813,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 7,
+      "mode": "dense",
+      "chunks": 512,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 7,
+      "mode": "dense",
+      "chunks": 512,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "document-crowding",
+      "seed": 7,
+      "mode": "hybrid",
+      "chunks": 512,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "current",
+      "family": "document-crowding",
+      "seed": 7,
+      "mode": "hybrid",
+      "chunks": 512,
+      "ids": [
+        "report",
+        "approval",
+        "checksum"
+      ],
+      "recallAt3": 1,
+      "complete": true,
+      "reciprocalRank": 1,
+      "precision": 1,
+      "promptFactCoverage": 1,
+      "promptComplete": true,
+      "scopeViolation": false,
+      "provenance": true,
+      "promptChars": 884,
+      "budgetValid": true
+    },
+    {
+      "version": "baseline",
+      "family": "freshness-and-abstention",
+      "missingAbstained": true,
+      "currentValue": true,
+      "deleted": true
+    },
+    {
+      "version": "current",
+      "family": "freshness-and-abstention",
+      "missingAbstained": true,
+      "currentValue": true,
+      "deleted": true
+    }
+  ],
+  "results": [
+    {
+      "label": "warm-unknown-terms-50-docs-200-terms",
+      "repeats": 100,
+      "samples": [
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.011862499999999727
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.010894170000000258
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.010819999999999936
+        },
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.01097458999999958
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.010612499999999726
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.01876207999999906
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.010945000000000392
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.011307079999999132
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.002108339999999771
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.010421249999999417
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.002034999999999627
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.002244579999999132
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.0019420800000000326
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.002098750000000109
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.0020024999999998273
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.0019070899999996981
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.0020262500000001182
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.0019883299999992232
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.0018958299999997054
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.006482499999999618
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.0019179199999996399
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.0018999999999994089
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.0018858299999999417
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.0018533300000001419
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.0019550000000003818
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.001925420000000031
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.0018574999999998454
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.002108340000000908
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.0019879200000002583
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.002288750000000164
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.002054170000000113
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.0022974999999996726
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.0020879100000001927
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.0019720900000004347
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.0030216599999994286
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.0019804099999998926
+        }
+      ],
+      "checksum": 10800,
+      "baselineMs": 0.002108339999999771,
+      "currentMs": 0.0019883299999992232,
+      "speedup": 1.0603571841699289,
+      "reductionPercent": 5.692155914158081,
+      "discarded": 0
+    },
+    {
+      "label": "warm-scoped-unknown-terms-50-docs",
+      "repeats": 100,
+      "samples": [
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.0070962500000007365
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.007432919999999967
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.007172500000000355
+        },
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.007019169999999804
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.006997089999999844
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.006866250000000491
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.006845829999999751
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.0068037499999991265
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.0068079099999999925
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.006894579999999451
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.007587919999999713
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.006877090000000407
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.007196249999999509
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.0014999999999997726
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.0011966599999993833
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.0013008400000001075
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.002646660000000338
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.0012741699999992307
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.0013162499999998544
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.0013979199999994308
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.001199579999999969
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.0012658299999998234
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.0011962500000004183
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.0011954200000002402
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.0012087499999995544
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.0012741700000003676
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.001189160000000129
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.0012016700000003766
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.0012770799999998416
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.0013141700000005585
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.0012974999999994451
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.0012149999999996907
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.0012970799999993687
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.001165409999999838
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.0011454200000002857
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.0011100000000010368
+        }
+      ],
+      "checksum": 7200,
+      "baselineMs": 0.0013979199999994308,
+      "currentMs": 0.0013008400000001075,
+      "speedup": 1.0746287014539184,
+      "reductionPercent": 6.94460341073615,
+      "discarded": 0
+    },
+    {
+      "label": "warm-unknown-terms-500-docs-200-terms",
+      "repeats": 100,
+      "samples": [
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.047929579999999986
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.062354579999999944
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.055665000000000193
+        },
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.052943749999999457
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.05915624999999977
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.030470419999999193
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.030472919999999702
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.03046875
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.02841625000000022
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.029946670000000494
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.03003332999999998
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.030679999999999836
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.03005625000000009
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.028534579999999324
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.02964917000000014
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.030651249999999665
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.030566670000000615
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.03095291999999972
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.032227080000000116
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.03312291999999957
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.03408874999999966
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.03276333000000022
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.032921249999999416
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.03278332999999975
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.033239169999999374
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.033716670000000025
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.026536250000000337
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.02859416999999894
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.028455830000000334
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.029537499999999
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.02996874999999932
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.03073167000000012
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.031888339999999286
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.030185000000000173
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.032680830000000466
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.0338266699999997
+        }
+      ],
+      "checksum": 10800,
+      "baselineMs": 0.030679999999999836,
+      "currentMs": 0.03095291999999972,
+      "speedup": 0.9911827381713942,
+      "reductionPercent": -0.8895697522812496,
+      "discarded": 0
+    },
+    {
+      "label": "warm-scoped-unknown-terms-500-docs",
+      "repeats": 100,
+      "samples": [
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.019542500000000018
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.02068083999999999
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.01927167000000054
+        },
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.01965709000000061
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.020485410000000003
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.02140542000000096
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.02014833000000067
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.019125839999999242
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.019090419999999993
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.019751659999999446
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.016429160000000137
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.01746667000000002
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.016290420000000267
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.018085829999999987
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.01744374999999991
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.017532919999999876
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.01824958000000038
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.017446670000000494
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.018004590000000462
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.01672375000000102
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.01643082999999933
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.01828041999999982
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.017614579999999477
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.017932499999999435
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.017582079999999677
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.01822208000000046
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.017343339999999898
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.017555409999999938
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.01860249999999951
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.017734159999999975
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.018548749999999926
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.01739667000000054
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.017559590000000753
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.018223749999999653
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.01733208999999988
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.01839999999999918
+        }
+      ],
+      "checksum": 7200,
+      "baselineMs": 0.01824958000000038,
+      "currentMs": 0.018004590000000462,
+      "speedup": 1.0136070857486847,
+      "reductionPercent": 1.3424418534558669,
+      "discarded": 0
+    },
+    {
+      "label": "warm-search-long-100-chunks",
+      "repeats": 15,
+      "samples": [
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.04998613333333045
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.04085833333332781
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.038988933333333385
+        },
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.03575273333333371
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.042922199999998155
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.09438333333333351
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.04947219999999864
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.031869400000005044
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.028800000000001092
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.05106946666667227
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.029269466666672392
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.029349999999999453
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.03187499999999848
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.02885833333333115
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.02865000000000085
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.028677733333332376
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.028547200000002704
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.028972266666664838
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.030211066666667345
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.03698333333333418
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.032163866666663425
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.032819466666668025
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.027852800000005118
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.028983333333333878
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.03536666666666406
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.03673886666666325
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.058016666666670366
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.029102799999994506
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.03293606666666923
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.03254999999999957
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.04360273333333377
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.03203606666666777
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.03183606666666492
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.03050553333333331
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.03012499999999818
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.030444466666669237
+        }
+      ],
+      "checksum": 34560,
+      "baselineMs": 0.03254999999999957,
+      "currentMs": 0.03203606666666777,
+      "speedup": 1.016042335617516,
+      "reductionPercent": 1.5789042498673078,
+      "discarded": 0
+    },
+    {
+      "label": "warm-search-long-10000-chunks",
+      "repeats": 15,
+      "samples": [
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.06840279999999742
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.05843886666666549
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.05977219999999761
+        },
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.030541666666658786
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.028822199999998094
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.03462219999999737
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.029213933333327682
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.08587499999998727
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.024024999999998423
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.023825000000003153
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.023897200000010343
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.02515000000000024
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.025480533333332764
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.02514726666666623
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.02375833333333806
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.024838933333330714
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.024447266666660045
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.02425833333333382
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.024500000000004244
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.02422226666665968
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.02465833333332436
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.026800000000002912
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.024441666666674185
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.02475280000000263
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.0465221999999964
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.023777800000001056
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.02412499999998848
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.02412773333332249
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.02738886666666076
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.024713866666676645
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.02405833333332339
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.024030599999999444
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.023708333333327877
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.023627800000000813
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.024627799999992324
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.02387219999999009
+        }
+      ],
+      "checksum": 34560,
+      "baselineMs": 0.024713866666676645,
+      "currentMs": 0.02465833333332436,
+      "speedup": 1.002252112200837,
+      "reductionPercent": 0.2247051588538551,
+      "discarded": 0
+    },
+    {
+      "label": "warm-sparse-search-50-docs",
+      "repeats": 30,
+      "samples": [
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.01322499999999612
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.01299306666666477
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.012691666666667819
+        },
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.01339306666666289
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.014516666666668242
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.014194433333333716
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.014748599999999593
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.029926399999999374
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.014565299999996265
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.014565300000003844
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.018934733333329252
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.014970833333328907
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.018293033333338826
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.01316390000000259
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.012968066666667255
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.012324999999994665
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.020576366666667432
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.01379583333333206
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.013086100000001958
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.01355833333332915
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.01320139999999507
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.01283890000000459
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.013581933333337777
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.012286099999998138
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.013487499999996544
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.01277223333333192
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.012893066666667135
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.014369433333331471
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.012893066666667135
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.013098599999996926
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.013390299999999418
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.01230553333333925
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.01370833333333697
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.027262499999998604
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.012320833333334728
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.01383056666666107
+        }
+      ],
+      "checksum": 1080,
+      "baselineMs": 0.013581933333337777,
+      "currentMs": 0.013086100000001958,
+      "speedup": 1.037890076748286,
+      "reductionPercent": 3.65068301519903,
+      "discarded": 0
+    },
+    {
+      "label": "warm-sparse-search-500-docs",
+      "repeats": 30,
+      "samples": [
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.014295833333335395
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.014454166666663089
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.014466666666665635
+        },
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.013237499999998665
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.012449999999997392
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.01362776666666529
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.013887500000002244
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.01595553333333252
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.014005566666666407
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.013622233333330768
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.012423599999995835
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.02948193333333317
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.013948633333332813
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.023688899999994344
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.014111133333328023
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.01322499999999612
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.011995833333336729
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.037401366666661794
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.011762500000001334
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.01653886666666343
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.012013900000003257
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.013325000000001334
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.013484700000003614
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.012612500000000183
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.013565299999997175
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.011773599999999836
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.011431933333331775
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.013790266666668079
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.011886133333329477
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.01488333333333382
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.013308333333331273
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.012094466666667358
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.013136099999996986
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.012463899999996404
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.01326526666666723
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.016327766666662077
+        }
+      ],
+      "checksum": 1080,
+      "baselineMs": 0.013887500000002244,
+      "currentMs": 0.012612500000000183,
+      "speedup": 1.1010901883054147,
+      "reductionPercent": 9.180918091822543,
+      "discarded": 0
+    },
+    {
+      "label": "warm-sparse-search-10000-docs",
+      "repeats": 30,
+      "samples": [
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.014676399999999982
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.011562500000006063
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.012295833333329636
+        },
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.013730566666663436
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.013311100000002322
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.014334733333331922
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.013261099999999715
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.012391666666659754
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.013502766666662561
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.013080566666667437
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.012044433333327713
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.016234733333332467
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.012365266666665774
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.013741666666669516
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.013462499999999029
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.02791389999999865
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.015650000000005094
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.01659306666666301
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.012995833333335819
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.018038899999995313
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.02004863333334015
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.01825416666666418
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.01568890000000162
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.012241666666667091
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.013669433333332866
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.011655566666665134
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.012444433333333412
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.013362500000001394
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.011954166666669153
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.01367083333333691
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.014226399999999254
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.012197199999999004
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.01398469999999937
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.012495833333332484
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.01185973333332792
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.014325000000000424
+        }
+      ],
+      "checksum": 1080,
+      "baselineMs": 0.014226399999999254,
+      "currentMs": 0.012391666666659754,
+      "speedup": 1.1480618695365588,
+      "reductionPercent": 12.89668035019117,
+      "discarded": 0
+    },
+    {
+      "label": "warm-recall-500-docs-vocabulary-check",
+      "repeats": 20,
+      "samples": [
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.05868960000000243
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.10832500000000209
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.0563103999999953
+        },
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.054004150000002936
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.053454199999998765
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.07797500000000354
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.05715209999999615
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.062404199999991763
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.05130209999999806
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.052152050000006514
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.060810450000008134
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.05842289999999366
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.0634979000000044
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.056608349999999065
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.05612915000000385
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.06307289999999739
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.05434579999999869
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.05201039999999466
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.05138124999999718
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.05341460000000779
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.05908125000000837
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.052979149999998754
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.052549999999996544
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.052741649999995845
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.0583729500000004
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.06527079999999615
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.05819585000000416
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.06472914999999375
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.06462915000000749
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.06919164999999339
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.05624794999999949
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.05795209999999997
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.05148125000000618
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.05179165000000694
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.061654199999998126
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.05341250000000173
+        }
+      ],
+      "checksum": 104400,
+      "baselineMs": 0.05624794999999949,
+      "currentMs": 0.05908125000000837,
+      "speedup": 0.95204400719334,
+      "reductionPercent": -5.037161354340736,
+      "discarded": 0
+    },
+    {
+      "label": "warm-dense-crowding-50-chunks",
+      "repeats": 30,
+      "samples": [
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.05636526666667123
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.05436943333333299
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.055673633333337115
+        },
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.06349166666666406
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.05814306666666956
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.05820000000000315
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.05658886666666755
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.0573000000000017
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.05532640000000508
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.06247359999999844
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.05032360000000154
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.06349723333333562
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.057738899999996346
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.05718613333333451
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.05643333333333279
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.11259583333333012
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.05697916666666363
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.053213899999999134
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.05212780000000142
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.05433056666666592
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.05632916666666764
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.0592264000000038
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.05419443333333523
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.05676386666666531
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.04856806666666671
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.04686943333333602
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.04506943333333311
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.04958473333332828
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.0546875
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.048491666666670125
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.0529277666666682
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.05459306666666634
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.053766666666668544
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.05378196666666402
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.05959446666666584
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.05224446666666912
+        }
+      ],
+      "checksum": 3240,
+      "baselineMs": 0.05636526666667123,
+      "currentMs": 0.055673633333337115,
+      "speedup": 1.0124229961639664,
+      "reductionPercent": 1.2270559055885366,
+      "discarded": 0
+    },
+    {
+      "label": "warm-dense-crowding-500-chunks",
+      "repeats": 30,
+      "samples": [
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.17111250000000383
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.2296000000000049
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.21204443333333528
+        },
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.19426526666666935
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.20373609999999948
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.15123193333333043
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.14220973333333403
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.2109694333333361
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.1543374999999969
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.21953750000000127
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.14958886666667393
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.16795000000000376
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.15724446666666456
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.14458056666666533
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.15493333333333037
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.14872916666666544
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.16206386666666883
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.15118056666666083
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.1971444333333314
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.21356249999999666
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.21687640000000102
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.21911943333332903
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.13928886666666737
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.21824583333333672
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.15182500000000043
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.211898599999995
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.14629999999999654
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.1541610999999951
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.14971526666666554
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.15708886666667088
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.14093056666666445
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.1524250000000014
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.1488722333333347
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.14390973333333174
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.1496069666666699
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.14920833333333122
+        }
+      ],
+      "checksum": 3240,
+      "baselineMs": 0.1543374999999969,
+      "currentMs": 0.1971444333333314,
+      "speedup": 0.7828651176726019,
+      "reductionPercent": -27.735925056020317,
+      "discarded": 0
+    },
+    {
+      "label": "warm-dense-control-50-docs",
+      "repeats": 30,
+      "samples": [
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.03413053333332906
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.047899999999996605
+        },
+        {
+          "group": 0,
+          "version": "current",
+          "msPerCall": 0.03969443333332947
+        },
+        {
+          "group": 0,
+          "version": "baseline",
+          "msPerCall": 0.033755566666665494
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.03957223333333483
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.036002799999998086
+        },
+        {
+          "group": 1,
+          "version": "baseline",
+          "msPerCall": 0.03448473333333671
+        },
+        {
+          "group": 1,
+          "version": "current",
+          "msPerCall": 0.041031966666673726
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.03475833333333564
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.05055136666666537
+        },
+        {
+          "group": 2,
+          "version": "current",
+          "msPerCall": 0.04020833333333182
+        },
+        {
+          "group": 2,
+          "version": "baseline",
+          "msPerCall": 0.03518890000000283
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.03855693333333268
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.033094466666663415
+        },
+        {
+          "group": 3,
+          "version": "baseline",
+          "msPerCall": 0.03295973333333677
+        },
+        {
+          "group": 3,
+          "version": "current",
+          "msPerCall": 0.03839029999999942
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.03329999999999321
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.041345833333336184
+        },
+        {
+          "group": 4,
+          "version": "current",
+          "msPerCall": 0.03885139999999865
+        },
+        {
+          "group": 4,
+          "version": "baseline",
+          "msPerCall": 0.032963900000004286
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.04367776666667093
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.03776530000000093
+        },
+        {
+          "group": 5,
+          "version": "baseline",
+          "msPerCall": 0.0386777666666679
+        },
+        {
+          "group": 5,
+          "version": "current",
+          "msPerCall": 0.04143193333333481
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.03453750000000279
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.04795833333333424
+        },
+        {
+          "group": 6,
+          "version": "current",
+          "msPerCall": 0.04609859999999723
+        },
+        {
+          "group": 6,
+          "version": "baseline",
+          "msPerCall": 0.035813900000001314
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.045713866666665125
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.03873193333333802
+        },
+        {
+          "group": 7,
+          "version": "baseline",
+          "msPerCall": 0.0361458333333303
+        },
+        {
+          "group": 7,
+          "version": "current",
+          "msPerCall": 0.03930416666667043
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.03781806666666701
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.05112779999999475
+        },
+        {
+          "group": 8,
+          "version": "current",
+          "msPerCall": 0.042966666666666244
+        },
+        {
+          "group": 8,
+          "version": "baseline",
+          "msPerCall": 0.038148633333336575
+        }
+      ],
+      "checksum": 3240,
+      "baselineMs": 0.03518890000000283,
+      "currentMs": 0.04143193333333481,
+      "speedup": 0.84931831968582,
+      "reductionPercent": -17.74148476744506,
+      "discarded": 0
+    }
+  ]
+}

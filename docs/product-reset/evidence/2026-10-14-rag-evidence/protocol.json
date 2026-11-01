@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-14T08:17:02.422835+00:00",
+  "baseline": "record 96, production default recall limit 3 / excerpt budget 1800",
+  "development": "Independent synthetic fixtures only; old 200 scored questions excluded from tuning.",
+  "qualification": "A new balanced 100 classic LongMemEval_S +100 MemoryAgentBench Accurate_Retrieval questions, excluding earlier IDs and normalized question text, selected by metadata/hash before inference.",
+  "comparison": "Same exact NVIDIA Nemotron 3.5 Lightning reader and frozen judge profile, paired baseline/current production inputs; report regressions, resource and token/latency cost separately.",
+  "scope": "Memory RAG only, no CU/UI; no release or official leaderboard claim.",
+  "policy": "Freeze selected question IDs and implementation before inspecting qualification answers. Retain every valid prediction including wrong answers; retries by validity only. If a candidate does not qualify, keep results and do not tune on them."
+}

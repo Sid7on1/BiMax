@@ -1,0 +1,239 @@
+{
+  "row": 0,
+  "query": 9,
+  "id": "mab-0-9",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:38:05.637312+00:00",
+  "valid": true,
+  "question": "When was the Latin version of the word Norman first recorded?",
+  "references": [
+    "9th century",
+    "9th century",
+    "9th century"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 342.56533299999865,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 61,
+        "maxInputChars": 61,
+        "requiredProviderTruncation": false,
+        "promptTokens": 14,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-44",
+        "context-112",
+        "context-192"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5, excerpt) The word pharmacy is derived from its root word pharma which was a term used since the 15th\u201317th centuries. However, the original Greek roots from pharmakos imply sorcery or even poison. In addition to pharma responsibilities, the pharma offered general medical advice and a range of services that are now performed solely by other specialist practitioners, such as surgery and midwifery. The pharma (as it was referred to) often operated through a retail shop which, in addition to ingredients for medicines, sold tobacco and patent medicines. Often the place that did this was\n  (part 5 of 5) counting each person equally, life expectancy is lower in more unequal countries (r = -.907). A similar relationship exists among US states (r = -.620).\n\nDocument 231:\nEventually, the Normans merged with the natives, combining languages and traditions. In the course of the Hundred Years' War, the Norman aristocracy often identified themselves as English. The Anglo-Norman language became distinct from the Latin language, something that was the subject of some humour by Geoffrey Chaucer. The Anglo-Norman language was eventually absorbed into the Anglo-Saxon language of their subjects (see Old English) and influenced it, helping (along with the Norse language of the earlier Anglo-Norse settlers and the Latin used by the church) in the development of Middle English. It in turn evolved into Modern English.\n\nDocument 232:\nThe second main legislative body is\n- (part 3 of 5, excerpt) The Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to\n- (part 6 of 6, excerpt) The customary law of Normandy was developed between the 10th and 13th centuries and survives today through the legal systems o",
+      "evidence": [
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:d04ed066377e142c8a2a943d99b05ef440f2166ed9b276401e99a0c4250feda5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The word pharmacy is derived from its root word pharma which was a term used since the 15th\u201317th centuries. However, the original Greek roots from pharmakos imply sorcery or even poison. In addition to pharma responsibilities, the pharma offered general medical advice and a range of services that are now performed solely by other specialist practitioners, such as surgery and midwifery. The pharma (as it was referred to) often operated through a retail shop which, in addition to ingredients for medicines, sold tobacco and patent medicines. Often the place that did this was",
+          "id": "ev_ef0b93575d15ae051bf71281",
+          "observedAt": "2026-10-14T08:38:05.983Z"
+        },
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:d04ed066377e142c8a2a943d99b05ef440f2166ed9b276401e99a0c4250feda5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "counting each person equally, life expectancy is lower in more unequal countries (r = -.907). A similar relationship exists among US states (r = -.620).\n\nDocument 231:\nEventually, the Normans merged with the natives, combining languages and traditions. In the course of the Hundred Years' War, the Norman aristocracy often identified themselves as English. The Anglo-Norman language became distinct from the Latin language, something that was the subject of some humour by Geoffrey Chaucer. The Anglo-Norman language was eventually absorbed into the Anglo-Saxon language of their subjects (see Old English) and influenced it, helping (along with the Norse language of the earlier Anglo-Norse settlers and the Latin used by the church) in the development of Middle English. It in turn evolved into Modern English.\n\nDocument 232:\nThe second main legislative body is",
+          "id": "ev_203f44b5a08d4c2121b25f54",
+          "observedAt": "2026-10-14T08:38:05.983Z"
+        },
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:9fe9625a5a6bc47e5f39651d02c26d51137bab1df75360a70aac3596b7a3ffee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to",
+          "id": "ev_9b23c77b52504f0d984f551e",
+          "observedAt": "2026-10-14T08:38:05.983Z"
+        },
+        {
+          "sourceId": "memory:context-192",
+          "sourceVersion": "sha256:126eca935c5102b0cb8c6a770757b7a237d4bb54db5bc0d463186b84f3e9aa6f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-192",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "The customary law of Normandy was developed between the 10th and 13th centuries and survives today through the legal systems o",
+          "id": "ev_4994be68c64b9f3dc593bc26",
+          "observedAt": "2026-10-14T08:38:05.983Z"
+        }
+      ],
+      "sourceIds": [
+        "context-44",
+        "context-112",
+        "context-192"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.6438749999942956,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-44",
+        "context-112",
+        "context-192"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5, excerpt) Document 228:\nThe word pharmacy is derived from its root word pharma which was a term used since the 15th\u201317th centuries. However, the original Greek roots from pharmakos imply sorcery or even poison. In addition to pharma responsibilities, the pharma offered general medical advice and a range of services that are now performed solely by other specialist practitioners, such as surgery and midwifery. The pharma (as it was referred to) often operated through a retail shop which, in addition to ingredients for medicines, sold tobacco and patent medicines. Often the place that did this was called an apothecary and several languages have this as the dominant term, though their practices are more akin to a modern pharmacy, in English the term apothecary would today be seen as outdated or only approproriate if herbal remedies were on offer to a large extent. The pharmas also used many other herbs not listed. The Greek word Pharmakeia (Greek: \u03c6\u03b1\u03c1\u03bc\u03b1\u03ba\u03b5\u03af\u03b1) derives from pharmakon (\u03c6\u03ac\u03c1\u03bc\u03b1\u03ba\u03bf\u03bd), meaning \"drug\", \"medicine\" (or \"poison\").[n 1]\n  (part 5 of 5) counting each person equally, life expectancy is lower in more unequal countries (r = -.907). A similar relationship exists among US states (r = -.620).\n\nDocument 231:\nEventually, the Normans merged with the natives, combining languages and traditions. In the course of the Hundred Years' War, the Norman aristocracy often identified themselves as English. The Anglo-Norman language became distinct from the Latin language, something that was the subject of some humour by Geoffrey Chaucer. The Anglo-Norman language was eventually absorbed into the Anglo-Saxon language of their subjects (see Old English) and influenced it, helping (along with the Norse language of the earlier Anglo-Norse settlers and the Latin used by the church) in the development of Middle English. It in turn evolved into Modern English.\n\nDocument 232:\nThe second main legislative body is\n- (part 3 of 5) at the StubHub Center and were local rivals. However, Chivas were suspended following the 2014 MLS season, with a second MLS team scheduled to return in 2018.\n\nDocument 568:\nThe Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Francia. The distinct cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.\n- (part 6 of 6) to a spirit of subservience, to demean the seriousness of the protest...In particular, the neo-conservative insistence on a guilty plea should be eliminated.\"\n\nDocument 966:\nThe customary law of Normandy was developed between the 10th and 13th centuries and survives today through the legal systems of Jersey and Guernsey in the Channel Islands. Norman customary law was transcribed in two customaries in Latin by two judges for use by them and their colleagues: These are the Tr\u00e8s ancien coutumier (Very ancient customary), authored between 1200 and 1245; and the Grand coutumier de Normandie (Great customary of Normandy, originally Summa de legibus Normanniae in curia la\u00efcali), author",
+      "evidence": [
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:d04ed066377e142c8a2a943d99b05ef440f2166ed9b276401e99a0c4250feda5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 228:\nThe word pharmacy is derived from its root word pharma which was a term used since the 15th\u201317th centuries. However, the original Greek roots from pharmakos imply sorcery or even poison. In addition to pharma responsibilities, the pharma offered general medical advice and a range of services that are now performed solely by other specialist practitioners, such as surgery and midwifery. The pharma (as it was referred to) often operated through a retail shop which, in addition to ingredients for medicines, sold tobacco and patent medicines. Often the place that did this was called an apothecary and several languages have this as the dominant term, though their practices are more akin to a modern pharmacy, in English the term apothecary would today be seen as outdated or only approproriate if herbal remedies were on offer to a large extent. The pharmas also used many other herbs not listed. The Greek word Pharmakeia (Greek: \u03c6\u03b1\u03c1\u03bc\u03b1\u03ba\u03b5\u03af\u03b1) derives from pharmakon (\u03c6\u03ac\u03c1\u03bc\u03b1\u03ba\u03bf\u03bd), meaning \"drug\", \"medicine\" (or \"poison\").[n 1]",
+          "id": "ev_edefce064c83e29da904650b",
+          "observedAt": "2026-10-14T08:38:05.986Z"
+        },
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:d04ed066377e142c8a2a943d99b05ef440f2166ed9b276401e99a0c4250feda5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "counting each person equally, life expectancy is lower in more unequal countries (r = -.907). A similar relationship exists among US states (r = -.620).\n\nDocument 231:\nEventually, the Normans merged with the natives, combining languages and traditions. In the course of the Hundred Years' War, the Norman aristocracy often identified themselves as English. The Anglo-Norman language became distinct from the Latin language, something that was the subject of some humour by Geoffrey Chaucer. The Anglo-Norman language was eventually absorbed into the Anglo-Saxon language of their subjects (see Old English) and influenced it, helping (along with the Norse language of the earlier Anglo-Norse settlers and the Latin used by the church) in the development of Middle English. It in turn evolved into Modern English.\n\nDocument 232:\nThe second main legislative body is",
+          "id": "ev_203f44b5a08d4c2121b25f54",
+          "observedAt": "2026-10-14T08:38:05.986Z"
+        },
+        {
+          "sourceId": "memory:context-112",
+          "sourceVersion": "sha256:9fe9625a5a6bc47e5f39651d02c26d51137bab1df75360a70aac3596b7a3ffee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-112",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "at the StubHub Center and were local rivals. However, Chivas were suspended following the 2014 MLS season, with a second MLS team scheduled to return in 2018.\n\nDocument 568:\nThe Normans (Norman: Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France. They were descended from Norse (\"Norman\" comes from \"Norseman\") raiders and pirates from Denmark, Iceland and Norway who, under their leader Rollo, agreed to swear fealty to King Charles III of West Francia. Through generations of assimilation and mixing with the native Frankish and Roman-Gaulish populations, their descendants would gradually merge with the Carolingian-based cultures of West Francia. The distinct cultural and ethnic identity of the Normans emerged initially in the first half of the 10th century, and it continued to evolve over the succeeding centuries.",
+          "id": "ev_e99db2cce3b5dfbde4549790",
+          "observedAt": "2026-10-14T08:38:05.986Z"
+        },
+        {
+          "sourceId": "memory:context-192",
+          "sourceVersion": "sha256:126eca935c5102b0cb8c6a770757b7a237d4bb54db5bc0d463186b84f3e9aa6f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-192",
+            "part": 6,
+            "parts": 6
+          },
+          "text": "to a spirit of subservience, to demean the seriousness of the protest...In particular, the neo-conservative insistence on a guilty plea should be eliminated.\"\n\nDocument 966:\nThe customary law of Normandy was developed between the 10th and 13th centuries and survives today through the legal systems of Jersey and Guernsey in the Channel Islands. Norman customary law was transcribed in two customaries in Latin by two judges for use by them and their colleagues: These are the Tr\u00e8s ancien coutumier (Very ancient customary), authored between 1200 and 1245; and the Grand coutumier de Normandie (Great customary of Normandy, originally Summa de legibus Normanniae in curia la\u00efcali), author",
+          "id": "ev_7bc92a751c3d354a7518003c",
+          "observedAt": "2026-10-14T08:38:05.986Z"
+        }
+      ],
+      "sourceIds": [
+        "context-44",
+        "context-112",
+        "context-192"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.978583999996772,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-44",
+    "context-112",
+    "context-192"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:38:05.987597+00:00"
+}

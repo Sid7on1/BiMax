@@ -1,0 +1,162 @@
+{
+  "row": 5,
+  "query": 83,
+  "id": "mab-5-83",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T09:00:21.155971+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n80. Isaiah found his aunt sitting up for him.\n81. Donald looked up hopelessly and expressed her frustration about the documents not coming right.\n82. Mrs. Markleham leaned back in her chair and retired behind her fan.\n83. Mr. Littimer explained the young woman's violent reaction to Mr. Ryanne's departure.\n84. Mrs. Kyra inquired if Mr. Kayla was informed about everything.\n\n\nBelow is a list of possible subsequent events:\n\n[\"The girl lingered at the park's entrance, admiring the flowers in bloom.\", \"The girl crouched on the beach's shore, listening closely to the waves crash.\", \"The girl stopped at the river's brink, looking intently at the water.\", \"The girl stood on the cliff's edge, gazing thoughtfully at the valley below.\", \"The girl knelt by the pond's edge, watching the ripples dance across the surface.\", \"The girl paused at the mountain's base, contemplating the trail ahead.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "The girl stopped at the river's brink, looking intently at the water."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-311",
+    "context-288",
+    "context-62"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T09:00:52.184684+00:00",
+  "rag": {
+    "ids": [
+      "context-311",
+      "context-288",
+      "context-62"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) ran turned her head disdainfully towards him.\n\n'I beg your pardon, miss,' he said, awakening from his abstraction, 'but, however submissive to you, I have my position, though a servant. Mr. Kayla and you, miss, are different people. If Mr. Kayla wishes to know anything from me, I take the liberty of reminding Mr. Kayla that he can put a question to me. I have a character to maintain.'\n\nAfter a momentary struggle with myself, I turned my eyes upon him, and said, 'You have heard my question. Consider it addressed to yourself, if you choose. What answer do you make?'\n\n'Sir,' he rejoined, with an occasional separation and reunion of those delicate tips, 'my answer must be qualified; because, to betray Mr. Ryanne's confidence to his mother, and to betray it to you, are two different actions. It is not probable, I consider, that Mr. Ryanne would encourage the receipt of letters likely to increase low spirits and unpleasantness; but further than that, sir, I should wish to avoid going.'\n\n'Is that all?' inquired Miss Imran of me.\n  (part 4 of 4, excerpt) 'Is Mr. Kayla informed of everything, Dorothyish?'\n\n'Yes.'\n\n'And has he heard Littimer himself?'\n\n'Yes; I have told him why you wished it.' 'You are a good girl. I have had some slight correspondence with your former friend, sir,' addressing me, 'but it has not restored his sense of duty or natural obligation. Therefore I have no other object in this, th\n- (part 4 of 5, excerpt) 'At seven,' says Isaiah, looking at his plain old silver watch--the very watch he once took a wheel out of, at school, to make a water-mill. 'That is about Miss Cristal's time, is it no\n- (part 4 of 5, excerpt) It is over, and the earth is filled in, and we turn to come away. Before us stands our house, so pretty and unchanged, so lin",
+    "evidence": [
+      {
+        "sourceId": "memory:context-311",
+        "sourceVersion": "sha256:7fcfc5d5100cb28146c050504d2597bfa0524e8b5b874801948169fe8bd721a7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-311",
+          "part": 1,
+          "parts": 4
+        },
+        "text": "ran turned her head disdainfully towards him.\n\n'I beg your pardon, miss,' he said, awakening from his abstraction, 'but, however submissive to you, I have my position, though a servant. Mr. Kayla and you, miss, are different people. If Mr. Kayla wishes to know anything from me, I take the liberty of reminding Mr. Kayla that he can put a question to me. I have a character to maintain.'\n\nAfter a momentary struggle with myself, I turned my eyes upon him, and said, 'You have heard my question. Consider it addressed to yourself, if you choose. What answer do you make?'\n\n'Sir,' he rejoined, with an occasional separation and reunion of those delicate tips, 'my answer must be qualified; because, to betray Mr. Ryanne's confidence to his mother, and to betray it to you, are two different actions. It is not probable, I consider, that Mr. Ryanne would encourage the receipt of letters likely to increase low spirits and unpleasantness; but further than that, sir, I should wish to avoid going.'\n\n'Is that all?' inquired Miss Imran of me.",
+        "id": "ev_fc0ab5313ef7a0807c4d4629",
+        "observedAt": "2026-10-14T08:49:11.889Z"
+      },
+      {
+        "sourceId": "memory:context-311",
+        "sourceVersion": "sha256:7fcfc5d5100cb28146c050504d2597bfa0524e8b5b874801948169fe8bd721a7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-311",
+          "part": 4,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "'Is Mr. Kayla informed of everything, Dorothyish?'\n\n'Yes.'\n\n'And has he heard Littimer himself?'\n\n'Yes; I have told him why you wished it.' 'You are a good girl. I have had some slight correspondence with your former friend, sir,' addressing me, 'but it has not restored his sense of duty or natural obligation. Therefore I have no other object in this, th",
+        "id": "ev_690740642bcb507b7b609e7e",
+        "observedAt": "2026-10-14T08:49:11.889Z"
+      },
+      {
+        "sourceId": "memory:context-288",
+        "sourceVersion": "sha256:7c06bc532b8786a7df6f1341cca00f2f53c64f21c48bdac8f9252731fd41fa8c",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-288",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "'At seven,' says Isaiah, looking at his plain old silver watch--the very watch he once took a wheel out of, at school, to make a water-mill. 'That is about Miss Cristal's time, is it no",
+        "id": "ev_0d6ce5d8e87a1ddda3f225a5",
+        "observedAt": "2026-10-14T08:49:11.889Z"
+      },
+      {
+        "sourceId": "memory:context-62",
+        "sourceVersion": "sha256:fc6d8411c22436a1652085cefbb8c17bfcba7baae6d8f3882761aaf633bd18ab",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-62",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "It is over, and the earth is filled in, and we turn to come away. Before us stands our house, so pretty and unchanged, so lin",
+        "id": "ev_940ddaba6316ab51d6a4d917",
+        "observedAt": "2026-10-14T08:49:11.890Z"
+      }
+    ],
+    "sourceIds": [
+      "context-311",
+      "context-288",
+      "context-62"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 7.00495800000499,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "The girl knelt by the pond's edge, watching the ripples dance across the surface.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.10526315789473684
+  },
+  "readerUsage": {
+    "prompt_tokens": 798,
+    "completion_tokens": 1044,
+    "total_tokens": 1842,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 519,
+    "completion_tokens": 532,
+    "total_tokens": 1051,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 529,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 17772.866165999403,
+  "judgeWallMs": 13253.97166699986
+}

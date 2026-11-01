@@ -1,0 +1,145 @@
+{
+  "row": 0,
+  "query": 52,
+  "id": "mab-0-52",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:41:09.925421+00:00",
+  "valid": true,
+  "question": "Who was the hostage?",
+  "references": [
+    "Duncan",
+    "Duncan",
+    "Duncan"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-63",
+    "context-15",
+    "context-143"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:41:40.567511+00:00",
+  "rag": {
+    "ids": [
+      "context-63",
+      "context-15",
+      "context-143"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 6) maximum. However, the rainforest still managed to thrive during these glacial periods, allowing for the survival and evolution of a broad diversity of species.\n\nDocument 325:\nInstability troubled the early years of Kublai Khan's reign. Ogedei's grandson Kaidu refused to submit to Kublai and threatened the western frontier of Kublai's domain. The hostile but weakened Song dynasty remained an obstacle in the south. Kublai secured the northeast border in 1259 by installing the hostage prince Wonjong as the ruler of Korea, making it a Mongol tributary state. Kublai was also threatened by domestic unrest. Li Tan, the son-in-law of a powerful official, instigated a revolt against Mongol rule in 1262. After successfully suppressing the revolt, Kublai curbed the influence of the Han Chinese advisers in his court. He feared that his dependence on Chinese officials left him vulnerable to future revolts and defections to the Song.\n- (part 5 of 5, excerpt) Document 83:\nOne of the claimants of the English throne opposing William the Conqueror, Edgar Atheling, eventually fled to Scotland. King Malcolm III of Scotland married Edgar's sister Margaret, and came into opposition to William who had already disputed Scotland's southern borders. William invaded Scotland in 1072, riding as far as Abernethy where he met up with his fleet of ships. Malcolm submitted, paid homage to William and surrendered his son Duncan as a hostage, beginning a series of arguments as to whether the Scottish Crown owed allegiance to the King of England.\n\nDocument 84:\n- (part 1 of 5, excerpt) The earliest recorded incidents of collective civil disobedience took place during the Roman Empire[citation needed]. Unarmed Jews gathered in the streets to prevent the installation of pagan images in th",
+    "evidence": [
+      {
+        "sourceId": "memory:context-63",
+        "sourceVersion": "sha256:d79c8ab9cf48c7b09683980a9c64f3ff624b676a4815f4c8c858a86b2eb93a4b",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-63",
+          "part": 5,
+          "parts": 6
+        },
+        "text": "maximum. However, the rainforest still managed to thrive during these glacial periods, allowing for the survival and evolution of a broad diversity of species.\n\nDocument 325:\nInstability troubled the early years of Kublai Khan's reign. Ogedei's grandson Kaidu refused to submit to Kublai and threatened the western frontier of Kublai's domain. The hostile but weakened Song dynasty remained an obstacle in the south. Kublai secured the northeast border in 1259 by installing the hostage prince Wonjong as the ruler of Korea, making it a Mongol tributary state. Kublai was also threatened by domestic unrest. Li Tan, the son-in-law of a powerful official, instigated a revolt against Mongol rule in 1262. After successfully suppressing the revolt, Kublai curbed the influence of the Han Chinese advisers in his court. He feared that his dependence on Chinese officials left him vulnerable to future revolts and defections to the Song.",
+        "id": "ev_2eb39f02cde2802097e19a13",
+        "observedAt": "2026-10-14T08:38:04.564Z"
+      },
+      {
+        "sourceId": "memory:context-15",
+        "sourceVersion": "sha256:111feb99728768d0a79f525e09a313c84e3c0a69a69d70051017dda27034a541",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-15",
+          "part": 5,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Document 83:\nOne of the claimants of the English throne opposing William the Conqueror, Edgar Atheling, eventually fled to Scotland. King Malcolm III of Scotland married Edgar's sister Margaret, and came into opposition to William who had already disputed Scotland's southern borders. William invaded Scotland in 1072, riding as far as Abernethy where he met up with his fleet of ships. Malcolm submitted, paid homage to William and surrendered his son Duncan as a hostage, beginning a series of arguments as to whether the Scottish Crown owed allegiance to the King of England.\n\nDocument 84:",
+        "id": "ev_9ca20c147711e68edd2f6028",
+        "observedAt": "2026-10-14T08:38:04.564Z"
+      },
+      {
+        "sourceId": "memory:context-143",
+        "sourceVersion": "sha256:5704f782fa2b6d6268ec74cc1d400c819c1bb35ea43df76b703d57a3e107cbd2",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-143",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "The earliest recorded incidents of collective civil disobedience took place during the Roman Empire[citation needed]. Unarmed Jews gathered in the streets to prevent the installation of pagan images in th",
+        "id": "ev_28d61200bf2fbfe027ae31d4",
+        "observedAt": "2026-10-14T08:38:04.564Z"
+      }
+    ],
+    "sourceIds": [
+      "context-63",
+      "context-15",
+      "context-143"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 1.8328340000007302,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "The retrieved history mentions two different hostages in separate contexts:\n\n1. **Wonjong** \u2013 a prince installed as ruler of Korea by Kublai Khan to secure the northeast border and make Korea a Mongol tributary state (Document 325).\n2. **Duncan** \u2013 the son of King Malcolm III of Scotland, surrendered as a hostage to William the Conqueror after the Scottish submission (Document 83).\n\nSince the question does not specify which historical event is intended, the information is ambiguous.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.029411764705882353
+  },
+  "readerUsage": {
+    "prompt_tokens": 498,
+    "completion_tokens": 1132,
+    "total_tokens": 1630,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 341,
+    "completion_tokens": 1026,
+    "total_tokens": 1367,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 12481.477749999613,
+  "judgeWallMs": 16668.499875000634
+}

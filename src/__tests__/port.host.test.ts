@@ -69,7 +69,7 @@ test('an acknowledgement and junk are never taken for protocol messages', async 
   await tick();
   expect(onInput).toHaveBeenCalledTimes(1);
   // The optional input metadata is absent for a plain coding message.
-  expect(onInput).toHaveBeenCalledWith('real');
+  expect(onInput).toHaveBeenCalledWith('real', undefined, undefined);
   expect(stderr.mock.calls.map(([line]) => String(line)).filter((l) => l.includes('[port.host]'))).toHaveLength(2);
   stderr.mockRestore();
   c.close();

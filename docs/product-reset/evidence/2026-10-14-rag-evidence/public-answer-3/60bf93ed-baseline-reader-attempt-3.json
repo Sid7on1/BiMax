@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T09:09:22.820837+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 3,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/01/24 (Tue) 23:56\nQuestion: How many days did it take for my laptop backpack to arrive after I bought it?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 21, excerpt) As for your backpack, that's great to hear you're enjoying it! However, I'm curious - how's the backpack holding up so far? Is it comfortable, and are you finding it spacious enough for your laptop and other daily essentials?\n  (part 3 of 21) I'm curious - how's the backpack holding up so far? Is it comfortable, and are you finding it spacious enough for your laptop and other daily essentials?\n\nLet me know if you have any specific preferences or requirements for your new wireless mouse, and I can provide more tailored recommendations!\nuser: I'll definitely consider those factors when choosing a new wireless mouse. I'm actually thinking of getting one with a rechargeable battery, since I'm trying to reduce waste and be more environmentally friendly. Do you have any recommendations for brands or models that offer rechargeable batteries? Oh, and by the way, my backpack has been doing great - it's super comfortable and has plenty of space for my laptop, chargers, and other stuff. I've been using it to carry my work laptop to and from the office every day. I bought it from Amazon on 1/15.\nassistant: That's awesome that you're considering the environmental impact of your purchases! Rechargeable batteries are a great way to reduce waste and minimize your carbon footprint.\n\nHere are some wireless mouse recommendations with rechargeable batteries:\n- (part 1 of 14, excerpt) user: I'm thinking of getting a new wireless mouse, my current one's been acting up lately. Do you have any recommendations for good wireless mice? By the way, I just started using my new laptop backpack and it's been great. It arrive\n- (part 7 of 14, excerpt) days a week can make a significant positive impact on the environment. And it's great that you're experiencing the benefits"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 99.65970900066168
+}

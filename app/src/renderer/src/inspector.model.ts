@@ -14,7 +14,7 @@ import type { GitStatusResult } from './global';
  * disappears reads as a bug — but nothing may auto-open an unavailable lane.
  */
 
-export type InspectorTabId = 'files' | 'review' | 'terminal' | 'github';
+export type InspectorTabId = 'files' | 'review' | 'terminal' | 'github' | 'outputs';
 
 export interface InspectorTab {
   id: InspectorTabId;
@@ -33,6 +33,7 @@ export interface InspectorInput {
   gitStatus: GitStatusResult | null;
   /** A project is open, so the file tree and a shell are meaningful. */
   hasProject: boolean;
+  outputsEnabled?: boolean;
   /** The folder is a git repository (the GitHub lane needs one). */
   isRepo?: boolean;
   /** Commits waiting to be pushed — the GitHub lane's badge. */
@@ -47,7 +48,7 @@ export function inspectorTabs(input: InspectorInput): InspectorTab[] {
   const reviewCount = Math.max(changed, reviewChanges);
   const verificationFailed = input.review?.state === 'verification_failed';
 
-  return [
+  const tabs: InspectorTab[] = [
     {
       id: 'files',
       label: 'Files',
@@ -84,6 +85,8 @@ export function inspectorTabs(input: InspectorInput): InspectorTab[] {
       attention: (input.behind ?? 0) > 0,
     },
   ];
+  if (input.outputsEnabled) tabs.push({ id: 'outputs', label: 'Outputs', available: true, emptyReason: 'Saved outputs appear here.', count: null, attention: false });
+  return tabs;
 }
 
 /**

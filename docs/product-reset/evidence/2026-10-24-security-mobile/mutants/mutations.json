@@ -1,0 +1,67 @@
+[
+  {
+    "finding": "F01",
+    "caught": true,
+    "failedAssertions": [
+      "F01 exact packaged document identity is required even for the correct main sender"
+    ]
+  },
+  {
+    "finding": "F02",
+    "caught": true,
+    "failedAssertions": [
+      "F02 descriptor-bound project files reads/writes/list remain usable; linked outside reads/writes/list are refused without changing bystanders"
+    ]
+  },
+  {
+    "finding": "F03",
+    "caught": true,
+    "failedAssertions": [
+      "F03 remembered grant binds the concrete MCP server/tool, preserves A and refuses B",
+      "F03 legacy unscoped allows fail closed and explicit deny wins over an earlier allow"
+    ]
+  },
+  {
+    "finding": "F04",
+    "caught": true,
+    "failedAssertions": [
+      "F04 independent engine request 1 cards route by immutable card capability, including restart"
+    ]
+  },
+  {
+    "finding": "F05",
+    "caught": true,
+    "failedAssertions": [
+      "F05 rejects non-public literal 127.0.0.1",
+      "F05 rejects non-public literal ::1",
+      "F05 rejects non-public literal ::ffff:7f00:1",
+      "F05 rejects non-public literal 10.0.0.1",
+      "F05 rejects non-public literal 172.16.0.1",
+      "F05 rejects non-public literal 192.168.0.1",
+      "F05 rejects non-public literal 169.254.169.254",
+      "F05 rejects non-public literal 100.64.0.1",
+      "F05 rejects non-public literal fc00::1",
+      "F05 rejects non-public literal fe80::1",
+      "F05 refuses http://[::ffff:127.0.0.1]/ without a socket",
+      "F05 refuses http://2130706433/ without a socket",
+      "F05 rejects private and mixed DNS results before a connection",
+      "F05 redirects revalidate destination and cannot reuse public-host consent for a private target"
+    ]
+  },
+  {
+    "finding": "F06",
+    "caught": true,
+    "failedAssertions": [
+      "F06 rejects declared and chunked overflow, destroys streams, and preserves split UTF-8"
+    ]
+  },
+  {
+    "finding": "F07",
+    "caught": true,
+    "failedAssertions": [
+      "F07 first-host consent asks and caches a denial with Thread scope=false",
+      "F07 first-host consent asks and caches a denial with Thread scope=true",
+      "F07 granted host is reused, foreign host asks, unattended cannot mint a grant, sovereign policy wins"
+    ]
+  }
+]

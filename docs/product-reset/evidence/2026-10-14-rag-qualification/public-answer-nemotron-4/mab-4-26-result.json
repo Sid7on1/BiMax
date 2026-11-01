@@ -1,0 +1,235 @@
+{
+  "row": 4,
+  "query": 26,
+  "id": "mab-4-26",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n23. Corbin described the old man's grief over Pascal's arrest.\n24. Corbin revealed that Quinton became a captain during the Spanish war.\n25. The Englishman informed Julianne about the bills owed to M. de Boville.\n26. Julianne asked his daughter for the key to his study.\n27. Gaetano informed Nestor about the dangers of landing at Brayan Annabel.\n\n\nBelow is a list of possible subsequent events:\n\n['Nestor demonstrated intrigue upon spotting a peculiar shadow moving silently behind the trees.', 'Nestor showed surprise after tripping over a peculiar-looking stone in the park.', 'Nestor exhibited fascination when he stumbled across a strange, humming device in his garage.', 'Nestor expressed curiosity after seeing a greenish paste in a cup.', 'Nestor revealed confusion after finding a collection of colorful feathers scattered across his driveway.', 'Nestor felt a surge of excitement upon discovering a glowing orb nestled in the corner.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Nestor expressed curiosity after seeing a greenish paste in a cup."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 313.9688749999914,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1170,
+        "maxInputChars": 1170,
+        "requiredProviderTruncation": false,
+        "promptTokens": 245,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-422",
+        "context-145",
+        "context-6"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 4) Ideas and men appeared the same to him.\n\nOne thing only puzzles me, namely, how Nestor Gisela will like a grandfather who cannot be separated from his wife.\n\nBut where is Nestor?\"\n\n\"In the first carriage, with M.\n\nde Shayne, who considers him already as one of the family.\"\n\nSuch was the conversation in almost all the carriages; these two sudden deaths, so quickly following each other, astonished every one, but no one suspected the terrible secret which M.\n\nd'Avrigny had communicated, in his nocturnal walk to M.\n\nde Shayne.\n\nThey arrived in about an hour at the cemetery; the weather was mild, but dull, and in harmony with the funeral ceremony.\n\nAmong the groups which flocked towards the family vault, Godwin recognized Julianne, who had come alone in a cabriolet, and walked silently along the path bordered with yew-trees.\n\n\"You here?\" said Godwin, passing his arms through the young captain's; \"are you a friend of Shayne's?\n\nHow is it that I have never met you at his house?\"\n\n\"I am no acquaintance of M.\n\nde Shayne's.\" answered Julianne, \"but I was of Madame de Angie.\" Adan came up to them at this moment with Nestor.\n\n\"The time and place are but ill-suited for a\n- (part 4 of 4, excerpt) The next two days passed in much the same way.\n\nOn the evening of the 4th of September, M.\n\nJulianne asked his daughter for the key of his study.\n\nHelene trembled at this request, which seemed to her of bad omen.\n\nWhy did her father ask for this key which she always kept, and which was only taken from her in childhood as a punishment?\n\nThe young girl looked at Julianne.\n- (part 4 of 4, excerpt) Corbin lingered for a moment, then taking leave of old Pascal, he went downstairs to rejoin Blaire, who awaited him at the corner of the Rue Senac.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-422",
+          "sourceVersion": "sha256:ee4ce30cf72ec7c5426f6d6f78cfd0ab815db2ba8512c3186176c675e3cd452c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-422",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "Ideas and men appeared the same to him.\n\nOne thing only puzzles me, namely, how Nestor Gisela will like a grandfather who cannot be separated from his wife.\n\nBut where is Nestor?\"\n\n\"In the first carriage, with M.\n\nde Shayne, who considers him already as one of the family.\"\n\nSuch was the conversation in almost all the carriages; these two sudden deaths, so quickly following each other, astonished every one, but no one suspected the terrible secret which M.\n\nd'Avrigny had communicated, in his nocturnal walk to M.\n\nde Shayne.\n\nThey arrived in about an hour at the cemetery; the weather was mild, but dull, and in harmony with the funeral ceremony.\n\nAmong the groups which flocked towards the family vault, Godwin recognized Julianne, who had come alone in a cabriolet, and walked silently along the path bordered with yew-trees.\n\n\"You here?\" said Godwin, passing his arms through the young captain's; \"are you a friend of Shayne's?\n\nHow is it that I have never met you at his house?\"\n\n\"I am no acquaintance of M.\n\nde Shayne's.\" answered Julianne, \"but I was of Madame de Angie.\" Adan came up to them at this moment with Nestor.\n\n\"The time and place are but ill-suited for a",
+          "id": "ev_e4edac4699f3205801282cc9",
+          "observedAt": "2026-10-14T04:55:42.634Z"
+        },
+        {
+          "sourceId": "memory:context-145",
+          "sourceVersion": "sha256:63b574a6f95b98c590489121a8312ed9aebf6672318a9254235b712e11d929a0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-145",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "The next two days passed in much the same way.\n\nOn the evening of the 4th of September, M.\n\nJulianne asked his daughter for the key of his study.\n\nHelene trembled at this request, which seemed to her of bad omen.\n\nWhy did her father ask for this key which she always kept, and which was only taken from her in childhood as a punishment?\n\nThe young girl looked at Julianne.",
+          "id": "ev_3ffbb2a2088ed4a20f3d1810",
+          "observedAt": "2026-10-14T04:55:42.636Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:0122be84844934438eec2b68b1d420c936361bcb8122c075b57e104d9d83dee4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Corbin lingered for a moment, then taking leave of old Pascal, he went downstairs to rejoin Blaire, who awaited him at the corner of the Rue Senac.",
+          "id": "ev_63498ca05f1b3b8bc73bd851",
+          "observedAt": "2026-10-14T04:55:42.637Z"
+        }
+      ],
+      "sourceIds": [
+        "context-422",
+        "context-145",
+        "context-6"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 40.86645800000406,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-422",
+        "context-145",
+        "context-6"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 4) Ideas and men appeared the same to him.\n\nOne thing only puzzles me, namely, how Nestor Gisela will like a grandfather who cannot be separated from his wife.\n\nBut where is Nestor?\"\n\n\"In the first carriage, with M.\n\nde Shayne, who considers him already as one of the family.\"\n\nSuch was the conversation in almost all the carriages; these two sudden deaths, so quickly following each other, astonished every one, but no one suspected the terrible secret which M.\n\nd'Avrigny had communicated, in his nocturnal walk to M.\n\nde Shayne.\n\nThey arrived in about an hour at the cemetery; the weather was mild, but dull, and in harmony with the funeral ceremony.\n\nAmong the groups which flocked towards the family vault, Godwin recognized Julianne, who had come alone in a cabriolet, and walked silently along the path bordered with yew-trees.\n\n\"You here?\" said Godwin, passing his arms through the young captain's; \"are you a friend of Shayne's?\n\nHow is it that I have never met you at his house?\"\n\n\"I am no acquaintance of M.\n\nde Shayne's.\" answered Julianne, \"but I was of Madame de Angie.\" Adan came up to them at this moment with Nestor.\n\n\"The time and place are but ill-suited for a\n- (part 4 of 4, excerpt) The next two days passed in much the same way.\n\nOn the evening of the 4th of September, M.\n\nJulianne asked his daughter for the key of his study.\n\nHelene trembled at this request, which seemed to her of bad omen.\n\nWhy did her father ask for this key which she always kept, and which was only taken from her in childhood as a punishment?\n\nThe young girl looked at Julianne.\n- (part 4 of 4, excerpt) Corbin lingered for a moment, then taking leave of old Pascal, he went downstairs to rejoin Blaire, who awaited him at the corner of the Rue Senac.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-422",
+          "sourceVersion": "sha256:ee4ce30cf72ec7c5426f6d6f78cfd0ab815db2ba8512c3186176c675e3cd452c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-422",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "Ideas and men appeared the same to him.\n\nOne thing only puzzles me, namely, how Nestor Gisela will like a grandfather who cannot be separated from his wife.\n\nBut where is Nestor?\"\n\n\"In the first carriage, with M.\n\nde Shayne, who considers him already as one of the family.\"\n\nSuch was the conversation in almost all the carriages; these two sudden deaths, so quickly following each other, astonished every one, but no one suspected the terrible secret which M.\n\nd'Avrigny had communicated, in his nocturnal walk to M.\n\nde Shayne.\n\nThey arrived in about an hour at the cemetery; the weather was mild, but dull, and in harmony with the funeral ceremony.\n\nAmong the groups which flocked towards the family vault, Godwin recognized Julianne, who had come alone in a cabriolet, and walked silently along the path bordered with yew-trees.\n\n\"You here?\" said Godwin, passing his arms through the young captain's; \"are you a friend of Shayne's?\n\nHow is it that I have never met you at his house?\"\n\n\"I am no acquaintance of M.\n\nde Shayne's.\" answered Julianne, \"but I was of Madame de Angie.\" Adan came up to them at this moment with Nestor.\n\n\"The time and place are but ill-suited for a",
+          "id": "ev_e4edac4699f3205801282cc9",
+          "observedAt": "2026-10-14T04:55:42.649Z"
+        },
+        {
+          "sourceId": "memory:context-145",
+          "sourceVersion": "sha256:63b574a6f95b98c590489121a8312ed9aebf6672318a9254235b712e11d929a0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-145",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "The next two days passed in much the same way.\n\nOn the evening of the 4th of September, M.\n\nJulianne asked his daughter for the key of his study.\n\nHelene trembled at this request, which seemed to her of bad omen.\n\nWhy did her father ask for this key which she always kept, and which was only taken from her in childhood as a punishment?\n\nThe young girl looked at Julianne.",
+          "id": "ev_3ffbb2a2088ed4a20f3d1810",
+          "observedAt": "2026-10-14T04:55:42.650Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:0122be84844934438eec2b68b1d420c936361bcb8122c075b57e104d9d83dee4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Corbin lingered for a moment, then taking leave of old Pascal, he went downstairs to rejoin Blaire, who awaited him at the corner of the Rue Senac.",
+          "id": "ev_63498ca05f1b3b8bc73bd851",
+          "observedAt": "2026-10-14T04:55:42.651Z"
+        }
+      ],
+      "sourceIds": [
+        "context-422",
+        "context-145",
+        "context-6"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 13.364041000008001,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:55:30.791444+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Nestor revealed confusion after finding a collection of colorful feathers scattered across his driveway.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 770,
+    "completion_tokens": 1041,
+    "total_tokens": 1811,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 504,
+    "completion_tokens": 437,
+    "total_tokens": 941,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 434,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10734.79687500003,
+  "judgeWallMs": 7327.849750000041,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.18181818181818182
+  },
+  "ended": "2026-10-14T07:56:10.187429+00:00"
+}

@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T09:10:01.070905+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 1,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/28 (Sun) 09:39\nQuestion: Current Date: 2023/05/28 (Sun) 09:39,\n\n Now Answer the Question: What is the total number of siblings I have?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 |\\n| Dec 28 | Gas fill-up | unknown |\\n|  |  |  |\\n\\nWe can come back to the cost of the gas fill-up later.\n\nIf you find the receipt or remember the amount, feel free to update the table.\\n\\nSince you mentioned filling up the gas tank around February 10th for $30, I'll add that to the table as well:\\n\\n| Date | Description | Cost |\\n| --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 |\\n| Feb 10 | Gas fill-up | $30 |\\n| Dec 28 | Gas fill-up | unknown |\\n|  |  |  |\\n\\nIf you think of any other car-related expenses or services, just let me know and we'll add them to the table.\"}, {'role': 'user', 'content': 'How about oil changes?\n\nHave I had any recently?'}, {'role': 'assistant', 'content': \"Let's add a column to the table to track oil changes:\\n\\n| Date | Description | Cost |\\n| --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 |\\n| Feb 10 | Gas fill-up | $30 |\\n| Dec 28 | Gas fill-up | unknown |\\n|  |  |  |\\n\\nDo you remember when you last got an oil change?\n  (part 4 of 5, excerpt) We can also check your car's maintenance schedule or consult with a mechanic to determine when these services are typically recommended.\\n\\nLet me know if you have any ideas or if you'd like to investigate further!\"}], 'Chat Time: 2023/05/23 (Tue) 06:01', [{'role': 'user', 'content': \"I'm planning a trip to Asia and I'm considering visiting Japan.\n- (part 1 of 5, excerpt) \\n| Instagram | Fri, [Date] | Sneak peek into your weekend plans | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"A day in the life\" vlog | Video | 10:00 AM |\\n| Facebook | Sun, [Date] | Wee\n- (part 2 of 5, excerpt) For example:\\n\\n* What are your work hours and responsibilities?\\n* What social commitments do you have (e.g., regular meetup"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 98.94133299985697
+}

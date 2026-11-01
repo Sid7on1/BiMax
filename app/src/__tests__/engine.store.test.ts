@@ -135,3 +135,13 @@ describe('engine domain subscriptions', () => {
     }
   });
 });
+
+test('configuration notices update settings without replacing progress or entering chat',()=>{
+ const store=new EngineStore(),settings=jest.fn(),stream=jest.fn();store.domains.settings.subscribe(settings);store.domains.stream.subscribe(stream);
+ store.dispatch(event('status','Reading source'));
+ const before=stream.mock.calls.length;
+ store.dispatch(event('engine_notice',{id:'pricing:provider/model',category:'pricing',text:'Spend is estimated.'}));
+ expect(store.getState().status).toBe('Reading source');expect(store.getState().items).toEqual([]);
+ expect(store.domains.settings.getSnapshot().notices).toMatchObject({'pricing:provider/model':{text:'Spend is estimated.'}});
+ expect(settings).toHaveBeenCalledTimes(1);expect(stream.mock.calls).toHaveLength(before);
+});

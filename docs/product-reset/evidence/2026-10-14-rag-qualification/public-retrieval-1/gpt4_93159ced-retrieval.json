@@ -1,0 +1,235 @@
+{
+  "row": 322,
+  "id": "gpt4_93159ced",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T05:10:45.253992+00:00",
+  "valid": true,
+  "question": "How long have I been working before I started my current job at NovaTech?",
+  "references": [
+    "4 years and 9 months"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/05/25 (Thu) 19:17",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 412.765916999997,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 73,
+        "maxInputChars": 73,
+        "requiredProviderTruncation": false,
+        "promptTokens": 18,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_e5131a1b_2",
+        "answer_e5131a1b_1",
+        "460be54a"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 15 of 22, excerpt) your team in the evaluation process to ensure everyone is comfortable with the chosen tool and can effectively use it to optimize your API's performance.\n\nGood luck with the evaluation, and I hope you find the perfect tool to help NovaTech's project succeed!\n  (part 21 of 22) **Celebrate Successes**: Acknowledge and celebrate the successes and benefits achieved through New Relic adoption to maintain team motivation and engagement.\n\nBy following this plan, you'll be well on your way to a successful New Relic rollout and a smooth integration with your existing workflows. Good luck!\nuser: I'll start by saying that I'm a software engineer, specifically a backend developer, and I've been in this field since I graduated with a degree in Computer Science from the University of California, Berkeley. I've been working at NovaTech for about 4 years and 3 months now.\nassistant: A Cal Bear, nice! As a backend developer with 4+ years of experience, you've got a solid foundation in software development. Your experience at NovaTech has likely given you a deep understanding of the company's technology stack and the challenges that come with it.\n\nNow, let's dive into the plan for rolling out New Relic to your team. With your background in backend development, you'll be able to provide valuable insights into the implementation process and ensure a smooth integration with your existing workflows.\n- (part 1 of 18, excerpt) user: I'm looking to get some advice on managing my time more efficiently. Lately, I've been working long hours on a high-priority project and my commute has increased, leaving me with little t\n- (part 16 of 22, excerpt) 4. **Portfolio building:** By completing a project, you'll have a tangible outcome to showcase your skills, which can be ben",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_e5131a1b_2",
+          "sourceVersion": "sha256:39a50c12c9ef2c1547ff8ca69b1e0476476a1889e8049ba042c1bc87953e22d0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e5131a1b_2",
+            "part": 15,
+            "parts": 22,
+            "partial": true
+          },
+          "text": "your team in the evaluation process to ensure everyone is comfortable with the chosen tool and can effectively use it to optimize your API's performance.\n\nGood luck with the evaluation, and I hope you find the perfect tool to help NovaTech's project succeed!",
+          "id": "ev_89c52e5148d000e6191a925e",
+          "observedAt": "2026-10-14T05:10:45.701Z"
+        },
+        {
+          "sourceId": "memory:answer_e5131a1b_2",
+          "sourceVersion": "sha256:39a50c12c9ef2c1547ff8ca69b1e0476476a1889e8049ba042c1bc87953e22d0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e5131a1b_2",
+            "part": 21,
+            "parts": 22
+          },
+          "text": "**Celebrate Successes**: Acknowledge and celebrate the successes and benefits achieved through New Relic adoption to maintain team motivation and engagement.\n\nBy following this plan, you'll be well on your way to a successful New Relic rollout and a smooth integration with your existing workflows. Good luck!\nuser: I'll start by saying that I'm a software engineer, specifically a backend developer, and I've been in this field since I graduated with a degree in Computer Science from the University of California, Berkeley. I've been working at NovaTech for about 4 years and 3 months now.\nassistant: A Cal Bear, nice! As a backend developer with 4+ years of experience, you've got a solid foundation in software development. Your experience at NovaTech has likely given you a deep understanding of the company's technology stack and the challenges that come with it.\n\nNow, let's dive into the plan for rolling out New Relic to your team. With your background in backend development, you'll be able to provide valuable insights into the implementation process and ensure a smooth integration with your existing workflows.",
+          "id": "ev_65559741c46313021a265628",
+          "observedAt": "2026-10-14T05:10:45.704Z"
+        },
+        {
+          "sourceId": "memory:answer_e5131a1b_1",
+          "sourceVersion": "sha256:ccf3b23a05a61da47a57d42288cbb89bb72203a2ec0ab5a001574be10ba5bda0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e5131a1b_1",
+            "part": 1,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I'm looking to get some advice on managing my time more efficiently. Lately, I've been working long hours on a high-priority project and my commute has increased, leaving me with little t",
+          "id": "ev_d2cdb3ac252dc1530f578152",
+          "observedAt": "2026-10-14T05:10:45.706Z"
+        },
+        {
+          "sourceId": "memory:460be54a",
+          "sourceVersion": "sha256:251386a949649967f3117ec01744fd09a73d227d8319e8425568ae07e9b50e89",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "460be54a",
+            "part": 16,
+            "parts": 22,
+            "partial": true
+          },
+          "text": "4. **Portfolio building:** By completing a project, you'll have a tangible outcome to showcase your skills, which can be ben",
+          "id": "ev_5dcbdc1292589f7779a9f256",
+          "observedAt": "2026-10-14T05:10:45.707Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_e5131a1b_2",
+        "answer_e5131a1b_1",
+        "460be54a"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 43.618084000001545,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_e5131a1b_2",
+        "answer_e5131a1b_1",
+        "460be54a"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 15 of 22, excerpt) your team in the evaluation process to ensure everyone is comfortable with the chosen tool and can effectively use it to optimize your API's performance.\n\nGood luck with the evaluation, and I hope you find the perfect tool to help NovaTech's project succeed!\n  (part 21 of 22) **Celebrate Successes**: Acknowledge and celebrate the successes and benefits achieved through New Relic adoption to maintain team motivation and engagement.\n\nBy following this plan, you'll be well on your way to a successful New Relic rollout and a smooth integration with your existing workflows. Good luck!\nuser: I'll start by saying that I'm a software engineer, specifically a backend developer, and I've been in this field since I graduated with a degree in Computer Science from the University of California, Berkeley. I've been working at NovaTech for about 4 years and 3 months now.\nassistant: A Cal Bear, nice! As a backend developer with 4+ years of experience, you've got a solid foundation in software development. Your experience at NovaTech has likely given you a deep understanding of the company's technology stack and the challenges that come with it.\n\nNow, let's dive into the plan for rolling out New Relic to your team. With your background in backend development, you'll be able to provide valuable insights into the implementation process and ensure a smooth integration with your existing workflows.\n- (part 1 of 18, excerpt) user: I'm looking to get some advice on managing my time more efficiently. Lately, I've been working long hours on a high-priority project and my commute has increased, leaving me with little t\n- (part 16 of 22, excerpt) 4. **Portfolio building:** By completing a project, you'll have a tangible outcome to showcase your skills, which can be ben",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_e5131a1b_2",
+          "sourceVersion": "sha256:39a50c12c9ef2c1547ff8ca69b1e0476476a1889e8049ba042c1bc87953e22d0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e5131a1b_2",
+            "part": 15,
+            "parts": 22,
+            "partial": true
+          },
+          "text": "your team in the evaluation process to ensure everyone is comfortable with the chosen tool and can effectively use it to optimize your API's performance.\n\nGood luck with the evaluation, and I hope you find the perfect tool to help NovaTech's project succeed!",
+          "id": "ev_89c52e5148d000e6191a925e",
+          "observedAt": "2026-10-14T05:10:45.725Z"
+        },
+        {
+          "sourceId": "memory:answer_e5131a1b_2",
+          "sourceVersion": "sha256:39a50c12c9ef2c1547ff8ca69b1e0476476a1889e8049ba042c1bc87953e22d0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e5131a1b_2",
+            "part": 21,
+            "parts": 22
+          },
+          "text": "**Celebrate Successes**: Acknowledge and celebrate the successes and benefits achieved through New Relic adoption to maintain team motivation and engagement.\n\nBy following this plan, you'll be well on your way to a successful New Relic rollout and a smooth integration with your existing workflows. Good luck!\nuser: I'll start by saying that I'm a software engineer, specifically a backend developer, and I've been in this field since I graduated with a degree in Computer Science from the University of California, Berkeley. I've been working at NovaTech for about 4 years and 3 months now.\nassistant: A Cal Bear, nice! As a backend developer with 4+ years of experience, you've got a solid foundation in software development. Your experience at NovaTech has likely given you a deep understanding of the company's technology stack and the challenges that come with it.\n\nNow, let's dive into the plan for rolling out New Relic to your team. With your background in backend development, you'll be able to provide valuable insights into the implementation process and ensure a smooth integration with your existing workflows.",
+          "id": "ev_65559741c46313021a265628",
+          "observedAt": "2026-10-14T05:10:45.726Z"
+        },
+        {
+          "sourceId": "memory:answer_e5131a1b_1",
+          "sourceVersion": "sha256:ccf3b23a05a61da47a57d42288cbb89bb72203a2ec0ab5a001574be10ba5bda0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e5131a1b_1",
+            "part": 1,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I'm looking to get some advice on managing my time more efficiently. Lately, I've been working long hours on a high-priority project and my commute has increased, leaving me with little t",
+          "id": "ev_d2cdb3ac252dc1530f578152",
+          "observedAt": "2026-10-14T05:10:45.727Z"
+        },
+        {
+          "sourceId": "memory:460be54a",
+          "sourceVersion": "sha256:251386a949649967f3117ec01744fd09a73d227d8319e8425568ae07e9b50e89",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "460be54a",
+            "part": 16,
+            "parts": 22,
+            "partial": true
+          },
+          "text": "4. **Portfolio building:** By completing a project, you'll have a tangible outcome to showcase your skills, which can be ben",
+          "id": "ev_5dcbdc1292589f7779a9f256",
+          "observedAt": "2026-10-14T05:10:45.727Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_e5131a1b_2",
+        "answer_e5131a1b_1",
+        "460be54a"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 19.666084000004048,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:10:45.732352+00:00"
+}

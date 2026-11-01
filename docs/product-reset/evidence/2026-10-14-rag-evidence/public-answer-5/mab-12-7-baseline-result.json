@@ -1,0 +1,162 @@
+{
+  "row": 12,
+  "query": 7,
+  "id": "mab-12-7",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:43:06.008469+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n4. Brent expressed his puzzlement about why Debbie did not ask them to stay for supper.\n5. Debbie's father, John Abrianna, contributed money to outfit the Troop.\n6. Debbie's heart swelled with hope as she thought about Kali.\n7. Debbie feared Kali's engagement to Edgar.\n8. Debbie teased Marianne about spying on him.\n\n\nBelow is a list of possible subsequent events:\n\n['Debbie was bewildered upon finding out that Kali and Edgar were expecting a child.', 'Debbie felt betrayed when she uncovered that Kali had secretly been dating Edgar.', 'Debbie was heartbroken after realizing that Kali had moved in with Edgar.', 'Debbie experienced shock upon discovering that Kali had eloped with Edgar.', \"Debbie was devastated upon hearing about Kali's wedding plans with Edgar.\", \"Debbie felt anguish upon learning about Kali's engagement to Edgar.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie felt anguish upon learning about Kali's engagement to Edgar."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-17",
+    "context-72",
+    "context-70"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:43:54.228957+00:00",
+  "rag": {
+    "ids": [
+      "context-17",
+      "context-72",
+      "context-70"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) s arm.\n\n\u201cLet\u2019s go in, Pa.\u201d \u201cSo now \u2018tis you wanting to go in,\u201d he observed.\n\n\u201cBut here I\u2019m going to stand till I\u2019m understanding you.\n\nNow that I think of it \u2018tis strange you\u2019ve been recently.\n\nHas he been trifling with you?\n\nHas he asked to marry you?\u201d \u201cNo,\u201d she said shortly.\n\n\u201cNor will he,\u201d said Marianne.\n\nFury flamed in her, but Marianne waved her quiet with a hand.\n\n\u201cHold your tongue, Miss!\n\nI had it from John Abrianna this afternoon in the strictest confidence that Kali\u2019s to marry Miss Edgar.\n\nIt\u2019s to be announced tomorrow.\u201d\n\nDebbie\u2019s hand fell from his arm.\n\nSo it was true!\n\nA pain slashed at her heart as savagely as a wild animal\u2019s fangs.\n\nThrough it all, she felt her father\u2019s eyes on her, a little pitying, a little annoyed at being faced with a problem for which he knew no answer.\n\nHe loved Debbie, but it made him uncomfortable to have her forcing her childish problems on him for a solution.\n\nLucian knew all the answers.\n\nDebbie should have taken her troubles to her.\n\n\u201cIs it a spectacle you\u2019ve been making of yourself\u2014of all of us?\u201d he bawled, his voice rising as always in moments of excitement.\n  (part 2 of 4, excerpt) Now come, daughter, cheer up, and I\u2019ll take you to Kamalaton next week to visit your Aunt Eulalie and, what with all the hullabaloo they are having over there about Fort Sumter, you\u2019ll be forgetting about Kali in a week.\u201d \u201cHe thinks I\u2019m a child,\u201d thought Debbie, grief and anger choking utterance, \u201cand he\u2019s only got to dan\n- (part 4 of 5, excerpt) Not even at the terrible moment of parting, when he stopped by Tara on his way to the train, did she have a private talk.\n- (part 5 of 5, excerpt) Learning that Kali\u2019s wedding had been moved up from the autumn to the first of May, so he could leave with the Troop as soon as it was calle",
+    "evidence": [
+      {
+        "sourceId": "memory:context-17",
+        "sourceVersion": "sha256:86dd0c04b7ca6648d7247e5a13669286d87e58d4cf516127cdeaca5bdae5a1b8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-17",
+          "part": 1,
+          "parts": 4
+        },
+        "text": "s arm.\n\n\u201cLet\u2019s go in, Pa.\u201d \u201cSo now \u2018tis you wanting to go in,\u201d he observed.\n\n\u201cBut here I\u2019m going to stand till I\u2019m understanding you.\n\nNow that I think of it \u2018tis strange you\u2019ve been recently.\n\nHas he been trifling with you?\n\nHas he asked to marry you?\u201d \u201cNo,\u201d she said shortly.\n\n\u201cNor will he,\u201d said Marianne.\n\nFury flamed in her, but Marianne waved her quiet with a hand.\n\n\u201cHold your tongue, Miss!\n\nI had it from John Abrianna this afternoon in the strictest confidence that Kali\u2019s to marry Miss Edgar.\n\nIt\u2019s to be announced tomorrow.\u201d\n\nDebbie\u2019s hand fell from his arm.\n\nSo it was true!\n\nA pain slashed at her heart as savagely as a wild animal\u2019s fangs.\n\nThrough it all, she felt her father\u2019s eyes on her, a little pitying, a little annoyed at being faced with a problem for which he knew no answer.\n\nHe loved Debbie, but it made him uncomfortable to have her forcing her childish problems on him for a solution.\n\nLucian knew all the answers.\n\nDebbie should have taken her troubles to her.\n\n\u201cIs it a spectacle you\u2019ve been making of yourself\u2014of all of us?\u201d he bawled, his voice rising as always in moments of excitement.",
+        "id": "ev_72005f135a848167ee0ff5fe",
+        "observedAt": "2026-10-14T08:38:45.941Z"
+      },
+      {
+        "sourceId": "memory:context-17",
+        "sourceVersion": "sha256:86dd0c04b7ca6648d7247e5a13669286d87e58d4cf516127cdeaca5bdae5a1b8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-17",
+          "part": 2,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Now come, daughter, cheer up, and I\u2019ll take you to Kamalaton next week to visit your Aunt Eulalie and, what with all the hullabaloo they are having over there about Fort Sumter, you\u2019ll be forgetting about Kali in a week.\u201d \u201cHe thinks I\u2019m a child,\u201d thought Debbie, grief and anger choking utterance, \u201cand he\u2019s only got to dan",
+        "id": "ev_ad1a26fb18e0158e9ef64d96",
+        "observedAt": "2026-10-14T08:38:45.941Z"
+      },
+      {
+        "sourceId": "memory:context-72",
+        "sourceVersion": "sha256:6009492de9a1bead74886dacaf638ee419a2a2b08421239ba9f118e89efe0df0",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-72",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Not even at the terrible moment of parting, when he stopped by Tara on his way to the train, did she have a private talk.",
+        "id": "ev_b19f007da14422d5a2a1408d",
+        "observedAt": "2026-10-14T08:38:45.942Z"
+      },
+      {
+        "sourceId": "memory:context-70",
+        "sourceVersion": "sha256:281ebfa60f62032cb9a4a2269a08bfa532a492d1305bc8f56c4ddd71eb2d41a0",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-70",
+          "part": 5,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Learning that Kali\u2019s wedding had been moved up from the autumn to the first of May, so he could leave with the Troop as soon as it was calle",
+        "id": "ev_a9002f2bd18a68b202944550",
+        "observedAt": "2026-10-14T08:38:45.942Z"
+      }
+    ],
+    "sourceIds": [
+      "context-17",
+      "context-72",
+      "context-70"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 5.837916000000405,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Debbie was devastated upon hearing about Kali's wedding plans with Edgar.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.47619047619047616
+  },
+  "readerUsage": {
+    "prompt_tokens": 777,
+    "completion_tokens": 1039,
+    "total_tokens": 1816,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 477,
+    "completion_tokens": 905,
+    "total_tokens": 1382,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 902,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 14847.7043339999,
+  "judgeWallMs": 9832.300084000053
+}

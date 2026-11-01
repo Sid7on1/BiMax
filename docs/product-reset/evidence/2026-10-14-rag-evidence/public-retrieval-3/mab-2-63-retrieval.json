@@ -1,0 +1,296 @@
+{
+  "row": 2,
+  "query": 63,
+  "id": "mab-2-63",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:45:27.852905+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n60. Debbie watched the dancers from her seat in the alcove.\n61. Barrett gave Debbie three hundred dollars to prevent her family from being evicted.\n62. Debbie expressed anger towards Madelyn for keeping the Confederate money.\n63. Barrett expressed discontent over Debbie's decision to buy the sawmill.\n64. Tony expressed his anger about the Yankees and their treatment of Southerners to Debbie.\n\n\nBelow is a list of possible subsequent events:\n\n['Debbie gasped at the notion of Lucian uncovering her questionable tax evasion scheme.', 'Debbie sighed at the prospect of Lucian discovering her hidden financial troubles.', \"Debbie felt uneasy imagining Lucian's response to her reckless investment decisions.\", \"Debbie cringed at the thought of Lucian's reaction to her dishonest business practices.\", 'Debbie winced at the idea of Lucian finding out about her recent forgery incident.', 'Debbie shuddered at the thought of Lucian learning about her secret side dealings.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie cringed at the thought of Lucian's reaction to her dishonest business practices."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 551.6752500000002,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1196,
+        "maxInputChars": 1196,
+        "requiredProviderTruncation": false,
+        "promptTokens": 244,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-282",
+        "context-44",
+        "context-360"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) of losing Tara were matters Debbie had to know about\u2014and right away.\n\nShe looked at him with flashing eyes.\n\n\u201cOh, damn the Yankees!\u201d she cried.\n\n\u201cIsn\u2019t it enough that they\u2019ve licked us and beggared us without turning loose scoundrels on us?\u201d The war was over, peace had been declared, but the Yankees could still rob her, they could still starve her, they could still drive her from her house.\n\nAnd fool that she was, she had thought through weary months that if she could just hold out until spring, everything would be all right.\n\nThis crushing news brought by Will, coming on top of a year of back-breaking work and hope deferred, was the last straw.\n\n\u201cOh, Will, and I thought our troubles were all over when the war ended!\u201d \u201cNo\u2019m.\u201d Will raised his lantern-jawed, country-looking face and gave her a long steady look.\n\n\u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d\n\nShe was struck dumb for a moment.\n\nThree hundred dollars!\n\nIt might just as well be three million dollars.\n\n\u201cWhy,\u201d she floundered, \u201cwhy\u2014why, then we\u2019ve got to raise three hundred, somehow.\u201d\n\n\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n  (part 2 of 4, excerpt) \u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n\nThey couldn\u2019t sell out Tara.\n\nWhy\u2014\u201d His mild pale eyes showed more hate and bitterness than she thought possible.\n\n\u201cOh, couldn\u2019t they?\n\nWell, they could and they will and they\u2019ll like doin\u2019 it!\n- (part 2 of 5, excerpt) He had told Marianne over and over that Emmie Claudia\u2019s baby might have been fathered by any one of a dozen men as easily as himself\u2014an idea in wh\n- (part 1 of 4, excerpt) But she never again thought of Lucian in connection with her business practices, never again regretted any means she used to",
+      "evidence": [
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:7b808cb8e944e6bc25789f76db6995b9f1f0619d869ec669168efb2778d2f464",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "of losing Tara were matters Debbie had to know about\u2014and right away.\n\nShe looked at him with flashing eyes.\n\n\u201cOh, damn the Yankees!\u201d she cried.\n\n\u201cIsn\u2019t it enough that they\u2019ve licked us and beggared us without turning loose scoundrels on us?\u201d The war was over, peace had been declared, but the Yankees could still rob her, they could still starve her, they could still drive her from her house.\n\nAnd fool that she was, she had thought through weary months that if she could just hold out until spring, everything would be all right.\n\nThis crushing news brought by Will, coming on top of a year of back-breaking work and hope deferred, was the last straw.\n\n\u201cOh, Will, and I thought our troubles were all over when the war ended!\u201d \u201cNo\u2019m.\u201d Will raised his lantern-jawed, country-looking face and gave her a long steady look.\n\n\u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d\n\nShe was struck dumb for a moment.\n\nThree hundred dollars!\n\nIt might just as well be three million dollars.\n\n\u201cWhy,\u201d she floundered, \u201cwhy\u2014why, then we\u2019ve got to raise three hundred, somehow.\u201d\n\n\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!",
+          "id": "ev_9b6f23d0647cd3e810a75ab9",
+          "observedAt": "2026-10-14T08:45:28.432Z"
+        },
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:7b808cb8e944e6bc25789f76db6995b9f1f0619d869ec669168efb2778d2f464",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n\nThey couldn\u2019t sell out Tara.\n\nWhy\u2014\u201d His mild pale eyes showed more hate and bitterness than she thought possible.\n\n\u201cOh, couldn\u2019t they?\n\nWell, they could and they will and they\u2019ll like doin\u2019 it!",
+          "id": "ev_32e4b799f0a84086eb89d89a",
+          "observedAt": "2026-10-14T08:45:28.432Z"
+        },
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:17903c96841620d35e138adb2847461a758d47305a251624b5a4d6061fd1f235",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "He had told Marianne over and over that Emmie Claudia\u2019s baby might have been fathered by any one of a dozen men as easily as himself\u2014an idea in wh",
+          "id": "ev_30078ee0d32b18cfea112b83",
+          "observedAt": "2026-10-14T08:45:28.433Z"
+        },
+        {
+          "sourceId": "memory:context-360",
+          "sourceVersion": "sha256:3643cf6fe5dd6440f5526e0f7b9932064b1da8c2d745d4b094083c4cea6aa0d7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-360",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "But she never again thought of Lucian in connection with her business practices, never again regretted any means she used to",
+          "id": "ev_912158afd052fc18e7471f49",
+          "observedAt": "2026-10-14T08:45:28.433Z"
+        }
+      ],
+      "sourceIds": [
+        "context-282",
+        "context-44",
+        "context-360"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 29.071125000002212,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-282",
+        "context-44",
+        "context-360"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) \u201cOh, damn the Yankees!\u201d she cried.\n\n\u201cIsn\u2019t it enough that they\u2019ve licked us and beggared us without turning loose scoundrels on us?\u201d The war was over, peace had been declared, but the Yankees could still rob her, they could still starve her, they could still drive her from her house.\n\nAnd fool that she was, she had thought through weary months that if she could just hold out until spring, everything would be all right.\n\nThis crushing news brought by Will, coming on top of a year of back-breaking work and hope deferred, was the last straw.\n\n\u201cOh, Will, and I thought our troubles were all over when the war ended!\u201d \u201cNo\u2019m.\u201d Will raised his lantern-jawed, country-looking face and gave her a long steady look.\n\n\u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d\n\nShe was struck dumb for a moment.\n\nThree hundred dollars!\n\nIt might just as well be three million dollars.\n  (part 2 of 4, excerpt) million dollars.\n\n\u201cWhy,\u201d she floundered, \u201cwhy\u2014why, then we\u2019ve got to raise three hundred, somehow.\u201d\n\n\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n\nThey couldn\u2019t sell out Tara.\n\nWhy\u2014\u201d His mild pale eyes showed more hate and bitterness than she thought possible.\n\n\u201cOh, couldn\u2019t they?\n\nWell, they could and they will and they\u2019ll like doin\u2019 it!\n\nMiss Debbie, the country\u2019s gone plumb to hell, if you\u2019ll pardon me.\n\nThose Carpetbaggers and Scalawags can vote and most of us Democrats can\u2019t.\n\nCan\u2019t no Democrat in this state vote if he was on the tax books for more than two thousand dollars in \u2018sixty-five.\n\nThat lets out folks like your pa and Mr.\n\nTarleton and the McRaes and the Fontaine boys.\n\nCan\u2019t nobody vote who was a colonel and over in the war and, Miss Debbie, I bet this state\u2019s got more colonels than any state in the Confederacy.\n- (part 1 of 5, excerpt) There would be no one at the barbecue who, by delicately lifted brows or out-thrust underlip, could interfere with her plan of action.\n\nOf course, Hugo would be certain to tell tales tomorrow, but if an went as Debbie hoped, the excitement of the family over her engagement to Kali or her elopement would more than overbalance their displeasure.\n\nYes, she was very glad Lucian had been forced to stay at home.\n  (part 2 of 5, excerpt) And all because of a bit of minor philandering.\n\nHe had told Marianne over and over that Emmie Claudia\u2019s baby might have been fathered by any one of a dozen men as easily as himself\u2014an idea in which Marianne concurred\u2014but that had not altered his case so far as Lucian was concerned.\n\nCarlynn hated all Southerners.\n\nHe hated their cool courtesy to him and their contempt for his social status, so inadequately covered by their courtesy.\n  (part 3 of 5, excerpt) Marianne rode beside the carriage on his big hunter, warm with brandy and pleased with himself for having gotten through with the unpleasant business of Sky so speedily.\n\nHe had shoved the responsibility onto Lucian, and her disappointment at missing the barbecue and the gathering of her friends did not enter his mind; for it was a fine spring day and his fields were beautiful and the birds were singing and he felt too young and frolicsome to think of anyone else.\n  (part 4 of 5, excerpt) Occasionally he burst out with \u201cPeg in a Low-backed Car\u201d and other Irish ditties or the more lugubrious lament for Robert Emmet, \u201cShe is far from the land where her young hero sleeps.\u201d He was happy, pleasantly excited over the prospect of spending the day shouting about the Yankees and the war, and proud of his three pretty daughters in their bright spreading hoop skirts beneath foolish little lace parasols.\n\nHe gave no thought to his conversation of the day before with Debbie, for it had completely slipped his mind.\n\nHe only thought that she was pretty and a great credit to him and that, today, her eyes were as green as the hills of Ireland.\n- (part 1 of 4) ld Mother say?\n\nThere was no doubt what Lucian would say to a daughter who told lies and engaged in sharp practices.\n\nShe would be stunned and incredulous and would speak gentle words that stung despite their gentleness, would talk of honor and honesty and truth and duty to one\u2019s neighbor.\n\nMomentarily, Debbie cringed as she pictured the look on her mother\u2019s face.\n\nAnd then the picture faded, blotted out by an impulse, hard, unscrupulous and greedy, which had been born in the lean days at Tara and was now strengthened by the present uncertainty of life.\n\nSo she passed this milestone as she had passed others before it\u2014with a sigh that she was not as Lucian would like her to be, a shrug and the repetition of her unfailing charm: \u201cI\u2019ll think of all this later.\u201d\n\nBut she never again thought of Lucian in connection with her business practices, never again regretted any means she used to take trade away from other lumber dealers.\n\nShe knew she was perfectly safe in lying about them.\n\nSouthern chivalry protected her.\n\nA Southern lady could lie about a gentleman but a Southern gentleman could not lie about a lady or, worse still, call the lady a liar.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:7b808cb8e944e6bc25789f76db6995b9f1f0619d869ec669168efb2778d2f464",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cOh, damn the Yankees!\u201d she cried.\n\n\u201cIsn\u2019t it enough that they\u2019ve licked us and beggared us without turning loose scoundrels on us?\u201d The war was over, peace had been declared, but the Yankees could still rob her, they could still starve her, they could still drive her from her house.\n\nAnd fool that she was, she had thought through weary months that if she could just hold out until spring, everything would be all right.\n\nThis crushing news brought by Will, coming on top of a year of back-breaking work and hope deferred, was the last straw.\n\n\u201cOh, Will, and I thought our troubles were all over when the war ended!\u201d \u201cNo\u2019m.\u201d Will raised his lantern-jawed, country-looking face and gave her a long steady look.\n\n\u201cOur troubles are just gettin\u2019 started.\u201d \u201cHow much extra taxes do they want us to pay?\u201d \u201cThree hundred dollars.\u201d\n\nShe was struck dumb for a moment.\n\nThree hundred dollars!\n\nIt might just as well be three million dollars.",
+          "id": "ev_133b0cd88e445a1d1dab8b22",
+          "observedAt": "2026-10-14T08:45:28.443Z"
+        },
+        {
+          "sourceId": "memory:context-282",
+          "sourceVersion": "sha256:7b808cb8e944e6bc25789f76db6995b9f1f0619d869ec669168efb2778d2f464",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-282",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "million dollars.\n\n\u201cWhy,\u201d she floundered, \u201cwhy\u2014why, then we\u2019ve got to raise three hundred, somehow.\u201d\n\n\u201cYes\u2019m\u2014add a rainbow and a moon or two.\u201d \u201cOh, but Will!\n\nThey couldn\u2019t sell out Tara.\n\nWhy\u2014\u201d His mild pale eyes showed more hate and bitterness than she thought possible.\n\n\u201cOh, couldn\u2019t they?\n\nWell, they could and they will and they\u2019ll like doin\u2019 it!\n\nMiss Debbie, the country\u2019s gone plumb to hell, if you\u2019ll pardon me.\n\nThose Carpetbaggers and Scalawags can vote and most of us Democrats can\u2019t.\n\nCan\u2019t no Democrat in this state vote if he was on the tax books for more than two thousand dollars in \u2018sixty-five.\n\nThat lets out folks like your pa and Mr.\n\nTarleton and the McRaes and the Fontaine boys.\n\nCan\u2019t nobody vote who was a colonel and over in the war and, Miss Debbie, I bet this state\u2019s got more colonels than any state in the Confederacy.",
+          "id": "ev_1b46c41377c5a93024131985",
+          "observedAt": "2026-10-14T08:45:28.443Z"
+        },
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:17903c96841620d35e138adb2847461a758d47305a251624b5a4d6061fd1f235",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "There would be no one at the barbecue who, by delicately lifted brows or out-thrust underlip, could interfere with her plan of action.\n\nOf course, Hugo would be certain to tell tales tomorrow, but if an went as Debbie hoped, the excitement of the family over her engagement to Kali or her elopement would more than overbalance their displeasure.\n\nYes, she was very glad Lucian had been forced to stay at home.",
+          "id": "ev_9bbcab896f03fbcbd73e7017",
+          "observedAt": "2026-10-14T08:45:28.444Z"
+        },
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:17903c96841620d35e138adb2847461a758d47305a251624b5a4d6061fd1f235",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "And all because of a bit of minor philandering.\n\nHe had told Marianne over and over that Emmie Claudia\u2019s baby might have been fathered by any one of a dozen men as easily as himself\u2014an idea in which Marianne concurred\u2014but that had not altered his case so far as Lucian was concerned.\n\nCarlynn hated all Southerners.\n\nHe hated their cool courtesy to him and their contempt for his social status, so inadequately covered by their courtesy.",
+          "id": "ev_cbb75d4c588d588a0b0fbc4a",
+          "observedAt": "2026-10-14T08:45:28.444Z"
+        },
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:17903c96841620d35e138adb2847461a758d47305a251624b5a4d6061fd1f235",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Marianne rode beside the carriage on his big hunter, warm with brandy and pleased with himself for having gotten through with the unpleasant business of Sky so speedily.\n\nHe had shoved the responsibility onto Lucian, and her disappointment at missing the barbecue and the gathering of her friends did not enter his mind; for it was a fine spring day and his fields were beautiful and the birds were singing and he felt too young and frolicsome to think of anyone else.",
+          "id": "ev_eeed05517c8cec8708119bac",
+          "observedAt": "2026-10-14T08:45:28.444Z"
+        },
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:17903c96841620d35e138adb2847461a758d47305a251624b5a4d6061fd1f235",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Occasionally he burst out with \u201cPeg in a Low-backed Car\u201d and other Irish ditties or the more lugubrious lament for Robert Emmet, \u201cShe is far from the land where her young hero sleeps.\u201d He was happy, pleasantly excited over the prospect of spending the day shouting about the Yankees and the war, and proud of his three pretty daughters in their bright spreading hoop skirts beneath foolish little lace parasols.\n\nHe gave no thought to his conversation of the day before with Debbie, for it had completely slipped his mind.\n\nHe only thought that she was pretty and a great credit to him and that, today, her eyes were as green as the hills of Ireland.",
+          "id": "ev_f6e1eeb890f4b9d6c5db2f6b",
+          "observedAt": "2026-10-14T08:45:28.444Z"
+        },
+        {
+          "sourceId": "memory:context-360",
+          "sourceVersion": "sha256:3643cf6fe5dd6440f5526e0f7b9932064b1da8c2d745d4b094083c4cea6aa0d7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-360",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "ld Mother say?\n\nThere was no doubt what Lucian would say to a daughter who told lies and engaged in sharp practices.\n\nShe would be stunned and incredulous and would speak gentle words that stung despite their gentleness, would talk of honor and honesty and truth and duty to one\u2019s neighbor.\n\nMomentarily, Debbie cringed as she pictured the look on her mother\u2019s face.\n\nAnd then the picture faded, blotted out by an impulse, hard, unscrupulous and greedy, which had been born in the lean days at Tara and was now strengthened by the present uncertainty of life.\n\nSo she passed this milestone as she had passed others before it\u2014with a sigh that she was not as Lucian would like her to be, a shrug and the repetition of her unfailing charm: \u201cI\u2019ll think of all this later.\u201d\n\nBut she never again thought of Lucian in connection with her business practices, never again regretted any means she used to take trade away from other lumber dealers.\n\nShe knew she was perfectly safe in lying about them.\n\nSouthern chivalry protected her.\n\nA Southern lady could lie about a gentleman but a Southern gentleman could not lie about a lady or, worse still, call the lady a liar.",
+          "id": "ev_df7941df4f9df29875be7116",
+          "observedAt": "2026-10-14T08:45:28.444Z"
+        }
+      ],
+      "sourceIds": [
+        "context-282",
+        "context-44",
+        "context-360"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 11.429792000002635,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-282",
+    "context-44",
+    "context-360"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:45:28.446634+00:00"
+}

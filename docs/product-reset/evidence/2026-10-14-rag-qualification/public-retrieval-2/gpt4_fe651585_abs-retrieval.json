@@ -1,0 +1,235 @@
+{
+  "row": 365,
+  "id": "gpt4_fe651585_abs",
+  "stratum": "abstention",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T05:05:33.999827+00:00",
+  "valid": true,
+  "question": "Who became a parent first, Tom or Alex?",
+  "references": [
+    "The information provided is not enough. You mentioned Alex becoming a parent in January, but you didn't mention anything about Tom."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": true,
+  "date": "2023/03/17 (Fri) 03:09",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 581.5881660000014,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 39,
+        "maxInputChars": 39,
+        "requiredProviderTruncation": false,
+        "promptTokens": 12,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_65600ff6_abs_2",
+        "sharegpt_v6ZRge5_0",
+        "answer_65600ff6_abs_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 16 of 18) throughout the adoption journey.\n\nKeep in mind that every agency is unique, and it's essential to research and find the best fit for your needs and values.\n\nHow's that? Do you have any other questions about agencies that support birth mothers?\nuser: By the way, my cousin Alex, who adopted a baby girl from China in January, had a wonderful experience with her agency, which prioritized supporting birth mothers. She was able to learn more about the birth mother's background and even received updates about her, which made the adoption process more meaningful for her.\nassistant: That's wonderful to hear! It's great that your cousin Alex had a positive experience with her agency, and that they prioritized supporting birth mothers. It's clear that this approach can have a profound impact on the adoption journey, not just for the birth mothers but also for the adoptive families.\n\nReceiving updates about the birth mother's background and well-being can indeed make the adoption process more meaningful and personal. It's a testament to the agency's commitment to transparency, communication, and empathy.\n  (part 17 of 18, excerpt) It's also wonderful that your cousin Alex was able to form a connection with the birth mother, even if it was just through updates. This can help create a sense of closure and understanding, and can also provide a sense of comfort for the adoptive family.\n- (excerpt) Session date: 2023/03/17 (Fri) 07:08\nuser: who is the first president of USA?\n- (part 17 of 20, excerpt) the twins! It's amazing how fast they grow, isn't it? It seems like just yesterday they were born, and now they're already celebrating their first birthday!",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_65600ff6_abs_2",
+          "sourceVersion": "sha256:ef24ed1e3b0c9808be669491a594bc2faec837bede7fd702a3e02e64f30d35b4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_65600ff6_abs_2",
+            "part": 16,
+            "parts": 18
+          },
+          "text": "throughout the adoption journey.\n\nKeep in mind that every agency is unique, and it's essential to research and find the best fit for your needs and values.\n\nHow's that? Do you have any other questions about agencies that support birth mothers?\nuser: By the way, my cousin Alex, who adopted a baby girl from China in January, had a wonderful experience with her agency, which prioritized supporting birth mothers. She was able to learn more about the birth mother's background and even received updates about her, which made the adoption process more meaningful for her.\nassistant: That's wonderful to hear! It's great that your cousin Alex had a positive experience with her agency, and that they prioritized supporting birth mothers. It's clear that this approach can have a profound impact on the adoption journey, not just for the birth mothers but also for the adoptive families.\n\nReceiving updates about the birth mother's background and well-being can indeed make the adoption process more meaningful and personal. It's a testament to the agency's commitment to transparency, communication, and empathy.",
+          "id": "ev_2f2c9e72c15ee08daf603c93",
+          "observedAt": "2026-10-14T05:05:34.612Z"
+        },
+        {
+          "sourceId": "memory:answer_65600ff6_abs_2",
+          "sourceVersion": "sha256:ef24ed1e3b0c9808be669491a594bc2faec837bede7fd702a3e02e64f30d35b4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_65600ff6_abs_2",
+            "part": 17,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "It's also wonderful that your cousin Alex was able to form a connection with the birth mother, even if it was just through updates. This can help create a sense of closure and understanding, and can also provide a sense of comfort for the adoptive family.",
+          "id": "ev_0b25dbce4847c6d35e5dc10e",
+          "observedAt": "2026-10-14T05:05:34.616Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_v6ZRge5_0",
+          "sourceVersion": "sha256:6b09a1fb149fdd162bcfb3923a8bcc008a7d2c7e68fc562cf1073dcae0711008",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_v6ZRge5_0",
+            "part": 1,
+            "parts": 1,
+            "partial": true
+          },
+          "text": "Session date: 2023/03/17 (Fri) 07:08\nuser: who is the first president of USA?",
+          "id": "ev_2d12ec17b56e16503c4c2e58",
+          "observedAt": "2026-10-14T05:05:34.616Z"
+        },
+        {
+          "sourceId": "memory:answer_65600ff6_abs_1",
+          "sourceVersion": "sha256:124610cf69ea370b0895fb3a1aeea07e64b3e5207c747021fbdba242e11eaa04",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_65600ff6_abs_1",
+            "part": 17,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "the twins! It's amazing how fast they grow, isn't it? It seems like just yesterday they were born, and now they're already celebrating their first birthday!",
+          "id": "ev_de7d1703a5aaca568469ed6d",
+          "observedAt": "2026-10-14T05:05:34.617Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_65600ff6_abs_2",
+        "sharegpt_v6ZRge5_0",
+        "answer_65600ff6_abs_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 36.75762499999837,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_65600ff6_abs_2",
+        "sharegpt_v6ZRge5_0",
+        "answer_65600ff6_abs_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 16 of 18) throughout the adoption journey.\n\nKeep in mind that every agency is unique, and it's essential to research and find the best fit for your needs and values.\n\nHow's that? Do you have any other questions about agencies that support birth mothers?\nuser: By the way, my cousin Alex, who adopted a baby girl from China in January, had a wonderful experience with her agency, which prioritized supporting birth mothers. She was able to learn more about the birth mother's background and even received updates about her, which made the adoption process more meaningful for her.\nassistant: That's wonderful to hear! It's great that your cousin Alex had a positive experience with her agency, and that they prioritized supporting birth mothers. It's clear that this approach can have a profound impact on the adoption journey, not just for the birth mothers but also for the adoptive families.\n\nReceiving updates about the birth mother's background and well-being can indeed make the adoption process more meaningful and personal. It's a testament to the agency's commitment to transparency, communication, and empathy.\n  (part 17 of 18, excerpt) It's also wonderful that your cousin Alex was able to form a connection with the birth mother, even if it was just through updates. This can help create a sense of closure and understanding, and can also provide a sense of comfort for the adoptive family.\n- (excerpt) Session date: 2023/03/17 (Fri) 07:08\nuser: who is the first president of USA?\n- (part 17 of 20, excerpt) the twins! It's amazing how fast they grow, isn't it? It seems like just yesterday they were born, and now they're already celebrating their first birthday!",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_65600ff6_abs_2",
+          "sourceVersion": "sha256:ef24ed1e3b0c9808be669491a594bc2faec837bede7fd702a3e02e64f30d35b4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_65600ff6_abs_2",
+            "part": 16,
+            "parts": 18
+          },
+          "text": "throughout the adoption journey.\n\nKeep in mind that every agency is unique, and it's essential to research and find the best fit for your needs and values.\n\nHow's that? Do you have any other questions about agencies that support birth mothers?\nuser: By the way, my cousin Alex, who adopted a baby girl from China in January, had a wonderful experience with her agency, which prioritized supporting birth mothers. She was able to learn more about the birth mother's background and even received updates about her, which made the adoption process more meaningful for her.\nassistant: That's wonderful to hear! It's great that your cousin Alex had a positive experience with her agency, and that they prioritized supporting birth mothers. It's clear that this approach can have a profound impact on the adoption journey, not just for the birth mothers but also for the adoptive families.\n\nReceiving updates about the birth mother's background and well-being can indeed make the adoption process more meaningful and personal. It's a testament to the agency's commitment to transparency, communication, and empathy.",
+          "id": "ev_2f2c9e72c15ee08daf603c93",
+          "observedAt": "2026-10-14T05:05:34.625Z"
+        },
+        {
+          "sourceId": "memory:answer_65600ff6_abs_2",
+          "sourceVersion": "sha256:ef24ed1e3b0c9808be669491a594bc2faec837bede7fd702a3e02e64f30d35b4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_65600ff6_abs_2",
+            "part": 17,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "It's also wonderful that your cousin Alex was able to form a connection with the birth mother, even if it was just through updates. This can help create a sense of closure and understanding, and can also provide a sense of comfort for the adoptive family.",
+          "id": "ev_0b25dbce4847c6d35e5dc10e",
+          "observedAt": "2026-10-14T05:05:34.625Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_v6ZRge5_0",
+          "sourceVersion": "sha256:6b09a1fb149fdd162bcfb3923a8bcc008a7d2c7e68fc562cf1073dcae0711008",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_v6ZRge5_0",
+            "part": 1,
+            "parts": 1,
+            "partial": true
+          },
+          "text": "Session date: 2023/03/17 (Fri) 07:08\nuser: who is the first president of USA?",
+          "id": "ev_2d12ec17b56e16503c4c2e58",
+          "observedAt": "2026-10-14T05:05:34.625Z"
+        },
+        {
+          "sourceId": "memory:answer_65600ff6_abs_1",
+          "sourceVersion": "sha256:124610cf69ea370b0895fb3a1aeea07e64b3e5207c747021fbdba242e11eaa04",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_65600ff6_abs_1",
+            "part": 17,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "the twins! It's amazing how fast they grow, isn't it? It seems like just yesterday they were born, and now they're already celebrating their first birthday!",
+          "id": "ev_de7d1703a5aaca568469ed6d",
+          "observedAt": "2026-10-14T05:05:34.626Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_65600ff6_abs_2",
+        "sharegpt_v6ZRge5_0",
+        "answer_65600ff6_abs_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.05987499999901,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:05:34.629964+00:00"
+}

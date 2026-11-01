@@ -1,0 +1,439 @@
+{
+  "row": 470,
+  "id": "1b9b7252",
+  "stratum": "single-session-assistant",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T15:25:24.005532+00:00",
+  "valid": true,
+  "question": "I wanted to follow up on our previous conversation about mindfulness techniques. You mentioned some great resources for guided imagery exercises, can you remind me of the website that had free exercises like 'The Mountain Meditation' and 'The Body Scan Meditation'?",
+  "references": [
+    "Mindful.org."
+  ],
+  "kind": "single-session-assistant",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 18:29",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 33.39729100000113,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 265,
+        "maxInputChars": 265,
+        "requiredProviderTruncation": false,
+        "promptTokens": 51,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_ultrachat_115151",
+        "sharegpt_1AhFMpw_5",
+        "3829d412_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) 2. Guided imagery and visualization: Use guided imagery exercises that can help you visualize a positive and calming environment.\n  (part 2 of 5) 5. Mindful eating: Pay attention to the taste, texture, and sensation of food as you eat it. Focus on the present moment instead of letting your mind wander.\n\nRemember, mindfulness can be practiced in various forms and can be tailored to fit individual needs and preferences.\nuser: These are great ideas! Do you have any recommendations for guided imagery exercises or resources?\nassistant: Yes, here are some guided imagery exercises and resources:\n\n1. Headspace app: This app provides guided meditations and visualization exercises that can help you relieve stress and anxiety.\n\n2. Mindful.org: This website includes guided imagery exercises that you can use for free, such as \"The Mountain Meditation\" and \"The Body Scan Meditation.\"\n\n3. UCLA Mindful Awareness Research Center: This website includes a variety of free guided meditations that can help with stress reduction, relaxation, and building resilience.\n\n4. Mindfulness Exercises: This website provides a range of mindfulness exercises including visualization exercises that you can use for free.\n\n5. YouTube: There are a variety of guided imagery exercises available on YouTube that can help you relax and relieve stress.\n- (part 2 of 12, excerpt) 11.\n\nMindfulness Exercises: Guided mindfulness meditation sessions to help users develop self-awareness and self-regulation.\n\n12.\n\nGrowth Mindset Resources: A library of curated content promoting a growth mindset, including articles, videos, and quotes.\n\n13.\n- (part 10 of 13, excerpt) or even a restorative yoga practice. You can find plenty of free yoga videos online, or follow along with an app like Down Dog or Yog",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_ultrachat_115151",
+          "sourceVersion": "sha256:d07f8646b75c5486466c5ec19ab12ec80feccffa5c219f6f839c9448e8454f15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ultrachat_115151",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "2. Guided imagery and visualization: Use guided imagery exercises that can help you visualize a positive and calming environment.",
+          "id": "ev_d79a738bf1950c53474db927",
+          "observedAt": "2026-10-14T15:25:24.071Z"
+        },
+        {
+          "sourceId": "memory:answer_ultrachat_115151",
+          "sourceVersion": "sha256:d07f8646b75c5486466c5ec19ab12ec80feccffa5c219f6f839c9448e8454f15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ultrachat_115151",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "5. Mindful eating: Pay attention to the taste, texture, and sensation of food as you eat it. Focus on the present moment instead of letting your mind wander.\n\nRemember, mindfulness can be practiced in various forms and can be tailored to fit individual needs and preferences.\nuser: These are great ideas! Do you have any recommendations for guided imagery exercises or resources?\nassistant: Yes, here are some guided imagery exercises and resources:\n\n1. Headspace app: This app provides guided meditations and visualization exercises that can help you relieve stress and anxiety.\n\n2. Mindful.org: This website includes guided imagery exercises that you can use for free, such as \"The Mountain Meditation\" and \"The Body Scan Meditation.\"\n\n3. UCLA Mindful Awareness Research Center: This website includes a variety of free guided meditations that can help with stress reduction, relaxation, and building resilience.\n\n4. Mindfulness Exercises: This website provides a range of mindfulness exercises including visualization exercises that you can use for free.\n\n5. YouTube: There are a variety of guided imagery exercises available on YouTube that can help you relax and relieve stress.",
+          "id": "ev_f2ad77674d696c472f7e72e3",
+          "observedAt": "2026-10-14T15:25:24.078Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_1AhFMpw_5",
+          "sourceVersion": "sha256:dcc878b1601effe6fffce7de367890f05c28a6c77a08a050ce57f0601b54dc42",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_1AhFMpw_5",
+            "part": 2,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "11.\n\nMindfulness Exercises: Guided mindfulness meditation sessions to help users develop self-awareness and self-regulation.\n\n12.\n\nGrowth Mindset Resources: A library of curated content promoting a growth mindset, including articles, videos, and quotes.\n\n13.",
+          "id": "ev_96ed67c7992badf6f815f60d",
+          "observedAt": "2026-10-14T15:25:24.078Z"
+        },
+        {
+          "sourceId": "memory:3829d412_2",
+          "sourceVersion": "sha256:4adb72ec0e8bc971b737353eccd2d1742294c5545ec954451a50c7274c28ab14",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "3829d412_2",
+            "part": 10,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "or even a restorative yoga practice. You can find plenty of free yoga videos online, or follow along with an app like Down Dog or Yog",
+          "id": "ev_c34464dc358d1199ae97b77d",
+          "observedAt": "2026-10-14T15:25:24.079Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_ultrachat_115151",
+        "sharegpt_1AhFMpw_5",
+        "3829d412_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 38.365042000004905,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_ultrachat_115151",
+        "sharegpt_1AhFMpw_5",
+        "3829d412_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- Session date: 2023/05/25 (Thu) 16:50\n  (part 1 of 5, excerpt) 2. Guided imagery and visualization: Use guided imagery exercises that can help you visualize a positive and calming environment.\n  (part 2 of 5) 5. Mindful eating: Pay attention to the taste, texture, and sensation of food as you eat it. Focus on the present moment instead of letting your mind wander.\n\nRemember, mindfulness can be practiced in various forms and can be tailored to fit individual needs and preferences.\nuser: These are great ideas! Do you have any recommendations for guided imagery exercises or resources?\nassistant: Yes, here are some guided imagery exercises and resources:\n\n1. Headspace app: This app provides guided meditations and visualization exercises that can help you relieve stress and anxiety.\n\n2. Mindful.org: This website includes guided imagery exercises that you can use for free, such as \"The Mountain Meditation\" and \"The Body Scan Meditation.\"\n\n3. UCLA Mindful Awareness Research Center: This website includes a variety of free guided meditations that can help with stress reduction, relaxation, and building resilience.\n\n4. Mindfulness Exercises: This website provides a range of mindfulness exercises including visualization exercises that you can use for free.\n\n5. YouTube: There are a variety of guided imagery exercises available on YouTube that can help you relax and relieve stress.\n  (part 3 of 5, excerpt) 5. YouTube: There are a variety of guided imagery exercises available on YouTube that can help you relax and relieve stress.\n\nRemember, everyone responds differently to guided imagery exercises, so it's important to experiment and find what works best for you.\n  (part 4 of 5, excerpt) 5.\n\nPractice guided meditations: Spend some time each day practicing a guided mindfulness meditation to help build your mindfulness skills.\n\nRemember that mindfulness is a practice, and it may take some time to develop the habit of being mindful throughout the day.\n- Session date: 2023/05/24 (Wed) 12:57\n  (part 2 of 12) complete them immediately.\n\n8.\n\nTemptation Bundling: A system for pairing pleasurable activities with tasks, such as a podcast or music player integration.\n\n9.\n\nDeadline Manager: A feature for setting personal deadlines and tracking progress toward them.\n\n10.\n\nFocus Mode: A distraction-free mode that silences notifications, blocks distracting websites/apps, and enables a focus-enhancing ambient sound generator.\n\n11.\n\nMindfulness Exercises: Guided mindfulness meditation sessions to help users develop self-awareness and self-regulation.\n\n12.\n\nGrowth Mindset Resources: A library of curated content promoting a growth mindset, including articles, videos, and quotes.\n\n13.\n\nWorkspace Customization: A virtual workspace with customizable background images, lighting, and sounds to create an ideal environment for productivity.\n\n14.\n\nFive-Second Rule Prompt: A feature that sends random prompts throughout the day, encouraging users to take immediate action on tasks.\n\n15.\n\nVisualization Tool: An interactive tool for creating visual representations of goals, rewards, and potential consequences.\n\n16.\n  (part 3 of 12, excerpt) 21.\n\nSelf-Compassion Exercises: Guided exercises and affirmations to promote self-compassion and overcome past procrastination.\n\n22.\n\nTime and Task Tracker: A feature to log time spent on tasks and analyze patterns to optimize productivity.\n\n23.\n  (part 6 of 12, excerpt) proven to less useful. Keep in mind that usefulness can be subjective, and what works for one person might not work for another.\n\nBooks:\n\n1. \"The Gifts of Imperfection: Let Go of Who You Think You're Supposed to Be and Embrace Who You Are\" by Bren\u00e9 Brown\n  (part 8 of 12, excerpt) of Perfectionism\" by Sarah Knapton: <https://www.telegraph.co.uk/science/2018/11/27/double-edged-sword-perfectionism-linked-mental-health-problems/>\n\nPodcasts:\n\n1. \"The Power of Vulnerability\" - The TED Interview (TED Talks): <https://www.ted.com/podcast\n- Session date: 2023/05/24 (Wed) 02:24\n  (part 7 of 13, excerpt) 3. **Yoga or Pilates**: If you prefer a lower-impact workout, you can try yoga or Pilates. These exercises focus on strengthening your core, improving flexibility, and enhancing overall well-being. You can find plenty of free resources online, including videos and guided sessions.\n  (part 8 of 13, excerpt) Do any of these options appeal to you, or do you have a different workout routine in mind?\nuser: I was thinking of doing some yoga to help me stretch and energize for the day. Do you think that's a good idea?\nassistant: Yoga is an excellent choice for a morning workout, especially if you're looking to stretch, energize, and set a positive tone for the day.\n\nYoga can help:\n  (part 9 of 13, excerpt) For a 45-minute yoga session, you can try a gentle flow class, a vinyasa flow, or even a restorative yoga practice. You can find plenty of free yoga videos online, or follow along with an app like Down Dog or Yoga Studio.\n\nRemember to:\n  (part 10 of 13) or even a restorative yoga practice. You can find plenty of free yoga videos online, or follow along with an app like Down Dog or Yoga Studio.\n\nRemember to:\n\n* Listen to your body and modify or rest when needed.\n* Focus on your breath and enjoy the process.\n* Keep your yoga practice gentle and relaxing, especially if you're new to yoga or not feeling fully awake.\n\nYoga is a great way to start your day, and it can help you feel more centered, focused, and prepared to tackle your daily tasks.\n\nHow does that sound? Are you ready to give morning yoga a try?\nuser: That sounds perfect. I'll make sure to find a gentle flow class or follow along with an app to guide me through the practice. Thanks for the tips and encouragement! By the way, can you help me plan out my evening routine as well? I'd like to establish a consistent bedtime routine to help me wind down and prepare for the next day.\nassistant: I'd be happy to help you plan out your evening routine.",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_ultrachat_115151",
+          "sourceVersion": "sha256:d07f8646b75c5486466c5ec19ab12ec80feccffa5c219f6f839c9448e8454f15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ultrachat_115151"
+          },
+          "text": "Session date: 2023/05/25 (Thu) 16:50",
+          "id": "ev_2d6cbb79e79e609c665f3b59",
+          "observedAt": "2026-10-14T15:25:24.082Z"
+        },
+        {
+          "sourceId": "memory:answer_ultrachat_115151",
+          "sourceVersion": "sha256:d07f8646b75c5486466c5ec19ab12ec80feccffa5c219f6f839c9448e8454f15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ultrachat_115151",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "2. Guided imagery and visualization: Use guided imagery exercises that can help you visualize a positive and calming environment.",
+          "id": "ev_d79a738bf1950c53474db927",
+          "observedAt": "2026-10-14T15:25:24.082Z"
+        },
+        {
+          "sourceId": "memory:answer_ultrachat_115151",
+          "sourceVersion": "sha256:d07f8646b75c5486466c5ec19ab12ec80feccffa5c219f6f839c9448e8454f15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ultrachat_115151",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "5. Mindful eating: Pay attention to the taste, texture, and sensation of food as you eat it. Focus on the present moment instead of letting your mind wander.\n\nRemember, mindfulness can be practiced in various forms and can be tailored to fit individual needs and preferences.\nuser: These are great ideas! Do you have any recommendations for guided imagery exercises or resources?\nassistant: Yes, here are some guided imagery exercises and resources:\n\n1. Headspace app: This app provides guided meditations and visualization exercises that can help you relieve stress and anxiety.\n\n2. Mindful.org: This website includes guided imagery exercises that you can use for free, such as \"The Mountain Meditation\" and \"The Body Scan Meditation.\"\n\n3. UCLA Mindful Awareness Research Center: This website includes a variety of free guided meditations that can help with stress reduction, relaxation, and building resilience.\n\n4. Mindfulness Exercises: This website provides a range of mindfulness exercises including visualization exercises that you can use for free.\n\n5. YouTube: There are a variety of guided imagery exercises available on YouTube that can help you relax and relieve stress.",
+          "id": "ev_f2ad77674d696c472f7e72e3",
+          "observedAt": "2026-10-14T15:25:24.082Z"
+        },
+        {
+          "sourceId": "memory:answer_ultrachat_115151",
+          "sourceVersion": "sha256:d07f8646b75c5486466c5ec19ab12ec80feccffa5c219f6f839c9448e8454f15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ultrachat_115151",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "5. YouTube: There are a variety of guided imagery exercises available on YouTube that can help you relax and relieve stress.\n\nRemember, everyone responds differently to guided imagery exercises, so it's important to experiment and find what works best for you.",
+          "id": "ev_d556e5685a701bdba16f5b1a",
+          "observedAt": "2026-10-14T15:25:24.083Z"
+        },
+        {
+          "sourceId": "memory:answer_ultrachat_115151",
+          "sourceVersion": "sha256:d07f8646b75c5486466c5ec19ab12ec80feccffa5c219f6f839c9448e8454f15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ultrachat_115151",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "5.\n\nPractice guided meditations: Spend some time each day practicing a guided mindfulness meditation to help build your mindfulness skills.\n\nRemember that mindfulness is a practice, and it may take some time to develop the habit of being mindful throughout the day.",
+          "id": "ev_8dfcb0b1fd703a092dc4e844",
+          "observedAt": "2026-10-14T15:25:24.083Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_1AhFMpw_5",
+          "sourceVersion": "sha256:dcc878b1601effe6fffce7de367890f05c28a6c77a08a050ce57f0601b54dc42",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_1AhFMpw_5"
+          },
+          "text": "Session date: 2023/05/24 (Wed) 12:57",
+          "id": "ev_680de0fd55c7d64f7700c83e",
+          "observedAt": "2026-10-14T15:25:24.084Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_1AhFMpw_5",
+          "sourceVersion": "sha256:dcc878b1601effe6fffce7de367890f05c28a6c77a08a050ce57f0601b54dc42",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_1AhFMpw_5",
+            "part": 2,
+            "parts": 12
+          },
+          "text": "complete them immediately.\n\n8.\n\nTemptation Bundling: A system for pairing pleasurable activities with tasks, such as a podcast or music player integration.\n\n9.\n\nDeadline Manager: A feature for setting personal deadlines and tracking progress toward them.\n\n10.\n\nFocus Mode: A distraction-free mode that silences notifications, blocks distracting websites/apps, and enables a focus-enhancing ambient sound generator.\n\n11.\n\nMindfulness Exercises: Guided mindfulness meditation sessions to help users develop self-awareness and self-regulation.\n\n12.\n\nGrowth Mindset Resources: A library of curated content promoting a growth mindset, including articles, videos, and quotes.\n\n13.\n\nWorkspace Customization: A virtual workspace with customizable background images, lighting, and sounds to create an ideal environment for productivity.\n\n14.\n\nFive-Second Rule Prompt: A feature that sends random prompts throughout the day, encouraging users to take immediate action on tasks.\n\n15.\n\nVisualization Tool: An interactive tool for creating visual representations of goals, rewards, and potential consequences.\n\n16.",
+          "id": "ev_919a9f8f0987aed19d01ff4f",
+          "observedAt": "2026-10-14T15:25:24.084Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_1AhFMpw_5",
+          "sourceVersion": "sha256:dcc878b1601effe6fffce7de367890f05c28a6c77a08a050ce57f0601b54dc42",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_1AhFMpw_5",
+            "part": 3,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "21.\n\nSelf-Compassion Exercises: Guided exercises and affirmations to promote self-compassion and overcome past procrastination.\n\n22.\n\nTime and Task Tracker: A feature to log time spent on tasks and analyze patterns to optimize productivity.\n\n23.",
+          "id": "ev_08c3f5edad378aaf0ea26e49",
+          "observedAt": "2026-10-14T15:25:24.084Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_1AhFMpw_5",
+          "sourceVersion": "sha256:dcc878b1601effe6fffce7de367890f05c28a6c77a08a050ce57f0601b54dc42",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_1AhFMpw_5",
+            "part": 6,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "proven to less useful. Keep in mind that usefulness can be subjective, and what works for one person might not work for another.\n\nBooks:\n\n1. \"The Gifts of Imperfection: Let Go of Who You Think You're Supposed to Be and Embrace Who You Are\" by Bren\u00e9 Brown",
+          "id": "ev_8c0efe8b0143aa1bfd7c95e5",
+          "observedAt": "2026-10-14T15:25:24.084Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_1AhFMpw_5",
+          "sourceVersion": "sha256:dcc878b1601effe6fffce7de367890f05c28a6c77a08a050ce57f0601b54dc42",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_1AhFMpw_5",
+            "part": 8,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "of Perfectionism\" by Sarah Knapton: <https://www.telegraph.co.uk/science/2018/11/27/double-edged-sword-perfectionism-linked-mental-health-problems/>\n\nPodcasts:\n\n1. \"The Power of Vulnerability\" - The TED Interview (TED Talks): <https://www.ted.com/podcast",
+          "id": "ev_da4e736b0fd2b4e0d533e517",
+          "observedAt": "2026-10-14T15:25:24.084Z"
+        },
+        {
+          "sourceId": "memory:3829d412_2",
+          "sourceVersion": "sha256:4adb72ec0e8bc971b737353eccd2d1742294c5545ec954451a50c7274c28ab14",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "3829d412_2"
+          },
+          "text": "Session date: 2023/05/24 (Wed) 02:24",
+          "id": "ev_c2582e0e6bc47d4deef65c5a",
+          "observedAt": "2026-10-14T15:25:24.084Z"
+        },
+        {
+          "sourceId": "memory:3829d412_2",
+          "sourceVersion": "sha256:4adb72ec0e8bc971b737353eccd2d1742294c5545ec954451a50c7274c28ab14",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "3829d412_2",
+            "part": 7,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "3. **Yoga or Pilates**: If you prefer a lower-impact workout, you can try yoga or Pilates. These exercises focus on strengthening your core, improving flexibility, and enhancing overall well-being. You can find plenty of free resources online, including videos and guided sessions.",
+          "id": "ev_1d2ebc3c9cd8b67e44095dfa",
+          "observedAt": "2026-10-14T15:25:24.084Z"
+        },
+        {
+          "sourceId": "memory:3829d412_2",
+          "sourceVersion": "sha256:4adb72ec0e8bc971b737353eccd2d1742294c5545ec954451a50c7274c28ab14",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "3829d412_2",
+            "part": 8,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "Do any of these options appeal to you, or do you have a different workout routine in mind?\nuser: I was thinking of doing some yoga to help me stretch and energize for the day. Do you think that's a good idea?\nassistant: Yoga is an excellent choice for a morning workout, especially if you're looking to stretch, energize, and set a positive tone for the day.\n\nYoga can help:",
+          "id": "ev_d548ed00667193a905816cf7",
+          "observedAt": "2026-10-14T15:25:24.084Z"
+        },
+        {
+          "sourceId": "memory:3829d412_2",
+          "sourceVersion": "sha256:4adb72ec0e8bc971b737353eccd2d1742294c5545ec954451a50c7274c28ab14",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "3829d412_2",
+            "part": 9,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "For a 45-minute yoga session, you can try a gentle flow class, a vinyasa flow, or even a restorative yoga practice. You can find plenty of free yoga videos online, or follow along with an app like Down Dog or Yoga Studio.\n\nRemember to:",
+          "id": "ev_ce028ed3568a812e2fdfe9aa",
+          "observedAt": "2026-10-14T15:25:24.084Z"
+        },
+        {
+          "sourceId": "memory:3829d412_2",
+          "sourceVersion": "sha256:4adb72ec0e8bc971b737353eccd2d1742294c5545ec954451a50c7274c28ab14",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "3829d412_2",
+            "part": 10,
+            "parts": 13
+          },
+          "text": "or even a restorative yoga practice. You can find plenty of free yoga videos online, or follow along with an app like Down Dog or Yoga Studio.\n\nRemember to:\n\n* Listen to your body and modify or rest when needed.\n* Focus on your breath and enjoy the process.\n* Keep your yoga practice gentle and relaxing, especially if you're new to yoga or not feeling fully awake.\n\nYoga is a great way to start your day, and it can help you feel more centered, focused, and prepared to tackle your daily tasks.\n\nHow does that sound? Are you ready to give morning yoga a try?\nuser: That sounds perfect. I'll make sure to find a gentle flow class or follow along with an app to guide me through the practice. Thanks for the tips and encouragement! By the way, can you help me plan out my evening routine as well? I'd like to establish a consistent bedtime routine to help me wind down and prepare for the next day.\nassistant: I'd be happy to help you plan out your evening routine.",
+          "id": "ev_f2a05c8d4c78dd800231a431",
+          "observedAt": "2026-10-14T15:25:24.084Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_ultrachat_115151",
+        "sharegpt_1AhFMpw_5",
+        "3829d412_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.446667000003799,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "answer_ultrachat_115151",
+    "sharegpt_1AhFMpw_5",
+    "3829d412_2"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T15:25:24.088411+00:00"
+}

@@ -1,0 +1,275 @@
+{
+  "row": 304,
+  "id": "gpt4_b5700ca0",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "question": "Where did I attend the religious activity last week?",
+  "references": [
+    "the Episcopal Church"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/04/10 (Mon) 13:35",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 567.1477500000001,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 52,
+        "maxInputChars": 52,
+        "requiredProviderTruncation": false,
+        "promptTokens": 12,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "109e07e8_2",
+        "answer_a17423e8_1",
+        "534be93d_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 10) to attend a leadership development program\n* (Did you respond to the invitation or take any action related to the program?)\n\n**March 25th - present**\n\n* Preparation and participation in the leadership development program\n* (Any specific tasks, assignments, or milestones related to the program?)\n\nNow, let's fill in the gaps! Can you recall any other events, tasks, or deadlines that occurred during this time period? For example:\n\n* Did you have any other meetings or conversations with Rachel or other stakeholders?\n* Were there any project deadlines or deliverables you needed to meet?\n* Did you attend any conferences, workshops, or training sessions?\n* Were there any changes in your work responsibilities or priorities?\n\nFeel free to add any details you remember, and I'll help you organize them into a cohesive timeline.\nuser: I attended the leadership development program on April 12th and 13th. It was a great experience, and I learned a lot about leadership styles and strategic planning.\nassistant: Let's add that to the timeline:\n\n**March 3rd**\n\n* Meeting with Rachel (game-changer for your career)\n\n**March 4th - 24th**\n  (part 5 of 10, excerpt) * (Any other tasks or events you remember during this time?)\n\n**March 25th (approx.)**\n\n* Received invitation to attend a leadership development program\n* (Did you respond to the invitation or take any action related to the program?)\n\n**April 12th - 13th**\n\n* Attended leadership development program\n- (part 1 of 16, excerpt) user: I'm looking for some information on local volunteer opportunities. I just helped out at an Easter Egg Hunt event last week and I'm interest\n- (part 2 of 9, excerpt) user: I have a few tasks I need to complete this week. On Wednesday, I need to send a report to my manager by 5 PM. On Thurs",
+      "evidence": [
+        {
+          "sourceId": "memory:109e07e8_2",
+          "sourceVersion": "sha256:fa2161824c6a83438d1b6604ccdd32d30ab5e778ad6e46c8e62ad1aeaa744e19",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "109e07e8_2",
+            "part": 3,
+            "parts": 10
+          },
+          "text": "to attend a leadership development program\n* (Did you respond to the invitation or take any action related to the program?)\n\n**March 25th - present**\n\n* Preparation and participation in the leadership development program\n* (Any specific tasks, assignments, or milestones related to the program?)\n\nNow, let's fill in the gaps! Can you recall any other events, tasks, or deadlines that occurred during this time period? For example:\n\n* Did you have any other meetings or conversations with Rachel or other stakeholders?\n* Were there any project deadlines or deliverables you needed to meet?\n* Did you attend any conferences, workshops, or training sessions?\n* Were there any changes in your work responsibilities or priorities?\n\nFeel free to add any details you remember, and I'll help you organize them into a cohesive timeline.\nuser: I attended the leadership development program on April 12th and 13th. It was a great experience, and I learned a lot about leadership styles and strategic planning.\nassistant: Let's add that to the timeline:\n\n**March 3rd**\n\n* Meeting with Rachel (game-changer for your career)\n\n**March 4th - 24th**",
+          "id": "ev_d66a2d415219898a4aefd652",
+          "observedAt": "2026-10-14T04:54:01.296Z"
+        },
+        {
+          "sourceId": "memory:109e07e8_2",
+          "sourceVersion": "sha256:fa2161824c6a83438d1b6604ccdd32d30ab5e778ad6e46c8e62ad1aeaa744e19",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "109e07e8_2",
+            "part": 5,
+            "parts": 10,
+            "partial": true
+          },
+          "text": "* (Any other tasks or events you remember during this time?)\n\n**March 25th (approx.)**\n\n* Received invitation to attend a leadership development program\n* (Did you respond to the invitation or take any action related to the program?)\n\n**April 12th - 13th**\n\n* Attended leadership development program",
+          "id": "ev_51d1265bc34d70be6987eaca",
+          "observedAt": "2026-10-14T04:54:01.298Z"
+        },
+        {
+          "sourceId": "memory:answer_a17423e8_1",
+          "sourceVersion": "sha256:4f00389313133de3d59394a5b96c6698b0e4eb5bd052c2b492d7c1447783ad4c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a17423e8_1",
+            "part": 1,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "user: I'm looking for some information on local volunteer opportunities. I just helped out at an Easter Egg Hunt event last week and I'm interest",
+          "id": "ev_b6139950d631ae9492f7da55",
+          "observedAt": "2026-10-14T04:54:01.298Z"
+        },
+        {
+          "sourceId": "memory:534be93d_1",
+          "sourceVersion": "sha256:ef3e703de9e8625df641099fd995b1b3bf4c3ffcb6a337ab8ba50bc9e164e811",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "534be93d_1",
+            "part": 2,
+            "parts": 9,
+            "partial": true
+          },
+          "text": "user: I have a few tasks I need to complete this week. On Wednesday, I need to send a report to my manager by 5 PM. On Thurs",
+          "id": "ev_16b61df6ca32463c9dba07c1",
+          "observedAt": "2026-10-14T04:54:01.298Z"
+        }
+      ],
+      "sourceIds": [
+        "109e07e8_2",
+        "answer_a17423e8_1",
+        "534be93d_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 20.192583000000013,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "109e07e8_2",
+        "answer_a17423e8_1",
+        "534be93d_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 10) to attend a leadership development program\n* (Did you respond to the invitation or take any action related to the program?)\n\n**March 25th - present**\n\n* Preparation and participation in the leadership development program\n* (Any specific tasks, assignments, or milestones related to the program?)\n\nNow, let's fill in the gaps! Can you recall any other events, tasks, or deadlines that occurred during this time period? For example:\n\n* Did you have any other meetings or conversations with Rachel or other stakeholders?\n* Were there any project deadlines or deliverables you needed to meet?\n* Did you attend any conferences, workshops, or training sessions?\n* Were there any changes in your work responsibilities or priorities?\n\nFeel free to add any details you remember, and I'll help you organize them into a cohesive timeline.\nuser: I attended the leadership development program on April 12th and 13th. It was a great experience, and I learned a lot about leadership styles and strategic planning.\nassistant: Let's add that to the timeline:\n\n**March 3rd**\n\n* Meeting with Rachel (game-changer for your career)\n\n**March 4th - 24th**\n  (part 5 of 10, excerpt) * (Any other tasks or events you remember during this time?)\n\n**March 25th (approx.)**\n\n* Received invitation to attend a leadership development program\n* (Did you respond to the invitation or take any action related to the program?)\n\n**April 12th - 13th**\n\n* Attended leadership development program\n- (part 1 of 16, excerpt) user: I'm looking for some information on local volunteer opportunities. I just helped out at an Easter Egg Hunt event last week and I'm interest\n- (part 2 of 9, excerpt) user: I have a few tasks I need to complete this week. On Wednesday, I need to send a report to my manager by 5 PM. On Thurs",
+      "evidence": [
+        {
+          "sourceId": "memory:109e07e8_2",
+          "sourceVersion": "sha256:fa2161824c6a83438d1b6604ccdd32d30ab5e778ad6e46c8e62ad1aeaa744e19",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "109e07e8_2",
+            "part": 3,
+            "parts": 10
+          },
+          "text": "to attend a leadership development program\n* (Did you respond to the invitation or take any action related to the program?)\n\n**March 25th - present**\n\n* Preparation and participation in the leadership development program\n* (Any specific tasks, assignments, or milestones related to the program?)\n\nNow, let's fill in the gaps! Can you recall any other events, tasks, or deadlines that occurred during this time period? For example:\n\n* Did you have any other meetings or conversations with Rachel or other stakeholders?\n* Were there any project deadlines or deliverables you needed to meet?\n* Did you attend any conferences, workshops, or training sessions?\n* Were there any changes in your work responsibilities or priorities?\n\nFeel free to add any details you remember, and I'll help you organize them into a cohesive timeline.\nuser: I attended the leadership development program on April 12th and 13th. It was a great experience, and I learned a lot about leadership styles and strategic planning.\nassistant: Let's add that to the timeline:\n\n**March 3rd**\n\n* Meeting with Rachel (game-changer for your career)\n\n**March 4th - 24th**",
+          "id": "ev_d66a2d415219898a4aefd652",
+          "observedAt": "2026-10-14T04:54:01.303Z"
+        },
+        {
+          "sourceId": "memory:109e07e8_2",
+          "sourceVersion": "sha256:fa2161824c6a83438d1b6604ccdd32d30ab5e778ad6e46c8e62ad1aeaa744e19",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "109e07e8_2",
+            "part": 5,
+            "parts": 10,
+            "partial": true
+          },
+          "text": "* (Any other tasks or events you remember during this time?)\n\n**March 25th (approx.)**\n\n* Received invitation to attend a leadership development program\n* (Did you respond to the invitation or take any action related to the program?)\n\n**April 12th - 13th**\n\n* Attended leadership development program",
+          "id": "ev_51d1265bc34d70be6987eaca",
+          "observedAt": "2026-10-14T04:54:01.303Z"
+        },
+        {
+          "sourceId": "memory:answer_a17423e8_1",
+          "sourceVersion": "sha256:4f00389313133de3d59394a5b96c6698b0e4eb5bd052c2b492d7c1447783ad4c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a17423e8_1",
+            "part": 1,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "user: I'm looking for some information on local volunteer opportunities. I just helped out at an Easter Egg Hunt event last week and I'm interest",
+          "id": "ev_b6139950d631ae9492f7da55",
+          "observedAt": "2026-10-14T04:54:01.303Z"
+        },
+        {
+          "sourceId": "memory:534be93d_1",
+          "sourceVersion": "sha256:ef3e703de9e8625df641099fd995b1b3bf4c3ffcb6a337ab8ba50bc9e164e811",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "534be93d_1",
+            "part": 2,
+            "parts": 9,
+            "partial": true
+          },
+          "text": "user: I have a few tasks I need to complete this week. On Wednesday, I need to send a report to my manager by 5 PM. On Thurs",
+          "id": "ev_16b61df6ca32463c9dba07c1",
+          "observedAt": "2026-10-14T04:54:01.303Z"
+        }
+      ],
+      "sourceIds": [
+        "109e07e8_2",
+        "answer_a17423e8_1",
+        "534be93d_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.82416700000249,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:48:39.804838+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "The retrieved history does not mention attending any religious activity last week (the week of April 3\u20139, 2023). The only event noted is a leadership development program on April 12\u201313, which is the week following the question date and is not described as religious. There is no evidence in the provided history about where or if a religious activity was attended. \n\nI do not know.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 542,
+    "completion_tokens": 1111,
+    "total_tokens": 1653,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 454,
+    "completion_tokens": 542,
+    "total_tokens": 996,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 539,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 12524.779957999726,
+  "judgeWallMs": 5526.423500000419,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:48:59.504329+00:00"
+}

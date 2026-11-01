@@ -1,0 +1,235 @@
+{
+  "row": 250,
+  "id": "gpt4_18c2b244",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T04:49:31.896197+00:00",
+  "valid": true,
+  "question": "What is the order of the three events: 'I signed up for the rewards program at ShopRite', 'I used a Buy One Get One Free coupon on Luvs diapers at Walmart', and 'I redeemed $12 cashback for a $10 Amazon gift card from Ibotta'?",
+  "references": [
+    "First, I used a Buy One Get One Free coupon on Luvs diapers at Walmart. Then, I redeemed $12 cashback for a $10 Amazon gift card from Ibotta. Finally, I signed up for the rewards program at ShopRite."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/05/10 (Wed) 21:38",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 288.8062499999978,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 226,
+        "maxInputChars": 226,
+        "requiredProviderTruncation": false,
+        "promptTokens": 68,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_c862f65a_1",
+        "answer_c862f65a_3",
+        "answer_c862f65a_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 14, excerpt) **Digital Coupons**: Make sure to check the ShopRite digital coupon section on their website or app. They often offer digital coupons that you can load onto your rewards card, which can be used in addition to sales and promotions. You can search for \"diapers\" and \"formula\" to see if there are any available digital coupons.\n  (part 4 of 14) assistant: As a ShopRite rewards member, you can definitely use digital coupons in addition to earning rewards points on your purchases.\n\nHere's how it works:\n\n1. **Digital Coupons**: When you load digital coupons to your ShopRite rewards card, they're automatically applied at checkout when you purchase the qualifying items. These coupons are usually a fixed amount off (e.g., $1.00 off) or a percentage off (e.g., 10% off).\n2. **Rewards Points**: When you earn rewards points on your purchases, they're credited to your rewards account. You can redeem these points for discounts on future shopping trips.\n\nThe great news is that you can **stack** digital coupons with rewards points! This means you can use a digital coupon on an item and still earn rewards points on that purchase.\n\nFor example:\n\n* You have a digital coupon for $1.00 off a pack of diapers.\n* You purchase the diapers and earn 10 rewards points on that item.\n* At checkout, the digital coupon is applied, and you pay the discounted price.\n* You still earn the 10 rewards points on the purchase, which can be redeemed on a future shopping trip.\n- (part 1 of 17, excerpt) user: I'm planning a shopping trip to Target this weekend and I'm wondering if you have any info on their current sales and promotions. By\n- (part 1 of 14, excerpt) user: I'm planning a trip to Walmart this weekend and I'm looking for some deals on baby essentials. Do you have any info on",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_c862f65a_1",
+          "sourceVersion": "sha256:6ab050ab58fbed4cf187c7cbc66316f727ee8494f79b1f916ad6e27ca4a87178",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c862f65a_1",
+            "part": 2,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "**Digital Coupons**: Make sure to check the ShopRite digital coupon section on their website or app. They often offer digital coupons that you can load onto your rewards card, which can be used in addition to sales and promotions. You can search for \"diapers\" and \"formula\" to see if there are any available digital coupons.",
+          "id": "ev_b1a48eb2a9e1af468053990a",
+          "observedAt": "2026-10-14T04:49:32.200Z"
+        },
+        {
+          "sourceId": "memory:answer_c862f65a_1",
+          "sourceVersion": "sha256:6ab050ab58fbed4cf187c7cbc66316f727ee8494f79b1f916ad6e27ca4a87178",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c862f65a_1",
+            "part": 4,
+            "parts": 14
+          },
+          "text": "assistant: As a ShopRite rewards member, you can definitely use digital coupons in addition to earning rewards points on your purchases.\n\nHere's how it works:\n\n1. **Digital Coupons**: When you load digital coupons to your ShopRite rewards card, they're automatically applied at checkout when you purchase the qualifying items. These coupons are usually a fixed amount off (e.g., $1.00 off) or a percentage off (e.g., 10% off).\n2. **Rewards Points**: When you earn rewards points on your purchases, they're credited to your rewards account. You can redeem these points for discounts on future shopping trips.\n\nThe great news is that you can **stack** digital coupons with rewards points! This means you can use a digital coupon on an item and still earn rewards points on that purchase.\n\nFor example:\n\n* You have a digital coupon for $1.00 off a pack of diapers.\n* You purchase the diapers and earn 10 rewards points on that item.\n* At checkout, the digital coupon is applied, and you pay the discounted price.\n* You still earn the 10 rewards points on the purchase, which can be redeemed on a future shopping trip.",
+          "id": "ev_319202c317e21ead4af08f64",
+          "observedAt": "2026-10-14T04:49:32.201Z"
+        },
+        {
+          "sourceId": "memory:answer_c862f65a_3",
+          "sourceVersion": "sha256:a9654be7ae4f24f533493c88198e9dcff22d9bd56f977875315afb00b1ae84e2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c862f65a_3",
+            "part": 1,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "user: I'm planning a shopping trip to Target this weekend and I'm wondering if you have any info on their current sales and promotions. By",
+          "id": "ev_cc8cb21f51b694aaa7955326",
+          "observedAt": "2026-10-14T04:49:32.201Z"
+        },
+        {
+          "sourceId": "memory:answer_c862f65a_2",
+          "sourceVersion": "sha256:93177b9944895bc5a58ae6de26faa60dbb31f3bf005345ac99b04ba9ccfd9a43",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c862f65a_2",
+            "part": 1,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "user: I'm planning a trip to Walmart this weekend and I'm looking for some deals on baby essentials. Do you have any info on",
+          "id": "ev_10da19481b633dabbef72ff8",
+          "observedAt": "2026-10-14T04:49:32.201Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_c862f65a_1",
+        "answer_c862f65a_3",
+        "answer_c862f65a_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 17.351125000001048,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_c862f65a_1",
+        "answer_c862f65a_3",
+        "answer_c862f65a_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 14, excerpt) **Digital Coupons**: Make sure to check the ShopRite digital coupon section on their website or app. They often offer digital coupons that you can load onto your rewards card, which can be used in addition to sales and promotions. You can search for \"diapers\" and \"formula\" to see if there are any available digital coupons.\n  (part 4 of 14) assistant: As a ShopRite rewards member, you can definitely use digital coupons in addition to earning rewards points on your purchases.\n\nHere's how it works:\n\n1. **Digital Coupons**: When you load digital coupons to your ShopRite rewards card, they're automatically applied at checkout when you purchase the qualifying items. These coupons are usually a fixed amount off (e.g., $1.00 off) or a percentage off (e.g., 10% off).\n2. **Rewards Points**: When you earn rewards points on your purchases, they're credited to your rewards account. You can redeem these points for discounts on future shopping trips.\n\nThe great news is that you can **stack** digital coupons with rewards points! This means you can use a digital coupon on an item and still earn rewards points on that purchase.\n\nFor example:\n\n* You have a digital coupon for $1.00 off a pack of diapers.\n* You purchase the diapers and earn 10 rewards points on that item.\n* At checkout, the digital coupon is applied, and you pay the discounted price.\n* You still earn the 10 rewards points on the purchase, which can be redeemed on a future shopping trip.\n- (part 1 of 17, excerpt) user: I'm planning a shopping trip to Target this weekend and I'm wondering if you have any info on their current sales and promotions. By\n- (part 1 of 14, excerpt) user: I'm planning a trip to Walmart this weekend and I'm looking for some deals on baby essentials. Do you have any info on",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_c862f65a_1",
+          "sourceVersion": "sha256:6ab050ab58fbed4cf187c7cbc66316f727ee8494f79b1f916ad6e27ca4a87178",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c862f65a_1",
+            "part": 2,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "**Digital Coupons**: Make sure to check the ShopRite digital coupon section on their website or app. They often offer digital coupons that you can load onto your rewards card, which can be used in addition to sales and promotions. You can search for \"diapers\" and \"formula\" to see if there are any available digital coupons.",
+          "id": "ev_b1a48eb2a9e1af468053990a",
+          "observedAt": "2026-10-14T04:49:32.205Z"
+        },
+        {
+          "sourceId": "memory:answer_c862f65a_1",
+          "sourceVersion": "sha256:6ab050ab58fbed4cf187c7cbc66316f727ee8494f79b1f916ad6e27ca4a87178",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c862f65a_1",
+            "part": 4,
+            "parts": 14
+          },
+          "text": "assistant: As a ShopRite rewards member, you can definitely use digital coupons in addition to earning rewards points on your purchases.\n\nHere's how it works:\n\n1. **Digital Coupons**: When you load digital coupons to your ShopRite rewards card, they're automatically applied at checkout when you purchase the qualifying items. These coupons are usually a fixed amount off (e.g., $1.00 off) or a percentage off (e.g., 10% off).\n2. **Rewards Points**: When you earn rewards points on your purchases, they're credited to your rewards account. You can redeem these points for discounts on future shopping trips.\n\nThe great news is that you can **stack** digital coupons with rewards points! This means you can use a digital coupon on an item and still earn rewards points on that purchase.\n\nFor example:\n\n* You have a digital coupon for $1.00 off a pack of diapers.\n* You purchase the diapers and earn 10 rewards points on that item.\n* At checkout, the digital coupon is applied, and you pay the discounted price.\n* You still earn the 10 rewards points on the purchase, which can be redeemed on a future shopping trip.",
+          "id": "ev_319202c317e21ead4af08f64",
+          "observedAt": "2026-10-14T04:49:32.205Z"
+        },
+        {
+          "sourceId": "memory:answer_c862f65a_3",
+          "sourceVersion": "sha256:a9654be7ae4f24f533493c88198e9dcff22d9bd56f977875315afb00b1ae84e2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c862f65a_3",
+            "part": 1,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "user: I'm planning a shopping trip to Target this weekend and I'm wondering if you have any info on their current sales and promotions. By",
+          "id": "ev_cc8cb21f51b694aaa7955326",
+          "observedAt": "2026-10-14T04:49:32.205Z"
+        },
+        {
+          "sourceId": "memory:answer_c862f65a_2",
+          "sourceVersion": "sha256:93177b9944895bc5a58ae6de26faa60dbb31f3bf005345ac99b04ba9ccfd9a43",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_c862f65a_2",
+            "part": 1,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "user: I'm planning a trip to Walmart this weekend and I'm looking for some deals on baby essentials. Do you have any info on",
+          "id": "ev_10da19481b633dabbef72ff8",
+          "observedAt": "2026-10-14T04:49:32.206Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_c862f65a_1",
+        "answer_c862f65a_3",
+        "answer_c862f65a_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.367707999997947,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:49:32.207596+00:00"
+}

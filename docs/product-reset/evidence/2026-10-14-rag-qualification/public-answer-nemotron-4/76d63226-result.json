@@ -1,0 +1,275 @@
+{
+  "row": 50,
+  "id": "76d63226",
+  "stratum": "single-session-user",
+  "dataset": "longmemeval",
+  "question": "What size is my new Samsung TV?",
+  "references": [
+    "55-inch"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 16:56",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 216.95283299999937,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 31,
+        "maxInputChars": 31,
+        "requiredProviderTruncation": false,
+        "promptTokens": 10,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_bbdc7b0a",
+        "cb289226_1",
+        "50136b31"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 8 of 16) follow safety guidelines when working with electrical cables, and ensure that your chosen method doesn't compromise the integrity of your cables or TV mount.\n\nWhich method do you think might work best for your setup?\nuser: I actually just set up my new Samsung 55-inch 4K smart TV on Saturday, and I spent a lot of time hiding the cables behind the TV. I used a combination of cable ties and cable clips to keep everything organized and out of sight. It looks really clean and neat now. By the way, do you have any recommendations for good streaming services besides Netflix and Amazon Prime Video?\nassistant: Congratulations on your new TV setup! It's great that you took the time to organize the cables, making the overall look much neater and more enjoyable.\n\nAs for streaming services, there are many great options beyond Netflix and Amazon Prime Video. Here are a few recommendations:\n\n1.\n\n**Hulu**: Offers a range of TV shows, movies, and documentaries, with a focus on current TV series and a smaller but growing collection of movies.\n\n2.\n  (part 9 of 16, excerpt) 3.\n\n**HBO Max**: A relatively new service that offers a massive library of content, including popular TV shows like Game of Thrones, Westworld, and Friends, as well as a large collection of movies and original content.\n\n4.\n\n**Apple TV+**: A relatively new service with exclusive original content, including TV shows and movies, with a focus on high-quality productions.\n\n5.\n- (part 10 of 10, excerpt) What do you plan to do with the extra time you're saving by watching less TV? Are you exploring new hobbies, reading more, or doing something else to stay eng\n- (part 2 of 3, excerpt) I'll note that Stranger Things is a TV series, not a movie, but I've included it in your list since you mentioned it. Let m",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_bbdc7b0a",
+          "sourceVersion": "sha256:95a84c533c1da1051bf5724078e8e040c32d196088b338fda7101f5d5f799b26",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_bbdc7b0a",
+            "part": 8,
+            "parts": 16
+          },
+          "text": "follow safety guidelines when working with electrical cables, and ensure that your chosen method doesn't compromise the integrity of your cables or TV mount.\n\nWhich method do you think might work best for your setup?\nuser: I actually just set up my new Samsung 55-inch 4K smart TV on Saturday, and I spent a lot of time hiding the cables behind the TV. I used a combination of cable ties and cable clips to keep everything organized and out of sight. It looks really clean and neat now. By the way, do you have any recommendations for good streaming services besides Netflix and Amazon Prime Video?\nassistant: Congratulations on your new TV setup! It's great that you took the time to organize the cables, making the overall look much neater and more enjoyable.\n\nAs for streaming services, there are many great options beyond Netflix and Amazon Prime Video. Here are a few recommendations:\n\n1.\n\n**Hulu**: Offers a range of TV shows, movies, and documentaries, with a focus on current TV series and a smaller but growing collection of movies.\n\n2.",
+          "id": "ev_9bc329935471f608247c4f8d",
+          "observedAt": "2026-10-14T04:49:58.877Z"
+        },
+        {
+          "sourceId": "memory:answer_bbdc7b0a",
+          "sourceVersion": "sha256:95a84c533c1da1051bf5724078e8e040c32d196088b338fda7101f5d5f799b26",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_bbdc7b0a",
+            "part": 9,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "3.\n\n**HBO Max**: A relatively new service that offers a massive library of content, including popular TV shows like Game of Thrones, Westworld, and Friends, as well as a large collection of movies and original content.\n\n4.\n\n**Apple TV+**: A relatively new service with exclusive original content, including TV shows and movies, with a focus on high-quality productions.\n\n5.",
+          "id": "ev_c7d73bd150013cd5ae659dcb",
+          "observedAt": "2026-10-14T04:49:58.878Z"
+        },
+        {
+          "sourceId": "memory:cb289226_1",
+          "sourceVersion": "sha256:d96f5f94fa38d7c6eaa9a6dd17976dcaa25dc17cedd1982b82869405f9cc8fbe",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "cb289226_1",
+            "part": 10,
+            "parts": 10,
+            "partial": true
+          },
+          "text": "What do you plan to do with the extra time you're saving by watching less TV? Are you exploring new hobbies, reading more, or doing something else to stay eng",
+          "id": "ev_a42a27fa79562211a4b6f330",
+          "observedAt": "2026-10-14T04:49:58.878Z"
+        },
+        {
+          "sourceId": "memory:50136b31",
+          "sourceVersion": "sha256:41611b874e8f805f95d032609746cdbc9effdbae06a7dc957029249d5cc64ff1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "50136b31",
+            "part": 2,
+            "parts": 3,
+            "partial": true
+          },
+          "text": "I'll note that Stranger Things is a TV series, not a movie, but I've included it in your list since you mentioned it. Let m",
+          "id": "ev_d603b7e91dc90888b75455ca",
+          "observedAt": "2026-10-14T04:49:58.879Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_bbdc7b0a",
+        "cb289226_1",
+        "50136b31"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 16.55212500000198,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_bbdc7b0a",
+        "cb289226_1",
+        "50136b31"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 8 of 16) follow safety guidelines when working with electrical cables, and ensure that your chosen method doesn't compromise the integrity of your cables or TV mount.\n\nWhich method do you think might work best for your setup?\nuser: I actually just set up my new Samsung 55-inch 4K smart TV on Saturday, and I spent a lot of time hiding the cables behind the TV. I used a combination of cable ties and cable clips to keep everything organized and out of sight. It looks really clean and neat now. By the way, do you have any recommendations for good streaming services besides Netflix and Amazon Prime Video?\nassistant: Congratulations on your new TV setup! It's great that you took the time to organize the cables, making the overall look much neater and more enjoyable.\n\nAs for streaming services, there are many great options beyond Netflix and Amazon Prime Video. Here are a few recommendations:\n\n1.\n\n**Hulu**: Offers a range of TV shows, movies, and documentaries, with a focus on current TV series and a smaller but growing collection of movies.\n\n2.\n  (part 9 of 16, excerpt) 3.\n\n**HBO Max**: A relatively new service that offers a massive library of content, including popular TV shows like Game of Thrones, Westworld, and Friends, as well as a large collection of movies and original content.\n\n4.\n\n**Apple TV+**: A relatively new service with exclusive original content, including TV shows and movies, with a focus on high-quality productions.\n\n5.\n- (part 10 of 10, excerpt) What do you plan to do with the extra time you're saving by watching less TV? Are you exploring new hobbies, reading more, or doing something else to stay eng\n- (part 2 of 3, excerpt) I'll note that Stranger Things is a TV series, not a movie, but I've included it in your list since you mentioned it. Let m",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_bbdc7b0a",
+          "sourceVersion": "sha256:95a84c533c1da1051bf5724078e8e040c32d196088b338fda7101f5d5f799b26",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_bbdc7b0a",
+            "part": 8,
+            "parts": 16
+          },
+          "text": "follow safety guidelines when working with electrical cables, and ensure that your chosen method doesn't compromise the integrity of your cables or TV mount.\n\nWhich method do you think might work best for your setup?\nuser: I actually just set up my new Samsung 55-inch 4K smart TV on Saturday, and I spent a lot of time hiding the cables behind the TV. I used a combination of cable ties and cable clips to keep everything organized and out of sight. It looks really clean and neat now. By the way, do you have any recommendations for good streaming services besides Netflix and Amazon Prime Video?\nassistant: Congratulations on your new TV setup! It's great that you took the time to organize the cables, making the overall look much neater and more enjoyable.\n\nAs for streaming services, there are many great options beyond Netflix and Amazon Prime Video. Here are a few recommendations:\n\n1.\n\n**Hulu**: Offers a range of TV shows, movies, and documentaries, with a focus on current TV series and a smaller but growing collection of movies.\n\n2.",
+          "id": "ev_9bc329935471f608247c4f8d",
+          "observedAt": "2026-10-14T04:49:58.882Z"
+        },
+        {
+          "sourceId": "memory:answer_bbdc7b0a",
+          "sourceVersion": "sha256:95a84c533c1da1051bf5724078e8e040c32d196088b338fda7101f5d5f799b26",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_bbdc7b0a",
+            "part": 9,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "3.\n\n**HBO Max**: A relatively new service that offers a massive library of content, including popular TV shows like Game of Thrones, Westworld, and Friends, as well as a large collection of movies and original content.\n\n4.\n\n**Apple TV+**: A relatively new service with exclusive original content, including TV shows and movies, with a focus on high-quality productions.\n\n5.",
+          "id": "ev_c7d73bd150013cd5ae659dcb",
+          "observedAt": "2026-10-14T04:49:58.882Z"
+        },
+        {
+          "sourceId": "memory:cb289226_1",
+          "sourceVersion": "sha256:d96f5f94fa38d7c6eaa9a6dd17976dcaa25dc17cedd1982b82869405f9cc8fbe",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "cb289226_1",
+            "part": 10,
+            "parts": 10,
+            "partial": true
+          },
+          "text": "What do you plan to do with the extra time you're saving by watching less TV? Are you exploring new hobbies, reading more, or doing something else to stay eng",
+          "id": "ev_a42a27fa79562211a4b6f330",
+          "observedAt": "2026-10-14T04:49:58.882Z"
+        },
+        {
+          "sourceId": "memory:50136b31",
+          "sourceVersion": "sha256:41611b874e8f805f95d032609746cdbc9effdbae06a7dc957029249d5cc64ff1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "50136b31",
+            "part": 2,
+            "parts": 3,
+            "partial": true
+          },
+          "text": "I'll note that Stranger Things is a TV series, not a movie, but I've included it in your list since you mentioned it. Let m",
+          "id": "ev_d603b7e91dc90888b75455ca",
+          "observedAt": "2026-10-14T04:49:58.882Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_bbdc7b0a",
+        "cb289226_1",
+        "50136b31"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.733249999997497,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:50:13.131798+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Your new Samsung TV is 55 inches.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 532,
+    "completion_tokens": 395,
+    "total_tokens": 927,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 383,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 249,
+    "completion_tokens": 361,
+    "total_tokens": 610,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 358,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 4323.9017500000045,
+  "judgeWallMs": 4981.191334000414,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:50:22.439464+00:00"
+}

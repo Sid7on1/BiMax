@@ -1,0 +1,271 @@
+{
+  "row": 15,
+  "query": 95,
+  "id": "mab-15-95",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T05:15:26.235622+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n92. Mrs Sylvia expressed her gratitude to Mr. Cristal for the arrangement.\n93. Eamon proposed to Mrs Sylvia that they should go upstairs to see Sid's room.\n94. Sid promised Mrs Sylvia that he would not abuse her kindness or forget her admonition.\n95. Eamon played the piano for Mr. Cristal.\n96. The narrator wrote a letter to Bea after settling at Shadrach Edith's.\n\n\nBelow is a list of possible subsequent events:\n\n['The narrator gifted a rare coin to Bea as a token of gratitude for her support.', 'The narrator forwarded a vintage silver shilling to Bea in exchange for her assistance.', 'The narrator sent a gold half-guinea to Bea to repay a loan.', 'The narrator presented a platinum dollar to Bea in recognition of her kindness.', 'The narrator mailed a valuable antique penny to Bea to balance an old debt.', 'The narrator offered a brass medallion to Bea to settle a long-standing favor.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "The narrator sent a gold half-guinea to Bea to repay a loan."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 1228.8827500000043,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1123,
+        "maxInputChars": 1123,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-114",
+        "context-105",
+        "context-121"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 6, excerpt) Mr. Jack Maldon was there, before us. Mrs. Edith, dressed in white, with cherry-coloured ribbons, was playing the piano, when we went in; and he was leaning over her to turn the leaves. The clear red and white of her complexion was not so blooming and flower-like as usual, I thought, when she turned round; but she looked very pretty, Wonderfully pretty.\n\n'I have forgotten, Shadrach,' said Mrs. Edith's mama, when we were se\n  (part 2 of 6) usual, I thought, when she turned round; but she looked very pretty, Wonderfully pretty.\n\n'I have forgotten, Shadrach,' said Mrs. Edith's mama, when we were se\n\nIt has not occurred to me to mention Bea since I ran away; but, of course, I wrote her a letter almost as soon as I was housed at Dover, and another, and a longer letter, containing all particulars fully related, when my aunt took me formally under her protection. On my being settled at Shadrach Edith's I wrote to her again, detailing my happy condition and prospects. I never could have derived anything like the pleasure from spending the money Mr. Dick had given me, that I felt in sending a gold half-guinea to Bea, per post, enclosed in this last letter, to discharge the sum I had borrowed of her: in which epistle, not before, I mentioned about the young man with the donkey-cart.\n  (part 4 of 6, excerpt) I made out, without much difficulty, that she could not take quite kindly to my aunt yet. The notice was too short after so long a preposs\n- (part 3 of 5, excerpt) By five o'clock, which was Mr. Cristal's dinner-hour, I had mustered up my spirits again, and was ready for my knife and fork. The cloth w\n- (part 1 of 5, excerpt) 'My dear,' said Mr. Sylvia, 'if you will mention to Kayla what our present position is, which I have no doubt he will like to",
+      "evidence": [
+        {
+          "sourceId": "memory:context-114",
+          "sourceVersion": "sha256:df458757ac3e4201985a330291afec4ecce803f26245824c637093fa16383495",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-114",
+            "part": 1,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Mr. Jack Maldon was there, before us. Mrs. Edith, dressed in white, with cherry-coloured ribbons, was playing the piano, when we went in; and he was leaning over her to turn the leaves. The clear red and white of her complexion was not so blooming and flower-like as usual, I thought, when she turned round; but she looked very pretty, Wonderfully pretty.\n\n'I have forgotten, Shadrach,' said Mrs. Edith's mama, when we were se",
+          "id": "ev_7864df0ed89652816a76ebee",
+          "observedAt": "2026-10-14T05:15:27.473Z"
+        },
+        {
+          "sourceId": "memory:context-114",
+          "sourceVersion": "sha256:df458757ac3e4201985a330291afec4ecce803f26245824c637093fa16383495",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-114",
+            "part": 2,
+            "parts": 6
+          },
+          "text": "usual, I thought, when she turned round; but she looked very pretty, Wonderfully pretty.\n\n'I have forgotten, Shadrach,' said Mrs. Edith's mama, when we were se\n\nIt has not occurred to me to mention Bea since I ran away; but, of course, I wrote her a letter almost as soon as I was housed at Dover, and another, and a longer letter, containing all particulars fully related, when my aunt took me formally under her protection. On my being settled at Shadrach Edith's I wrote to her again, detailing my happy condition and prospects. I never could have derived anything like the pleasure from spending the money Mr. Dick had given me, that I felt in sending a gold half-guinea to Bea, per post, enclosed in this last letter, to discharge the sum I had borrowed of her: in which epistle, not before, I mentioned about the young man with the donkey-cart.",
+          "id": "ev_bcd5de9e2a978d0883b0e295",
+          "observedAt": "2026-10-14T05:15:27.473Z"
+        },
+        {
+          "sourceId": "memory:context-114",
+          "sourceVersion": "sha256:df458757ac3e4201985a330291afec4ecce803f26245824c637093fa16383495",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-114",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "I made out, without much difficulty, that she could not take quite kindly to my aunt yet. The notice was too short after so long a preposs",
+          "id": "ev_5e66b51e81e8d2fb42495be6",
+          "observedAt": "2026-10-14T05:15:27.474Z"
+        },
+        {
+          "sourceId": "memory:context-105",
+          "sourceVersion": "sha256:c7a57e18632f0d46d9067f4f4a3fed0a2a41d84734fc5b7d353868143112540d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-105",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "By five o'clock, which was Mr. Cristal's dinner-hour, I had mustered up my spirits again, and was ready for my knife and fork. The cloth w",
+          "id": "ev_262660f716e88e0e3b8eb26b",
+          "observedAt": "2026-10-14T05:15:27.474Z"
+        },
+        {
+          "sourceId": "memory:context-121",
+          "sourceVersion": "sha256:0d9bce082ba88c40b79de4dfbea7f006929f0cad2dda81c60a68242a24227d57",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-121",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "'My dear,' said Mr. Sylvia, 'if you will mention to Kayla what our present position is, which I have no doubt he will like to",
+          "id": "ev_89c1b09af4797c83e9170b99",
+          "observedAt": "2026-10-14T05:15:27.475Z"
+        }
+      ],
+      "sourceIds": [
+        "context-114",
+        "context-105",
+        "context-121"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 11.501541999998153,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-114",
+        "context-105",
+        "context-121"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 6, excerpt) Mr. Jack Maldon was there, before us. Mrs. Edith, dressed in white, with cherry-coloured ribbons, was playing the piano, when we went in; and he was leaning over her to turn the leaves. The clear red and white of her complexion was not so blooming and flower-like as usual, I thought, when she turned round; but she looked very pretty, Wonderfully pretty.\n\n'I have forgotten, Shadrach,' said Mrs. Edith's mama, when we were se\n  (part 2 of 6) usual, I thought, when she turned round; but she looked very pretty, Wonderfully pretty.\n\n'I have forgotten, Shadrach,' said Mrs. Edith's mama, when we were se\n\nIt has not occurred to me to mention Bea since I ran away; but, of course, I wrote her a letter almost as soon as I was housed at Dover, and another, and a longer letter, containing all particulars fully related, when my aunt took me formally under her protection. On my being settled at Shadrach Edith's I wrote to her again, detailing my happy condition and prospects. I never could have derived anything like the pleasure from spending the money Mr. Dick had given me, that I felt in sending a gold half-guinea to Bea, per post, enclosed in this last letter, to discharge the sum I had borrowed of her: in which epistle, not before, I mentioned about the young man with the donkey-cart.\n  (part 4 of 6, excerpt) I made out, without much difficulty, that she could not take quite kindly to my aunt yet. The notice was too short after so long a preposs\n- (part 3 of 5, excerpt) By five o'clock, which was Mr. Cristal's dinner-hour, I had mustered up my spirits again, and was ready for my knife and fork. The cloth w\n- (part 1 of 5, excerpt) 'My dear,' said Mr. Sylvia, 'if you will mention to Kayla what our present position is, which I have no doubt he will like to",
+      "evidence": [
+        {
+          "sourceId": "memory:context-114",
+          "sourceVersion": "sha256:df458757ac3e4201985a330291afec4ecce803f26245824c637093fa16383495",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-114",
+            "part": 1,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Mr. Jack Maldon was there, before us. Mrs. Edith, dressed in white, with cherry-coloured ribbons, was playing the piano, when we went in; and he was leaning over her to turn the leaves. The clear red and white of her complexion was not so blooming and flower-like as usual, I thought, when she turned round; but she looked very pretty, Wonderfully pretty.\n\n'I have forgotten, Shadrach,' said Mrs. Edith's mama, when we were se",
+          "id": "ev_7864df0ed89652816a76ebee",
+          "observedAt": "2026-10-14T05:15:27.487Z"
+        },
+        {
+          "sourceId": "memory:context-114",
+          "sourceVersion": "sha256:df458757ac3e4201985a330291afec4ecce803f26245824c637093fa16383495",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-114",
+            "part": 2,
+            "parts": 6
+          },
+          "text": "usual, I thought, when she turned round; but she looked very pretty, Wonderfully pretty.\n\n'I have forgotten, Shadrach,' said Mrs. Edith's mama, when we were se\n\nIt has not occurred to me to mention Bea since I ran away; but, of course, I wrote her a letter almost as soon as I was housed at Dover, and another, and a longer letter, containing all particulars fully related, when my aunt took me formally under her protection. On my being settled at Shadrach Edith's I wrote to her again, detailing my happy condition and prospects. I never could have derived anything like the pleasure from spending the money Mr. Dick had given me, that I felt in sending a gold half-guinea to Bea, per post, enclosed in this last letter, to discharge the sum I had borrowed of her: in which epistle, not before, I mentioned about the young man with the donkey-cart.",
+          "id": "ev_bcd5de9e2a978d0883b0e295",
+          "observedAt": "2026-10-14T05:15:27.487Z"
+        },
+        {
+          "sourceId": "memory:context-114",
+          "sourceVersion": "sha256:df458757ac3e4201985a330291afec4ecce803f26245824c637093fa16383495",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-114",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "I made out, without much difficulty, that she could not take quite kindly to my aunt yet. The notice was too short after so long a preposs",
+          "id": "ev_5e66b51e81e8d2fb42495be6",
+          "observedAt": "2026-10-14T05:15:27.487Z"
+        },
+        {
+          "sourceId": "memory:context-105",
+          "sourceVersion": "sha256:c7a57e18632f0d46d9067f4f4a3fed0a2a41d84734fc5b7d353868143112540d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-105",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "By five o'clock, which was Mr. Cristal's dinner-hour, I had mustered up my spirits again, and was ready for my knife and fork. The cloth w",
+          "id": "ev_262660f716e88e0e3b8eb26b",
+          "observedAt": "2026-10-14T05:15:27.488Z"
+        },
+        {
+          "sourceId": "memory:context-121",
+          "sourceVersion": "sha256:0d9bce082ba88c40b79de4dfbea7f006929f0cad2dda81c60a68242a24227d57",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-121",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "'My dear,' said Mr. Sylvia, 'if you will mention to Kayla what our present position is, which I have no doubt he will like to",
+          "id": "ev_89c1b09af4797c83e9170b99",
+          "observedAt": "2026-10-14T05:15:27.489Z"
+        }
+      ],
+      "sourceIds": [
+        "context-114",
+        "context-105",
+        "context-121"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 13.129290999997465,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:15:27.491011+00:00"
+}

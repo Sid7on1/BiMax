@@ -1,0 +1,319 @@
+{
+  "https://huggingface.co/api/datasets/ai-hyz/MemoryAgentBench/tree/main/data": [
+    {
+      "type": "file",
+      "oid": "26fc42f09a508c57eced7f2c9d655e67b00288df",
+      "size": 20024386,
+      "lfs": {
+        "oid": "56c3cd80fb6731a3e53cd1a6be3148f54df60ff2d290ee50e28f8acebf9655c1",
+        "size": 20024386,
+        "pointerSize": 133
+      },
+      "xetHash": "9b629d05ecee89f167e2c7ad8376466b2c6ead637afd9c6982bae0fef48cfa8b",
+      "path": "data/Accurate_Retrieval-00000-of-00001.parquet"
+    },
+    {
+      "type": "file",
+      "oid": "a9af91839926e5e53984fcab1f00232b6117299b",
+      "size": 1491588,
+      "lfs": {
+        "oid": "24d5c3f09ce0ce15625cb9f8a98f44f0d864ca6c94d7b4ad04eb697ca3a5ff45",
+        "size": 1491588,
+        "pointerSize": 132
+      },
+      "path": "data/Conflict_Resolution-00000-of-00001.parquet"
+    },
+    {
+      "type": "file",
+      "oid": "1f98ae9d5df82d1f265939c23233dada7a1d5918",
+      "size": 49342452,
+      "lfs": {
+        "oid": "5ab175461954db67770d4a4cb69e569b513ebb96aceb9ee79b57f67488bcd539",
+        "size": 49342452,
+        "pointerSize": 133
+      },
+      "xetHash": "28495c6968300c4988327005c4bb2c22cb86816aebd4ddc3204fd75170685ec9",
+      "path": "data/Long_Range_Understanding-00000-of-00001.parquet"
+    },
+    {
+      "type": "file",
+      "oid": "648d10c78d16aa0916ae9c66ed04e2901d5ae5e5",
+      "size": 3947476,
+      "lfs": {
+        "oid": "5338753be48f925d03318eed66117286e3489025fabe050a547bd086cd7d79c0",
+        "size": 3947476,
+        "pointerSize": 132
+      },
+      "path": "data/Test_Time_Learning-00000-of-00001.parquet"
+    }
+  ],
+  "https://huggingface.co/api/datasets/ai-hyz/MemoryAgentBench": {
+    "_id": "6868d8885d6d51931f1eb698",
+    "id": "ai-hyz/MemoryAgentBench",
+    "author": "ai-hyz",
+    "sha": "7ea066982b140a19337e17e60d45d4076e042faf",
+    "lastModified": "2026-06-21T10:21:33.000Z",
+    "private": false,
+    "gated": false,
+    "disabled": false,
+    "tags": [
+      "task_categories:question-answering",
+      "task_categories:zero-shot-classification",
+      "task_categories:summarization",
+      "task_categories:text-classification",
+      "task_categories:text-generation",
+      "language:en",
+      "license:mit",
+      "size_categories:n<1K",
+      "format:parquet",
+      "modality:text",
+      "library:datasets",
+      "library:pandas",
+      "library:polars",
+      "library:mlcroissant",
+      "arxiv:2507.05257",
+      "region:us",
+      "llm-agents",
+      "memory",
+      "benchmark",
+      "skills"
+    ],
+    "description": "\n\t\n\t\t\n\t\n\t\n\t\t\ud83d\udea7 Update\n\t\n\n\n \n(Sep 29th, 2025) We updated our paper, where we removed some in-efficient and high-cost samples. We also added a sub-sample of DetectiveQA. \n\n \n(July 7th, 2025) We released the initial version of our datasets.\n\n \n(July 22nd, 2025) We modify the datasets slightly, adding the keypoints in LRU and change the uuid into qa_pair_ids. The question_ids is only used in Longmemeval task.\n\n \n(July 26th, 2025) We fixed bug on qa_pair_ids.\n\n \n(Aug.5th, 2025) We removed the\u2026 See the full description on the dataset page: https://huggingface.co/datasets/ai-hyz/MemoryAgentBench.",
+    "downloads": 13986,
+    "likes": 41,
+    "cardData": {
+      "license": "mit",
+      "task_categories": [
+        "question-answering",
+        "zero-shot-classification",
+        "summarization",
+        "text-classification",
+        "text-generation"
+      ],
+      "tags": [
+        "llm-agents",
+        "memory",
+        "benchmark",
+        "skills"
+      ],
+      "library_name": "datasets",
+      "dataset_info": {
+        "features": [
+          {
+            "name": "context",
+            "dtype": "string"
+          },
+          {
+            "name": "questions",
+            "sequence": "string"
+          },
+          {
+            "name": "answers",
+            "sequence": {
+              "sequence": "string"
+            }
+          },
+          {
+            "name": "metadata",
+            "struct": [
+              {
+                "name": "demo",
+                "dtype": "string"
+              },
+              {
+                "name": "haystack_sessions",
+                "list": {
+                  "list": {
+                    "list": [
+                      {
+                        "name": "content",
+                        "dtype": "string"
+                      },
+                      {
+                        "name": "has_answer",
+                        "dtype": "bool"
+                      },
+                      {
+                        "name": "role",
+                        "dtype": "string"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "name": "keypoints",
+                "sequence": "string"
+              },
+              {
+                "name": "previous_events",
+                "sequence": "string"
+              },
+              {
+                "name": "qa_pair_ids",
+                "sequence": "string"
+              },
+              {
+                "name": "question_dates",
+                "sequence": "string"
+              },
+              {
+                "name": "question_ids",
+                "sequence": "string"
+              },
+              {
+                "name": "question_types",
+                "sequence": "string"
+              },
+              {
+                "name": "source",
+                "dtype": "string"
+              }
+            ]
+          }
+        ],
+        "splits": [
+          {
+            "name": "Accurate_Retrieval",
+            "num_bytes": 19889235.616438355,
+            "num_examples": 22
+          },
+          {
+            "name": "Test_Time_Learning",
+            "num_bytes": 5424336.98630137,
+            "num_examples": 6
+          },
+          {
+            "name": "Long_Range_Understanding",
+            "num_bytes": 99446178.08219178,
+            "num_examples": 110
+          },
+          {
+            "name": "Conflict_Resolution",
+            "num_bytes": 7232449.315068494,
+            "num_examples": 8
+          }
+        ],
+        "download_size": 74805902,
+        "dataset_size": 131992200
+      },
+      "configs": [
+        {
+          "config_name": "default",
+          "data_files": [
+            {
+              "split": "Accurate_Retrieval",
+              "path": "data/Accurate_Retrieval-*"
+            },
+            {
+              "split": "Test_Time_Learning",
+              "path": "data/Test_Time_Learning-*"
+            },
+            {
+              "split": "Long_Range_Understanding",
+              "path": "data/Long_Range_Understanding-*"
+            },
+            {
+              "split": "Conflict_Resolution",
+              "path": "data/Conflict_Resolution-*"
+            }
+          ]
+        }
+      ],
+      "language": [
+        "en"
+      ],
+      "pretty_name": "Devante",
+      "size_categories": [
+        "10M<n<100M"
+      ]
+    },
+    "siblings": [
+      {
+        "rfilename": ".gitattributes"
+      },
+      {
+        "rfilename": "README.md"
+      },
+      {
+        "rfilename": "data/Accurate_Retrieval-00000-of-00001.parquet"
+      },
+      {
+        "rfilename": "data/Conflict_Resolution-00000-of-00001.parquet"
+      },
+      {
+        "rfilename": "data/Long_Range_Understanding-00000-of-00001.parquet"
+      },
+      {
+        "rfilename": "data/Test_Time_Learning-00000-of-00001.parquet"
+      },
+      {
+        "rfilename": "entity2id.json"
+      }
+    ],
+    "createdAt": "2025-07-05T07:47:20.000Z",
+    "usedStorage": 293424860
+  },
+  "https://huggingface.co/api/datasets/xiaowu0162/longmemeval-cleaned": {
+    "_id": "68cde13e82e1bf61a6602263",
+    "id": "xiaowu0162/longmemeval-cleaned",
+    "author": "xiaowu0162",
+    "sha": "98d7416c24c778c2fee6e6f3006e7a073259d48f",
+    "lastModified": "2025-09-19T23:48:16.000Z",
+    "private": false,
+    "gated": false,
+    "disabled": false,
+    "tags": [
+      "language:en",
+      "license:mit",
+      "region:us"
+    ],
+    "description": "This dataset replaces the original LongMemEval dataset. The main difference is that this version removes noisy history sessions that interfere with the answer correctness. More detailed session processing information can be found here.\n",
+    "downloads": 26905,
+    "likes": 37,
+    "cardData": {
+      "configs": [
+        {
+          "config_name": "default",
+          "data_files": [
+            {
+              "split": "longmemeval_oracle",
+              "path": "longmemeval_oracle.json"
+            },
+            {
+              "split": "longmemeval_s_cleaned",
+              "path": "longmemeval_s_cleaned.json"
+            },
+            {
+              "split": "longmemeval_m_cleaned",
+              "path": "longmemeval_m_cleaned.json"
+            }
+          ]
+        }
+      ],
+      "license": "mit",
+      "language": [
+        "en"
+      ]
+    },
+    "siblings": [
+      {
+        "rfilename": ".gitattributes"
+      },
+      {
+        "rfilename": "README.md"
+      },
+      {
+        "rfilename": "longmemeval_m_cleaned.json"
+      },
+      {
+        "rfilename": "longmemeval_oracle.json"
+      },
+      {
+        "rfilename": "longmemeval_s_cleaned.json"
+      }
+    ],
+    "createdAt": "2025-09-19T23:03:26.000Z",
+    "usedStorage": 3029872022
+  }
+}

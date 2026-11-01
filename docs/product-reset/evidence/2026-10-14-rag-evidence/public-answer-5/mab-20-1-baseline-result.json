@@ -1,0 +1,162 @@
+{
+  "row": 20,
+  "query": 1,
+  "id": "mab-20-1",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:39:01.154087+00:00",
+  "valid": true,
+  "question": "Current Date: 2023/05/27 (Sat) 01:55,\n\n Now Answer the Question: How many months ago did I book the Airbnb in San Francisco?",
+  "references": [
+    "Five months ago"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/05/27 (Sat) 01:55",
+  "benchmarkSessionIds": [
+    "context-281",
+    "context-283",
+    "context-282"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:39:22.660710+00:00",
+  "rag": {
+    "ids": [
+      "context-281",
+      "context-283",
+      "context-282"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6, excerpt) You'd save:\\n\\n$9.99 - $4.99 = $5.00\\n\\non the 3-pound pack of ground beef.\\n\\nYour new total estimated cost would be:\\n\\n$50.40 + $4.99 = $55.39\\n\\nWith the updated total, your cashback earnings would be:\\n\\n$55.39 x 0.01 = $0.55 in cashback\\n\\nThis sale is a grea\n  (part 5 of 6) your cashback earnings would be:\\n\\n$55.39 x 0.01 = $0.55 in cashback\\n\\nThis sale is a great opportunity to stock up on ground beef and save some money.\n\nMake sure to grab it while it's available!\"}], 'Chat Time: 2023/05/27 (Sat) 06:10', [{'role': 'user', 'content': \"I'm planning a trip to San Francisco and was wondering if you could recommend some good neighborhoods to stay in.\n\nBy the way, I've had a great experience with Airbnb in the past, like when I stayed in Haight-Ashbury for my best friend's wedding and had to book three months in advance.\"}, {'role': 'assistant', 'content': \"San Francisco is an amazing city!\n\nI'd be happy to help you find a great neighborhood to stay in.\\n\\nFirst, I have to say that Haight-Ashbury is a fantastic choice, especially if you're looking for a vibrant and eclectic atmosphere.\n\nHowever, there are many other neighborhoods in San Francisco that might suit your taste and preferences.\n\nSince you've had a good experience with Airbnb, I'll suggest some popular neighborhoods to consider:\\n\\n1.\n\n**Fisherman's Wharf**: If you want to be close to the waterfront, Alcatraz, and the famous Pier 39, Fisherman's Wharf is a great option.\n- (part 1 of 4, excerpt) }, {'role': 'assistant', 'content': 'San Francisco has a well-connected airport and a comprehensive public transportation system, making\n- (part 2 of 5, excerpt) It's a bit quieter than other areas, but still has plenty of amenities and is within walking distance to Fisherman's Wharf.\\n",
+    "evidence": [
+      {
+        "sourceId": "memory:context-281",
+        "sourceVersion": "sha256:2bd0ecdd8d221f7f6a65026f92ee256a44526a31fc6d294ccf30e8057bf20589",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-281",
+          "part": 4,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "You'd save:\\n\\n$9.99 - $4.99 = $5.00\\n\\non the 3-pound pack of ground beef.\\n\\nYour new total estimated cost would be:\\n\\n$50.40 + $4.99 = $55.39\\n\\nWith the updated total, your cashback earnings would be:\\n\\n$55.39 x 0.01 = $0.55 in cashback\\n\\nThis sale is a grea",
+        "id": "ev_6fcf4dfca145fe938e87836f",
+        "observedAt": "2026-10-14T08:37:59.465Z"
+      },
+      {
+        "sourceId": "memory:context-281",
+        "sourceVersion": "sha256:2bd0ecdd8d221f7f6a65026f92ee256a44526a31fc6d294ccf30e8057bf20589",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-281",
+          "part": 5,
+          "parts": 6
+        },
+        "text": "your cashback earnings would be:\\n\\n$55.39 x 0.01 = $0.55 in cashback\\n\\nThis sale is a great opportunity to stock up on ground beef and save some money.\n\nMake sure to grab it while it's available!\"}], 'Chat Time: 2023/05/27 (Sat) 06:10', [{'role': 'user', 'content': \"I'm planning a trip to San Francisco and was wondering if you could recommend some good neighborhoods to stay in.\n\nBy the way, I've had a great experience with Airbnb in the past, like when I stayed in Haight-Ashbury for my best friend's wedding and had to book three months in advance.\"}, {'role': 'assistant', 'content': \"San Francisco is an amazing city!\n\nI'd be happy to help you find a great neighborhood to stay in.\\n\\nFirst, I have to say that Haight-Ashbury is a fantastic choice, especially if you're looking for a vibrant and eclectic atmosphere.\n\nHowever, there are many other neighborhoods in San Francisco that might suit your taste and preferences.\n\nSince you've had a good experience with Airbnb, I'll suggest some popular neighborhoods to consider:\\n\\n1.\n\n**Fisherman's Wharf**: If you want to be close to the waterfront, Alcatraz, and the famous Pier 39, Fisherman's Wharf is a great option.",
+        "id": "ev_8f7420be3d4f99a1e0b26631",
+        "observedAt": "2026-10-14T08:37:59.465Z"
+      },
+      {
+        "sourceId": "memory:context-283",
+        "sourceVersion": "sha256:b196a3c4385bff0f26f34379c336236a451e7d073e2d2f1faf4e7968e90071b6",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-283",
+          "part": 1,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "}, {'role': 'assistant', 'content': 'San Francisco has a well-connected airport and a comprehensive public transportation system, making",
+        "id": "ev_708d3dcad8c2eeda9e39078b",
+        "observedAt": "2026-10-14T08:37:59.465Z"
+      },
+      {
+        "sourceId": "memory:context-282",
+        "sourceVersion": "sha256:4b2a5fe9bd539312dcd6e747bafef71e13c784581c6be51c66ef824a5640725b",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-282",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "It's a bit quieter than other areas, but still has plenty of amenities and is within walking distance to Fisherman's Wharf.\\n",
+        "id": "ev_985eba9bf2564f4742cdc450",
+        "observedAt": "2026-10-14T08:37:59.466Z"
+      }
+    ],
+    "sourceIds": [
+      "context-281",
+      "context-283",
+      "context-282"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 6.041917000002286,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "I do not know. The retrieved history contains no record or date indicating when you booked an Airbnb in San Francisco.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 678,
+    "completion_tokens": 721,
+    "total_tokens": 1399,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 694,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 427,
+    "completion_tokens": 1026,
+    "total_tokens": 1453,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 8297.588458999599,
+  "judgeWallMs": 12700.566708000224
+}

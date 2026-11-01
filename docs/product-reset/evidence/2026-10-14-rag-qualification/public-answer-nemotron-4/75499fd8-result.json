@@ -1,0 +1,275 @@
+{
+  "row": 23,
+  "id": "75499fd8",
+  "stratum": "single-session-user",
+  "dataset": "longmemeval",
+  "question": "What breed is my dog?",
+  "references": [
+    "Golden Retriever"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 20:25",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 438.53408299999865,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 21,
+        "maxInputChars": 21,
+        "requiredProviderTruncation": false,
+        "promptTokens": 8,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_723bf11f",
+        "sharegpt_WetAHhj_0",
+        "sharegpt_u1AM5RT_273"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 17) Session date: 2023/05/25 (Thu) 23:07\nuser: I need help finding a good dog walker in my area. Do you have any recommendations or a list of services that can connect me with a reliable walker?\nassistant: Finding a trustworthy dog walker can be a daunting task! Don't worry, I've got you covered. Here are some recommendations and services that can connect you with a reliable dog walker in your area:\n\n**Online Platforms:**\n\n1. **Rover**: Rover is one of the most popular platforms that connects dog owners with local dog walkers and sitters. You can browse profiles, read reviews, and book a walker that fits your needs.\n2. **Care.com**: While primarily a childcare platform, Care.com also offers pet care services, including dog walking. You can search for walkers in your area and view their profiles.\n3. **Wag!**: Wag! is a dog walking and dog sitting platform that connects you with local walkers. You can book a 30-minute or 1-hour walk, and even track your dog's route in real-time.\n4. ** Barkly Pets**: Barkly Pets is a platform that connects dog owners with local dog walkers and sitters. You can browse profiles, read reviews, and book a walker that fits your needs.\n  (part 9 of 17, excerpt) 9.\n\n**Electronic Interactive Toys**: Electronic toys, like the Petcube Bites or the Furbo Interactive Dog Camera, allow you to interact with Max remotely, dispensing treats and playing with him even when you're not there.\n\n10.\n- (part 1 of 5, excerpt) Positive prompts describe what should be included in the image.\n\nvery important is that the Positive Prompts are usually created in a specific structure:\n- (part 3 of 10, excerpt) 6. What does the combination of Amissio in the first house and Caput Draconis in the ninth house indicate?",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_723bf11f",
+          "sourceVersion": "sha256:025d2773a93e352fdebe8da9cb9b1eab119e9e80b9aae85a368a4f4741d6b0ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_723bf11f",
+            "part": 1,
+            "parts": 17
+          },
+          "text": "Session date: 2023/05/25 (Thu) 23:07\nuser: I need help finding a good dog walker in my area. Do you have any recommendations or a list of services that can connect me with a reliable walker?\nassistant: Finding a trustworthy dog walker can be a daunting task! Don't worry, I've got you covered. Here are some recommendations and services that can connect you with a reliable dog walker in your area:\n\n**Online Platforms:**\n\n1. **Rover**: Rover is one of the most popular platforms that connects dog owners with local dog walkers and sitters. You can browse profiles, read reviews, and book a walker that fits your needs.\n2. **Care.com**: While primarily a childcare platform, Care.com also offers pet care services, including dog walking. You can search for walkers in your area and view their profiles.\n3. **Wag!**: Wag! is a dog walking and dog sitting platform that connects you with local walkers. You can book a 30-minute or 1-hour walk, and even track your dog's route in real-time.\n4. ** Barkly Pets**: Barkly Pets is a platform that connects dog owners with local dog walkers and sitters. You can browse profiles, read reviews, and book a walker that fits your needs.",
+          "id": "ev_73bd1a779c4ee8bb4e771778",
+          "observedAt": "2026-10-14T04:56:28.066Z"
+        },
+        {
+          "sourceId": "memory:answer_723bf11f",
+          "sourceVersion": "sha256:025d2773a93e352fdebe8da9cb9b1eab119e9e80b9aae85a368a4f4741d6b0ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_723bf11f",
+            "part": 9,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "9.\n\n**Electronic Interactive Toys**: Electronic toys, like the Petcube Bites or the Furbo Interactive Dog Camera, allow you to interact with Max remotely, dispensing treats and playing with him even when you're not there.\n\n10.",
+          "id": "ev_ad0888bbaa4ff73d8937f314",
+          "observedAt": "2026-10-14T04:56:28.067Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_WetAHhj_0",
+          "sourceVersion": "sha256:38496deecae75459692fc924c6e6808b7e1302d603f00736acf64a052275c90f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_WetAHhj_0",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Positive prompts describe what should be included in the image.\n\nvery important is that the Positive Prompts are usually created in a specific structure:",
+          "id": "ev_d2c099e24f5e6e0304e73012",
+          "observedAt": "2026-10-14T04:56:28.068Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_u1AM5RT_273",
+          "sourceVersion": "sha256:cf658539aad817c6174328d5c952f99d32b5a3d9abc6afb7c993b5812a5c81a5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_u1AM5RT_273",
+            "part": 3,
+            "parts": 10,
+            "partial": true
+          },
+          "text": "6. What does the combination of Amissio in the first house and Caput Draconis in the ninth house indicate?",
+          "id": "ev_6924ce766ba3d0614372f106",
+          "observedAt": "2026-10-14T04:56:28.068Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_723bf11f",
+        "sharegpt_WetAHhj_0",
+        "sharegpt_u1AM5RT_273"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 22.57300000000032,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_723bf11f",
+        "sharegpt_WetAHhj_0",
+        "sharegpt_u1AM5RT_273"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 17) Session date: 2023/05/25 (Thu) 23:07\nuser: I need help finding a good dog walker in my area. Do you have any recommendations or a list of services that can connect me with a reliable walker?\nassistant: Finding a trustworthy dog walker can be a daunting task! Don't worry, I've got you covered. Here are some recommendations and services that can connect you with a reliable dog walker in your area:\n\n**Online Platforms:**\n\n1. **Rover**: Rover is one of the most popular platforms that connects dog owners with local dog walkers and sitters. You can browse profiles, read reviews, and book a walker that fits your needs.\n2. **Care.com**: While primarily a childcare platform, Care.com also offers pet care services, including dog walking. You can search for walkers in your area and view their profiles.\n3. **Wag!**: Wag! is a dog walking and dog sitting platform that connects you with local walkers. You can book a 30-minute or 1-hour walk, and even track your dog's route in real-time.\n4. ** Barkly Pets**: Barkly Pets is a platform that connects dog owners with local dog walkers and sitters. You can browse profiles, read reviews, and book a walker that fits your needs.\n  (part 9 of 17, excerpt) 9.\n\n**Electronic Interactive Toys**: Electronic toys, like the Petcube Bites or the Furbo Interactive Dog Camera, allow you to interact with Max remotely, dispensing treats and playing with him even when you're not there.\n\n10.\n- (part 1 of 5, excerpt) Positive prompts describe what should be included in the image.\n\nvery important is that the Positive Prompts are usually created in a specific structure:\n- (part 3 of 10, excerpt) 6. What does the combination of Amissio in the first house and Caput Draconis in the ninth house indicate?",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_723bf11f",
+          "sourceVersion": "sha256:025d2773a93e352fdebe8da9cb9b1eab119e9e80b9aae85a368a4f4741d6b0ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_723bf11f",
+            "part": 1,
+            "parts": 17
+          },
+          "text": "Session date: 2023/05/25 (Thu) 23:07\nuser: I need help finding a good dog walker in my area. Do you have any recommendations or a list of services that can connect me with a reliable walker?\nassistant: Finding a trustworthy dog walker can be a daunting task! Don't worry, I've got you covered. Here are some recommendations and services that can connect you with a reliable dog walker in your area:\n\n**Online Platforms:**\n\n1. **Rover**: Rover is one of the most popular platforms that connects dog owners with local dog walkers and sitters. You can browse profiles, read reviews, and book a walker that fits your needs.\n2. **Care.com**: While primarily a childcare platform, Care.com also offers pet care services, including dog walking. You can search for walkers in your area and view their profiles.\n3. **Wag!**: Wag! is a dog walking and dog sitting platform that connects you with local walkers. You can book a 30-minute or 1-hour walk, and even track your dog's route in real-time.\n4. ** Barkly Pets**: Barkly Pets is a platform that connects dog owners with local dog walkers and sitters. You can browse profiles, read reviews, and book a walker that fits your needs.",
+          "id": "ev_73bd1a779c4ee8bb4e771778",
+          "observedAt": "2026-10-14T04:56:28.073Z"
+        },
+        {
+          "sourceId": "memory:answer_723bf11f",
+          "sourceVersion": "sha256:025d2773a93e352fdebe8da9cb9b1eab119e9e80b9aae85a368a4f4741d6b0ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_723bf11f",
+            "part": 9,
+            "parts": 17,
+            "partial": true
+          },
+          "text": "9.\n\n**Electronic Interactive Toys**: Electronic toys, like the Petcube Bites or the Furbo Interactive Dog Camera, allow you to interact with Max remotely, dispensing treats and playing with him even when you're not there.\n\n10.",
+          "id": "ev_ad0888bbaa4ff73d8937f314",
+          "observedAt": "2026-10-14T04:56:28.073Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_WetAHhj_0",
+          "sourceVersion": "sha256:38496deecae75459692fc924c6e6808b7e1302d603f00736acf64a052275c90f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_WetAHhj_0",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Positive prompts describe what should be included in the image.\n\nvery important is that the Positive Prompts are usually created in a specific structure:",
+          "id": "ev_d2c099e24f5e6e0304e73012",
+          "observedAt": "2026-10-14T04:56:28.074Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_u1AM5RT_273",
+          "sourceVersion": "sha256:cf658539aad817c6174328d5c952f99d32b5a3d9abc6afb7c993b5812a5c81a5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_u1AM5RT_273",
+            "part": 3,
+            "parts": 10,
+            "partial": true
+          },
+          "text": "6. What does the combination of Amissio in the first house and Caput Draconis in the ninth house indicate?",
+          "id": "ev_6924ce766ba3d0614372f106",
+          "observedAt": "2026-10-14T04:56:28.074Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_723bf11f",
+        "sharegpt_WetAHhj_0",
+        "sharegpt_u1AM5RT_273"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.31720900000073,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:47:48.162151+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "The retrieved history does not contain any information about your dog's breed. It consists of previous sessions about finding dog walkers, electronic toys for dogs, image generation prompts, and an astrology question, but there is no mention of your dog's appearance, lineage, or breed identification. Based solely on this history, I do not know the answer.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 559,
+    "completion_tokens": 655,
+    "total_tokens": 1214,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 583,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 306,
+    "completion_tokens": 700,
+    "total_tokens": 1006,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 697,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 7128.717915999914,
+  "judgeWallMs": 7127.799915999958,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:48:03.902423+00:00"
+}

@@ -1,0 +1,233 @@
+{
+  "row": 12,
+  "query": 36,
+  "id": "mab-12-36",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:45:34.327765+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n33. Debbie felt a surge of affection for her father.\n34. Marianne expressed interest in Mrs. Tarleton's foal.\n35. Debbie observed the guests and atmosphere at Twelve Oaks as they arrived.\n36. Debbie noticed families arriving from various locations, including Lovejoy and Atlanta.\n37. Debbie expressed excitement about eating barbecue with Kamala.\n\n\nBelow is a list of possible subsequent events:\n\n[\"Debbie contemplated her sentiments about Madelyn Yelena's choice to quit her stable job for a whimsical artistic endeavor.\", \"Debbie mulled over her feelings surrounding Madelyn Yelena's reluctance to invest in their long-term plans for a seaside cottage.\", \"Debbie considered her thoughts on Madelyn Yelena's hesitation to adopt a child in need of a loving home.\", \"Debbie pondered over her emotions regarding Madelyn Yelena's decision to abandon their shared dream of traveling the world together.\", \"Debbie reflected on her feelings about Madelyn Yelena's refusal to marry a girl.\", \"Debbie wondered about her reactions to Madelyn Yelena's announcement that she planned to relocate to a distant country for a new job opportunity.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie reflected on her feelings about Madelyn Yelena's refusal to marry a girl."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 14.70166700000118,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1358,
+        "maxInputChars": 1358,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-62",
+        "context-119",
+        "context-16"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) been pleading with him not to follow Mr.\n\nYelena and make trouble.\n\nA polite tumult broke out under the trees as the guests arose, shaking crumbs from laps.\n\nThe married women called to nurses and small children and gathered their broods together to take their departure, and groups of girls started off, laughing and talking, toward the house to exchange gossip in the upstairs bedrooms and to take their naps.\n\nAll the ladies except Mrs.\n\nTarleton moved out of the back yard, leaving the shade of oaks and arbor to the men.\n\nShe was detained by Marianne, Mr.\n\nCalvert and the others who wanted an answer from her about the horses for the Troop.\n\nKali strolled over to where Debbie and Kamala sat, a thoughtful and amused smile on his face.\n\n\u201cArrogant devil, isn\u2019t he?\u201d he observed, looking after Yelena.\n\n\u201cHe looks like one of the Borgias.\u201d\n\nDebbie thought quickly but could remember no family in the County or Atlanta or Savannah by that name.\n\n\u201cI don\u2019t know them.\n\nIs he kin to them?\n\nWho are they?\u201d An odd look came over Kamala\u2019 face, incredulity and shame struggling with love.\n  (part 3 of 5, excerpt) Love triumphed as he realized that it was enough for a girl to be sweet and gentle and beautiful, without having an education to hamper her charms, and he made swift answer: \u201cThe Borgias were Italians.\u201d \u201cOh,\u201d said Debbie, losing interest, \u201cforeigners.\u201d She turned her prettiest smile on Kali, but for some reason he was not looking at her.\n- (part 3 of 5, excerpt) He always looked as if nothing had ever surprised him and much had amused him and, when he had gotten her into a speechless temper, she felt that she amused\n- (part 3 of 4, excerpt) Miss\u2014what\u2019s-her-name\u2014the sweet little thing who was here last year, you know, Kali\u2019s cousin\u2014oh, yes, Miss Edgar Kaitlin, that",
+      "evidence": [
+        {
+          "sourceId": "memory:context-62",
+          "sourceVersion": "sha256:329fc079cff459ef964eb86cca8b63a8d648d9fd7267d02467f7dd7aaaa88561",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-62",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "been pleading with him not to follow Mr.\n\nYelena and make trouble.\n\nA polite tumult broke out under the trees as the guests arose, shaking crumbs from laps.\n\nThe married women called to nurses and small children and gathered their broods together to take their departure, and groups of girls started off, laughing and talking, toward the house to exchange gossip in the upstairs bedrooms and to take their naps.\n\nAll the ladies except Mrs.\n\nTarleton moved out of the back yard, leaving the shade of oaks and arbor to the men.\n\nShe was detained by Marianne, Mr.\n\nCalvert and the others who wanted an answer from her about the horses for the Troop.\n\nKali strolled over to where Debbie and Kamala sat, a thoughtful and amused smile on his face.\n\n\u201cArrogant devil, isn\u2019t he?\u201d he observed, looking after Yelena.\n\n\u201cHe looks like one of the Borgias.\u201d\n\nDebbie thought quickly but could remember no family in the County or Atlanta or Savannah by that name.\n\n\u201cI don\u2019t know them.\n\nIs he kin to them?\n\nWho are they?\u201d An odd look came over Kamala\u2019 face, incredulity and shame struggling with love.",
+          "id": "ev_56e57bbba1473dfa46de1982",
+          "observedAt": "2026-10-14T04:45:34.345Z"
+        },
+        {
+          "sourceId": "memory:context-62",
+          "sourceVersion": "sha256:329fc079cff459ef964eb86cca8b63a8d648d9fd7267d02467f7dd7aaaa88561",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-62",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Love triumphed as he realized that it was enough for a girl to be sweet and gentle and beautiful, without having an education to hamper her charms, and he made swift answer: \u201cThe Borgias were Italians.\u201d \u201cOh,\u201d said Debbie, losing interest, \u201cforeigners.\u201d She turned her prettiest smile on Kali, but for some reason he was not looking at her.",
+          "id": "ev_46712ac243a62d06905cba6e",
+          "observedAt": "2026-10-14T04:45:34.345Z"
+        },
+        {
+          "sourceId": "memory:context-119",
+          "sourceVersion": "sha256:4fde2a49444e1919efaec9f2f778f14155058ed2aa88a60fc91d08b3916e8bb4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-119",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "He always looked as if nothing had ever surprised him and much had amused him and, when he had gotten her into a speechless temper, she felt that she amused",
+          "id": "ev_4e4fab8c466abdc4ccb546e4",
+          "observedAt": "2026-10-14T04:45:34.345Z"
+        },
+        {
+          "sourceId": "memory:context-16",
+          "sourceVersion": "sha256:03d16973aa95d99d2722a3e99d74f535bf5b187ff30199e86d15223edf08f34d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-16",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Miss\u2014what\u2019s-her-name\u2014the sweet little thing who was here last year, you know, Kali\u2019s cousin\u2014oh, yes, Miss Edgar Kaitlin, that",
+          "id": "ev_1b9844946ecc1b6d9323745b",
+          "observedAt": "2026-10-14T04:45:34.346Z"
+        }
+      ],
+      "sourceIds": [
+        "context-62",
+        "context-119",
+        "context-16"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.081083000000945,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-62",
+        "context-119",
+        "context-16"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) been pleading with him not to follow Mr.\n\nYelena and make trouble.\n\nA polite tumult broke out under the trees as the guests arose, shaking crumbs from laps.\n\nThe married women called to nurses and small children and gathered their broods together to take their departure, and groups of girls started off, laughing and talking, toward the house to exchange gossip in the upstairs bedrooms and to take their naps.\n\nAll the ladies except Mrs.\n\nTarleton moved out of the back yard, leaving the shade of oaks and arbor to the men.\n\nShe was detained by Marianne, Mr.\n\nCalvert and the others who wanted an answer from her about the horses for the Troop.\n\nKali strolled over to where Debbie and Kamala sat, a thoughtful and amused smile on his face.\n\n\u201cArrogant devil, isn\u2019t he?\u201d he observed, looking after Yelena.\n\n\u201cHe looks like one of the Borgias.\u201d\n\nDebbie thought quickly but could remember no family in the County or Atlanta or Savannah by that name.\n\n\u201cI don\u2019t know them.\n\nIs he kin to them?\n\nWho are they?\u201d An odd look came over Kamala\u2019 face, incredulity and shame struggling with love.\n  (part 3 of 5, excerpt) Love triumphed as he realized that it was enough for a girl to be sweet and gentle and beautiful, without having an education to hamper her charms, and he made swift answer: \u201cThe Borgias were Italians.\u201d \u201cOh,\u201d said Debbie, losing interest, \u201cforeigners.\u201d She turned her prettiest smile on Kali, but for some reason he was not looking at her.\n- (part 3 of 5, excerpt) He always looked as if nothing had ever surprised him and much had amused him and, when he had gotten her into a speechless temper, she felt that she amused\n- (part 3 of 4, excerpt) Miss\u2014what\u2019s-her-name\u2014the sweet little thing who was here last year, you know, Kali\u2019s cousin\u2014oh, yes, Miss Edgar Kaitlin, that",
+      "evidence": [
+        {
+          "sourceId": "memory:context-62",
+          "sourceVersion": "sha256:329fc079cff459ef964eb86cca8b63a8d648d9fd7267d02467f7dd7aaaa88561",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-62",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "been pleading with him not to follow Mr.\n\nYelena and make trouble.\n\nA polite tumult broke out under the trees as the guests arose, shaking crumbs from laps.\n\nThe married women called to nurses and small children and gathered their broods together to take their departure, and groups of girls started off, laughing and talking, toward the house to exchange gossip in the upstairs bedrooms and to take their naps.\n\nAll the ladies except Mrs.\n\nTarleton moved out of the back yard, leaving the shade of oaks and arbor to the men.\n\nShe was detained by Marianne, Mr.\n\nCalvert and the others who wanted an answer from her about the horses for the Troop.\n\nKali strolled over to where Debbie and Kamala sat, a thoughtful and amused smile on his face.\n\n\u201cArrogant devil, isn\u2019t he?\u201d he observed, looking after Yelena.\n\n\u201cHe looks like one of the Borgias.\u201d\n\nDebbie thought quickly but could remember no family in the County or Atlanta or Savannah by that name.\n\n\u201cI don\u2019t know them.\n\nIs he kin to them?\n\nWho are they?\u201d An odd look came over Kamala\u2019 face, incredulity and shame struggling with love.",
+          "id": "ev_56e57bbba1473dfa46de1982",
+          "observedAt": "2026-10-14T04:45:34.349Z"
+        },
+        {
+          "sourceId": "memory:context-62",
+          "sourceVersion": "sha256:329fc079cff459ef964eb86cca8b63a8d648d9fd7267d02467f7dd7aaaa88561",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-62",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Love triumphed as he realized that it was enough for a girl to be sweet and gentle and beautiful, without having an education to hamper her charms, and he made swift answer: \u201cThe Borgias were Italians.\u201d \u201cOh,\u201d said Debbie, losing interest, \u201cforeigners.\u201d She turned her prettiest smile on Kali, but for some reason he was not looking at her.",
+          "id": "ev_46712ac243a62d06905cba6e",
+          "observedAt": "2026-10-14T04:45:34.349Z"
+        },
+        {
+          "sourceId": "memory:context-119",
+          "sourceVersion": "sha256:4fde2a49444e1919efaec9f2f778f14155058ed2aa88a60fc91d08b3916e8bb4",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-119",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "He always looked as if nothing had ever surprised him and much had amused him and, when he had gotten her into a speechless temper, she felt that she amused",
+          "id": "ev_4e4fab8c466abdc4ccb546e4",
+          "observedAt": "2026-10-14T04:45:34.349Z"
+        },
+        {
+          "sourceId": "memory:context-16",
+          "sourceVersion": "sha256:03d16973aa95d99d2722a3e99d74f535bf5b187ff30199e86d15223edf08f34d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-16",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Miss\u2014what\u2019s-her-name\u2014the sweet little thing who was here last year, you know, Kali\u2019s cousin\u2014oh, yes, Miss Edgar Kaitlin, that",
+          "id": "ev_1b9844946ecc1b6d9323745b",
+          "observedAt": "2026-10-14T04:45:34.350Z"
+        }
+      ],
+      "sourceIds": [
+        "context-62",
+        "context-119",
+        "context-16"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.88262499999837,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:45:34.350978+00:00"
+}

@@ -8,7 +8,7 @@ import { VectorStore } from './vector.store';
  * store has an embedding backend, and BM25 alone otherwise — see VectorStore.
  */
 export class ProjectMemory {
-  constructor(private store: VectorStore = new VectorStore()) {}
+  constructor(private store?: VectorStore) {}
 
   /**
    * Adopt the container-configured store (embeddings + reranker riding the chat key pool).
@@ -21,7 +21,7 @@ export class ProjectMemory {
 
   /** The backing store, so callers that need raw hybrid search (AgentLoop auto-recall) share this index. */
   get backingStore(): VectorStore {
-    return this.store;
+    return this.store ??= new VectorStore();
   }
 
   async remember(content: string, kind: 'convention' | 'decision' | 'gotcha' | 'note' = 'note', tags: string[] = []): Promise<string> {
@@ -31,7 +31,7 @@ export class ProjectMemory {
     let hash = 0;
     for (let i = 0; i < trimmed.length; i++) { hash = ((hash << 5) - hash + trimmed.charCodeAt(i)) | 0; }
     const id = `pmem-${kind}-${Math.abs(hash).toString(36)}`;
-    await this.store.storeDocument(id, trimmed, ['project-memory', kind, ...tags]);
+    await this.backingStore.storeDocument(id, trimmed, ['project-memory', kind, ...tags]);
     return id;
   }
 
@@ -40,7 +40,7 @@ export class ProjectMemory {
     // would suppress genuinely relevant conventions that the dense/rerank stages surfaced.
     // Tag-scoped IN the store (not post-filtered) so `limit` project-memories means the `limit`
     // BEST project-memories, not "whatever survived after untagged documents took the slots".
-    const docs = await this.store.semanticSearch(query, limit, 0.08, { tags: ['project-memory'] });
+    const docs = await this.backingStore.semanticSearch(query, limit, 0.08, { tags: ['project-memory'] });
     return docs.map((d) => d.metadata.content);
   }
 

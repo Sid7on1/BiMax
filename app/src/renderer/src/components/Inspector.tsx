@@ -1,4 +1,6 @@
 import React from 'react';
+const McpToolWorkspace = React.lazy(() => import('./McpToolWorkspace'));
+const OutputWorkspace = React.lazy(() => import('./OutputWorkspace'));
 import {
   AtSign, ChevronDown, Circle, Code2, Compass, Eye, FolderTree,
   GitBranch, Maximize2, Minimize2, MoreHorizontal, PanelRightClose, Search, TerminalSquare, X,
@@ -46,6 +48,7 @@ const LANE_ICON: Record<InspectorTabId, React.ReactNode> = {
   review: <Code2 size={13} />,
   terminal: <TerminalSquare size={13} />,
   github: <GitBranch size={13} />,
+  outputs: <Code2 size={13} />,
 };
 
 /** What each lane is for, one line, shown under its name in the picker. */
@@ -54,6 +57,7 @@ const LANE_DESC: Record<InspectorTabId, string> = {
   review: 'Every uncommitted change, yours and Bimax’s',
   terminal: 'A shell in this project folder',
   github: 'Branch position, fetch, pull and push',
+  outputs: 'Saved documents, charts, diagrams and app previews',
 };
 
 function isMarkdown(path: string): boolean {
@@ -236,8 +240,10 @@ export function Inspector({
   review, gitStatus, checkpoints, onRefreshGit, onCommand,
   project, onOpenFile, lastFile,
   openFiles, dirtyFiles, onCloseFile, onCloseFiles, onDirty,
-  wide, onToggleWide,
+  wide, onToggleWide, threadId, outputSelection,
 }: {
+  threadId?: string | null;
+  outputSelection?: {id:string;version?:string;grant?:string;nonce:number} | null;
   tabs: InspectorTab[];
   active: WorkbenchTab | null;
   onTab: (tab: WorkbenchTab) => void;
@@ -264,6 +270,7 @@ export function Inspector({
   wide: boolean;
   onToggleWide: () => void;
 }): React.ReactElement {
+  const [closedApp,setClosedApp] = React.useState<number|null>(null);
   const activeLane = active?.kind === 'lane' ? tabs.find((tab) => tab.id === active.id) ?? null : null;
   const activeFile = active?.kind === 'file' ? active.path : null;
 
@@ -511,9 +518,9 @@ export function Inspector({
           'min-h-0 flex-1 text-[12.5px]',
           // Files, Review, Terminal and the editor manage their own scrolling and must fill the
           // pane; padding one of them would put a gutter inside a diff and shrink the shell.
-          activeFile !== null || active?.kind === 'lane' && active.id === 'terminal' ? 'overflow-hidden p-0' : 'p-3',
+          activeFile !== null || active?.kind === 'lane' && ['terminal','outputs'].includes(active.id) ? 'overflow-hidden p-0' : 'p-3',
           active?.kind === 'lane' && (active.id === 'review' || active.id === 'files') ? 'overflow-hidden' : '',
-          activeLane && !['review', 'files', 'terminal'].includes(activeLane.id) ? 'overflow-y-auto' : '',
+          activeLane && !['review', 'files', 'terminal', 'outputs'].includes(activeLane.id) ? 'overflow-y-auto' : '',
         )}
       >
         {activeFile !== null ? (
@@ -529,6 +536,8 @@ export function Inspector({
             <Search size={17} />
             <div>{activeLane?.emptyReason ?? 'Evidence appears here as the task produces it.'}</div>
           </div>
+        ) : activeLane.id === 'outputs' ? (
+          <React.Suspense fallback={<p>Opening outputs…</p>}><>{outputSelection?.grant && closedApp!==outputSelection.nonce ? <McpToolWorkspace key={`${threadId}:${outputSelection.nonce}`} threadId={threadId} grant={outputSelection.grant} onClose={()=>setClosedApp(outputSelection.nonce)} /> : <OutputWorkspace key={threadId} threadId={threadId} requested={outputSelection?.grant ? null : outputSelection} />}</></React.Suspense>
         ) : activeLane.id === 'review' ? (
           <ReviewPanel status={gitStatus} review={review} refresh={onRefreshGit} onCommand={onCommand} checkpoints={checkpoints} />
         ) : activeLane.id === 'files' ? (

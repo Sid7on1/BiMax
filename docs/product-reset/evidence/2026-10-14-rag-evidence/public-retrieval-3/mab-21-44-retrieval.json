@@ -1,0 +1,392 @@
+{
+  "row": 21,
+  "query": 44,
+  "id": "mab-21-44",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:39:42.999823+00:00",
+  "valid": true,
+  "question": "Current Date: 2024/01/10 (Wed) 21:47,\n\n Now Answer the Question: How many days did I spend participating in faith-related activities in December?",
+  "references": [
+    "3 days."
+  ],
+  "kind": "multi-session",
+  "abstention": false,
+  "date": "2024/01/10 (Wed) 21:47",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 503.5239999999976,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 145,
+        "maxInputChars": 145,
+        "requiredProviderTruncation": false,
+        "promptTokens": 38,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-395",
+        "context-399",
+        "context-397"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) learn, and thrive.'}], 'Chat Time: 2024/01/10 (Wed) 17:45', [{'role': 'user', 'content': \"I'm looking for some guidance on a Bible study I'm leading next week.\n\nWe're going to discuss the book of Matthew, and I was wondering if you could give me some resources on how to facilitate a good discussion about faith and its application to daily life.\n\nBy the way, I actually just did a Bible study on this same topic at my church a few weeks ago, on December 17th, and it was really thought-provoking.\"}, {'role': 'assistant', 'content': 'What a coincidence!\n\nI\\'m happy to help you with resources on facilitating a discussion about faith and its application to daily life in the context of the book of Matthew.\\n\\nSince you\\'ve already led a Bible study on this topic, you might find these suggestions a helpful refresher or a new perspective:\\n\\n1.\n\n**Open-ended questions**: Prepare a list of open-ended questions that encourage participants to reflect on their faith and its application to daily life.\n  (part 3 of 5, excerpt) This can help create a sense of community and facilitate deeper discussions.\\n3.\n\n**Real-life applications**: Discuss how the teachings in Matthew can be applied to everyday life, such as:\\n\\t* How can we demonstrate love and compassion to those around us, just as Jesus did?\n\n(Matthew 25:31-46)\\n\\t* What are some ways we can prioritize our relationship with God in our busy lives?\n\n(Matthew 6:33)\\n4.\n- (part 1 of 4, excerpt) 24/01/10 (Wed) 20:41', [{'role': 'user', 'content': \"I'm planning a family outing for the upcoming holiday season and I was wondering if you could suggest some festive activit\n- (part 2 of 5, excerpt) **RightNow Media**: A vast library of video Bible studies, devotionals, and teaching series that cover a range of topics, inc",
+      "evidence": [
+        {
+          "sourceId": "memory:context-395",
+          "sourceVersion": "sha256:feb92c35d25758205d75c207dc1e20f2eaa667ded62ca97ed38cf859c042c1ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-395",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "learn, and thrive.'}], 'Chat Time: 2024/01/10 (Wed) 17:45', [{'role': 'user', 'content': \"I'm looking for some guidance on a Bible study I'm leading next week.\n\nWe're going to discuss the book of Matthew, and I was wondering if you could give me some resources on how to facilitate a good discussion about faith and its application to daily life.\n\nBy the way, I actually just did a Bible study on this same topic at my church a few weeks ago, on December 17th, and it was really thought-provoking.\"}, {'role': 'assistant', 'content': 'What a coincidence!\n\nI\\'m happy to help you with resources on facilitating a discussion about faith and its application to daily life in the context of the book of Matthew.\\n\\nSince you\\'ve already led a Bible study on this topic, you might find these suggestions a helpful refresher or a new perspective:\\n\\n1.\n\n**Open-ended questions**: Prepare a list of open-ended questions that encourage participants to reflect on their faith and its application to daily life.",
+          "id": "ev_c12ccb88599984a9661b1e8e",
+          "observedAt": "2026-10-14T08:39:43.508Z"
+        },
+        {
+          "sourceId": "memory:context-395",
+          "sourceVersion": "sha256:feb92c35d25758205d75c207dc1e20f2eaa667ded62ca97ed38cf859c042c1ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-395",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "This can help create a sense of community and facilitate deeper discussions.\\n3.\n\n**Real-life applications**: Discuss how the teachings in Matthew can be applied to everyday life, such as:\\n\\t* How can we demonstrate love and compassion to those around us, just as Jesus did?\n\n(Matthew 25:31-46)\\n\\t* What are some ways we can prioritize our relationship with God in our busy lives?\n\n(Matthew 6:33)\\n4.",
+          "id": "ev_120fad654b52d155757a3e2e",
+          "observedAt": "2026-10-14T08:39:43.508Z"
+        },
+        {
+          "sourceId": "memory:context-399",
+          "sourceVersion": "sha256:5098c6754c2e266eeee1c0cca9a16506b8de13d714686f96e3727ea72f5a5581",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-399",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "24/01/10 (Wed) 20:41', [{'role': 'user', 'content': \"I'm planning a family outing for the upcoming holiday season and I was wondering if you could suggest some festive activit",
+          "id": "ev_2b1d12a79725f84c43f4eafd",
+          "observedAt": "2026-10-14T08:39:43.508Z"
+        },
+        {
+          "sourceId": "memory:context-397",
+          "sourceVersion": "sha256:6b003fd593e72e8c2062ee7604a8ef64091d1a163903a89ef848a45e8083104a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-397",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "**RightNow Media**: A vast library of video Bible studies, devotionals, and teaching series that cover a range of topics, inc",
+          "id": "ev_f7b086df36117183351f0543",
+          "observedAt": "2026-10-14T08:39:43.508Z"
+        }
+      ],
+      "sourceIds": [
+        "context-395",
+        "context-399",
+        "context-397"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.260499999996682,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-395",
+        "context-399",
+        "context-397"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) **Better academic performance**: Children are more likely to succeed academically, as they develop better study habits, time management, and organization skills.\\n\\nBy providing mentorship and counseling services, summer programs offer children a supportive environment to grow, learn, and thrive.'}], 'Chat Time: 2024/01/10 (Wed) 17:45', [{'role': 'user', 'content': \"I'm looking for some guidance on a Bible study I'm leading next week.\n  (part 2 of 5, excerpt) learn, and thrive.'}], 'Chat Time: 2024/01/10 (Wed) 17:45', [{'role': 'user', 'content': \"I'm looking for some guidance on a Bible study I'm leading next week.\n\nWe're going to discuss the book of Matthew, and I was wondering if you could give me some resources on how to facilitate a good discussion about faith and its application to daily life.\n  (part 3 of 5, excerpt) This can help create a sense of community and facilitate deeper discussions.\\n3.\n\n**Real-life applications**: Discuss how the teachings in Matthew can be applied to everyday life, such as:\\n\\t* How can we demonstrate love and compassion to those around us, just as Jesus did?\n\n(Matthew 25:31-46)\\n\\t* What are some ways we can prioritize our relationship with God in our busy lives?\n\n(Matthew 6:33)\\n4.\n\n**Scripture-based discussion starters**: Use specific verses or passages from Matthew as discussion starters.\n  (part 4 of 5, excerpt) with God in our busy lives?\n\n(Matthew 6:33)\\n4.\n\n**Scripture-based discussion starters**: Use specific verses or passages from Matthew as discussion starters.\n\nFor example:\\n\\t* Matthew 5:13-16: What does it mean to be \"salt and light\" in our communities?\n\nHow can we make a positive impact?\\n\\t* Matthew 22:37-40: What does it mean to love God with all our heart, soul, and mind?\n\nHow can we prioritize this in our daily lives?\\n5.\n\n**Practical takeaways**: Encourage participants to identify one or two practical takeaways from the discussion that they can apply to their daily lives.\n- (part 1 of 4, excerpt) 24/01/10 (Wed) 20:41', [{'role': 'user', 'content': \"I'm planning a family outing for the upcoming holiday season and I was wondering if you could suggest some festive activities we could do together.\n\nBy the way, I just got back from a lovely midnight mass on Christmas Eve at St.\n\nMary's Church, which was on December 24th, with my family.\"}, {'role': 'assistant', 'content': \"I'm happy to help you with festive activity suggestions!\n  (part 2 of 4, excerpt) Get creative and make your own gingerbread houses or decorate pre-made ones with candies and icing.\n\nThis activity is perfect for kids and adults alike!\\n3.\n\n**Holiday Light Displays**: Many neighborhoods, parks, or zoos have stunning holiday light displays.\n\nTake a drive or walk around to enjoy the festive atmosphere.\\n4.\n\n**Sledding or Tubing**: If you live in an area with snow, grab your sleds or tubes and hit the nearest hill for some fun and laughter.\\n5.\n  (part 3 of 4, excerpt) **Sleigh Ride or Horse-Drawn Carriage**: If available in your area, take a festive horse-drawn carriage or sleigh ride through the snowy landscape.\\n\\nChoose one or more activities that fit your family's interests and preferences, and make it a special and memorable holiday season together!\"}, {'role': 'user', 'content': \"I'm actually planning a family outing for next year's holiday season, so I was looking for more general ideas.\n\nWe really enjoyed the festive atmosphere at St.\n  (part 4 of 4, excerpt) atmosphere at St.\n\nMary\\'s Church.\n\nHere are some general holiday-themed event and activity ideas you might consider for your family outing next year:\\n\\n1.\n\n**Holiday Markets**: Many cities and towns host holiday markets or craft fairs where you can find unique gifts, try local foods, and enjoy the festive atmosphere.\\n2.\n\n**Parades and Processions**: Look for holiday parades, often featuring festive floats, marching bands, and of course, Santa Claus.\\n3.\n- (part 1 of 5, excerpt) \"That's really helpful.\n\nI think establishing ground rules and creating a safe space will go a long way in making everyone feel comfortable.\n\nI'll definitely keep those tips in mind.\n\nBy the way, I've been thinking about how faith applies to daily life a lot lately, especially after our Bible study group on December 17th, and I was wondering if you could recommend some books or resources on the topic.\"}, {'role': 'assistant', 'content': 'I\\'m glad you found the tips helpful!\n  (part 2 of 5, excerpt) **RightNow Media**: A vast library of video Bible studies, devotionals, and teaching series that cover a range of topics, including faith and daily life.\\n2.\n\n**The Gospel Coalition**: A website offering articles, sermons, and resources on various topics, including faith and culture, relationships, and personal growth.\\n3.\n\n**Desiring God**: A ministry founded by John Piper, offering articles, sermons, and resources on biblical living, including faith and daily life.\\n4.\n  (part 3 of 5, excerpt) daily life.\\n4.\n\n**Our Daily Bread**: A daily devotional that provides inspiration and guidance for living out faith in everyday life.\\n\\n**Podcasts:**\\n\\n1.\n\n**The Gospel Coalition Podcast**: A podcast exploring various topics, including faith and culture, theology, and personal growth.\\n2.\n\n**The Jesus Calling Podcast**: A podcast featuring interviews and stories about living out faith in daily life, based on the popular devotional \"Jesus Calling.\"\\n3.\n  (part 4 of 5, excerpt) Both \"The Purpose Driven Life\" and \"The Jesus I Never Knew\" are excellent resources for exploring faith and its application to daily life.\\n\\nRegarding resources specific to the book of Matthew, I\\'ve got some great suggestions for you:\\n\\n**Study Guides and Devotionals:**\\n\\n1.\n\n**\"Matthew: A 12-Week Study\" by Jen Wilkin**: A comprehensive study guide that explores the book of Matthew, with a focus on understanding the biblical context and applying its teachings to daily life.\\n2.\n\n**\"The Gospel of Matthew: A Commentary\" by D.A.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-395",
+          "sourceVersion": "sha256:feb92c35d25758205d75c207dc1e20f2eaa667ded62ca97ed38cf859c042c1ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-395",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "**Better academic performance**: Children are more likely to succeed academically, as they develop better study habits, time management, and organization skills.\\n\\nBy providing mentorship and counseling services, summer programs offer children a supportive environment to grow, learn, and thrive.'}], 'Chat Time: 2024/01/10 (Wed) 17:45', [{'role': 'user', 'content': \"I'm looking for some guidance on a Bible study I'm leading next week.",
+          "id": "ev_08e678f5c65fda30111d4a4b",
+          "observedAt": "2026-10-14T08:39:43.513Z"
+        },
+        {
+          "sourceId": "memory:context-395",
+          "sourceVersion": "sha256:feb92c35d25758205d75c207dc1e20f2eaa667ded62ca97ed38cf859c042c1ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-395",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "learn, and thrive.'}], 'Chat Time: 2024/01/10 (Wed) 17:45', [{'role': 'user', 'content': \"I'm looking for some guidance on a Bible study I'm leading next week.\n\nWe're going to discuss the book of Matthew, and I was wondering if you could give me some resources on how to facilitate a good discussion about faith and its application to daily life.",
+          "id": "ev_bc29174152159156f60f11ab",
+          "observedAt": "2026-10-14T08:39:43.513Z"
+        },
+        {
+          "sourceId": "memory:context-395",
+          "sourceVersion": "sha256:feb92c35d25758205d75c207dc1e20f2eaa667ded62ca97ed38cf859c042c1ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-395",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "This can help create a sense of community and facilitate deeper discussions.\\n3.\n\n**Real-life applications**: Discuss how the teachings in Matthew can be applied to everyday life, such as:\\n\\t* How can we demonstrate love and compassion to those around us, just as Jesus did?\n\n(Matthew 25:31-46)\\n\\t* What are some ways we can prioritize our relationship with God in our busy lives?\n\n(Matthew 6:33)\\n4.\n\n**Scripture-based discussion starters**: Use specific verses or passages from Matthew as discussion starters.",
+          "id": "ev_258baeed0bf1eb3da096235e",
+          "observedAt": "2026-10-14T08:39:43.513Z"
+        },
+        {
+          "sourceId": "memory:context-395",
+          "sourceVersion": "sha256:feb92c35d25758205d75c207dc1e20f2eaa667ded62ca97ed38cf859c042c1ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-395",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "with God in our busy lives?\n\n(Matthew 6:33)\\n4.\n\n**Scripture-based discussion starters**: Use specific verses or passages from Matthew as discussion starters.\n\nFor example:\\n\\t* Matthew 5:13-16: What does it mean to be \"salt and light\" in our communities?\n\nHow can we make a positive impact?\\n\\t* Matthew 22:37-40: What does it mean to love God with all our heart, soul, and mind?\n\nHow can we prioritize this in our daily lives?\\n5.\n\n**Practical takeaways**: Encourage participants to identify one or two practical takeaways from the discussion that they can apply to their daily lives.",
+          "id": "ev_ca4b63fca8046cfd4af32f56",
+          "observedAt": "2026-10-14T08:39:43.513Z"
+        },
+        {
+          "sourceId": "memory:context-399",
+          "sourceVersion": "sha256:5098c6754c2e266eeee1c0cca9a16506b8de13d714686f96e3727ea72f5a5581",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-399",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "24/01/10 (Wed) 20:41', [{'role': 'user', 'content': \"I'm planning a family outing for the upcoming holiday season and I was wondering if you could suggest some festive activities we could do together.\n\nBy the way, I just got back from a lovely midnight mass on Christmas Eve at St.\n\nMary's Church, which was on December 24th, with my family.\"}, {'role': 'assistant', 'content': \"I'm happy to help you with festive activity suggestions!",
+          "id": "ev_d74c3a4fad158f0a960bec41",
+          "observedAt": "2026-10-14T08:39:43.515Z"
+        },
+        {
+          "sourceId": "memory:context-399",
+          "sourceVersion": "sha256:5098c6754c2e266eeee1c0cca9a16506b8de13d714686f96e3727ea72f5a5581",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-399",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Get creative and make your own gingerbread houses or decorate pre-made ones with candies and icing.\n\nThis activity is perfect for kids and adults alike!\\n3.\n\n**Holiday Light Displays**: Many neighborhoods, parks, or zoos have stunning holiday light displays.\n\nTake a drive or walk around to enjoy the festive atmosphere.\\n4.\n\n**Sledding or Tubing**: If you live in an area with snow, grab your sleds or tubes and hit the nearest hill for some fun and laughter.\\n5.",
+          "id": "ev_6e318904f156a2f71807a2b1",
+          "observedAt": "2026-10-14T08:39:43.515Z"
+        },
+        {
+          "sourceId": "memory:context-399",
+          "sourceVersion": "sha256:5098c6754c2e266eeee1c0cca9a16506b8de13d714686f96e3727ea72f5a5581",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-399",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "**Sleigh Ride or Horse-Drawn Carriage**: If available in your area, take a festive horse-drawn carriage or sleigh ride through the snowy landscape.\\n\\nChoose one or more activities that fit your family's interests and preferences, and make it a special and memorable holiday season together!\"}, {'role': 'user', 'content': \"I'm actually planning a family outing for next year's holiday season, so I was looking for more general ideas.\n\nWe really enjoyed the festive atmosphere at St.",
+          "id": "ev_df3fd2c641eb3c9efa1b3449",
+          "observedAt": "2026-10-14T08:39:43.515Z"
+        },
+        {
+          "sourceId": "memory:context-399",
+          "sourceVersion": "sha256:5098c6754c2e266eeee1c0cca9a16506b8de13d714686f96e3727ea72f5a5581",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-399",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "atmosphere at St.\n\nMary\\'s Church.\n\nHere are some general holiday-themed event and activity ideas you might consider for your family outing next year:\\n\\n1.\n\n**Holiday Markets**: Many cities and towns host holiday markets or craft fairs where you can find unique gifts, try local foods, and enjoy the festive atmosphere.\\n2.\n\n**Parades and Processions**: Look for holiday parades, often featuring festive floats, marching bands, and of course, Santa Claus.\\n3.",
+          "id": "ev_827dd2d797432beb14a79155",
+          "observedAt": "2026-10-14T08:39:43.515Z"
+        },
+        {
+          "sourceId": "memory:context-397",
+          "sourceVersion": "sha256:6b003fd593e72e8c2062ee7604a8ef64091d1a163903a89ef848a45e8083104a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-397",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\"That's really helpful.\n\nI think establishing ground rules and creating a safe space will go a long way in making everyone feel comfortable.\n\nI'll definitely keep those tips in mind.\n\nBy the way, I've been thinking about how faith applies to daily life a lot lately, especially after our Bible study group on December 17th, and I was wondering if you could recommend some books or resources on the topic.\"}, {'role': 'assistant', 'content': 'I\\'m glad you found the tips helpful!",
+          "id": "ev_09540176ca3c89ad28d29863",
+          "observedAt": "2026-10-14T08:39:43.516Z"
+        },
+        {
+          "sourceId": "memory:context-397",
+          "sourceVersion": "sha256:6b003fd593e72e8c2062ee7604a8ef64091d1a163903a89ef848a45e8083104a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-397",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "**RightNow Media**: A vast library of video Bible studies, devotionals, and teaching series that cover a range of topics, including faith and daily life.\\n2.\n\n**The Gospel Coalition**: A website offering articles, sermons, and resources on various topics, including faith and culture, relationships, and personal growth.\\n3.\n\n**Desiring God**: A ministry founded by John Piper, offering articles, sermons, and resources on biblical living, including faith and daily life.\\n4.",
+          "id": "ev_7204e02969d0928367acc6ae",
+          "observedAt": "2026-10-14T08:39:43.516Z"
+        },
+        {
+          "sourceId": "memory:context-397",
+          "sourceVersion": "sha256:6b003fd593e72e8c2062ee7604a8ef64091d1a163903a89ef848a45e8083104a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-397",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "daily life.\\n4.\n\n**Our Daily Bread**: A daily devotional that provides inspiration and guidance for living out faith in everyday life.\\n\\n**Podcasts:**\\n\\n1.\n\n**The Gospel Coalition Podcast**: A podcast exploring various topics, including faith and culture, theology, and personal growth.\\n2.\n\n**The Jesus Calling Podcast**: A podcast featuring interviews and stories about living out faith in daily life, based on the popular devotional \"Jesus Calling.\"\\n3.",
+          "id": "ev_33d22a315dba3ed9658c2073",
+          "observedAt": "2026-10-14T08:39:43.516Z"
+        },
+        {
+          "sourceId": "memory:context-397",
+          "sourceVersion": "sha256:6b003fd593e72e8c2062ee7604a8ef64091d1a163903a89ef848a45e8083104a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-397",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Both \"The Purpose Driven Life\" and \"The Jesus I Never Knew\" are excellent resources for exploring faith and its application to daily life.\\n\\nRegarding resources specific to the book of Matthew, I\\'ve got some great suggestions for you:\\n\\n**Study Guides and Devotionals:**\\n\\n1.\n\n**\"Matthew: A 12-Week Study\" by Jen Wilkin**: A comprehensive study guide that explores the book of Matthew, with a focus on understanding the biblical context and applying its teachings to daily life.\\n2.\n\n**\"The Gospel of Matthew: A Commentary\" by D.A.",
+          "id": "ev_d08be71df2b8934079000bfe",
+          "observedAt": "2026-10-14T08:39:43.516Z"
+        }
+      ],
+      "sourceIds": [
+        "context-395",
+        "context-399",
+        "context-397"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 8.051833999998053,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-395",
+    "context-399",
+    "context-397"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:39:43.518784+00:00"
+}

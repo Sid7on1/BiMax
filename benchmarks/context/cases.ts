@@ -28,7 +28,7 @@ import { estimatedTokens, hasAll, hasNone, hasSpan, spanRecall, withinBudget } f
  * measure.
  */
 
-export const BENCHMARK_VERSION = 'context-bench@3';
+export const BENCHMARK_VERSION = 'context-bench@4';
 
 export type Family =
   | 'single-hop' | 'multi-hop-code' | 'temporal' | 'source-change'
@@ -417,9 +417,10 @@ export function buildCases(temp: string): BenchCase[] {
   const uploadRepo = once(() => codeIndex('upload-repo', UPLOAD_REPO));
 
   /** One turn through the real AgentLoop with a model that records each main request instead of calling a provider. */
-  const boundaryTurn = async (shape: { window: number; systemChars: number; toolChars: number; history: number }) => {
+  const boundaryTurn = async (shape: { window: number; systemChars: number; toolChars: number; history: number; outputBudget?: number }) => {
     const requests: Array<{ messages: any[]; options: any }> = [];
     const llm = {
+      maxTokens: shape.outputBudget ?? Math.min(4096, Math.floor(shape.window * 0.15)),
       async *chat(messages: any[], options: any = {}) {
         const main = options.system !== undefined;
         if (main) requests.push({ messages: messages.map((m) => ({ ...m })), options });
@@ -765,13 +766,24 @@ export function buildCases(temp: string): BenchCase[] {
         if (!main) return graded(false, text, { sent: false });
         const tokens = requestTokens(main);
         const questionSent = main.messages.some((m) => m.role === 'user' && String(m.content).includes(BOUNDARY_QUESTION));
-        return graded(tokens <= window && questionSent, `${tokens} tokens\n${text}`, { requestTokens: tokens, window, questionSent });
+        const outputReserve = Math.min(4096, Math.floor(window * 0.15));
+        const margin = Math.ceil(window * 0.03);
+        return graded(tokens + outputReserve + margin <= window && questionSent, `${tokens} tokens\n${text}`, { requestTokens: tokens, outputReserve, margin, window, questionSent });
       },
     },
     {
       id: 'R2', family: 'budget', title: 'a request that cannot fit is not sent, and the turn says why',
       run: async () => {
         const { requests, text } = await boundaryTurn({ window: 1000, systemChars: 8000, toolChars: 400, history: 2 });
+        return graded(requests.length === 0 && /does not fit|cannot fit/i.test(text), text, { requestsSent: requests.length });
+      },
+    },
+
+    // Version 4: a provider's allowed output must fit too, even above 15% of the window.
+    {
+      id: 'R3', family: 'budget', title: 'the actual output ceiling is reserved before a main request',
+      run: async () => {
+        const { requests, text } = await boundaryTurn({ window: 3000, systemChars: 6000, toolChars: 6000, history: 30, outputBudget: 2000 });
         return graded(requests.length === 0 && /does not fit|cannot fit/i.test(text), text, { requestsSent: requests.length });
       },
     },

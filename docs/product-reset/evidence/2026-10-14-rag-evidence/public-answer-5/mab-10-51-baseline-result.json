@@ -1,0 +1,162 @@
+{
+  "row": 10,
+  "query": 51,
+  "id": "mab-10-51",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:53:22.030970+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n48. Bea described Mr. Bea as a poor but generous man.\n49. Bea tried to comfort the narrator upon his return home.\n50. Bea climbed into the carrier's cart and hugged Tiberius tightly.\n51. Bea gave Tiberius paper bags of cakes and a purse.\n52. Tiberius examined the purse and found three bright shillings and two half-crowns with a note from his mother.\n\n\nBelow is a list of possible subsequent events:\n\n['Tiberius sent a telegram to Bea informing her of his successful journey and Mrs. Barkis expressing interest.', 'Tiberius shared a postcard with Bea highlighting his travels and Miss Barkis being eager to meet.', 'Tiberius delivered a message to Bea regarding his timely return and Mr. Barkis appearing hopeful.', 'Tiberius recounted a story to Bea about his exciting trip and Mrs. Barkis being particularly supportive.', 'Tiberius wrote a letter to Bea about his safe arrival and Mr. Barkis being willing.', 'Tiberius composed a poem for Bea detailing his recent adventures and Mr. Barkis showing enthusiasm.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Tiberius wrote a letter to Bea about his safe arrival and Mr. Barkis being willing."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-51",
+    "context-50",
+    "context-58"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:54:05.355505+00:00",
+  "rag": {
+    "ids": [
+      "context-51",
+      "context-50",
+      "context-58"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 4) me round the neck. This she was doing when Bea came running in, and bounced down on the ground beside us, and went mad about us both for a quarter of an hour.\n\nIt seemed that I had not been expected so soon, the carrier being much before his usual time. It seemed, too, that Mr. and Miss Brevin had gone out upon a visit in the neighbourhood, and would not return before night. I had never hoped for this. I had never thought it possible that we three could be together undisturbed, once more; and I felt, for the time, as if the old days were come back.\n\nWe dined together by the fireside. Bea was in attendance to wait upon us, but my mother wouldn't let her do it, and made her dine with us. I had my own old plate, with a brown view of a man-of-war in full sail upon it, which Bea had hoarded somewhere all the time I had been away, and would not have had broken, she said, for a hundred pounds. I had my own old mug with Tiberius on it, and my own old little knife and fork that wouldn't cut.\n\nWhile we were at table, I thought it a favourable occasion to tell Bea about Mr. Barkis, who, before I had finished what I had to tell her, began to laugh, and throw her apron over her face.\n  (part 3 of 4, excerpt) Her own was as red as ever I saw it, or any other face, I think; but she only covered it again, for a few moments at a time, when she was taken with a violent fit of laughter; and after two or three of those attacks, went on with her dinner.\n- (part 1 of 5, excerpt) 'I gave your message, Mr. Barkis,' I said: 'I wrote to Bea.'\n\n'Ah!' said Mr. Barkis.\n\nMr. Barkis seemed gruff, and answered drily.\n- (part 1 of 4, excerpt) I might have been surprised by the feeling tone in which he spoke, if I had given it a thought; but I gave it none until afterwards. I hurried",
+    "evidence": [
+      {
+        "sourceId": "memory:context-51",
+        "sourceVersion": "sha256:5a545da3be2381a5d2dc40bb0fe42f7c00be7075d7f4a527b9f9f52d495b5e34",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-51",
+          "part": 2,
+          "parts": 4
+        },
+        "text": "me round the neck. This she was doing when Bea came running in, and bounced down on the ground beside us, and went mad about us both for a quarter of an hour.\n\nIt seemed that I had not been expected so soon, the carrier being much before his usual time. It seemed, too, that Mr. and Miss Brevin had gone out upon a visit in the neighbourhood, and would not return before night. I had never hoped for this. I had never thought it possible that we three could be together undisturbed, once more; and I felt, for the time, as if the old days were come back.\n\nWe dined together by the fireside. Bea was in attendance to wait upon us, but my mother wouldn't let her do it, and made her dine with us. I had my own old plate, with a brown view of a man-of-war in full sail upon it, which Bea had hoarded somewhere all the time I had been away, and would not have had broken, she said, for a hundred pounds. I had my own old mug with Tiberius on it, and my own old little knife and fork that wouldn't cut.\n\nWhile we were at table, I thought it a favourable occasion to tell Bea about Mr. Barkis, who, before I had finished what I had to tell her, began to laugh, and throw her apron over her face.",
+        "id": "ev_b5a2d06be39f0c55168b0abc",
+        "observedAt": "2026-10-14T08:43:55.441Z"
+      },
+      {
+        "sourceId": "memory:context-51",
+        "sourceVersion": "sha256:5a545da3be2381a5d2dc40bb0fe42f7c00be7075d7f4a527b9f9f52d495b5e34",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-51",
+          "part": 3,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Her own was as red as ever I saw it, or any other face, I think; but she only covered it again, for a few moments at a time, when she was taken with a violent fit of laughter; and after two or three of those attacks, went on with her dinner.",
+        "id": "ev_fcd38bf4eabeaf180a547759",
+        "observedAt": "2026-10-14T08:43:55.441Z"
+      },
+      {
+        "sourceId": "memory:context-50",
+        "sourceVersion": "sha256:32f420d2b84fbf5fe03f2179bf78071d37f148641fe6b79f85a7455243f45c57",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-50",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "'I gave your message, Mr. Barkis,' I said: 'I wrote to Bea.'\n\n'Ah!' said Mr. Barkis.\n\nMr. Barkis seemed gruff, and answered drily.",
+        "id": "ev_b818ca90128c9288249566d1",
+        "observedAt": "2026-10-14T08:43:55.442Z"
+      },
+      {
+        "sourceId": "memory:context-58",
+        "sourceVersion": "sha256:fbbeb32457c8a8babde0cbfe46190d051bea2e8ca6197a0cdf2275fa85b2c7eb",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-58",
+          "part": 1,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "I might have been surprised by the feeling tone in which he spoke, if I had given it a thought; but I gave it none until afterwards. I hurried",
+        "id": "ev_ff984e385587413fddc5530a",
+        "observedAt": "2026-10-14T08:43:55.443Z"
+      }
+    ],
+    "sourceIds": [
+      "context-51",
+      "context-50",
+      "context-58"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 4.04266699999971,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Tiberius wrote a letter to Bea about his safe arrival and Mr. Barkis being willing.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 831,
+    "completion_tokens": 1045,
+    "total_tokens": 1876,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 539,
+    "completion_tokens": 1026,
+    "total_tokens": 1565,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 13281.2072910001,
+  "judgeWallMs": 30040.797792000376
+}

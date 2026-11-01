@@ -1,5 +1,140 @@
 # Bimax gap register
 
+## A03 history admission and recovery — record 119, 2026-10-31
+
+[Record 119](../119_HISTORY_LIMIT_AND_RECOVERY.md): **Implemented with bounded local verification**.
+All writers share the reader's 32 MiB encoded snapshot limit and preserve last-good files on refusal.
+Legacy oversized/unreadable saved/archive/Bin files stay discoverable with exact-byte recovery export;
+background saving failure stays visible. Bin wrapper limits are compatible and failed backup reads
+no longer delete retained evidence. Eighteen new CI tests, actual sidebar/export end states, nine
+history faults and six prior persistence faults qualify this slice. Full above-limit in-app paging,
+aggregate/installed resources, native recovery/distribution and Product-ready/release remain Target.
+A04 queued-message identity is next; the memory/build/performance backlog remains open.
+
+## Persistence and dispatch follow-through — record 118, 2026-10-31
+
+[Record 118](../118_PERSISTENCE_AND_DISPATCH_REPAIR.md): audit 117 A01/A02 and latent A06 are
+**Implemented with bounded local verification**. Final snapshot replacement cannot race urgent
+publication; failed immediate saves hold queued/steering inputs before execution, expose saving
+failure and require explicit retry. Optional remote creation submits once. Six CI regressions,
+a real process-exit/storage fixture and six assertion-caught source faults qualify this slice.
+No installed full C04/R01 is claimed. A03 oversized-history loading is next; A04 echoes, memory
+quality, portable builds, installed resources/recovery, power-loss durability and release remain open.
+
+## Product depth, persistence and UX audit — record 117, 2026-10-31
+
+[Audit 117](../117_PRODUCT_DEPTH_AND_UX_AUDIT.md): **reproduced active-source defects; repairs Target**.
+An older asynchronous snapshot rename can overwrite a newer acknowledged input; failed sent-state
+publication still permits dispatch and subsequent replay; >32 MiB successfully saved histories are
+silently omitted on reload; queued user echoes can duplicate/reorder bubbles. Audit 100's dense
+abstention and long-line answer-loss gaps are reconfirmed. Two additional red contracts concern
+uncalled legacy approval machinery and an optional default-workspace branch absent from normal
+responder startup; they are latent, not proven current UI failures. Full existing Jest passes
+4,641 tests (three existing skips), Bun 133, both typechecks and three script checks; eight audit
+contracts fail with five green controls. Source-owned runtime size is 126,721 physical lines,
+excluding tests/vendors/dependencies/evidence. Whole-history synchronous saves and repeated full
+Markdown lexing have bounded component measurements; installed lag causality remains unmeasured.
+Absolute mobile links still prevent a portable declared build graph. Prioritize persistence/dispatch
+correctness, history/identity, reproducible builds and installed C04/R01/R02/I01/performance gates.
+No runtime fix, installed qualification, Product-ready, release or competitive Win follows.
+
+## Classic renderer restored; native streaming qualification open — record 116
+
+[Record 116](../116_CLASSIC_RENDERER_AND_STREAM_RECOVERY.md) supersedes record 114's canvas styling while preserving workspace/new-chat/retrieval fixes. Classic shared rendering, stable same-chat reconnect, 80-tree DOM paging, bounded WebView-only recovery and Mac-only model routing for Mac-tab sends are Implemented with scoped end states and seven caught source faults. Final signed build is installed, 921 saved-profile files unchanged, native opening observed; current Expo bundle is served. Native iPhone crash causality, sustained generation/RSS/battery, visual/accessibility/roaming and release remain Target; no zero-crash or exhaustive security claim.
+
+
+## Workspace-aware remote chats and canvas — record 114
+
+[Record 114](../114_WORKSPACE_CHATS_RETRIEVAL_AND_CANVAS.md): explicit known-folder Mac creation, folder labels, exact new-chat lifecycle and shared live/final/readable canvas are Implemented with scoped measurements. The configured local embedder is responding through the actual backend. The signed build is installed, 918 saved-data files preserved, and Mac opening owner-confirmed; native owner visual acceptance, auto-login service startup, roaming/background/accessibility/resources and release remain Target.
+
+## Phone preference/connection follow-through — record 112
+
+[Record 112](../112_PHONE_PREFERENCES_AND_CONNECTION_SETTINGS.md): saved phone controls, actual active route display, connection settings under Your Mac, restrained drawer transitions and coalesced streaming are Implemented with scoped storage/rendered/integration measurements. Owner-confirmed phone/Mac reply delivery remains preserved. Native current UI/cellular/background/resources, broader Desktop settings/Outputs parity and public distribution remain Target.
+
+## Phone message/drawer follow-through — record 111
+
+[Record 111](../111_SHARED_MESSAGES_AND_PHONE_DRAWER.md): owner-confirmed physical selected chat/reply; shared message presentation, source-aware searchable Phone/Mac drawer, permanent Settings, actual Desktop thinking indicator and chat-only Mac list are Implemented with rendered checks. New native UI/gesture/resource breadth and broader background/mobile-data/sleep/release remain Target. Transport is unchanged.
+
+## Trusted phone live access — record 110, 2026-10-25
+
+[Record 110](../110_TRUSTED_PHONE_LIVE_CONNECTION.md): paired access without Mac request prompts, selected live synchronization, incremental shared rendering, projectless Settings and phone tool-decision navigation are **Implemented with scoped measurements**. A separate relay is deployed and an isolated Noise session survives LAN removal over public TLS. The owner’s latest physical result is still the prior consent/sync failure; automatic real-account registration, current iPhone/native OS decisions/mobile-data recovery, sleep/wake, sustained resources and release remain **Target**. The existing model gateway is unchanged and is not qualified as hardened.
+
+## Phone history and renderer slice — record 109, 2026-10-24
+
+[Record 109](../109_PHONE_CONVERSATIONS_AND_SHARED_RENDERER.md): selected history/replies and Desktop-source phone Markdown are Implemented. The owner confirms iPhone pairing/listing; browser/component measurements grade navigation, rich content and authority barriers. Physical new history/reply/rendering, sustained resources and broad native/cloud/release gates remain Target. Tool summaries are not complete interactive Desktop Outputs parity.
+
+## Native LAN pairing mismatch — 2026-10-24, record 108
+
+[Record 108](../108_NATIVE_PHONE_PAIRING_ADMISSION.md): phone-native Origin adaptation and honest pre-handshake progress are **Implemented with local qualification**. The actual LAN server rejects the prior native-header behavior and accepts the adapted right-token/room request while retaining browser/wrong-token/room denial. Five regressions, two assertion-caught faults, full mobile checks and iOS export pass. Physical retry/code confirmation remains **Target**. Separately, the outer App still guards Settings by `hasProject`, contradicting record 105's projectless access claim; the component fixture did not qualify that navigation gate. No trust/permission/backend bypass or Mac reinstall.
+
+
+## iPhone model response and dark UI — 2026-10-24, record 107
+
+[Record 107](../107_PHONE_CHAT_RECOVERY_AND_DARK_UI.md): native Expo streaming, bounded cancellation/error handling, duplicate-free Retry and dark emoji-free phone surfaces are **Implemented with local qualification**; the owner confirms GPT OSS answers after reload. Current-source Mac rebuild/reinstallation and installed welcome-window observation preserve all 900 profile files. Thirteen stream tests, three assertion-caught faults, actual RN Web controls, full mobile checks/iOS export and linked packaged integration pass. The live 14 October Worker predates hardened admission and lacks required new configuration: coordinated cloud rollout remains **Target**, alongside physical pairing/biometrics, sustained model reliability, clean-machine/recovery and release. No competitive Win claim.
+
+
+## Local phone pairing delivered; Desktop runner recovered — 2026-10-24, record 105
+
+[Record 105](../105_PHONE_PAIRING_AND_DESKTOP_TESTS.md): **Implemented and locally Measured** Settings-driven LAN relay/pairing, QR/manual data, exact verification, connection state, encrypted restoration, Forget and interrupting Stop. Complete runnable Desktop set passes (4,634 tests/478 suites; prior conditional skips unchanged); Node-24 FTS5/heap/ESM/protocol boundaries are repaired. Full mobile checks, iOS Expo export, eleven assertion-caught faults and actual source/packaged-runtime Settings/phone-protocol fixtures pass. This closes record 104's local pairing/settings UI gap, not cloud account UI, physical-device permissions/biometrics, deployment, clean-machine/recovery or release. iPhone Expo Go Face ID remains unsupported; no biometric bypass. Existing unrelated edits/deletions are preserved. No performance/competitive Win claim.
+
+## Seven security repairs and mobile source integration — 2026-10-24, record 104
+
+[Record 104](../104_SECURITY_BOUNDARIES_AND_MOBILE_LINK.md): seven audit defects **Implemented with local qualification**. Exact renderer identity, descriptor-bound project files, tool-specific fallback grants, unique cancellation-fenced mobile approvals, pinned public-only fetching, byte limits and first-host consent pass 131 focused tests plus seven assertion-caught faults. Actual Electron probes/previews and mobile signing through responder/adapter/ThreadManager grade independent outcomes. Both local repos build together; fourteen responder cases and full mobile checks pass. Physical-device pairing/reconnect/biometrics, complete pairing/settings/account UI, portable CI, new installed/helper/package/recovery qualification and release remain **Target**. Broad Jest is not green; retained unrelated renderer resolution, worker heap, module-boundary and FTS5 migration failures prevent a complete-suite claim. Existing dirty bytes outside scoped paths are preserved. No competitive Win or general performance claim.
+
+## Memory repairs and personal bot kernel — 2026-10-18, records 101–102
+
+[Record 102](../102_MEMORY_REPAIRS_AND_BOT_KERNEL.md), following [design 101](../101_MEMORY_INTEGRITY_AND_PERSONAL_BOTS_PLAN.md), marks audit A01–A03 **Implemented with local qualification**: cross-isolate/process write coordination, exact generation-bound embedding publication and shared retrieval configuration. A04/A05 remain open. The bot development kernel implements concurrent-safe versioned definitions, frozen run context/grants, private bot memory through ordinary recall/context evidence, actual tool-registry narrowing and inherited CPU/spend budgets. Real offline worker fixtures and assertion-caught faults scope those claims; they do not qualify a live model, product UI or unattended bot. Creation UI, shared knowledge authorization, nested/write-capable teams, scheduled execution, full B01/R01/R02 and installed/release qualification remain **Target**. Preserve all prior audit and rejected-candidate evidence.
+
+## Context/memory/RAG current-source audit — 2026-10-18, record 100
+
+[Record 100](../100_CONTEXT_MEMORY_RAG_AUDIT.md): **locally reproduced defects**, repairs **Target**. Separate memory writers lose an acknowledged update; delayed embedding backfill overwrites a replaced chunk's correct vector; the extracted worker resolver ignores the configured embedding endpoint. Controlled orthogonal vectors also bypass memory abstention, and oversized matched lines still lose answering clauses. Four probes exercise current classes/functions; the fifth executes the current resolver body with synthetic credentials, not a complete worker/HTTP journey. Existing tests pass (63 context, 138 focused Jest, 133 Bun), and context-bench@4 remains 43/43; this exposes missing contracts rather than establishing product readiness. No production/configuration/installed change or hosted evaluation. Prioritize transactional write/version integrity and worker configuration parity, then evidence/abstention, model-aware budgets, independent semantic/answer qualification and installed recovery/resources. Historical offline failures are not automatically current: record 99 addresses pairing IPC within its focused gate, and OCR passes this audit's Bun invocation; full offline/installed/release status remains unqualified. The capability matrix is still absent.
+
+## Mobile remote host — 2026-10-16, record 99
+
+[Record 99](../99_MOBILE_HOST_CONTROLS.md): **Implemented** native consent/banner/local Stop, trusted-sender pairing IPC, encrypted identity contract and engine event forwarding. **Measured** one bounded native Electron fixture with a synthetic stop callback; 60 focused tests and three source faults pass. Full phone-to-real-engine, desktop account UI, OAuth, coordinated deployment and Product-ready/release remain **Target**. This corrects the prior raw pairing-IPC security failure within the focused gate; full offline qualification is not claimed.
+
+## Complete-passage pilot — 2026-10-14, record 98
+
+[Record 98](../98_RAG_COMPLETE_PASSAGES.md): **Measured rejected prototype**. Fresh paired classic LongMemEval judged answers improve 6→13/25, but MemoryAgentBench custom judged answers tie 15→15/25 with three gains/three losses and two declining EventQA families. The fixed positive-gain-in-both rule fails; production and generated staging runtime remain unchanged. Reader input costs 2.51×. All 100 arms, frozen sources/raw requests/model/verdict/usage and 722 shown spans pass audit; five altered observations are assertion-caught. One possible judge/format disagreement remains explicit. Fourteen candidate fixtures, eleven source faults, streaming/cache controls and 32 existing production tests pass; the first 256-MiB test-heap abort is retained, followed by one passing 512-MiB-cap retry. Public scores are small-subset same-model judgments, not population/reference leaderboard or installed qualification. Independent judging, oracle/equal-budget/embedding-window/reranker work, larger fresh qualification, crash-cause diagnosis, installed/full R02/release/Win remain **Target**. No CU/UI/configuration change.
+
+## RAG answering evidence — 2026-10-14, record 97
+
+[Record 97](../97_RAG_ANSWERING_EVIDENCE.md): **Measured rejected prototype**: fresh paired classic LongMemEval 43→64/100 (23 gains/two losses), answerable 29→49/85; MemoryAgentBench custom judge 51→45/100 (nine gains/15 losses). All three EventQA family scores decline. The fixed positive-net-gain-in-both-datasets adoption rule fails; production recall is restored exactly, with no global default change retained. The archived prototype preserves all tests/source/results. Reader prompt tokens rise 2.45×; CPU and all 1195 attempts remain evidence. All 400 answer/source audits pass; five auditor faults, five checkpoint end-state checks and a direct-overwrite fault qualify benchmark tooling only.32 restored recall/resource/RAG tests pass. Independent judging, oracle/equal-budget/fresh revised qualification, installed/full R02/release/Win remain **Target**; three older offline failures remain open.
+
+## RAG resource costs and public subset — 2026-10-14, record 96
+
+[Record 96](../96_RAG_RESOURCE_AND_PUBLIC_QUALIFICATION.md): **Implemented and Measured locally**: skip unnecessary document backfill, reuse dense champions, cache comparison recency, and retain positional chunk addresses. The former dense/heap costs are removed on qualified fixtures: 19.36% less dense-control time versus record 95, 18.68% less versus pre-95, and 0.3896 MiB / 10.47% less retained heap growth. Small timing regressions remain explicit. **Measured bounded public retrieval and answers**: fixed 100 classic LongMemEval_S + 100 MemoryAgentBench Accurate_Retrieval questions, real configured all-minilm vectors, 200/200 equal baseline/current prompts/provenance and valid completions. Owner-authorized configured Nemotron 3.5 Lightning replaces timed-out gpt-oss-20b: 40/100 classic judged answers, 39/100 MemoryAgentBench custom judged answers. Classic answerable source Recall@3 is 94.06%, but answerable accuracy is only 26/85; temporal, multi-session, preferences and updates remain substantial quality gaps. No accuracy gain or official leaderboard result follows. The small embedding window requires declared truncation; full context text remains lexical/prompt evidence. Raw pilots, controls, usage, latency and failures are preserved. Installed full R02, full suites, independent judging, Product-ready/release/Win remain **Target**. Three unchanged offline failures keep the complete gate open. This supersedes record 95's resource-cost and wholly-unmeasured public-quality status only within the stated fixtures/subset.
+
+## Memory RAG source coverage and warm work — 2026-10-14, record 95
+
+[Record 95](../95_RAG_EVIDENCE_AND_RETRIEVAL_WORK.md): **Implemented** bounded document backfill, prompt source reservation, direct chunk lookup, query-sized warm vocabulary probes and deferred unchanged-file recency copies. **Measured locally**: generated crowding Recall@3 33.3% → 100%, prompt fact coverage 66.7% → 100%; ordinary controls stay 100%. Two warm ABBA runs measure 21.8× complete recall and 39.6× negative vocabulary checks at 500 documents. Small dense search costs 4.7% more; a 10k-chunk retained-heap fixture costs 0.384 MiB more. Fourteen tests, twelve assertion-caught source faults and ten rejected bad grader observations qualify this slice. These are generated pipeline fixtures, not independent heldout/provider answer-quality evidence. Installed/RSS/energy, public benchmarks, full R02, Product-ready, release and Win remain **Target/unmeasured**. CU/UI remain outside scope; a pre-existing desktop pairing-IPC security-test failure keeps the complete offline gate open.
+
+## Context work and copying — 2026-10-13
+
+[Record 94](../94_LESS_CONTEXT_WORK.md): **Implemented** proven-unselectable JSON-copy avoidance, lazy continuation archive payloads and incremental retained-character accounting. **Measured locally**, exact-output paired fixtures: 100-KiB summary preparation 33.5×, complete fixture compaction with a one-MiB read 24.4×, bounded continuation rendering 5.2×. Larger stress ratios are component-specific; tiny summaries cost about 0.1 µs more. Twelve new source faults and twenty-six prior context faults scope qualification; initial surviving fault tests and all raw samples remain. Installed latency/RSS/energy, live model quality, full R01/R02, Product-ready, release and Win remain **Target/unmeasured**. No CU/UI implementation change.
+
+## Context orchestration boundaries — 2026-10-13
+
+[Record 93](../93_CONTEXT_ORCHESTRATION.md): **Implemented** actual reply reservation and early fixed-cost refusal, mutable token-cache validation, active-request/atomic-exchange retention, transactional compaction publication, bounded/cancellable auxiliary work, clean retry/failure archives and text-based evidence residency. **Measured locally**: paired serialization/cache fixtures and an offline context-benchmark version-4 comparison with no family decline. The baseline import-connection failure is repaired without changing its assertions. Learned eviction, provider-exact image/token accounting, model-specific lite windows, full long-task answer quality, installed R01/R02 latency/RSS/energy, Product-ready, release and Win remain **Target/unmeasured**. Details, tradeoffs and initial failures remain in the record; no CU/UI implementation change.
+
+## Measured indexing work and source-text retention — 2026-10-13
+
+[Record 92](../92_LESS_INDEXING_WORK.md): **Implemented** ordered discovery with Set membership, first-segment-only signatures and bounded UTF-16 copies of large declaration signatures. **Measured** offline discovery 573.06 → 6.53 ms for 10k paths; padded eight-MiB source retention 8.089 → 0.086 MiB. Exact results, twenty-one new tests, ten new faults and eight prior lifetime faults scope local qualification. Small signature CPU costs, initial candidates and invalid exploratory proof attempts remain recorded. OCR source/confidence are unchanged; general native OCR, large publication, installed C01/C04/R02 latency/RSS/energy, Product-ready, release and Win remain **Target/unmeasured**. Final local checks pass: 4,291 Jest, 133 Bun, three script tests, builds/typechecks, zero lint errors and seven staged-engine exchanges. Earlier native OCR failures remain evidence; this later pass does not qualify general reliability.
+
+## Compiler state lifetime — 2026-10-13
+
+[Record 91](../91_COMPILER_STATE_LIFETIME.md): **Implemented** call-scoped compiler ownership with the same semantic checker and shared refresh snapshot. **Measured** 200-file generated full-index post-GC heap growth: 65.40 → 11.24 MiB (about 83% less); no extraction-speed claim. Ten exact-result/collection/retry tests and eight assertion-caught source faults qualify local behavior. Installed application RSS/energy, startup/task latency, concurrent refresh, large multi-file publication, full C01/C04/R02, Product-ready, release and Win remain **Target/unmeasured**. No CU/UI implementation change.
+
+The first full-suite MCP timeout failure is retained; four deterministic settlement tests and three further source faults qualify a deadline-clock correction. Final Jest passes 4,270 tests; Bun remains 132/133 due to a repeated native OCR confidence failure, so the complete offline/release gate stays open.
+
+## Measured graph operation cost — 2026-10-13
+
+[Record 90](../90_GRAPH_PERFORMANCE.md): **Implemented** bulk graph removal and compacting FIFO impact traversal. **Measured** paired offline operations: 21.80× on the 50k wide traversal and 345.53× on 4k-node/1k-symbol removal, with one adjacency rebuild. Exact outcomes, bounded queue slots, six tests and eight source faults scope the evidence; narrow/small cases and initial regressions remain recorded. The heap candidate is **rejected**; production top-k is unchanged. Installed C01/C04/R02 latency, full indexing traces, startup, peak application RSS/energy, hosted CI and competitive Win remain **Target/unmeasured**. No CU/UI implementation change.
+
+## Graph freshness and engineering gates — 2026-10-13
+
+[Record 89](../89_GRAPH_FRESHNESS_AND_LINT.md): **Implemented and locally verified** exact file replacement with surviving incoming edges, ctime-aware persisted freshness, source-race/failed-parse fences, new TS/Python path discovery, shared batch Programs and revision/key-safe graph caches. Twenty tests, fourteen source faults, a real graph-checkpoint SIGKILL and SQLite rollback qualify this slice. The 19 known lint errors are cleared; warnings remain. The heap candidate is **rejected** by recorded timing tradeoffs; ordered-input cost, full installed C01/C04/R02, hosted CI, exhaustive semantic review, sustained memory/energy and release remain **Target/unmeasured**. No CU implementation/UI change or Win.
+
 ## Algorithm inventory and first implementation pass — 2026-10-12
 
 [Record 88](../88_ALGORITHM_AUDIT_AND_UPGRADE.md): **Implemented** four exact-result data-structure changes: inverted BM25 query traversal, bounded dense score heaps, circular exact-time breaker samples and access-ordered file-cache storage. Structural coverage is 744 baseline first-party files / 10,494 JS/TS function bodies, with 38 scoped family decisions and 27 primary references; this does **not** claim exhaustive semantic review. **Measured** paired local component timings preserve output equality and include common-term/build and ordered-score regressions. Twelve source faults fail assertions. HNSW/DiskANN, W-TinyLFU, Gradient2 and DDSketch remain **Target experiments**, requiring workload, correctness/quality and resource evidence. Full installed C01/C04/R01/R02, peak application RSS/energy and release remain unmeasured. CU/UI are untouched; the 19 existing lint errors remain.
@@ -15,6 +150,146 @@
 ## Non-CU engineering reliability — 2026-10-12
 
 [Record 85](../85_NON_CU_ENGINEERING_RELIABILITY.md): **Implemented and locally verified** provider-stream disposal; bounded early MCP stderr draining; whole-call deadlines, Stop and best-effort task cancellation; no uncertain replay for unannotated/destructive tools; malformed TIFF admission; shared exact artifact selection; and both dependency trees in CI. Local retention counts, fixture end states, seven source faults and validation limits are recorded there. Full installed C01/C04/R01, live providers/OAuth, general MCP lifecycle races, RSS/latency/energy and distribution remain **Target/unmeasured**. Whole-repository lint still has 19 pre-existing errors. CU source and visual design are deliberately outside this work.
+
+## Messaging verification — 2026-10-11, record 84
+
+The source finding below is addressed for the new bounded SEND_MESSAGE path by
+[record 84](../84_MESSAGING_RELIABILITY.md): a cleared composer is consumed only
+when recipient, exact draft and exactly one new outgoing message are independently
+verified. Normal persistent fields keep their strict checks. Recipient/draft/baseline
+changes during approval stop before Send; unknown completion never authorizes a retry.
+Host contracts and an owned messaging fixture are implemented, with assertion-caught
+source faults and an end-state grader. One installed selected-conversation fixture send with injected Pause/Resume is
+locally **Measured**; the initial no-input failure is retained separately. Do not infer WhatsApp readiness from the fixture.
+WhatsApp contact selection, real-account sends, delivery/read receipts, full M01,
+model-tier repetition, durable idempotency and Product-ready status remain **Target**.
+
+Historical source finding: the former generic workflow required a SET_VALUE composer
+to keep its old text after CLICK Send cleared it. That could falsely fail after a
+successful send. A generic Send click now refuses; it cannot bypass the message proof.
+
+## Direct @CU experience — 2026-10-11, record 83
+
+[Record 83](../83_DIRECT_AT_CU_EXPERIENCE.md) supersedes records 81–82’s required app/window picker at the
+owner’s request. Send `@CU <task>` in either composer: Do is the default, and the
+CU model discovers actual running apps/windows after dispatch. Guide/Teach and
+saved workflows are optional. Read grants, per-input approval, exact observations,
+Pause/Stop and no-replay barriers remain. Main-owned ephemeral single-use admission
+refuses restored/expired requests; discovery metadata grants no input authority.
+Mac owns CU through its private host channel. Broader model reliability, full M02/X01
+and release qualification remain Target. The signed local arm64 app is installed;
+one direct saved-model Do task is Measured on the owned fixture (two verified
+inputs, exact text, exactly one Save). Local typecheck, 392 regression tests, ten
+renderer checks and seven source faults pass; record 83 scopes the receipts.
+
+
+## CU modes and verification recovery — 2026-10-11, record 82
+
+[Record 82](../82_CU_MODES_AND_VERIFICATION_RECOVERY.md) adds Do/Guide/Teach,
+revision-bound in-panel approvals, Pause/Take over/Resume/Stop, and explicit
+read-only correction of a changed unexpected status. Guide has no native input;
+Teach saves only verified literal instructions and reuse requires a fresh target
+and consent. Exact postconditions and no-replay barriers remain. Local host and
+renderer contracts are scoped in record 82; assisted correction is not autonomous
+model inference. The signed local arm64 v2 app is installed. Individual Teach
+(assisted), Guide (zero native inputs) and Do outcomes are Measured on one owned
+fixture; 33 grader faults are rejected. Interrupted/rejected attempts remain
+recorded. Broader model planning/prose reliability, repeated model tiers, full
+M02/X01 and distribution remain Target.
+
+## Explicit @CU messages — 2026-10-10, record 81
+
+[Record 81](../81_AT_CU_MESSAGE_ROUTING.md) implements per-message Computer Use in the project composer
+and ⌘2 floating bar: autocomplete, a visible chip and explicit running-app/window
+selection. Main-owned single-use receipts and native enforcement bind the exact
+window; the engine advertises and executes only CU plus clarification for that
+turn. Ordinary coding messages cannot activate CU by guessing its tool name.
+Picker consent is separate from task read/input approvals. Queued/restarted routes
+never silently become coding turns. Native ownership remains Bimax for Mac through
+its private host channel, without an MCP connector. Local contracts, renderer end
+states and assertion-caught faults are scoped in record 81. Full M02/X01, repeated
+model reliability and release/performance qualification remain Target.
+The signed local arm64 v2 app is installed with matching staged bytes and preserved
+profile/history. One saved gpt-oss-20b request with an explicit full postcondition
+is Measured: two verified inputs and exactly one additional persisted Save. An
+earlier inferred-postcondition attempt remains partial; repeated reliability is
+Target. Record 81 scopes the native/dialog and distribution evidence.
+
+## Full Arc source owned by Bimax CU — 2026-10-07, record 80
+
+[Record 80](../80_FULL_ARC_SOURCE_AND_BUILT_IN_CU_FEATURE.md) places all 100 original
+Arc files inside `app/native/computer/vendor/arc-cua/` and ships that full source
+snapshot plus all 34 Python package modules inside Bimax CU. Original MIT identity,
+authorship and byte hashes remain. The upstream MCP/CLI code is retained; Bimax's
+entry refuses its `mcp`/`run` commands and exposes only the private app component.
+Computer Use is a File menu action and readable chat activity. Its engine connection
+remains the birth-transferred internal MessagePort, never a managed MCP connector.
+Record 79's module exclusions and the earlier third_party location are superseded.
+The installed v4 app is **Measured** on one owned fixture with the saved gpt-oss-20b:
+one verified field edit, one verified Save click, exact persisted text and save count
+one, plus independent native AX read-back. Flat arguments, safe read correction and
+standalone window-target import defects are fixed. Failed attempts remain recorded.
+Full native/saved-model M02/X01, clean-Mac distribution and performance remain Target.
+
+
+## Internal Bimax CU and saved-model sequencing — 2026-10-07
+
+[Record 79](../79_INTERNAL_BIMAX_CU_AND_WORKFLOW_RELIABILITY.md): internal app-owned
+capability and bounded ordered workflow are **Implemented**. This supersedes
+record 78's active MCP route and Arc product identity. The pinned Arc backend and
+license are preserved; two selected first-party archived Bimax policies now serve
+the active implementation. Native ownership stays in Mac; the engine receives only
+a generic transferred host channel. Remove native MCP approval exceptions and
+prevent environment descriptors from installing Mac CU. Clarification duplicates
+are suppressed within a user run; cancelled questions release the run.
+
+Qualification order: internal channel and workflow contracts → assertion-caught
+fault mutations → native freeze and app/engine/package gates → independent native
+fixture end-state → installed app/saved-model test. Consult record 79's current
+receipts for exactly how far this sequence ran. Native/provider full M02/X01,
+clean-Mac/Intel, private API distribution and performance remain **Target**. No
+Product-ready or Win upgrade follows from a component test.
+
+The record 78 section below describes the superseded MCP build and its receipts.
+
+
+## Arc runtime activation — 2026-10-07
+
+[Record 78](../78_ARC_APP_INTEGRATION.md): **Implemented**, with a locally graded
+native fixture through MCP → authenticated broker → Mac authority → frozen arc
+Driver. Pinned source `74ffae1108b1cb4b1f6b161084af12646f544ba5`, version 0.1.1,
+MIT; all 100 imported files remain unchanged. The full driver supplies AX, hybrid
+OCR, window-bound background inputs and menu operations. Bimax's existing model
+chooses tools; arc's standalone JEV decision loop is not connected or required.
+Package Python 3.13.1, PyObjC 12.2.2 and PyInstaller 6.20.0 from the checked-in lock;
+retain dependency licenses. Source inspected locally; no new competitor win claimed. Final signed arm64 app installed; bundle hashes and user-data preservation checked. Actual main performed approved native CLICK and SET_VALUE; deterministic final packaged fixture saved the exact text once. The saved model's multistep run was invalid; general model reliability remains unqualified.
+No legacy path is restored. Full M02/X01, provider reliability, clean-Mac/Intel,
+private-API release compatibility and performance remain **Target/unmeasured**.
+
+
+## CU source availability — 2026-10-07
+
+[Record 77](../77_CU_SOURCE_IMPORT_RECORD.md): complete pinned arc-cua source and
+the 55-file archived Bimax source snapshot are now in the repository, with licenses,
+provenance and byte-identity checks. Source import is **Implemented**; runtime
+integration is unimplemented. CU remains retired in the app. This creates no
+Measured native journey, Product-ready capability, performance claim or Win.
+
+## Starting and switching chats — 2026-10-06, round 5
+
+[Record 75](../75_CHAT_EXPERIENCE_AND_RENDERING_SPRINT.md): renderer request ownership, scoped
+approval acknowledgements and initial floating-bar snapshot/context retirement are Implemented
+with local qualification recorded there. Unchanged content avoids repeated Markdown/highlight work;
+operation counts are Measured on one production-browser fixture. Cold-start/installed switching
+latency, RSS/energy, native clipboard, same-Thread startup stream/history revision ordering and full
+C01/R01 remain Target/unmeasured. No Product-ready/Win. `03_CAPABILITY_MATRIX.md`, example
+`P01_FAST_CODE_AND_COWORK.md` and record 34 are absent; their stale pointers are not evidence.
+Computer Use remains retired; Outputs Shelf remains Target.
+
+Local qualification: 60 focused tests, 28 assertion-caught mutants, 3,977 Jest / 132 Bun tests,
+root/app builds/typechecks, production-browser end states and seven staged engine exchanges pass.
+Lint introduces zero errors; five unchanged legacy errors remain. Installed/provider qualification
+and cold-start/energy measurements remain Target/unmeasured.
 
 ## PDF production and reading — 2026-10-06, round 4
 
@@ -351,7 +626,7 @@ Status meanings:
 | Browser-first testing | OpenAI/Cursor/Hermes | Web tasks use structured browser before generic Mac clicks; artifacts attached |
 | Context/prompt cache discipline | Hermes/Codex | Content-addressed fragments, diff updates, cache metrics, safe compaction |
 | Semantic code search over the repo | Cursor (syntactic chunks + embeddings, Merkle sync); Cody (keyword ∥ embeddings, reranked); Claude Code / Codex (grep-class only, by design) | **Implemented; local regression journey verified 2026-08-17; not yet Measured**: symbol-shaped contextual chunks, local FTS5/BM25, optional int8 dense scan, RRF, optional reranking, graph expansion, project-scoped indexes, active-space migration, explicit dense abstention, and bounded incremental sync. First-launch/restart persistence, Bun statement iteration, refused-write manifest integrity, exact long-chunk identifiers, project switching, and model-space backfill are pinned by `R02_RETRIEVAL_TRUTH.md`. Local lexical indexing is default; remote source embeddings/reranking require explicit consent (`codeIndexRemoteEmbeddings` or `BIMAX_CODE_INDEX_REMOTE=1`). The 4,000-chunk RAM ledger and 28-query stand-in corpus are engineering fixtures only, not preserved live-provider or rival quality proof. **Target**: a passing immutable artifact from `scripts/live-retrieval-run.ts`, then a like-for-like rival head-to-head journey. |
-| Long-term memory recall in the turn | Claude/Codex session-memory patterns | **Implemented; offline fixture results are not yet Measured under this pack's preserved-run definition**: one store, chunk → BM25 ∥ dense → reciprocal rank fusion → cross-encoder rerank, with per-stage null degradation reported by `lastSearchMode()` and recall guards against stale-block injection. The labelled fake-transport corpus currently reports lexical 0.80 recall@3 / 0.767 MRR, hybrid 1.00 / 0.844, and reranked 0.93 / 0.933; these are regression figures, not live quality claims. Persona recall, AgentLoop auto-recall, and subagent workers share the configured hybrid store; tag scopes prevent duplicate injection; writes deduplicate only with corroborated signals; multiple coalesced recency updates survive reload; model and dimension changes invalidate stale spaces. `/retrieval` probes the live memory space and backfills missing vectors. The first Desktop context bridge now gives a CU turn the read-only `MemoryQueryTool` and `CodeSearchTool` beside its required app-owned `mac_control`, while the schema/prompt allow-list excludes shell, writes, coding mutation and third-party CU; the required-tool gate still prevents retrieval-only narration from completing an operation. **Target**: preserve an assertion-based provider run, exercise a live memory-informed CU journey, and broaden the quality corpus before upgrading to Measured. |
+| Long-term memory recall in the turn | Claude/Codex session-memory patterns | **Implemented; offline fixture results are not yet Measured under this pack's preserved-run definition**: one store, chunk → BM25 ∥ dense → reciprocal rank fusion → cross-encoder rerank, with per-stage null degradation reported by `lastSearchMode()` and recall guards against stale-block injection. Historical labelled fake-transport figures were lexical 0.80 recall@3 / 0.767 MRR, hybrid 1.00 / 0.844, and reranked 0.93 / 0.933. Record 95 rechecks the current corpus against frozen starting and updated source: both report lexical 0.80 / 0.733, hybrid 1.00 / 0.844, and reranked 1.00 / 0.900; these remain simulated regression figures, not live quality claims. Persona recall, AgentLoop auto-recall, and subagent workers share the configured hybrid store; tag scopes prevent duplicate injection; writes deduplicate only with corroborated signals; multiple coalesced recency updates survive reload; model and dimension changes invalidate stale spaces. `/retrieval` probes the live memory space and backfills missing vectors. The first Desktop context bridge now gives a CU turn the read-only `MemoryQueryTool` and `CodeSearchTool` beside its required app-owned `mac_control`, while the schema/prompt allow-list excludes shell, writes, coding mutation and third-party CU; the required-tool gate still prevents retrieval-only narration from completing an operation. **Target**: preserve an assertion-based provider run, exercise a live memory-informed CU journey, and broaden the quality corpus before upgrading to Measured. |
 | Programmatic bounded tool calls | Hermes/OpenAI model tooling | **Partly Implemented, 2026-09-10:** deferred read-only ToolWorkflowTool with dependency graphs, result bindings, nested guards, bounded previews and interruption draining ([record 41](../41_TOOL_WORKFLOW_RECORD.md)). Actual-byte/directory evidence, stale descendant invalidation and scoped selective refresh extend it in [record 42](../42_WORKFLOW_EVIDENCE_RECORD.md). Continuous watching, test/patch claim integration, arbitrary-code sandbox, durable resume, structured search outputs and live model-tier qualification remain Target |
 | ACP support | Zed/Hermes/OpenCode ecosystem | Bimax Terminal usable as external agent without copying engine into the host |
 | Always-allowed Mac apps | ChatGPT Computer Use documents a revocable always-allowed list | Named capability grants that survive a task, visible and revocable in Trust Center. Phase 5 deliberately shipped no UI for this because the capability does not exist |
@@ -505,3 +780,30 @@ rule; Gemini thought-signature echo; MCP OAuth sign-in, VS Code/Windsurf/Gemini 
 (wire-level compatibility) and stays **Target** for live probes. **Target:** live runs on OpenAI/Anthropic/Google/DeepSeek/
 OpenRouter, a native Anthropic Messages adapter, cross-provider failover, throughput measured under real 429s, OAuth
 against a real hosted server.
+
+### Rich chat and retained output workspace — 2026-10-19
+
+Record [103](../103_RICH_CHAT_AND_OUTPUT_WORKSPACE.md) implements optional rich presentation parts,
+configuration notices outside task progress, streaming Markdown/math/diagrams, Desktop-owned
+immutable text outputs, editing/charts/tables/forms, offline HTML/React guests and a restricted MCP
+Apps host. Local filesystem/browser/Electron end states and assertion-caught faults scope Measured.
+Complete binary-output O01, automatic file registration, installed performance/accessibility,
+minimum/balanced/frontier generation, broader MCP interoperability, release and Win remain Target.
+
+## Phone runtime compatibility — 2026-10-24 SDK-58 follow-up
+
+The owner observed SDK-58 incompatibility and Expo Go/CLI account mismatch on the physical iPhone.
+The project now uses SDK 58 with one resolved native runtime; Doctor 20/20, full mobile checks,
+real development/Hermes bundles, cross-repo and installed pairing fixtures pass. A resolved-runtime
+guard precedes npm check. The Mac build remains installed with its prior bundle backed up.
+Expo CLI browser authentication must use the same `sid7vish` account as Expo Go; no auth bypass is
+introduced. Successful physical login/pairing, native permissions and Expo-Go Face ID remain open.
+See record 105 and its SDK-58 evidence for observed end states and retained failed attempts.
+
+## Mobile account availability — 2026-10-24, record 106
+
+Owner-observed Google/Safari failure is traced to an inactive configured Auth project and an
+unsupported Expo Go OAuth path. Record 106 resumes the same existing Free project and adds bounded
+in-app availability, no unsupported browser launch, and session-checked callbacks. No local auth
+bypass is introduced. Health, local tests and actual email/provider/phone outcomes remain separate
+qualification dimensions; see the service end-state receipt before claiming live recovery.

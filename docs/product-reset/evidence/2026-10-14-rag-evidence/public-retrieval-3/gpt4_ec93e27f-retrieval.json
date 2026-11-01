@@ -1,0 +1,409 @@
+{
+  "row": 266,
+  "id": "gpt4_ec93e27f",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T08:38:53.037029+00:00",
+  "valid": true,
+  "question": "Which mode of transport did I use most recently, a bus or a train?",
+  "references": [
+    "train"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/05/02 (Tue) 08:12",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 321.5910409999997,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 66,
+        "maxInputChars": 66,
+        "requiredProviderTruncation": false,
+        "promptTokens": 18,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "6b63bdc5_2",
+        "answer_e3aa84c4_2",
+        "answer_e3aa84c4_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 14) Session date: 2023/01/31 (Tue) 19:02\nuser: I'm looking to get some tips on optimizing my daily commute. I've recently moved to a new apartment and started taking the bus to work, which has been great so far. By the way, I managed to squeeze in a 30-minute jog around my parents' neighborhood on Sunday morning, which covered a distance of 0.5 miles. Do you have any suggestions on how to make my bus commute more efficient?\nassistant: Congratulations on your new apartment and new commute routine! It's great that you're enjoying the bus ride so far.\n\nFirstly, kudos on fitting in a jog on Sunday morning! 0.5 miles is a great start, and I'm sure you'll be increasing that distance in no time.\n\nNow, let's get to optimizing your bus commute! Here are some tips to help you make the most of your daily ride:\n\n1.\n\n**Plan your route**: Double-check the bus schedule and route to ensure you're taking the most efficient route to work.\n\nYou can use online tools like Google Maps or Transit to find the best option.\n\n2.\n\n**Leave a little earlier**: Consider leaving your apartment 10-15 minutes earlier than usual to account for any unexpected delays or traffic.\n\n3.\n  (part 2 of 14, excerpt) 3.\n\n**Choose a comfortable seat**: If possible, try to grab a seat near the front of the bus or in a quiet area to minimize distractions and make the most of your commute time.\n\n4.\n- (part 9 of 18, excerpt) * However, some bus companies in Japan are introducing eco-friendly buses, such as hybrid or electric vehicles, which can reduce emissions significantly. For example, the Tokyo Metropolitan Transportation Bureau has introduced hybrid bu\n- (part 10 of 11, excerpt) user: I've actually been taking a lot of trains lately, especially for shorter distances. In fact, I took a train ride to vi",
+      "evidence": [
+        {
+          "sourceId": "memory:6b63bdc5_2",
+          "sourceVersion": "sha256:604ebd657d9f06b4f0101d7e3f58d5f549c232bfed94fd11ba4eb72da8b11178",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "6b63bdc5_2",
+            "part": 1,
+            "parts": 14
+          },
+          "text": "Session date: 2023/01/31 (Tue) 19:02\nuser: I'm looking to get some tips on optimizing my daily commute. I've recently moved to a new apartment and started taking the bus to work, which has been great so far. By the way, I managed to squeeze in a 30-minute jog around my parents' neighborhood on Sunday morning, which covered a distance of 0.5 miles. Do you have any suggestions on how to make my bus commute more efficient?\nassistant: Congratulations on your new apartment and new commute routine! It's great that you're enjoying the bus ride so far.\n\nFirstly, kudos on fitting in a jog on Sunday morning! 0.5 miles is a great start, and I'm sure you'll be increasing that distance in no time.\n\nNow, let's get to optimizing your bus commute! Here are some tips to help you make the most of your daily ride:\n\n1.\n\n**Plan your route**: Double-check the bus schedule and route to ensure you're taking the most efficient route to work.\n\nYou can use online tools like Google Maps or Transit to find the best option.\n\n2.\n\n**Leave a little earlier**: Consider leaving your apartment 10-15 minutes earlier than usual to account for any unexpected delays or traffic.\n\n3.",
+          "id": "ev_7a996cce7f88646b6ff81c5d",
+          "observedAt": "2026-10-14T08:38:53.375Z"
+        },
+        {
+          "sourceId": "memory:6b63bdc5_2",
+          "sourceVersion": "sha256:604ebd657d9f06b4f0101d7e3f58d5f549c232bfed94fd11ba4eb72da8b11178",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "6b63bdc5_2",
+            "part": 2,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "3.\n\n**Choose a comfortable seat**: If possible, try to grab a seat near the front of the bus or in a quiet area to minimize distractions and make the most of your commute time.\n\n4.",
+          "id": "ev_ab009b5f883c5ee79cd8f41c",
+          "observedAt": "2026-10-14T08:38:53.376Z"
+        },
+        {
+          "sourceId": "memory:answer_e3aa84c4_2",
+          "sourceVersion": "sha256:19eddf2539450b207054a4f2fff1c335f27c12c2f5562dad59f1c8aa775363ca",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e3aa84c4_2",
+            "part": 9,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "* However, some bus companies in Japan are introducing eco-friendly buses, such as hybrid or electric vehicles, which can reduce emissions significantly. For example, the Tokyo Metropolitan Transportation Bureau has introduced hybrid bu",
+          "id": "ev_85fdf51798a80c440056d792",
+          "observedAt": "2026-10-14T08:38:53.376Z"
+        },
+        {
+          "sourceId": "memory:answer_e3aa84c4_1",
+          "sourceVersion": "sha256:27577476d9384a605a51165827d551e9b4c985d252a229160573e03f003b2eca",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e3aa84c4_1",
+            "part": 10,
+            "parts": 11,
+            "partial": true
+          },
+          "text": "user: I've actually been taking a lot of trains lately, especially for shorter distances. In fact, I took a train ride to vi",
+          "id": "ev_22c1d04e66c993ea4fc20e73",
+          "observedAt": "2026-10-14T08:38:53.377Z"
+        }
+      ],
+      "sourceIds": [
+        "6b63bdc5_2",
+        "answer_e3aa84c4_2",
+        "answer_e3aa84c4_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 18.977916999996523,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "6b63bdc5_2",
+        "answer_e3aa84c4_2",
+        "answer_e3aa84c4_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 14, excerpt) Session date: 2023/01/31 (Tue) 19:02\nuser: I'm looking to get some tips on optimizing my daily commute. I've recently moved to a new apartment and started taking the bus to work, which has been great so far. By the way, I managed to squeeze in a 30-minute jog around my parents' neighborhood on Sunday morning, which covered a distance of 0.5 miles. Do you have any suggestions on how to make my bus commute more efficient?\n  (part 2 of 14, excerpt) option.\n\n2.\n\n**Leave a little earlier**: Consider leaving your apartment 10-15 minutes earlier than usual to account for any unexpected delays or traffic.\n\n3.\n\n**Choose a comfortable seat**: If possible, try to grab a seat near the front of the bus or in a quiet area to minimize distractions and make the most of your commute time.\n\n4.\n\n**Use the time wisely**: Bring a book, e-reader, or listen to podcasts/audiobooks to make the most of your commute time.\n  (part 3 of 14, excerpt) 10.\n\n**Review and adjust**: After a week or two, review your commute and make adjustments as needed.\n\nYou might find that you need to leave earlier or take a different route to optimize your time.\n\nBy implementing these tips, you'll be able to make the most of your daily bus commute and arrive at work feeling more productive and energized!\n\nDo you have any specific concerns or questions about your commute that I can help with?\n  (part 12 of 14, excerpt) hear approaching vehicles.\n\n6.\n\n**Stay alert**: Be aware of your surroundings, including people, vehicles, and potential hazards like potholes or debris.\n\n7.\n\n**Run with a buddy**: Running with a friend or family member can provide an added layer of safety and accountability.\n\n8.\n\n**Let someone know your route**: Inform a friend or family member of your running route and estimated return time, so they can raise an alarm if something goes wrong.\n\n9.\n\n**Carry a phone and ID**: Bring your phone and some form of identification with you\n- Session date: 2023/02/27 (Mon) 06:17\n  (part 6 of 18, excerpt) Taking the bus is a good option if you're on a tight budget, but keep in mind that traffic can be unpredictable, and journey times may vary.\n\n**Tips**\n\n* Make sure to check the train or bus schedule in advance to plan your trip accordingly.\n* If you have a Japan Rail Pass, you can use it to ride the Narita Express.\n* Consider purchasing a Suica or Pasmo card, which can be used to ride trains, buses, and subways throughout Tokyo.\n* If you have a lot of luggage, you may want to consider taking a taxi or private car service, but this will be more expensive.\n  (part 7 of 18, excerpt) I hope this helps you plan your trip to Narita Airport from Tokyo city center!\nuser: I've taken a lot of buses lately for shorter distances, and I've noticed it's a more eco-friendly option. Speaking of which, can you tell me more about the carbon footprint of trains in Japan? Are they generally more eco-friendly than buses, and are there any specific train lines or companies that are more sustainable than others?\n  (part 9 of 18, excerpt) * However, some bus companies in Japan are introducing eco-friendly buses, such as hybrid or electric vehicles, which can reduce emissions significantly. For example, the Tokyo Metropolitan Transportation Bureau has introduced hybrid buses that reduce CO2 emissions by around 30%.\n\n**Sustainable train lines and companies:**\n  (part 18 of 18, excerpt) off your luggage, take the train to Narita Airport. You can use your boarding pass to go through security and immigration at the airport.\n\n**Benefits**:\n\n* Convenience: You can check in and drop off your luggage at the train station, saving you time and hassle at the airport.\n* Reduced wait times: By checking in and dropping off your luggage at the train station, you can avoid long queues at the airport.\n* More time to relax: With your luggage taken care of, you can relax and enjoy your train ride to the airport.\n- (part 1 of 11, excerpt) Session date: 2023/03/03 (Fri) 19:17\nuser: I'm planning a trip to the mountains on April 15th and I'm considering taking a detour to visit my family in the countryside again. Can you help me find the best route for the road trip? By the way, I took a train ride to visit them today, and it was a nice 2-hour journey.\nassistant: I'd be happy to help you plan your road trip!\n  (part 3 of 11, excerpt) 5.\n\n**Plan for rest stops and breaks**: Don't forget to factor in rest stops, meal breaks, and fuel stops along the way.\n\nThis will help you stay energized and focused during the drive.\n\nSince you've taken a train ride to visit your family recently, you might have a rough idea of the distance and travel time. You can use this as a starting point to estimate the driving time and plan your road trip accordingly.\n  (part 10 of 11, excerpt) * What are some tips you can share for staying energized and focused during long flights and busy trips?\n* Are there any specific airport lounges or travel perks that you particularly enjoy?\n\nFeel free to share your experiences and advice!\nuser: I've actually been taking a lot of trains lately, especially for shorter distances. In fact, I took a train ride to visit my family in the countryside just recently, on March 3rd, and it was a nice 2-hour journey.\n  (part 11 of 11) taking trains. I'm happy to chat with you about your train travel experiences, but I want to clarify that we were previously discussing your frequent flights.\n\nIf you'd like to talk about your train travel, I'd be happy to hear about it! Taking trains can be a great way to travel, especially for shorter distances. It's often more environmentally friendly, and you can enjoy the scenery outside your window.\n\nCould you tell me more about your recent train ride to visit your family in the countryside? What was the scenery like during the 2-hour journey? Was it a relaxing trip?",
+      "evidence": [
+        {
+          "sourceId": "memory:6b63bdc5_2",
+          "sourceVersion": "sha256:604ebd657d9f06b4f0101d7e3f58d5f549c232bfed94fd11ba4eb72da8b11178",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "6b63bdc5_2",
+            "part": 1,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "Session date: 2023/01/31 (Tue) 19:02\nuser: I'm looking to get some tips on optimizing my daily commute. I've recently moved to a new apartment and started taking the bus to work, which has been great so far. By the way, I managed to squeeze in a 30-minute jog around my parents' neighborhood on Sunday morning, which covered a distance of 0.5 miles. Do you have any suggestions on how to make my bus commute more efficient?",
+          "id": "ev_45a19017285dbe83dd8ddc5b",
+          "observedAt": "2026-10-14T08:38:53.379Z"
+        },
+        {
+          "sourceId": "memory:6b63bdc5_2",
+          "sourceVersion": "sha256:604ebd657d9f06b4f0101d7e3f58d5f549c232bfed94fd11ba4eb72da8b11178",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "6b63bdc5_2",
+            "part": 2,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "option.\n\n2.\n\n**Leave a little earlier**: Consider leaving your apartment 10-15 minutes earlier than usual to account for any unexpected delays or traffic.\n\n3.\n\n**Choose a comfortable seat**: If possible, try to grab a seat near the front of the bus or in a quiet area to minimize distractions and make the most of your commute time.\n\n4.\n\n**Use the time wisely**: Bring a book, e-reader, or listen to podcasts/audiobooks to make the most of your commute time.",
+          "id": "ev_faede412c7e18a38396bd72e",
+          "observedAt": "2026-10-14T08:38:53.379Z"
+        },
+        {
+          "sourceId": "memory:6b63bdc5_2",
+          "sourceVersion": "sha256:604ebd657d9f06b4f0101d7e3f58d5f549c232bfed94fd11ba4eb72da8b11178",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "6b63bdc5_2",
+            "part": 3,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "10.\n\n**Review and adjust**: After a week or two, review your commute and make adjustments as needed.\n\nYou might find that you need to leave earlier or take a different route to optimize your time.\n\nBy implementing these tips, you'll be able to make the most of your daily bus commute and arrive at work feeling more productive and energized!\n\nDo you have any specific concerns or questions about your commute that I can help with?",
+          "id": "ev_fc9e6ca7640f1014e8360780",
+          "observedAt": "2026-10-14T08:38:53.379Z"
+        },
+        {
+          "sourceId": "memory:6b63bdc5_2",
+          "sourceVersion": "sha256:604ebd657d9f06b4f0101d7e3f58d5f549c232bfed94fd11ba4eb72da8b11178",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "6b63bdc5_2",
+            "part": 12,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "hear approaching vehicles.\n\n6.\n\n**Stay alert**: Be aware of your surroundings, including people, vehicles, and potential hazards like potholes or debris.\n\n7.\n\n**Run with a buddy**: Running with a friend or family member can provide an added layer of safety and accountability.\n\n8.\n\n**Let someone know your route**: Inform a friend or family member of your running route and estimated return time, so they can raise an alarm if something goes wrong.\n\n9.\n\n**Carry a phone and ID**: Bring your phone and some form of identification with you",
+          "id": "ev_f5e18cc9cf167ea2a2a1fd88",
+          "observedAt": "2026-10-14T08:38:53.379Z"
+        },
+        {
+          "sourceId": "memory:answer_e3aa84c4_2",
+          "sourceVersion": "sha256:19eddf2539450b207054a4f2fff1c335f27c12c2f5562dad59f1c8aa775363ca",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e3aa84c4_2"
+          },
+          "text": "Session date: 2023/02/27 (Mon) 06:17",
+          "id": "ev_a1dcbb2cb70b95c727c7f12c",
+          "observedAt": "2026-10-14T08:38:53.379Z"
+        },
+        {
+          "sourceId": "memory:answer_e3aa84c4_2",
+          "sourceVersion": "sha256:19eddf2539450b207054a4f2fff1c335f27c12c2f5562dad59f1c8aa775363ca",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e3aa84c4_2",
+            "part": 6,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "Taking the bus is a good option if you're on a tight budget, but keep in mind that traffic can be unpredictable, and journey times may vary.\n\n**Tips**\n\n* Make sure to check the train or bus schedule in advance to plan your trip accordingly.\n* If you have a Japan Rail Pass, you can use it to ride the Narita Express.\n* Consider purchasing a Suica or Pasmo card, which can be used to ride trains, buses, and subways throughout Tokyo.\n* If you have a lot of luggage, you may want to consider taking a taxi or private car service, but this will be more expensive.",
+          "id": "ev_2990904aeb5c43b189862672",
+          "observedAt": "2026-10-14T08:38:53.379Z"
+        },
+        {
+          "sourceId": "memory:answer_e3aa84c4_2",
+          "sourceVersion": "sha256:19eddf2539450b207054a4f2fff1c335f27c12c2f5562dad59f1c8aa775363ca",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e3aa84c4_2",
+            "part": 7,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "I hope this helps you plan your trip to Narita Airport from Tokyo city center!\nuser: I've taken a lot of buses lately for shorter distances, and I've noticed it's a more eco-friendly option. Speaking of which, can you tell me more about the carbon footprint of trains in Japan? Are they generally more eco-friendly than buses, and are there any specific train lines or companies that are more sustainable than others?",
+          "id": "ev_dd5a20e16b1eae89368499c9",
+          "observedAt": "2026-10-14T08:38:53.379Z"
+        },
+        {
+          "sourceId": "memory:answer_e3aa84c4_2",
+          "sourceVersion": "sha256:19eddf2539450b207054a4f2fff1c335f27c12c2f5562dad59f1c8aa775363ca",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e3aa84c4_2",
+            "part": 9,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "* However, some bus companies in Japan are introducing eco-friendly buses, such as hybrid or electric vehicles, which can reduce emissions significantly. For example, the Tokyo Metropolitan Transportation Bureau has introduced hybrid buses that reduce CO2 emissions by around 30%.\n\n**Sustainable train lines and companies:**",
+          "id": "ev_2a5dc1e931eaf4a8d82849f6",
+          "observedAt": "2026-10-14T08:38:53.379Z"
+        },
+        {
+          "sourceId": "memory:answer_e3aa84c4_2",
+          "sourceVersion": "sha256:19eddf2539450b207054a4f2fff1c335f27c12c2f5562dad59f1c8aa775363ca",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e3aa84c4_2",
+            "part": 18,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "off your luggage, take the train to Narita Airport. You can use your boarding pass to go through security and immigration at the airport.\n\n**Benefits**:\n\n* Convenience: You can check in and drop off your luggage at the train station, saving you time and hassle at the airport.\n* Reduced wait times: By checking in and dropping off your luggage at the train station, you can avoid long queues at the airport.\n* More time to relax: With your luggage taken care of, you can relax and enjoy your train ride to the airport.",
+          "id": "ev_d86e98f902b1ac7526efe7b2",
+          "observedAt": "2026-10-14T08:38:53.379Z"
+        },
+        {
+          "sourceId": "memory:answer_e3aa84c4_1",
+          "sourceVersion": "sha256:27577476d9384a605a51165827d551e9b4c985d252a229160573e03f003b2eca",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e3aa84c4_1",
+            "part": 1,
+            "parts": 11,
+            "partial": true
+          },
+          "text": "Session date: 2023/03/03 (Fri) 19:17\nuser: I'm planning a trip to the mountains on April 15th and I'm considering taking a detour to visit my family in the countryside again. Can you help me find the best route for the road trip? By the way, I took a train ride to visit them today, and it was a nice 2-hour journey.\nassistant: I'd be happy to help you plan your road trip!",
+          "id": "ev_35e8a466903d2dbab902ed62",
+          "observedAt": "2026-10-14T08:38:53.380Z"
+        },
+        {
+          "sourceId": "memory:answer_e3aa84c4_1",
+          "sourceVersion": "sha256:27577476d9384a605a51165827d551e9b4c985d252a229160573e03f003b2eca",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e3aa84c4_1",
+            "part": 3,
+            "parts": 11,
+            "partial": true
+          },
+          "text": "5.\n\n**Plan for rest stops and breaks**: Don't forget to factor in rest stops, meal breaks, and fuel stops along the way.\n\nThis will help you stay energized and focused during the drive.\n\nSince you've taken a train ride to visit your family recently, you might have a rough idea of the distance and travel time. You can use this as a starting point to estimate the driving time and plan your road trip accordingly.",
+          "id": "ev_d019de68482fd8b8696f11f9",
+          "observedAt": "2026-10-14T08:38:53.380Z"
+        },
+        {
+          "sourceId": "memory:answer_e3aa84c4_1",
+          "sourceVersion": "sha256:27577476d9384a605a51165827d551e9b4c985d252a229160573e03f003b2eca",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e3aa84c4_1",
+            "part": 10,
+            "parts": 11,
+            "partial": true
+          },
+          "text": "* What are some tips you can share for staying energized and focused during long flights and busy trips?\n* Are there any specific airport lounges or travel perks that you particularly enjoy?\n\nFeel free to share your experiences and advice!\nuser: I've actually been taking a lot of trains lately, especially for shorter distances. In fact, I took a train ride to visit my family in the countryside just recently, on March 3rd, and it was a nice 2-hour journey.",
+          "id": "ev_3adcd2b77d46280d36d6ffe9",
+          "observedAt": "2026-10-14T08:38:53.380Z"
+        },
+        {
+          "sourceId": "memory:answer_e3aa84c4_1",
+          "sourceVersion": "sha256:27577476d9384a605a51165827d551e9b4c985d252a229160573e03f003b2eca",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e3aa84c4_1",
+            "part": 11,
+            "parts": 11
+          },
+          "text": "taking trains. I'm happy to chat with you about your train travel experiences, but I want to clarify that we were previously discussing your frequent flights.\n\nIf you'd like to talk about your train travel, I'd be happy to hear about it! Taking trains can be a great way to travel, especially for shorter distances. It's often more environmentally friendly, and you can enjoy the scenery outside your window.\n\nCould you tell me more about your recent train ride to visit your family in the countryside? What was the scenery like during the 2-hour journey? Was it a relaxing trip?",
+          "id": "ev_9d8a678284b9f1b0d48db430",
+          "observedAt": "2026-10-14T08:38:53.380Z"
+        }
+      ],
+      "sourceIds": [
+        "6b63bdc5_2",
+        "answer_e3aa84c4_2",
+        "answer_e3aa84c4_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.4427920000016456,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "6b63bdc5_2",
+    "answer_e3aa84c4_2",
+    "answer_e3aa84c4_1"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:38:53.382287+00:00"
+}

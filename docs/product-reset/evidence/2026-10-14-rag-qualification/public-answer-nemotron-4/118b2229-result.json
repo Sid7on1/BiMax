@@ -1,0 +1,313 @@
+{
+  "row": 1,
+  "id": "118b2229",
+  "stratum": "single-session-user",
+  "dataset": "longmemeval",
+  "question": "How long is my daily commute to work?",
+  "references": [
+    "45 minutes each way"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 20:36",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 12.557875000002241,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 37,
+        "maxInputChars": 37,
+        "requiredProviderTruncation": false,
+        "promptTokens": 12,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_40a90d51",
+        "5209e813_2",
+        "db73b7e4_4"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 15, excerpt) user: I'm looking for some new fiction audiobook recommendations. I've been enjoying audiobooks a lot lately, especially\n  (part 12 of 15) Facebook, or LinkedIn.\n\nKeep in mind that some apps might have limitations on the number of shares or exports, depending on the plan or subscription you're on.\n\nIt's great that you're looking to share your thoughts and quotes from your audiobooks!\nuser: I've been listening to audiobooks during my daily commute, which takes 45 minutes each way.\nassistant: That's a great way to make the most of your commute time! An hour each way is a significant amount of time that can be utilized for personal development, entertainment, or relaxation. Audiobooks are an excellent choice for commutes, as they allow you to multitask while still enjoying a good story or learning something new.\n\nWith an hour of commute time each way, you can easily get through a significant portion of an audiobook. You might even find yourself looking forward to your commute, knowing that you'll have some dedicated time to immerse yourself in a good story or learn something new.\n\nHave you noticed any benefits from listening to audiobooks during your commute? For example, do you feel more relaxed, energized, or inspired after listening to a particular book?\n  (part 13 of 15, excerpt) benefits from listening to audiobooks during your commute? For example, do you feel more relaxed, energized, or inspired after listening to a particular book?\n- (part 14 of 21, excerpt) By following these tips, you'll be able to enjoy your office chair for a long time and maintain its comfort and performance.\n- (part 1 of 18, excerpt) user: I'm looking for some advice on how to take care of my leather boots. I've been wearing my new boots almost daily since January",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_40a90d51",
+          "sourceVersion": "sha256:0a54db03825d7e6b4277ec05f915d1b77706b603540ea5a2090dc490b33974f3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_40a90d51",
+            "part": 1,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "user: I'm looking for some new fiction audiobook recommendations. I've been enjoying audiobooks a lot lately, especially",
+          "id": "ev_6acf7c9a53c8d0f0e1b70b93",
+          "observedAt": "2026-10-14T04:42:51.956Z"
+        },
+        {
+          "sourceId": "memory:answer_40a90d51",
+          "sourceVersion": "sha256:0a54db03825d7e6b4277ec05f915d1b77706b603540ea5a2090dc490b33974f3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_40a90d51",
+            "part": 12,
+            "parts": 15
+          },
+          "text": "Facebook, or LinkedIn.\n\nKeep in mind that some apps might have limitations on the number of shares or exports, depending on the plan or subscription you're on.\n\nIt's great that you're looking to share your thoughts and quotes from your audiobooks!\nuser: I've been listening to audiobooks during my daily commute, which takes 45 minutes each way.\nassistant: That's a great way to make the most of your commute time! An hour each way is a significant amount of time that can be utilized for personal development, entertainment, or relaxation. Audiobooks are an excellent choice for commutes, as they allow you to multitask while still enjoying a good story or learning something new.\n\nWith an hour of commute time each way, you can easily get through a significant portion of an audiobook. You might even find yourself looking forward to your commute, knowing that you'll have some dedicated time to immerse yourself in a good story or learn something new.\n\nHave you noticed any benefits from listening to audiobooks during your commute? For example, do you feel more relaxed, energized, or inspired after listening to a particular book?",
+          "id": "ev_3994d01e0c438e435b1597fd",
+          "observedAt": "2026-10-14T04:42:51.958Z"
+        },
+        {
+          "sourceId": "memory:answer_40a90d51",
+          "sourceVersion": "sha256:0a54db03825d7e6b4277ec05f915d1b77706b603540ea5a2090dc490b33974f3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_40a90d51",
+            "part": 13,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "benefits from listening to audiobooks during your commute? For example, do you feel more relaxed, energized, or inspired after listening to a particular book?",
+          "id": "ev_74ab3218420ece9c0fc3dc1d",
+          "observedAt": "2026-10-14T04:42:51.958Z"
+        },
+        {
+          "sourceId": "memory:5209e813_2",
+          "sourceVersion": "sha256:db4eb3ea6cd62a6a7e5b47903bc9f5da224b3af98a5f17c73da8c2572f3d0888",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "5209e813_2",
+            "part": 14,
+            "parts": 21,
+            "partial": true
+          },
+          "text": "By following these tips, you'll be able to enjoy your office chair for a long time and maintain its comfort and performance.",
+          "id": "ev_647cb0eed18aeb5af2fa327e",
+          "observedAt": "2026-10-14T04:42:51.958Z"
+        },
+        {
+          "sourceId": "memory:db73b7e4_4",
+          "sourceVersion": "sha256:f7bedcab2d305207c9e89dbcca3e7314d81d31baae96178675d3702435f16953",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "db73b7e4_4",
+            "part": 1,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I'm looking for some advice on how to take care of my leather boots. I've been wearing my new boots almost daily since January",
+          "id": "ev_1ab81e8fac6cc991f21af75e",
+          "observedAt": "2026-10-14T04:42:51.958Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_40a90d51",
+        "5209e813_2",
+        "db73b7e4_4"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 10.913292000001093,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_40a90d51",
+        "5209e813_2",
+        "db73b7e4_4"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 15, excerpt) user: I'm looking for some new fiction audiobook recommendations. I've been enjoying audiobooks a lot lately, especially\n  (part 12 of 15) Facebook, or LinkedIn.\n\nKeep in mind that some apps might have limitations on the number of shares or exports, depending on the plan or subscription you're on.\n\nIt's great that you're looking to share your thoughts and quotes from your audiobooks!\nuser: I've been listening to audiobooks during my daily commute, which takes 45 minutes each way.\nassistant: That's a great way to make the most of your commute time! An hour each way is a significant amount of time that can be utilized for personal development, entertainment, or relaxation. Audiobooks are an excellent choice for commutes, as they allow you to multitask while still enjoying a good story or learning something new.\n\nWith an hour of commute time each way, you can easily get through a significant portion of an audiobook. You might even find yourself looking forward to your commute, knowing that you'll have some dedicated time to immerse yourself in a good story or learn something new.\n\nHave you noticed any benefits from listening to audiobooks during your commute? For example, do you feel more relaxed, energized, or inspired after listening to a particular book?\n  (part 13 of 15, excerpt) benefits from listening to audiobooks during your commute? For example, do you feel more relaxed, energized, or inspired after listening to a particular book?\n- (part 14 of 21, excerpt) By following these tips, you'll be able to enjoy your office chair for a long time and maintain its comfort and performance.\n- (part 1 of 18, excerpt) user: I'm looking for some advice on how to take care of my leather boots. I've been wearing my new boots almost daily since January",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_40a90d51",
+          "sourceVersion": "sha256:0a54db03825d7e6b4277ec05f915d1b77706b603540ea5a2090dc490b33974f3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_40a90d51",
+            "part": 1,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "user: I'm looking for some new fiction audiobook recommendations. I've been enjoying audiobooks a lot lately, especially",
+          "id": "ev_6acf7c9a53c8d0f0e1b70b93",
+          "observedAt": "2026-10-14T04:42:51.961Z"
+        },
+        {
+          "sourceId": "memory:answer_40a90d51",
+          "sourceVersion": "sha256:0a54db03825d7e6b4277ec05f915d1b77706b603540ea5a2090dc490b33974f3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_40a90d51",
+            "part": 12,
+            "parts": 15
+          },
+          "text": "Facebook, or LinkedIn.\n\nKeep in mind that some apps might have limitations on the number of shares or exports, depending on the plan or subscription you're on.\n\nIt's great that you're looking to share your thoughts and quotes from your audiobooks!\nuser: I've been listening to audiobooks during my daily commute, which takes 45 minutes each way.\nassistant: That's a great way to make the most of your commute time! An hour each way is a significant amount of time that can be utilized for personal development, entertainment, or relaxation. Audiobooks are an excellent choice for commutes, as they allow you to multitask while still enjoying a good story or learning something new.\n\nWith an hour of commute time each way, you can easily get through a significant portion of an audiobook. You might even find yourself looking forward to your commute, knowing that you'll have some dedicated time to immerse yourself in a good story or learn something new.\n\nHave you noticed any benefits from listening to audiobooks during your commute? For example, do you feel more relaxed, energized, or inspired after listening to a particular book?",
+          "id": "ev_3994d01e0c438e435b1597fd",
+          "observedAt": "2026-10-14T04:42:51.961Z"
+        },
+        {
+          "sourceId": "memory:answer_40a90d51",
+          "sourceVersion": "sha256:0a54db03825d7e6b4277ec05f915d1b77706b603540ea5a2090dc490b33974f3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_40a90d51",
+            "part": 13,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "benefits from listening to audiobooks during your commute? For example, do you feel more relaxed, energized, or inspired after listening to a particular book?",
+          "id": "ev_74ab3218420ece9c0fc3dc1d",
+          "observedAt": "2026-10-14T04:42:51.961Z"
+        },
+        {
+          "sourceId": "memory:5209e813_2",
+          "sourceVersion": "sha256:db4eb3ea6cd62a6a7e5b47903bc9f5da224b3af98a5f17c73da8c2572f3d0888",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "5209e813_2",
+            "part": 14,
+            "parts": 21,
+            "partial": true
+          },
+          "text": "By following these tips, you'll be able to enjoy your office chair for a long time and maintain its comfort and performance.",
+          "id": "ev_647cb0eed18aeb5af2fa327e",
+          "observedAt": "2026-10-14T04:42:51.961Z"
+        },
+        {
+          "sourceId": "memory:db73b7e4_4",
+          "sourceVersion": "sha256:f7bedcab2d305207c9e89dbcca3e7314d81d31baae96178675d3702435f16953",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "db73b7e4_4",
+            "part": 1,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I'm looking for some advice on how to take care of my leather boots. I've been wearing my new boots almost daily since January",
+          "id": "ev_1ab81e8fac6cc991f21af75e",
+          "observedAt": "2026-10-14T04:42:51.961Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_40a90d51",
+        "5209e813_2",
+        "db73b7e4_4"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.4323330000006536,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:54:13.201584+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "I don't have access to your personal schedule or location data, and the retrieved conversation history doesn't contain information about your specific commute. Based on the available context, I can't determine how long your daily commute is. If you'd like to share it, I'm happy to help with related planning or time-management tips!",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 530,
+    "completion_tokens": 467,
+    "total_tokens": 997,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 398,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 310,
+    "completion_tokens": 815,
+    "total_tokens": 1125,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 812,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 5282.1355420001055,
+  "judgeWallMs": 8841.021249999812,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:54:27.946427+00:00"
+}

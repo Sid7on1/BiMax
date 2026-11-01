@@ -1,0 +1,235 @@
+{
+  "row": 360,
+  "id": "gpt4_70e84552_abs",
+  "stratum": "abstention",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T04:59:13.661957+00:00",
+  "valid": true,
+  "question": "Which task did I complete first, fixing the fence or purchasing three cows from Peter?",
+  "references": [
+    "The information provided is not enough. You mentioned fixing the fence but did not mention purchasing cows from Peter."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": true,
+  "date": "2023/05/21 (Sun) 10:40",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 233.445499999998,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 86,
+        "maxInputChars": 86,
+        "requiredProviderTruncation": false,
+        "promptTokens": 19,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_b3070ec4_abs_1",
+        "answer_b3070ec4_abs_2",
+        "e2cd250e_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 20) Session date: 2023/05/21 (Sun) 17:30\nuser: I'm thinking of hosting a farm open house event soon and I want to make sure everything is perfect. Can you help me come up with some ideas for activities and also give me some tips on how to promote it on social media? By the way, I just fixed that broken fence on the east side of my property three weeks ago, where my goats like to graze, and it's been a huge relief to have them safe and secure.\nassistant: Congratulations on fixing that broken fence! It's great to hear that your goats are now safe and secure.\n\nNow, let's get started on planning your farm open house event! Here are some activity ideas to get you started:\n\n**Activities:**\n  (part 2 of 20, excerpt) are now safe and secure.\n\nNow, let's get started on planning your farm open house event! Here are some activity ideas to get you started:\n\n**Activities:**\n\n1. **Farm Tours**: Offer guided tours of your farm, showcasing your daily operations, crops, and livestock. You could even highlight the newly fixed fence on the east side!\n2. **Petting Zoo**: Set up a designated area where visitors can interact with your friendly farm animals, such as goats, sheep, or even a horse.\n3. **Farm-to-Table**: Offer tastings of fresh produce, baked goods, or other farm-made products. You could also have a BBQ or picnic area with locally sourced food.\n4. **Demonstrations**: Host workshops or demonstrations on topics like beekeeping, gardening, or animal husbandry.\n- (part 13 of 22, excerpt) user: Thanks for the advice! I was thinking of getting a Brown Swiss or a Jersey, as I've heard they're both great for dairy production\n- (part 16 of 16, excerpt) * Complete the problem statement section\n* Research and finalize the solution section\n* Write the conclusion and summary",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_b3070ec4_abs_1",
+          "sourceVersion": "sha256:d0075569215db8c71d52ecfdeb2ac743459d5b0132e816eb6c7983fd43baee70",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_b3070ec4_abs_1",
+            "part": 1,
+            "parts": 20
+          },
+          "text": "Session date: 2023/05/21 (Sun) 17:30\nuser: I'm thinking of hosting a farm open house event soon and I want to make sure everything is perfect. Can you help me come up with some ideas for activities and also give me some tips on how to promote it on social media? By the way, I just fixed that broken fence on the east side of my property three weeks ago, where my goats like to graze, and it's been a huge relief to have them safe and secure.\nassistant: Congratulations on fixing that broken fence! It's great to hear that your goats are now safe and secure.\n\nNow, let's get started on planning your farm open house event! Here are some activity ideas to get you started:\n\n**Activities:**",
+          "id": "ev_f1b8e1295b6504912826f77a",
+          "observedAt": "2026-10-14T04:59:13.921Z"
+        },
+        {
+          "sourceId": "memory:answer_b3070ec4_abs_1",
+          "sourceVersion": "sha256:d0075569215db8c71d52ecfdeb2ac743459d5b0132e816eb6c7983fd43baee70",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_b3070ec4_abs_1",
+            "part": 2,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "are now safe and secure.\n\nNow, let's get started on planning your farm open house event! Here are some activity ideas to get you started:\n\n**Activities:**\n\n1. **Farm Tours**: Offer guided tours of your farm, showcasing your daily operations, crops, and livestock. You could even highlight the newly fixed fence on the east side!\n2. **Petting Zoo**: Set up a designated area where visitors can interact with your friendly farm animals, such as goats, sheep, or even a horse.\n3. **Farm-to-Table**: Offer tastings of fresh produce, baked goods, or other farm-made products. You could also have a BBQ or picnic area with locally sourced food.\n4. **Demonstrations**: Host workshops or demonstrations on topics like beekeeping, gardening, or animal husbandry.",
+          "id": "ev_a70d98afc9a753906ef40def",
+          "observedAt": "2026-10-14T04:59:13.922Z"
+        },
+        {
+          "sourceId": "memory:answer_b3070ec4_abs_2",
+          "sourceVersion": "sha256:4d13d87b4d23899a61a839faf53d25408e502c5840b93bd6b57102417873e6f3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_b3070ec4_abs_2",
+            "part": 13,
+            "parts": 22,
+            "partial": true
+          },
+          "text": "user: Thanks for the advice! I was thinking of getting a Brown Swiss or a Jersey, as I've heard they're both great for dairy production",
+          "id": "ev_9ac5df0f00d07e5a55935d39",
+          "observedAt": "2026-10-14T04:59:13.923Z"
+        },
+        {
+          "sourceId": "memory:e2cd250e_2",
+          "sourceVersion": "sha256:88878dbf3c50f0b0293b52cdfdb101eb45171805922cb715cd59eb8bf8a58ace",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "e2cd250e_2",
+            "part": 16,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "* Complete the problem statement section\n* Research and finalize the solution section\n* Write the conclusion and summary",
+          "id": "ev_21a723088142296a2cb1bcd0",
+          "observedAt": "2026-10-14T04:59:13.923Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_b3070ec4_abs_1",
+        "answer_b3070ec4_abs_2",
+        "e2cd250e_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 27.42437499999869,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_b3070ec4_abs_1",
+        "answer_b3070ec4_abs_2",
+        "e2cd250e_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 20) Session date: 2023/05/21 (Sun) 17:30\nuser: I'm thinking of hosting a farm open house event soon and I want to make sure everything is perfect. Can you help me come up with some ideas for activities and also give me some tips on how to promote it on social media? By the way, I just fixed that broken fence on the east side of my property three weeks ago, where my goats like to graze, and it's been a huge relief to have them safe and secure.\nassistant: Congratulations on fixing that broken fence! It's great to hear that your goats are now safe and secure.\n\nNow, let's get started on planning your farm open house event! Here are some activity ideas to get you started:\n\n**Activities:**\n  (part 2 of 20, excerpt) are now safe and secure.\n\nNow, let's get started on planning your farm open house event! Here are some activity ideas to get you started:\n\n**Activities:**\n\n1. **Farm Tours**: Offer guided tours of your farm, showcasing your daily operations, crops, and livestock. You could even highlight the newly fixed fence on the east side!\n2. **Petting Zoo**: Set up a designated area where visitors can interact with your friendly farm animals, such as goats, sheep, or even a horse.\n3. **Farm-to-Table**: Offer tastings of fresh produce, baked goods, or other farm-made products. You could also have a BBQ or picnic area with locally sourced food.\n4. **Demonstrations**: Host workshops or demonstrations on topics like beekeeping, gardening, or animal husbandry.\n- (part 13 of 22, excerpt) user: Thanks for the advice! I was thinking of getting a Brown Swiss or a Jersey, as I've heard they're both great for dairy production\n- (part 16 of 16, excerpt) * Complete the problem statement section\n* Research and finalize the solution section\n* Write the conclusion and summary",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_b3070ec4_abs_1",
+          "sourceVersion": "sha256:d0075569215db8c71d52ecfdeb2ac743459d5b0132e816eb6c7983fd43baee70",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_b3070ec4_abs_1",
+            "part": 1,
+            "parts": 20
+          },
+          "text": "Session date: 2023/05/21 (Sun) 17:30\nuser: I'm thinking of hosting a farm open house event soon and I want to make sure everything is perfect. Can you help me come up with some ideas for activities and also give me some tips on how to promote it on social media? By the way, I just fixed that broken fence on the east side of my property three weeks ago, where my goats like to graze, and it's been a huge relief to have them safe and secure.\nassistant: Congratulations on fixing that broken fence! It's great to hear that your goats are now safe and secure.\n\nNow, let's get started on planning your farm open house event! Here are some activity ideas to get you started:\n\n**Activities:**",
+          "id": "ev_f1b8e1295b6504912826f77a",
+          "observedAt": "2026-10-14T04:59:13.929Z"
+        },
+        {
+          "sourceId": "memory:answer_b3070ec4_abs_1",
+          "sourceVersion": "sha256:d0075569215db8c71d52ecfdeb2ac743459d5b0132e816eb6c7983fd43baee70",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_b3070ec4_abs_1",
+            "part": 2,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "are now safe and secure.\n\nNow, let's get started on planning your farm open house event! Here are some activity ideas to get you started:\n\n**Activities:**\n\n1. **Farm Tours**: Offer guided tours of your farm, showcasing your daily operations, crops, and livestock. You could even highlight the newly fixed fence on the east side!\n2. **Petting Zoo**: Set up a designated area where visitors can interact with your friendly farm animals, such as goats, sheep, or even a horse.\n3. **Farm-to-Table**: Offer tastings of fresh produce, baked goods, or other farm-made products. You could also have a BBQ or picnic area with locally sourced food.\n4. **Demonstrations**: Host workshops or demonstrations on topics like beekeeping, gardening, or animal husbandry.",
+          "id": "ev_a70d98afc9a753906ef40def",
+          "observedAt": "2026-10-14T04:59:13.929Z"
+        },
+        {
+          "sourceId": "memory:answer_b3070ec4_abs_2",
+          "sourceVersion": "sha256:4d13d87b4d23899a61a839faf53d25408e502c5840b93bd6b57102417873e6f3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_b3070ec4_abs_2",
+            "part": 13,
+            "parts": 22,
+            "partial": true
+          },
+          "text": "user: Thanks for the advice! I was thinking of getting a Brown Swiss or a Jersey, as I've heard they're both great for dairy production",
+          "id": "ev_9ac5df0f00d07e5a55935d39",
+          "observedAt": "2026-10-14T04:59:13.929Z"
+        },
+        {
+          "sourceId": "memory:e2cd250e_2",
+          "sourceVersion": "sha256:88878dbf3c50f0b0293b52cdfdb101eb45171805922cb715cd59eb8bf8a58ace",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "e2cd250e_2",
+            "part": 16,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "* Complete the problem statement section\n* Research and finalize the solution section\n* Write the conclusion and summary",
+          "id": "ev_21a723088142296a2cb1bcd0",
+          "observedAt": "2026-10-14T04:59:13.930Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_b3070ec4_abs_1",
+        "answer_b3070ec4_abs_2",
+        "e2cd250e_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.93933300000208,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:59:13.932365+00:00"
+}

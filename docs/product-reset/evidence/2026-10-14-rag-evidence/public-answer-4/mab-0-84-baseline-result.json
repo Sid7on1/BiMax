@@ -1,0 +1,164 @@
+{
+  "row": 0,
+  "query": 84,
+  "id": "mab-0-84",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:40:25.433400+00:00",
+  "valid": true,
+  "question": "Who used the church to unify themselves?",
+  "references": [
+    "dukes",
+    "the dukes",
+    "dukes"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-217",
+    "context-82",
+    "context-235"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:40:42.041722+00:00",
+  "rag": {
+    "ids": [
+      "context-217",
+      "context-82",
+      "context-235"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) of Los Angeles, San Bernardino, Orange, Riverside, San Diego, Ventura and Santa Barbara.\" In 1999, the Times added a newer county\u2014Imperial\u2014to that list.\n\nDocument 1085:\nPaul Revere was descended from Huguenot refugees, as was Henry Laurens, who signed the Articles of Confederation for South Carolina; Jack Jouett, who made the ride from Cuckoo Tavern to warn Thomas Jefferson and others that Tarleton and his men were on their way to arrest him for crimes against the king; Francis Marion, and a number of other leaders of the American Revolution and later statesmen. The last active Huguenot congregation in North America worships in Charleston, South Carolina, at a church that dates to 1844. The Huguenot Society of America maintains Manakin Episcopal Church in Virginia as an historic shrine with occasional services. The Society has chapters in numerous states, with the one in Texas being the largest.\n  (part 4 of 5, excerpt) Church in Virginia as an historic shrine with occasional services. The Society has chapters in numerous states, with the one in Texas being the largest.\n\nDocument 1086:\n- (part 2 of 5, excerpt) During the Protestant Reformation, Lefevre, a professor at the University of Paris, published his French translation of the New Testament in 1523, followed by the whole Bible in the French language in 1530.\n\nWilliam Farel was a student of Lefevre who went on to become a leader of the Swiss Reformation, establishing a Protestant government in Geneva.\n\nJean Cauvin (John Calvin), another student at the University of Paris, also converted to Protestantism.\n- (part 5 of 5, excerpt) After this, Huguenots (with estimates ranging from 200,000 to 1,000,000) fled to surrounding Protestant countries: England, the Netherlands, Switzerland, Norway, Denmark,",
+    "evidence": [
+      {
+        "sourceId": "memory:context-217",
+        "sourceVersion": "sha256:d1328c77307938076e76030b7f2e8cc5ec8f04a676bcf449421f77e3ffef602d",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-217",
+          "part": 3,
+          "parts": 5
+        },
+        "text": "of Los Angeles, San Bernardino, Orange, Riverside, San Diego, Ventura and Santa Barbara.\" In 1999, the Times added a newer county\u2014Imperial\u2014to that list.\n\nDocument 1085:\nPaul Revere was descended from Huguenot refugees, as was Henry Laurens, who signed the Articles of Confederation for South Carolina; Jack Jouett, who made the ride from Cuckoo Tavern to warn Thomas Jefferson and others that Tarleton and his men were on their way to arrest him for crimes against the king; Francis Marion, and a number of other leaders of the American Revolution and later statesmen. The last active Huguenot congregation in North America worships in Charleston, South Carolina, at a church that dates to 1844. The Huguenot Society of America maintains Manakin Episcopal Church in Virginia as an historic shrine with occasional services. The Society has chapters in numerous states, with the one in Texas being the largest.",
+        "id": "ev_1c2570850ca22216e2470992",
+        "observedAt": "2026-10-14T08:38:03.854Z"
+      },
+      {
+        "sourceId": "memory:context-217",
+        "sourceVersion": "sha256:d1328c77307938076e76030b7f2e8cc5ec8f04a676bcf449421f77e3ffef602d",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-217",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Church in Virginia as an historic shrine with occasional services. The Society has chapters in numerous states, with the one in Texas being the largest.\n\nDocument 1086:",
+        "id": "ev_924b2797d930b5a1a30c445d",
+        "observedAt": "2026-10-14T08:38:03.854Z"
+      },
+      {
+        "sourceId": "memory:context-82",
+        "sourceVersion": "sha256:b0f5767ef6073920438d6e6caa3ee05cb1b1c5f6e3f0b3b6a1e97dacbc39eba7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-82",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "During the Protestant Reformation, Lefevre, a professor at the University of Paris, published his French translation of the New Testament in 1523, followed by the whole Bible in the French language in 1530.\n\nWilliam Farel was a student of Lefevre who went on to become a leader of the Swiss Reformation, establishing a Protestant government in Geneva.\n\nJean Cauvin (John Calvin), another student at the University of Paris, also converted to Protestantism.",
+        "id": "ev_64de00224bbf67755d8b26e7",
+        "observedAt": "2026-10-14T08:38:03.854Z"
+      },
+      {
+        "sourceId": "memory:context-235",
+        "sourceVersion": "sha256:c6417e79d56ee8c5ab00fd4cea2323a36707ef00a87a77b491f12991ec073893",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-235",
+          "part": 5,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "After this, Huguenots (with estimates ranging from 200,000 to 1,000,000) fled to surrounding Protestant countries: England, the Netherlands, Switzerland, Norway, Denmark,",
+        "id": "ev_ea2b1d2f2484efa37192405e",
+        "observedAt": "2026-10-14T08:38:03.855Z"
+      }
+    ],
+    "sourceIds": [
+      "context-217",
+      "context-82",
+      "context-235"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.6767090000066673,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Based on the retrieved history, there is no information about who used a church to unify themselves. I do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 523,
+    "completion_tokens": 528,
+    "total_tokens": 1051,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 501,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 296,
+    "completion_tokens": 771,
+    "total_tokens": 1067,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 768,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 6891.547166999771,
+  "judgeWallMs": 7701.453209000647
+}

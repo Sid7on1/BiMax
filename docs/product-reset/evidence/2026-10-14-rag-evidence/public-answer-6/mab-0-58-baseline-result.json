@@ -1,0 +1,164 @@
+{
+  "row": 0,
+  "query": 58,
+  "id": "mab-0-58",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:41:40.568647+00:00",
+  "valid": true,
+  "question": "What country was under the control of Norman barons?",
+  "references": [
+    "Wales",
+    "Wales",
+    "Wales"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-227",
+    "context-238",
+    "context-129"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:42:04.257272+00:00",
+  "rag": {
+    "ids": [
+      "context-227",
+      "context-238",
+      "context-129"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 5) light. This insight united the nascent fields of electromagnetic theory with optics and led directly to a complete description of the electromagnetic spectrum.\n\nDocument 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n  (part 5 of 5, excerpt) Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n\nDocument 1141:\n- (part 1 of 5, excerpt) ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture and musical traditions, and for their significant military accomplishments and innovations. Norman adventurers founded the Kingdom of Sicily under Roger II after conquering southern Italy on the Saracens and B\n- (part 5 of 5, excerpt) The Normans thereafter adopted the growing feudal doctrines of the rest of France, and worked them into a functional hierarch",
+    "evidence": [
+      {
+        "sourceId": "memory:context-227",
+        "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-227",
+          "part": 4,
+          "parts": 5
+        },
+        "text": "light. This insight united the nascent fields of electromagnetic theory with optics and led directly to a complete description of the electromagnetic spectrum.\n\nDocument 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.",
+        "id": "ev_4575747702d68363dfe23992",
+        "observedAt": "2026-10-14T08:38:05.632Z"
+      },
+      {
+        "sourceId": "memory:context-227",
+        "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-227",
+          "part": 5,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n\nDocument 1141:",
+        "id": "ev_c391cc6d316eb23d9b4468d9",
+        "observedAt": "2026-10-14T08:38:05.632Z"
+      },
+      {
+        "sourceId": "memory:context-238",
+        "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-238",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture and musical traditions, and for their significant military accomplishments and innovations. Norman adventurers founded the Kingdom of Sicily under Roger II after conquering southern Italy on the Saracens and B",
+        "id": "ev_fb47af311fe198f35f7cd28b",
+        "observedAt": "2026-10-14T08:38:05.632Z"
+      },
+      {
+        "sourceId": "memory:context-129",
+        "sourceVersion": "sha256:2ba59df08a40b4181a9210823692bccb63a36bdfb8b42265b2602d068e7b54a2",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-129",
+          "part": 5,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "The Normans thereafter adopted the growing feudal doctrines of the rest of France, and worked them into a functional hierarch",
+        "id": "ev_da897c377269918be7817717",
+        "observedAt": "2026-10-14T08:38:05.632Z"
+      }
+    ],
+    "sourceIds": [
+      "context-227",
+      "context-238",
+      "context-129"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.0469169999996666,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Based on the retrieved history, Norman barons controlled **Wales** (where \"almost all of Wales was at some point subject to Norman interference\") and the **Kingdom of Sicily** (where Normans incorporated Islamic, Lombard, and Byzantine techniques and founded a unique Norman-Arab architecture). The documents do not single out one country exclusively; both Wales and Sicily are explicitly described as under Norman baron control. If a single answer is required, the most directly stated is Wales.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.028985507246376812
+  },
+  "readerUsage": {
+    "prompt_tokens": 475,
+    "completion_tokens": 1120,
+    "total_tokens": 1595,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 334,
+    "completion_tokens": 959,
+    "total_tokens": 1293,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 956,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 13236.408333999861,
+  "judgeWallMs": 9427.71191600059
+}

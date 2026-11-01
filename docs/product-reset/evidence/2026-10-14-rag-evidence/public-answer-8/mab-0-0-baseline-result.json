@@ -1,0 +1,164 @@
+{
+  "row": 0,
+  "query": 0,
+  "id": "mab-0-0",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:38:46.719914+00:00",
+  "valid": true,
+  "question": "In what country is Normandy located?",
+  "references": [
+    "France",
+    "France",
+    "France",
+    "France"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-189",
+    "context-203",
+    "context-238"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:39:04.433685+00:00",
+  "rag": {
+    "ids": [
+      "context-189",
+      "context-203",
+      "context-238"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) um (Last Glacial Maximum). During this time, the lower Rhine flowed roughly west through the Netherlands and extended to the southwest, through the English Channel and finally, to the Atlantic Ocean. The English Channel, the Irish Channel and most of the North Sea were dry land, mainly because sea level was approximately 120 m (390 ft) lower than today.\n\nDocument 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n  (part 2 of 5, excerpt) by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n\nDocument 947:\n- (part 1 of 5) tection against further Viking incursions. The area corresponded to the northern part of present-day Upper Normandy down to the river Seine, but the Duchy would eventually extend west beyond the Seine. The territory was roughly equivalent to the old province of Rouen, and reproduced the Roman administrative structure of Gallia Lugdunensis II (part of the former Gallia Lugdunensis).\n- (part 2 of 5, excerpt) In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century t",
+    "evidence": [
+      {
+        "sourceId": "memory:context-189",
+        "sourceVersion": "sha256:1e2275347ec9de496eb42c1d852f77b368d8264ddfa0030036703b2c4f3352d5",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-189",
+          "part": 1,
+          "parts": 5
+        },
+        "text": "um (Last Glacial Maximum). During this time, the lower Rhine flowed roughly west through the Netherlands and extended to the southwest, through the English Channel and finally, to the Atlantic Ocean. The English Channel, the Irish Channel and most of the North Sea were dry land, mainly because sea level was approximately 120 m (390 ft) lower than today.\n\nDocument 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.",
+        "id": "ev_f7fea43d9cc571c4a85ef122",
+        "observedAt": "2026-10-14T08:38:01.106Z"
+      },
+      {
+        "sourceId": "memory:context-189",
+        "sourceVersion": "sha256:1e2275347ec9de496eb42c1d852f77b368d8264ddfa0030036703b2c4f3352d5",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-189",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n\nDocument 947:",
+        "id": "ev_c503a5b5901c1e1ce58d55ba",
+        "observedAt": "2026-10-14T08:38:01.106Z"
+      },
+      {
+        "sourceId": "memory:context-203",
+        "sourceVersion": "sha256:d30626130eee535ba6d456687a511e458ba3c3dfeadc4bdf18e1cc015e84a789",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-203",
+          "part": 1,
+          "parts": 5
+        },
+        "text": "tection against further Viking incursions. The area corresponded to the northern part of present-day Upper Normandy down to the river Seine, but the Duchy would eventually extend west beyond the Seine. The territory was roughly equivalent to the old province of Rouen, and reproduced the Roman administrative structure of Gallia Lugdunensis II (part of the former Gallia Lugdunensis).",
+        "id": "ev_7f60be878aa9297b4ee17192",
+        "observedAt": "2026-10-14T08:38:01.106Z"
+      },
+      {
+        "sourceId": "memory:context-238",
+        "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-238",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century t",
+        "id": "ev_7c8ac1618b109a6dbcb7ce34",
+        "observedAt": "2026-10-14T08:38:01.107Z"
+      }
+    ],
+    "sourceIds": [
+      "context-189",
+      "context-203",
+      "context-238"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 6.158125000001746,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "I do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 520,
+    "completion_tokens": 1003,
+    "total_tokens": 1523,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 996,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 240,
+    "completion_tokens": 353,
+    "total_tokens": 593,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 350,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 13408.007500000167,
+  "judgeWallMs": 4304.566499999964
+}

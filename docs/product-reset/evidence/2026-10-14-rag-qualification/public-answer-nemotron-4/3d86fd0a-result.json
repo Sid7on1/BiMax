@@ -1,0 +1,275 @@
+{
+  "row": 62,
+  "id": "3d86fd0a",
+  "stratum": "single-session-user",
+  "dataset": "longmemeval",
+  "question": "Where did I meet Sophia?",
+  "references": [
+    "a coffee shop in the city"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 11:59",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 237.68316700000287,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 24,
+        "maxInputChars": 24,
+        "requiredProviderTruncation": false,
+        "promptTokens": 8,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_19c24c11",
+        "69674f25",
+        "6227a491_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 10, excerpt) Feel free to add or remove columns as needed, and fill in the information as you remember it. This should help you keep track of your recent contacts and follow up with them in a meaningful way!\nuser: I'll start filling out the template. Under \"How We Met\", I'll include the location where I met them. For Sophia, it was a coffee shop in the city.\n  (part 4 of 10) template with Sophia's information:\n\n| Name | How We Met | Interests | Follow-up Action |\n| --- | --- | --- | --- |\n| Sophia | Coffee Shop (City) |  |  |\n\nNow, can you tell me more about Sophia? What did you talk about, and what are her interests? Was she looking for any advice or help, or did you discuss any common goals or projects? The more details you can remember, the better you'll be able to follow up with her in a meaningful way.\nuser: She's into indie music, and we talked about some new bands to check out. I recommended some coffee spots to her too.\nassistant: It sounds like you had a great conversation with Sophia. Here's an updated template:\n\n| Name | How We Met | Interests | Follow-up Action |\n| --- | --- | --- | --- |\n| Sophia | Coffee Shop (City) | Indie music, coffee | Send her a list of new indie music releases |\n\nYou could follow up with Sophia by sending her a list of new indie music releases or recommendations, or even invite her to a concert or music event. You could also ask her if she's tried out any of the coffee spots you recommended and get her feedback.\n- (part 13 of 15, excerpt) What did you think of Evelyn's story, by the way? Did you have a favorite husband or a favorite part of the book?\n- (part 14 of 15, excerpt) As it happens, there is an Intelligentsia Coffee location near the Lakefront Trail. The closest location to the trail is their Millennium Park ca",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_19c24c11",
+          "sourceVersion": "sha256:5a606ca545b75ece09b00d88d049bf7957894eece93762990212a1cb8c78d03a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_19c24c11",
+            "part": 3,
+            "parts": 10,
+            "partial": true
+          },
+          "text": "Feel free to add or remove columns as needed, and fill in the information as you remember it. This should help you keep track of your recent contacts and follow up with them in a meaningful way!\nuser: I'll start filling out the template. Under \"How We Met\", I'll include the location where I met them. For Sophia, it was a coffee shop in the city.",
+          "id": "ev_fd85d87b503976a601ac7549",
+          "observedAt": "2026-10-14T05:19:33.924Z"
+        },
+        {
+          "sourceId": "memory:answer_19c24c11",
+          "sourceVersion": "sha256:5a606ca545b75ece09b00d88d049bf7957894eece93762990212a1cb8c78d03a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_19c24c11",
+            "part": 4,
+            "parts": 10
+          },
+          "text": "template with Sophia's information:\n\n| Name | How We Met | Interests | Follow-up Action |\n| --- | --- | --- | --- |\n| Sophia | Coffee Shop (City) |  |  |\n\nNow, can you tell me more about Sophia? What did you talk about, and what are her interests? Was she looking for any advice or help, or did you discuss any common goals or projects? The more details you can remember, the better you'll be able to follow up with her in a meaningful way.\nuser: She's into indie music, and we talked about some new bands to check out. I recommended some coffee spots to her too.\nassistant: It sounds like you had a great conversation with Sophia. Here's an updated template:\n\n| Name | How We Met | Interests | Follow-up Action |\n| --- | --- | --- | --- |\n| Sophia | Coffee Shop (City) | Indie music, coffee | Send her a list of new indie music releases |\n\nYou could follow up with Sophia by sending her a list of new indie music releases or recommendations, or even invite her to a concert or music event. You could also ask her if she's tried out any of the coffee spots you recommended and get her feedback.",
+          "id": "ev_220aa4c1d853d86601debfe5",
+          "observedAt": "2026-10-14T05:19:33.926Z"
+        },
+        {
+          "sourceId": "memory:69674f25",
+          "sourceVersion": "sha256:0cbf4c9216cd2166bf820260f22cf3bee5d395c7e9b880c005d82d85ae2b336a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "69674f25",
+            "part": 13,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "What did you think of Evelyn's story, by the way? Did you have a favorite husband or a favorite part of the book?",
+          "id": "ev_d3217e95410782ec2e0dcf82",
+          "observedAt": "2026-10-14T05:19:33.927Z"
+        },
+        {
+          "sourceId": "memory:6227a491_2",
+          "sourceVersion": "sha256:97ab79d521d266e763d453d5cb3358d1e57e3b0f94b60a823e3cc39556c70356",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "6227a491_2",
+            "part": 14,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "As it happens, there is an Intelligentsia Coffee location near the Lakefront Trail. The closest location to the trail is their Millennium Park ca",
+          "id": "ev_1d91cb51b9d029a3591b726b",
+          "observedAt": "2026-10-14T05:19:33.928Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_19c24c11",
+        "69674f25",
+        "6227a491_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 35.00875000000087,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_19c24c11",
+        "69674f25",
+        "6227a491_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 10, excerpt) Feel free to add or remove columns as needed, and fill in the information as you remember it. This should help you keep track of your recent contacts and follow up with them in a meaningful way!\nuser: I'll start filling out the template. Under \"How We Met\", I'll include the location where I met them. For Sophia, it was a coffee shop in the city.\n  (part 4 of 10) template with Sophia's information:\n\n| Name | How We Met | Interests | Follow-up Action |\n| --- | --- | --- | --- |\n| Sophia | Coffee Shop (City) |  |  |\n\nNow, can you tell me more about Sophia? What did you talk about, and what are her interests? Was she looking for any advice or help, or did you discuss any common goals or projects? The more details you can remember, the better you'll be able to follow up with her in a meaningful way.\nuser: She's into indie music, and we talked about some new bands to check out. I recommended some coffee spots to her too.\nassistant: It sounds like you had a great conversation with Sophia. Here's an updated template:\n\n| Name | How We Met | Interests | Follow-up Action |\n| --- | --- | --- | --- |\n| Sophia | Coffee Shop (City) | Indie music, coffee | Send her a list of new indie music releases |\n\nYou could follow up with Sophia by sending her a list of new indie music releases or recommendations, or even invite her to a concert or music event. You could also ask her if she's tried out any of the coffee spots you recommended and get her feedback.\n- (part 13 of 15, excerpt) What did you think of Evelyn's story, by the way? Did you have a favorite husband or a favorite part of the book?\n- (part 14 of 15, excerpt) As it happens, there is an Intelligentsia Coffee location near the Lakefront Trail. The closest location to the trail is their Millennium Park ca",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_19c24c11",
+          "sourceVersion": "sha256:5a606ca545b75ece09b00d88d049bf7957894eece93762990212a1cb8c78d03a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_19c24c11",
+            "part": 3,
+            "parts": 10,
+            "partial": true
+          },
+          "text": "Feel free to add or remove columns as needed, and fill in the information as you remember it. This should help you keep track of your recent contacts and follow up with them in a meaningful way!\nuser: I'll start filling out the template. Under \"How We Met\", I'll include the location where I met them. For Sophia, it was a coffee shop in the city.",
+          "id": "ev_fd85d87b503976a601ac7549",
+          "observedAt": "2026-10-14T05:19:33.937Z"
+        },
+        {
+          "sourceId": "memory:answer_19c24c11",
+          "sourceVersion": "sha256:5a606ca545b75ece09b00d88d049bf7957894eece93762990212a1cb8c78d03a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_19c24c11",
+            "part": 4,
+            "parts": 10
+          },
+          "text": "template with Sophia's information:\n\n| Name | How We Met | Interests | Follow-up Action |\n| --- | --- | --- | --- |\n| Sophia | Coffee Shop (City) |  |  |\n\nNow, can you tell me more about Sophia? What did you talk about, and what are her interests? Was she looking for any advice or help, or did you discuss any common goals or projects? The more details you can remember, the better you'll be able to follow up with her in a meaningful way.\nuser: She's into indie music, and we talked about some new bands to check out. I recommended some coffee spots to her too.\nassistant: It sounds like you had a great conversation with Sophia. Here's an updated template:\n\n| Name | How We Met | Interests | Follow-up Action |\n| --- | --- | --- | --- |\n| Sophia | Coffee Shop (City) | Indie music, coffee | Send her a list of new indie music releases |\n\nYou could follow up with Sophia by sending her a list of new indie music releases or recommendations, or even invite her to a concert or music event. You could also ask her if she's tried out any of the coffee spots you recommended and get her feedback.",
+          "id": "ev_220aa4c1d853d86601debfe5",
+          "observedAt": "2026-10-14T05:19:33.937Z"
+        },
+        {
+          "sourceId": "memory:69674f25",
+          "sourceVersion": "sha256:0cbf4c9216cd2166bf820260f22cf3bee5d395c7e9b880c005d82d85ae2b336a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "69674f25",
+            "part": 13,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "What did you think of Evelyn's story, by the way? Did you have a favorite husband or a favorite part of the book?",
+          "id": "ev_d3217e95410782ec2e0dcf82",
+          "observedAt": "2026-10-14T05:19:33.938Z"
+        },
+        {
+          "sourceId": "memory:6227a491_2",
+          "sourceVersion": "sha256:97ab79d521d266e763d453d5cb3358d1e57e3b0f94b60a823e3cc39556c70356",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "6227a491_2",
+            "part": 14,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "As it happens, there is an Intelligentsia Coffee location near the Lakefront Trail. The closest location to the trail is their Millennium Park ca",
+          "id": "ev_1d91cb51b9d029a3591b726b",
+          "observedAt": "2026-10-14T05:19:33.938Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_19c24c11",
+        "69674f25",
+        "6227a491_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.47733299999527,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:58:20.146670+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "You met Sophia at a coffee shop in the city. This is directly stated in your own contact template entry: \"Sophia | Coffee Shop (City) |  | \".",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 553,
+    "completion_tokens": 599,
+    "total_tokens": 1152,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 562,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 275,
+    "completion_tokens": 611,
+    "total_tokens": 886,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 608,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 6200.097917000221,
+  "judgeWallMs": 5390.214458999708,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.3076923076923077
+  },
+  "ended": "2026-10-14T07:58:31.739681+00:00"
+}

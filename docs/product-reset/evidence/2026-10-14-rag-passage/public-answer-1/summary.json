@@ -1,0 +1,134 @@
+{
+  "scope": "Owner-authorized fresh balanced25classicLongMemEval_S+25MemoryAgentBench,paired100answer arms; excludes all record96+97 IDs and normalized questions. Small pilot,shared public corpora,not independent population/official leaderboard.",
+  "expectedAnswers": 100,
+  "validAnswers": 100,
+  "invalid": [],
+  "datasets": {
+    "longmemeval": {
+      "baseline": {
+        "valid": 25,
+        "correct": 6,
+        "strata": {
+          "knowledge-update": {
+            "valid": 5,
+            "correct": 0
+          },
+          "multi-session": {
+            "valid": 5,
+            "correct": 1
+          },
+          "single-session-assistant": {
+            "valid": 5,
+            "correct": 4
+          },
+          "single-session-preference": {
+            "valid": 2,
+            "correct": 0
+          },
+          "single-session-user": {
+            "valid": 4,
+            "correct": 1
+          },
+          "temporal-reasoning": {
+            "valid": 4,
+            "correct": 0
+          }
+        }
+      },
+      "current": {
+        "valid": 25,
+        "correct": 13,
+        "strata": {
+          "knowledge-update": {
+            "valid": 5,
+            "correct": 3
+          },
+          "multi-session": {
+            "valid": 5,
+            "correct": 1
+          },
+          "single-session-assistant": {
+            "valid": 5,
+            "correct": 4
+          },
+          "single-session-preference": {
+            "valid": 2,
+            "correct": 0
+          },
+          "single-session-user": {
+            "valid": 4,
+            "correct": 3
+          },
+          "temporal-reasoning": {
+            "valid": 4,
+            "correct": 2
+          }
+        }
+      }
+    },
+    "memoryagentbench": {
+      "baseline": {
+        "valid": 25,
+        "correct": 15,
+        "strata": {
+          "eventqa_131072": {
+            "valid": 5,
+            "correct": 4
+          },
+          "eventqa_65536": {
+            "valid": 4,
+            "correct": 2
+          },
+          "eventqa_full": {
+            "valid": 4,
+            "correct": 3
+          },
+          "longmemeval_s*": {
+            "valid": 4,
+            "correct": 3
+          },
+          "ruler_qa1_197K": {
+            "valid": 4,
+            "correct": 3
+          },
+          "ruler_qa2_421K": {
+            "valid": 4,
+            "correct": 0
+          }
+        }
+      },
+      "current": {
+        "valid": 25,
+        "correct": 15,
+        "strata": {
+          "eventqa_131072": {
+            "valid": 5,
+            "correct": 2
+          },
+          "eventqa_65536": {
+            "valid": 4,
+            "correct": 4
+          },
+          "eventqa_full": {
+            "valid": 4,
+            "correct": 2
+          },
+          "longmemeval_s*": {
+            "valid": 4,
+            "correct": 3
+          },
+          "ruler_qa1_197K": {
+            "valid": 4,
+            "correct": 4
+          },
+          "ruler_qa2_421K": {
+            "valid": 4,
+            "correct": 0
+          }
+        }
+      }
+    }
+  },
+  "ended": "2026-10-14T17:14:08.512049+00:00",
+  "configUnchanged": true
+}

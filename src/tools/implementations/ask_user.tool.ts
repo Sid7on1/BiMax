@@ -32,7 +32,7 @@ The execution will pause until the user selects one of the provided options. The
     },
     required: ['question', 'options']
   },
-  execute: async (args: { question: string, options: string[], isMultiSelect?: boolean }) => {
+  execute: async (args: { question: string, options: string[], isMultiSelect?: boolean }, context?: any) => {
     // A night shift (FL5): nobody will answer until morning, so a question would stall the whole night.
     if (process.env.BIMAX_UNATTENDED === '1') {
       return `Nobody is here to answer until the morning. Choose the safer option yourself, write the question and your choice in NIGHT-QUESTIONS.md, commit it, and carry on with work that does not depend on it. Question: ${String(args.question ?? '').slice(0, 300)}`;
@@ -68,14 +68,19 @@ Reply ONLY with the exact text of the option you choose. Do not provide any conv
       }
     }
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      const signal: AbortSignal | undefined = context?.signal;
+      const abort = () => reject(new Error('Question cancelled with this turn.'));
+      if (signal?.aborted) { abort(); return; }
+      signal?.addEventListener('abort', abort, { once: true });
       // Re-use the existing veto_prompt event architecture, which pops up an Ink PermissionDialog
       // The 4th argument (true) tells the frontend not to bypass this even if YOLO mode is on
       const safeOptions = Array.isArray(args.options) ? args.options : ['Continue', 'Cancel'];
       const safeQuestion = args.question || 'Action requires confirmation';
       
       engineEvents.emit('veto_prompt', safeQuestion, safeOptions, (answer: string) => {
-        resolve(`User selected: ${answer}`);
+        signal?.removeEventListener('abort', abort);
+        if (!signal?.aborted) resolve(`User selected: ${answer}`);
       }, true, args.isMultiSelect);
     });
   }

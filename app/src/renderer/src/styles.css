@@ -5,6 +5,17 @@
    a rebuild appear frozen for minutes after the first package/provisioning run. */
 @import "tailwindcss";
 @source './**/*.{ts,tsx,html}';
+@source '../../../node_modules/streamdown/dist/*.js';
+@theme {
+  --color-border: var(--color-line);
+  --color-muted-foreground: var(--color-dim);
+  --color-muted: var(--color-hover);
+  --color-sidebar: var(--color-raise);
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-ink);
+  --color-primary: var(--color-ink);
+}
+
 /* The design harness renders the same components against the same tokens (app/design-preview), so
    its files have to be scanned too or a utility used only there is never generated. Dev-only, and
    it adds a handful of classes to the shipped stylesheet. */
@@ -2142,3 +2153,92 @@ html.aux-surface, html.aux-surface body, html.aux-surface #root { background: tr
 :root[data-reduce-motion] .talk-orb { transition: none; animation: none !important; }
 :root[data-reduce-motion] .status-settle { animation: none; }
 :root[data-reduce-motion] .run-summary { animation: fade-in 120ms ease-out both; }
+
+/* Computer Use is an explicit, per-message choice in either composer. */
+/* Computer Use shares the composer’s quiet, compact controls. */
+.computer-route { margin: 7px 14px 4px; font-size: 12px; -webkit-app-region: no-drag; color: var(--color-ink); }
+.computer-route-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.computer-route-chip { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; padding: 4px 7px; border-radius: 6px; background: var(--color-hover); font-weight: 600; }
+.computer-route-hint { flex: 1; min-width: 0; color: var(--color-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.computer-icon-button { display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 6px; width: 28px; height: 28px; background: transparent; color: inherit; cursor: pointer; }
+.computer-icon-button:hover { background: var(--color-hover); }
+.computer-route button:disabled { opacity: .5; cursor: default; }
+.computer-options { display: flex; flex-wrap: wrap; gap: 12px; padding: 9px 0 3px; }
+.computer-options label { display: flex; align-items: center; gap: 8px; }
+.computer-options select { max-width: 240px; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--color-line); color: inherit; background: var(--color-raise); }
+.computer-completion { margin: 4px 14px; padding: 6px 10px; border: 0; border-radius: 6px; background: var(--color-hover); color: var(--color-ink); cursor: pointer; }
+.computer-run { margin: 10px 14px 4px; padding: 10px 12px; border: 1px solid var(--color-line); border-radius: 10px; font-size: 12px; color: var(--color-ink); background: var(--color-raise); -webkit-app-region: no-drag; }
+.computer-run-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.computer-run-title strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.computer-run-target { font-weight: 400; margin-left: 6px; }
+.computer-run-title [role="status"] { color: var(--color-dim); flex-shrink: 0; }
+.computer-run p { margin: 7px 0; line-height: 1.5; overflow-wrap: anywhere; }
+.computer-run-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.computer-run button { border: 1px solid var(--color-line); border-radius: 6px; padding: 5px 9px; cursor: pointer; background: var(--color-raise); color: inherit; }
+.computer-run button:hover { background: var(--color-hover); }
+.computer-run details { margin-top: 6px; }
+.computer-run summary { color: var(--color-dim); cursor: pointer; }
+.computer-run pre { max-height: 180px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; padding: 8px; background: var(--color-hover); border-radius: 6px; }
+.computer-approval { margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--color-dim); }
+.computer-approval > button { margin: 8px 7px 0 0; }
+.computer-approval > button:last-child { background: var(--color-ink); color: var(--color-bg); }
+.computer-more { margin: 0 !important; }
+.computer-more button { margin-left: 6px; }
+.computer-verification button { display: block; margin-top: 6px; text-align: left; }
+
+/* Rich content shares the conversation's semantic HTML and quiet typography. */
+/* Transcript content styles live in chat-content.css and ship verbatim to mobile. */
+.rich-image { max-width:100%; max-height:420px; object-fit:contain; border-radius:8px; }
+.rich-media-placeholder { color:var(--color-faint); font-size:12px; }
+.keep-output,.output-entry { font-size:11px; color:var(--color-dim); padding:5px 9px; border:1px solid var(--color-line); border-radius:6px; cursor:pointer; }
+.keep-output:hover,.output-entry:hover { color:var(--color-ink); background:var(--color-hover); }
+
+.outputs-workspace { height:100%; min-height:0; display:flex; flex-direction:column; gap:10px; color:var(--color-ink); }
+.output-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:6px; flex-shrink:0; font-size:11px; color:var(--color-dim); }
+.output-toolbar button,.output-form button { border:1px solid var(--color-line); border-radius:6px; padding:5px 8px; cursor:pointer; }
+.output-toolbar button[aria-pressed="true"],.output-toolbar button:hover:not(:disabled) { background:var(--color-hover); color:var(--color-ink); }
+.outputs-workspace button:disabled { opacity:.4; cursor:default; }
+.outputs-workspace input,.outputs-workspace select { min-width:0; border:1px solid var(--color-line); background:var(--color-well); color:var(--color-ink); border-radius:6px; padding:5px 7px; }
+.output-toolbar input { flex:1; }
+.output-catalog { display:flex; gap:7px; overflow-x:auto; max-height:96px; flex-shrink:0; padding-bottom:4px; }
+.output-catalog button { display:flex; flex-direction:column; align-items:flex-start; gap:3px; min-width:120px; max-width:210px; text-align:left; padding:9px 11px; border:1px solid var(--color-line); border-radius:8px; }
+.output-catalog button[aria-pressed="true"] { background:var(--color-hover); border-color:var(--color-dim); }
+.output-catalog small,.output-heading span { font-size:10px; color:var(--color-faint); }
+.output-heading { display:flex; flex-wrap:wrap; align-items:center; gap:8px; flex-shrink:0; }
+.output-heading strong { flex:1; font-size:13px; }
+.output-heading select { font-size:10px; max-width:100%; }
+.output-source { flex:1; min-height:120px; overflow:hidden; border:1px solid var(--color-line); border-radius:8px; }
+.output-preview { flex:1; min-height:160px; overflow:auto; padding:10px 4px; }
+.output-document { min-height:200px; outline:none; padding:12px; line-height:1.7; }
+.output-document p { margin:8px 0; }.output-document h1,.output-document h2 { font-size:1.4em; font-weight:600; margin:14px 0; }.output-document ul { list-style:disc;padding-left:24px; }.output-document ol { list-style:decimal;padding-left:24px; }
+.output-chart { max-width:100%; overflow:auto; }
+.output-table { overflow:auto; max-height:65vh; }.output-table table { border-collapse:collapse; }.output-table td,.output-table th { border-bottom:1px solid var(--color-line); padding:7px 9px; white-space:nowrap; text-align:left; max-width:400px; overflow:hidden;text-overflow:ellipsis; }
+.output-form { display:flex; flex-direction:column; gap:14px; padding:10px; }.output-form label { display:flex;flex-direction:column;gap:5px; }
+.output-compare { flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:12px; }.output-compare pre { font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere; }.output-compare h4 { color:var(--color-faint);margin-bottom:10px; }
+.output-console { flex:1;overflow:auto;white-space:pre-wrap;font:11px/1.7 monospace; }.output-console [data-level="error"],.output-error { color:var(--color-rust); }.output-error { font-size:11px;white-space:pre-wrap; }
+.output-empty { margin:auto; padding:24px; color:var(--color-faint); line-height:1.7; }.output-empty h3 { color:var(--color-ink);font-size:15px;margin-bottom:10px; }.output-notices { font-size:12px;line-height:1.7;padding:12px;border:1px solid var(--color-line);border-radius:8px;margin:10px 0; }
+.tool-presentation { display:flex; flex-wrap:wrap; gap:8px; margin:5px 0 10px 21px; }.tool-presentation button { padding:6px 9px;border:1px solid var(--color-line);border-radius:6px;font-size:11px; }.tool-presentation details { max-width:100%; }.tool-presentation pre { max-height:280px;overflow:auto;white-space:pre-wrap;font-size:11px; }
+@media (prefers-reduced-motion:reduce) { .rich-markdown * { animation:none!important;transition:none!important; } }
+.output-document table { border-collapse:collapse;width:100%;margin:12px 0; }.output-document td,.output-document th { border:1px solid var(--color-line);padding:8px;vertical-align:top; }.output-document th { font-weight:600;background:var(--color-well); }
+
+.theme-moonlight .rich-markdown [style*="--shiki-dark"] { color:var(--shiki-dark)!important; }
+
+:root[data-reduce-motion] .rich-markdown *, :root[data-reduce-motion] .outputs-workspace * { animation:none!important;transition:none!important; }
+
+/* Phone pairing stays inside Settings and uses the existing foreground/status hierarchy. */
+.mobile-settings {display:flex;flex-direction:column;gap:16px;padding-top:16px;font-size:12px;line-height:1.55;}
+.mobile-controls,.mobile-verify,.mobile-pairing {display:flex;flex-direction:column;align-items:flex-start;gap:12px;border:1px solid var(--color-line);border-radius:12px;padding:18px;}
+.mobile-actions {display:flex;flex-wrap:wrap;gap:10px;}
+.mobile-primary,.mobile-secondary,.mobile-danger {border:1px solid currentColor;border-radius:8px;padding:9px 13px;min-height:36px;font-size:12px;cursor:pointer;}
+.mobile-primary {background:var(--color-ember);color:var(--color-bg);border-color:transparent;}
+.mobile-secondary {color:var(--color-ink);background:var(--color-raise);}
+.mobile-danger,.mobile-error {color:var(--color-amber);}
+.mobile-settings button:disabled {opacity:.45;cursor:default;}
+.mobile-status {font-weight:600;}
+.mobile-qr {width:240px;height:240px;max-width:100%;image-rendering:pixelated;background:white;padding:8px;border-radius:8px;}
+.mobile-code {font-size:28px;letter-spacing:.16em;font-variant-numeric:tabular-nums;}
+.mobile-device {overflow-wrap:anywhere;font-family:monospace;}
+.mobile-pairing ol {list-style:decimal;padding-left:20px;}
+.mobile-pairing details {width:100%;}
+.mobile-pairing textarea {width:100%;height:100px;padding:8px;resize:vertical;background:var(--color-raise);border:1px solid var(--color-line);border-radius:8px;font-size:11px;margin:8px 0;}
+.mobile-help {color:var(--color-dim);font-size:11px;}

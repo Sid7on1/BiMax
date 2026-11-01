@@ -1,0 +1,275 @@
+{
+  "row": 0,
+  "query": 97,
+  "id": "mab-0-97",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "question": "By what main attribute are computational problems classified utilizing computational complexity theory?",
+  "references": [
+    "inherent difficulty",
+    "their inherent difficulty",
+    "inherent difficulty"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 153.18066700000054,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 103,
+        "maxInputChars": 103,
+        "requiredProviderTruncation": false,
+        "promptTokens": 15,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-32",
+        "context-64",
+        "context-161"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) Los Angeles Clippers); MLB (Los Angeles Dodgers, Los Angeles Angels of Anaheim, San Diego Padres); NHL (Los Angeles Kings, Anaheim Ducks); and MLS (LA Galaxy).\n\nDocument 170:\nClosely related fields in theoretical computer science are analysis of algorithms and computability theory. A key distinction between analysis of algorithms and computational complexity theory is that the former is devoted to analyzing the amount of resources needed by a particular algorithm to solve a problem, whereas the latter asks a more general question about all possible algorithms that could be used to solve the same problem. More precisely, it tries to classify problems that can or cannot be solved with appropriately restricted resources. In turn, imposing restrictions on the available resources is what distinguishes computational complexity from computability theory: the latter theory asks what kind of problems can, in principle, be solved algorithmically.\n  (part 4 of 5, excerpt) distinguishes computational complexity from computability theory: the latter theory asks what kind of problems can, in principle, be solved algorithmically.\n\nDocument 171:\n- (part 4 of 6, excerpt) A problem is regarded as inherently difficult if its solution requires significant resources, whatever the algorithm used. The theory formalizes this intuition, by introducing mathematical models of computation to study these problems and quantifying the amount of resources needed to solve them, such as time and storage. Other complexity measures are also used, such as the amount of communication (used in communication complexity), the number of gates i\n- (part 2 of 5, excerpt) Computational complexity theory is a branch of the theory of computation in theoretical computer science that focuses on clas",
+      "evidence": [
+        {
+          "sourceId": "memory:context-32",
+          "sourceVersion": "sha256:3e5a390ca0a60b346c7a347b96f0d5f03da99cbfae37b55298f12ace8c81447f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-32",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "Los Angeles Clippers); MLB (Los Angeles Dodgers, Los Angeles Angels of Anaheim, San Diego Padres); NHL (Los Angeles Kings, Anaheim Ducks); and MLS (LA Galaxy).\n\nDocument 170:\nClosely related fields in theoretical computer science are analysis of algorithms and computability theory. A key distinction between analysis of algorithms and computational complexity theory is that the former is devoted to analyzing the amount of resources needed by a particular algorithm to solve a problem, whereas the latter asks a more general question about all possible algorithms that could be used to solve the same problem. More precisely, it tries to classify problems that can or cannot be solved with appropriately restricted resources. In turn, imposing restrictions on the available resources is what distinguishes computational complexity from computability theory: the latter theory asks what kind of problems can, in principle, be solved algorithmically.",
+          "id": "ev_fe935f6248824737fc98ea74",
+          "observedAt": "2026-10-14T04:44:31.253Z"
+        },
+        {
+          "sourceId": "memory:context-32",
+          "sourceVersion": "sha256:3e5a390ca0a60b346c7a347b96f0d5f03da99cbfae37b55298f12ace8c81447f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-32",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "distinguishes computational complexity from computability theory: the latter theory asks what kind of problems can, in principle, be solved algorithmically.\n\nDocument 171:",
+          "id": "ev_2f429e112d8fb27de674acf0",
+          "observedAt": "2026-10-14T04:44:31.253Z"
+        },
+        {
+          "sourceId": "memory:context-64",
+          "sourceVersion": "sha256:db45fb39a9cf0db5ea769101c0faae59acc589b6ae1fa68f003dd0b575f9fc76",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-64",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "A problem is regarded as inherently difficult if its solution requires significant resources, whatever the algorithm used. The theory formalizes this intuition, by introducing mathematical models of computation to study these problems and quantifying the amount of resources needed to solve them, such as time and storage. Other complexity measures are also used, such as the amount of communication (used in communication complexity), the number of gates i",
+          "id": "ev_99e4b085574767cba3ebff55",
+          "observedAt": "2026-10-14T04:44:31.253Z"
+        },
+        {
+          "sourceId": "memory:context-161",
+          "sourceVersion": "sha256:4b4bad73964ab9d0ec2eb61fa59fa32c66db3fa43b8dd819f38e52f467fbf376",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-161",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Computational complexity theory is a branch of the theory of computation in theoretical computer science that focuses on clas",
+          "id": "ev_005c6e2b7a98fc30eb8582b6",
+          "observedAt": "2026-10-14T04:44:31.253Z"
+        }
+      ],
+      "sourceIds": [
+        "context-32",
+        "context-64",
+        "context-161"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.200208000002021,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-32",
+        "context-64",
+        "context-161"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) Los Angeles Clippers); MLB (Los Angeles Dodgers, Los Angeles Angels of Anaheim, San Diego Padres); NHL (Los Angeles Kings, Anaheim Ducks); and MLS (LA Galaxy).\n\nDocument 170:\nClosely related fields in theoretical computer science are analysis of algorithms and computability theory. A key distinction between analysis of algorithms and computational complexity theory is that the former is devoted to analyzing the amount of resources needed by a particular algorithm to solve a problem, whereas the latter asks a more general question about all possible algorithms that could be used to solve the same problem. More precisely, it tries to classify problems that can or cannot be solved with appropriately restricted resources. In turn, imposing restrictions on the available resources is what distinguishes computational complexity from computability theory: the latter theory asks what kind of problems can, in principle, be solved algorithmically.\n  (part 4 of 5, excerpt) distinguishes computational complexity from computability theory: the latter theory asks what kind of problems can, in principle, be solved algorithmically.\n\nDocument 171:\n- (part 4 of 6, excerpt) A problem is regarded as inherently difficult if its solution requires significant resources, whatever the algorithm used. The theory formalizes this intuition, by introducing mathematical models of computation to study these problems and quantifying the amount of resources needed to solve them, such as time and storage. Other complexity measures are also used, such as the amount of communication (used in communication complexity), the number of gates i\n- (part 2 of 5, excerpt) Computational complexity theory is a branch of the theory of computation in theoretical computer science that focuses on clas",
+      "evidence": [
+        {
+          "sourceId": "memory:context-32",
+          "sourceVersion": "sha256:3e5a390ca0a60b346c7a347b96f0d5f03da99cbfae37b55298f12ace8c81447f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-32",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "Los Angeles Clippers); MLB (Los Angeles Dodgers, Los Angeles Angels of Anaheim, San Diego Padres); NHL (Los Angeles Kings, Anaheim Ducks); and MLS (LA Galaxy).\n\nDocument 170:\nClosely related fields in theoretical computer science are analysis of algorithms and computability theory. A key distinction between analysis of algorithms and computational complexity theory is that the former is devoted to analyzing the amount of resources needed by a particular algorithm to solve a problem, whereas the latter asks a more general question about all possible algorithms that could be used to solve the same problem. More precisely, it tries to classify problems that can or cannot be solved with appropriately restricted resources. In turn, imposing restrictions on the available resources is what distinguishes computational complexity from computability theory: the latter theory asks what kind of problems can, in principle, be solved algorithmically.",
+          "id": "ev_fe935f6248824737fc98ea74",
+          "observedAt": "2026-10-14T04:44:31.256Z"
+        },
+        {
+          "sourceId": "memory:context-32",
+          "sourceVersion": "sha256:3e5a390ca0a60b346c7a347b96f0d5f03da99cbfae37b55298f12ace8c81447f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-32",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "distinguishes computational complexity from computability theory: the latter theory asks what kind of problems can, in principle, be solved algorithmically.\n\nDocument 171:",
+          "id": "ev_2f429e112d8fb27de674acf0",
+          "observedAt": "2026-10-14T04:44:31.256Z"
+        },
+        {
+          "sourceId": "memory:context-64",
+          "sourceVersion": "sha256:db45fb39a9cf0db5ea769101c0faae59acc589b6ae1fa68f003dd0b575f9fc76",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-64",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "A problem is regarded as inherently difficult if its solution requires significant resources, whatever the algorithm used. The theory formalizes this intuition, by introducing mathematical models of computation to study these problems and quantifying the amount of resources needed to solve them, such as time and storage. Other complexity measures are also used, such as the amount of communication (used in communication complexity), the number of gates i",
+          "id": "ev_99e4b085574767cba3ebff55",
+          "observedAt": "2026-10-14T04:44:31.257Z"
+        },
+        {
+          "sourceId": "memory:context-161",
+          "sourceVersion": "sha256:4b4bad73964ab9d0ec2eb61fa59fa32c66db3fa43b8dd819f38e52f467fbf376",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-161",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Computational complexity theory is a branch of the theory of computation in theoretical computer science that focuses on clas",
+          "id": "ev_005c6e2b7a98fc30eb8582b6",
+          "observedAt": "2026-10-14T04:44:31.257Z"
+        }
+      ],
+      "sourceIds": [
+        "context-32",
+        "context-64",
+        "context-161"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.568290999995952,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:52:36.751843+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Computational problems are classified primarily by the amount of resources required to solve them, chiefly **time** (time complexity) and **space** (space complexity).",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 452,
+    "completion_tokens": 822,
+    "total_tokens": 1274,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 787,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 308,
+    "completion_tokens": 1026,
+    "total_tokens": 1334,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 26549.509041999954,
+  "judgeWallMs": 10622.787082999821,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:53:14.175345+00:00"
+}

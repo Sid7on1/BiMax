@@ -1,0 +1,237 @@
+{
+  "row": 0,
+  "query": 36,
+  "id": "mab-0-36",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "question": "To where did Ethelred flee?",
+  "references": [
+    "Normandy",
+    "Normandy",
+    "Normandy"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 7.5523749999993015,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 27,
+        "maxInputChars": 27,
+        "requiredProviderTruncation": false,
+        "promptTokens": 9,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-189",
+        "context-173",
+        "context-211"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) um (Last Glacial Maximum). During this time, the lower Rhine flowed roughly west through the Netherlands and extended to the southwest, through the English Channel and finally, to the Atlantic Ocean. The English Channel, the Irish Channel and most of the North Sea were dry land, mainly because sea level was approximately 120 m (390 ft) lower than today.\n\nDocument 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n- (part 5 of 5, excerpt) The new British command was not in place until July. When he arrived in Albany, Abercrombie refused to take any significant actions until Loudoun approved them. Montcalm took bold action against his inertia. Building on Vaudreuil's work harassing the Oswego garrison, Montcalm executed a strategic feint by moving his headquarters to Ticonderoga, as if to presage another attack along Lake George. With Abercrombie pinned down at Albany, Montcalm slipped away and led the successful attack on Oswego in August. In the aftermath, Montcalm and the Indians under his command disagreed about the dispos\n- (part 3 of 5, excerpt) The origin of the legendary figure is not fully known. The best-known legend, by Artur Oppman, is that long ago two of Triton",
+      "evidence": [
+        {
+          "sourceId": "memory:context-189",
+          "sourceVersion": "sha256:1e2275347ec9de496eb42c1d852f77b368d8264ddfa0030036703b2c4f3352d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-189",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "um (Last Glacial Maximum). During this time, the lower Rhine flowed roughly west through the Netherlands and extended to the southwest, through the English Channel and finally, to the Atlantic Ocean. The English Channel, the Irish Channel and most of the North Sea were dry land, mainly because sea level was approximately 120 m (390 ft) lower than today.\n\nDocument 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.",
+          "id": "ev_f7fea43d9cc571c4a85ef122",
+          "observedAt": "2026-10-14T04:44:31.593Z"
+        },
+        {
+          "sourceId": "memory:context-173",
+          "sourceVersion": "sha256:50c3ea1e2b37a74a1dbec45d96b11d6516e42601a1e641c24c616cbbf379bf51",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-173",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The new British command was not in place until July. When he arrived in Albany, Abercrombie refused to take any significant actions until Loudoun approved them. Montcalm took bold action against his inertia. Building on Vaudreuil's work harassing the Oswego garrison, Montcalm executed a strategic feint by moving his headquarters to Ticonderoga, as if to presage another attack along Lake George. With Abercrombie pinned down at Albany, Montcalm slipped away and led the successful attack on Oswego in August. In the aftermath, Montcalm and the Indians under his command disagreed about the dispos",
+          "id": "ev_ce6de89bb468f57a5b5cbe8b",
+          "observedAt": "2026-10-14T04:44:31.593Z"
+        },
+        {
+          "sourceId": "memory:context-211",
+          "sourceVersion": "sha256:ae8b4b0b39ad0882a8baf621c89c04ddf433535c7f2bb093c6cd328d7a487090",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-211",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The origin of the legendary figure is not fully known. The best-known legend, by Artur Oppman, is that long ago two of Triton",
+          "id": "ev_045762f1bebc55973dfdc1c0",
+          "observedAt": "2026-10-14T04:44:31.593Z"
+        }
+      ],
+      "sourceIds": [
+        "context-189",
+        "context-173",
+        "context-211"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.3383749999993597,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-189",
+        "context-173",
+        "context-211"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) um (Last Glacial Maximum). During this time, the lower Rhine flowed roughly west through the Netherlands and extended to the southwest, through the English Channel and finally, to the Atlantic Ocean. The English Channel, the Irish Channel and most of the North Sea were dry land, mainly because sea level was approximately 120 m (390 ft) lower than today.\n\nDocument 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.\n- (part 5 of 5, excerpt) The new British command was not in place until July. When he arrived in Albany, Abercrombie refused to take any significant actions until Loudoun approved them. Montcalm took bold action against his inertia. Building on Vaudreuil's work harassing the Oswego garrison, Montcalm executed a strategic feint by moving his headquarters to Ticonderoga, as if to presage another attack along Lake George. With Abercrombie pinned down at Albany, Montcalm slipped away and led the successful attack on Oswego in August. In the aftermath, Montcalm and the Indians under his command disagreed about the dispos\n- (part 3 of 5, excerpt) The origin of the legendary figure is not fully known. The best-known legend, by Artur Oppman, is that long ago two of Triton",
+      "evidence": [
+        {
+          "sourceId": "memory:context-189",
+          "sourceVersion": "sha256:1e2275347ec9de496eb42c1d852f77b368d8264ddfa0030036703b2c4f3352d5",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-189",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "um (Last Glacial Maximum). During this time, the lower Rhine flowed roughly west through the Netherlands and extended to the southwest, through the English Channel and finally, to the Atlantic Ocean. The English Channel, the Irish Channel and most of the North Sea were dry land, mainly because sea level was approximately 120 m (390 ft) lower than today.\n\nDocument 946:\nThe Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great's conquest of the isle.",
+          "id": "ev_f7fea43d9cc571c4a85ef122",
+          "observedAt": "2026-10-14T04:44:31.594Z"
+        },
+        {
+          "sourceId": "memory:context-173",
+          "sourceVersion": "sha256:50c3ea1e2b37a74a1dbec45d96b11d6516e42601a1e641c24c616cbbf379bf51",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-173",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The new British command was not in place until July. When he arrived in Albany, Abercrombie refused to take any significant actions until Loudoun approved them. Montcalm took bold action against his inertia. Building on Vaudreuil's work harassing the Oswego garrison, Montcalm executed a strategic feint by moving his headquarters to Ticonderoga, as if to presage another attack along Lake George. With Abercrombie pinned down at Albany, Montcalm slipped away and led the successful attack on Oswego in August. In the aftermath, Montcalm and the Indians under his command disagreed about the dispos",
+          "id": "ev_ce6de89bb468f57a5b5cbe8b",
+          "observedAt": "2026-10-14T04:44:31.594Z"
+        },
+        {
+          "sourceId": "memory:context-211",
+          "sourceVersion": "sha256:ae8b4b0b39ad0882a8baf621c89c04ddf433535c7f2bb093c6cd328d7a487090",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-211",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The origin of the legendary figure is not fully known. The best-known legend, by Artur Oppman, is that long ago two of Triton",
+          "id": "ev_045762f1bebc55973dfdc1c0",
+          "observedAt": "2026-10-14T04:44:31.594Z"
+        }
+      ],
+      "sourceIds": [
+        "context-189",
+        "context-173",
+        "context-211"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.1631249999991269,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:40:59.527502+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 515,
+    "completion_tokens": 221,
+    "total_tokens": 736,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 192,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 263,
+    "completion_tokens": 878,
+    "total_tokens": 1141,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 875,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 3696.3039999998273,
+  "judgeWallMs": 9837.738458000103,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.11764705882352941
+  },
+  "ended": "2026-10-14T07:41:15.640700+00:00"
+}

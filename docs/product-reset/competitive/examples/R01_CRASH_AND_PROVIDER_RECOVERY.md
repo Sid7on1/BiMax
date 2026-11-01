@@ -1,5 +1,9 @@
 # R01 — recover without lying or mutating configuration
 
+## Context cancellation and continuation qualification — 2026-10-13
+
+[Record 93](../../93_CONTEXT_ORCHESTRATION.md) adds offline recovery obligations: Stop during recall/summarization ends without a main request; late/superseded compaction cannot publish continuation or evidence; failed/truncated summary attempts never become a successful narrative; the full active request and valid complete tool exchanges survive trimming. Bounded, hash-checked archives keep failed-summary conversation evidence when storage admits it. Run `src/__tests__/context.orchestration.sprint.test.ts` and `scripts/prove-context-orchestration.py`. This is a cancellation/compaction slice, not installed process-crash replay or complete R01 qualification.
+
 ## User prompt
 
 > Upgrade the parser, keep backward compatibility, and finish the test suite. You may use the

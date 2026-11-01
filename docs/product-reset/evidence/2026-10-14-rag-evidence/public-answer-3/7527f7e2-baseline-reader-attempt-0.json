@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T09:10:20.955852+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 0,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/30 (Tue) 23:20\nQuestion: How much did I spend on a designer handbag?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 19, excerpt) How does this sound? Is there a specific step you'd like to focus on or have questions about?\nuser: I think I'd like to start tracking my expenses. Can you recommend any good budgeting apps? I've been using my credit card a lot lately, and I'm pretty sure I spent a lot on luxury items last month. I remember buying a designer handbag for a pretty penny - $800, to be exact.\nassistant: Tracking your expenses is a great first step! There are many excellent budgeting apps out there that can help you get a better grip on your spending habits. Here are some popular ones:\n\n1.\n  (part 6 of 19) and savings.\n\nIt also offers features like budgeting, investment tracking, and bill tracking.\n\nAll of these apps are available on both iOS and Android devices.\n\nNow, about that designer handbag... $800 is a significant expense, and it's great that you're aware of it. When tracking your expenses, it's essential to be honest with yourself about your spending habits. Consider categorizing that handbag as a luxury item or a \"want\" rather than a \"need.\" This will help you identify areas where you can cut back and allocate your funds more wisely.\n\nRemember, the goal of tracking your expenses is to understand where your money is going and make conscious decisions about how you want to spend it. It's not about depriving yourself of things you enjoy, but about being mindful of your spending habits and making intentional choices.\n- (part 3 of 14, excerpt) * Space: Think about how much jewelry you need to store and how much space you have available in your home.\n- (part 12 of 24, excerpt) user: I'd like to know more about Kandinsky's views on the role of the artist in society. Did he believe that artists had a responsibility to convey spiritual or moral messages through the"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 111.06587499943998
+}

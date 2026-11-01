@@ -34,7 +34,11 @@ OUT="${BIMAX_LOCAL_BUILD_DIR:-/private/tmp/bimax-build/release}"
 case "$ARCH" in arm64) target=darwin-arm64 ;; x64) target=darwin-x64 ;; *) echo "usage: $0 [arm64|x64]" >&2; exit 1 ;; esac
 case "$OUT" in "$PWD"/*|"$HOME"/Desktop/*|"$HOME"/Documents/*) echo "error: output dir is inside the synced tree: $OUT" >&2; exit 1 ;; esac
 
+echo "→ linked mobile responder + protocol"
+node scripts/mobile.integration.mjs --prepare
+
 echo "→ renderer + main"
+bash scripts/build-project-files.sh "$ARCH"
 npx electron-vite build
 
 echo "→ engine"
@@ -64,6 +68,9 @@ npx electron scripts/verify-engine.js
 # compiled and then never packaged. The script also `rm -rf`s native-service/ BEFORE compiling, so a
 # CU build failure destroyed the staged directory on the release path — a failure mode the product
 # no longer has any reason to carry. scripts/prepare-native.sh remains on disk, unreferenced.
+
+echo "→ Bimax CU native runtime"
+bash scripts/build-computer-use.sh "$ARCH"
 
 echo "→ voice helper"
 bash scripts/build-voice.sh "$ARCH"

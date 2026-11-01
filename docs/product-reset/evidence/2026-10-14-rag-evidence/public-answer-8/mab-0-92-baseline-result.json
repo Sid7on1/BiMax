@@ -1,0 +1,164 @@
+{
+  "row": 0,
+  "query": 92,
+  "id": "mab-0-92",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:41:15.509258+00:00",
+  "valid": true,
+  "question": "Where did the monks flee to?",
+  "references": [
+    "southern Italy",
+    "southern Italy",
+    "southern Italy"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-66",
+    "context-176",
+    "context-24"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:41:34.445713+00:00",
+  "rag": {
+    "ids": [
+      "context-66",
+      "context-176",
+      "context-24"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) f production should be socially owned so that income differentials would be reflective of individual contributions to the social product.\n\nDocument 338:\n\nThere were many religions practiced during the Yuan dynasty, such as Buddhism, Islam, and Christianity.\n\nThe establishment of the Yuan dynasty had dramatically increased the number of Muslims in China.\n\nHowever, unlike the western khanates, the Yuan dynasty never converted to Islam.\n\nInstead, Kublai Khan, the founder of the Yuan dynasty, favored Buddhism, especially the Tibetan variants.\n\nAs a result, Tibetan Buddhism was established as the de facto state religion.\n\nThe top-level department and government agency known as the Bureau of Buddhist and Tibetan Affairs (Xuanzheng Yuan) was set up in Khanbaliq (modern Beijing) to supervise Buddhist monks throughout the empire.\n\nSince Kublai Khan only esteemed the Sakya sect of Tibetan Buddhism, other religions became less important.\n\nHe and his successors kept a Sakya Imperial Preceptor (Dishi) at court.\n\nBefore the end of the Yuan dynasty, 14 leaders of the Sakya sect had held the post of Imperial Preceptor, thereby enjoying special power.\n  (part 2 of 5, excerpt) (Dishi) at court.\n\nBefore the end of the Yuan dynasty, 14 leaders of the Sakya sect had held the post of Imperial Preceptor, thereby enjoying special power.\n\nFurthermore, Mongol patronage of Buddhism resulted in a number of monuments of Buddhist art.\n\nMongolian Buddhist translations, almos\n- (part 6 of 6, excerpt) At Saint Evroul, a tradition of singing had developed and the choir achieved fame in Normandy. Under the Norman abbot Robert de Grantmes\n- (part 3 of 5, excerpt) Monks and priests were especially hard hit since they cared for victims of the Black Death.",
+    "evidence": [
+      {
+        "sourceId": "memory:context-66",
+        "sourceVersion": "sha256:604721967b048a4e750343f76d0cbc51495ee1d30b4ab395f9f2e53c77443ebf",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-66",
+          "part": 1,
+          "parts": 5
+        },
+        "text": "f production should be socially owned so that income differentials would be reflective of individual contributions to the social product.\n\nDocument 338:\n\nThere were many religions practiced during the Yuan dynasty, such as Buddhism, Islam, and Christianity.\n\nThe establishment of the Yuan dynasty had dramatically increased the number of Muslims in China.\n\nHowever, unlike the western khanates, the Yuan dynasty never converted to Islam.\n\nInstead, Kublai Khan, the founder of the Yuan dynasty, favored Buddhism, especially the Tibetan variants.\n\nAs a result, Tibetan Buddhism was established as the de facto state religion.\n\nThe top-level department and government agency known as the Bureau of Buddhist and Tibetan Affairs (Xuanzheng Yuan) was set up in Khanbaliq (modern Beijing) to supervise Buddhist monks throughout the empire.\n\nSince Kublai Khan only esteemed the Sakya sect of Tibetan Buddhism, other religions became less important.\n\nHe and his successors kept a Sakya Imperial Preceptor (Dishi) at court.\n\nBefore the end of the Yuan dynasty, 14 leaders of the Sakya sect had held the post of Imperial Preceptor, thereby enjoying special power.",
+        "id": "ev_c9f027c8c3ac8bccb9d0f9a2",
+        "observedAt": "2026-10-14T08:38:04.967Z"
+      },
+      {
+        "sourceId": "memory:context-66",
+        "sourceVersion": "sha256:604721967b048a4e750343f76d0cbc51495ee1d30b4ab395f9f2e53c77443ebf",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-66",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "(Dishi) at court.\n\nBefore the end of the Yuan dynasty, 14 leaders of the Sakya sect had held the post of Imperial Preceptor, thereby enjoying special power.\n\nFurthermore, Mongol patronage of Buddhism resulted in a number of monuments of Buddhist art.\n\nMongolian Buddhist translations, almos",
+        "id": "ev_99653580317184137e685984",
+        "observedAt": "2026-10-14T08:38:04.967Z"
+      },
+      {
+        "sourceId": "memory:context-176",
+        "sourceVersion": "sha256:10824fa0aa87f93c27fcddfe53e18999a154b2e150dc3f3846ffb48dfdcafc30",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-176",
+          "part": 6,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "At Saint Evroul, a tradition of singing had developed and the choir achieved fame in Normandy. Under the Norman abbot Robert de Grantmes",
+        "id": "ev_66fb9bfdf47e17c11d10fa63",
+        "observedAt": "2026-10-14T08:38:04.967Z"
+      },
+      {
+        "sourceId": "memory:context-24",
+        "sourceVersion": "sha256:3f746e30bec73a1e1e718d88b2d17a6194e41f5910b0f06776e1691641a29bc0",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-24",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Monks and priests were especially hard hit since they cared for victims of the Black Death.",
+        "id": "ev_7a029ba2466abb1dd3f44f33",
+        "observedAt": "2026-10-14T08:38:04.967Z"
+      }
+    ],
+    "sourceIds": [
+      "context-66",
+      "context-176",
+      "context-24"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.3539999999993597,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "The retrieved history does not contain any information about where monks fled to. Therefore, based on the provided text, I do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 484,
+    "completion_tokens": 1052,
+    "total_tokens": 1536,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 263,
+    "completion_tokens": 937,
+    "total_tokens": 1200,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 934,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 9661.592417000065,
+  "judgeWallMs": 9012.780208999175
+}

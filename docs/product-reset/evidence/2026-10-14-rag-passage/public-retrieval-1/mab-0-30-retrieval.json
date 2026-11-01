@@ -1,0 +1,256 @@
+{
+  "row": 0,
+  "query": 30,
+  "id": "mab-0-30",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:18:05.210651+00:00",
+  "valid": true,
+  "question": "What river was Petrela located by?",
+  "references": [
+    "Deabolis",
+    "the river Deabolis",
+    "Deabolis"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 24.448208999999906,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 34,
+        "maxInputChars": 34,
+        "requiredProviderTruncation": false,
+        "promptTokens": 11,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-41",
+        "context-55",
+        "context-225"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) ern canalized section. Most of the delta is a nature reserve and bird sanctuary. It includes the Austrian towns of Gai\u00dfau, H\u00f6chst and Fu\u00dfach. The natural Rhine originally branched into at least two arms and formed small islands by precipitating sediments. In the local Alemannic dialect, the singular is pronounced \"Isel\" and this is also the local pronunciation of Esel (\"Donkey\"). Many local fields have an official name containing this element.\n\nDocument 213:\nA few years after the First Crusade, in 1107, the Normans under the command of Bohemond, Robert's son, landed in Valona and besieged Dyrrachium using the most sophisticated military equipment of the time, but to no avail. Meanwhile, they occupied Petrela, the citadel of Mili at the banks of the river Deabolis, Gllavenica (Ballsh), Kanina and Jericho. This time, the Albanians sided with the Normans, dissatisfied by the heavy taxes the Byzantines had imposed upon them. With their help, the Normans secured the Arbanon passes and opened their way to Dibra. The lack of supplies, disease and Byzantine resistance forced Bohemond to retreat from his campaign and sign a peace treaty with the Byzantines in the city of Deabolis.\n- (part 3 of 6, excerpt) Jacksonville is in the First Coast region of northeast Florida and is centered on the banks of the St. Johns River, about 25 miles (40 km) south of the Georgia state line and about 340 miles (550 km) north of Miami. The Jacksonville Beaches communities are along the adjacent Atlantic coast. The area was originally inhabited by the Timucua people, and in 1564 was the site of the French colony of Fort Caroline, o\n- (part 2 of 5, excerpt) The Lower Rhine flows through North Rhine-Westphalia. Its banks are usually heavily populated and industrialized, in particul",
+      "evidence": [
+        {
+          "sourceId": "memory:context-41",
+          "sourceVersion": "sha256:3463ba76ad8482d48ebe2de39e8c94c01e6ff682d9396c5d917e68fb5e33cf0d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-41",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "ern canalized section. Most of the delta is a nature reserve and bird sanctuary. It includes the Austrian towns of Gai\u00dfau, H\u00f6chst and Fu\u00dfach. The natural Rhine originally branched into at least two arms and formed small islands by precipitating sediments. In the local Alemannic dialect, the singular is pronounced \"Isel\" and this is also the local pronunciation of Esel (\"Donkey\"). Many local fields have an official name containing this element.\n\nDocument 213:\nA few years after the First Crusade, in 1107, the Normans under the command of Bohemond, Robert's son, landed in Valona and besieged Dyrrachium using the most sophisticated military equipment of the time, but to no avail. Meanwhile, they occupied Petrela, the citadel of Mili at the banks of the river Deabolis, Gllavenica (Ballsh), Kanina and Jericho. This time, the Albanians sided with the Normans, dissatisfied by the heavy taxes the Byzantines had imposed upon them. With their help, the Normans secured the Arbanon passes and opened their way to Dibra. The lack of supplies, disease and Byzantine resistance forced Bohemond to retreat from his campaign and sign a peace treaty with the Byzantines in the city of Deabolis.",
+          "id": "ev_b1ef2bbd2cba4827dfadc252",
+          "observedAt": "2026-10-14T15:18:05.252Z"
+        },
+        {
+          "sourceId": "memory:context-55",
+          "sourceVersion": "sha256:4533f81a680900c73ea2da1a9803c84f562e8018bc044ef05cd24a92cc83ee67",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-55",
+            "part": 3,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Jacksonville is in the First Coast region of northeast Florida and is centered on the banks of the St. Johns River, about 25 miles (40 km) south of the Georgia state line and about 340 miles (550 km) north of Miami. The Jacksonville Beaches communities are along the adjacent Atlantic coast. The area was originally inhabited by the Timucua people, and in 1564 was the site of the French colony of Fort Caroline, o",
+          "id": "ev_887efb8b92eeec10e8703dfe",
+          "observedAt": "2026-10-14T15:18:05.253Z"
+        },
+        {
+          "sourceId": "memory:context-225",
+          "sourceVersion": "sha256:64e0e3016984da7ca07d03e3ffaa3f89d0ddccac1c75867180a41dca4fd0ed4d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-225",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The Lower Rhine flows through North Rhine-Westphalia. Its banks are usually heavily populated and industrialized, in particul",
+          "id": "ev_d7f69760ecf5ab70df56c282",
+          "observedAt": "2026-10-14T15:18:05.253Z"
+        }
+      ],
+      "sourceIds": [
+        "context-41",
+        "context-55",
+        "context-225"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 18.35354200000006,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-41",
+        "context-55",
+        "context-225"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) ern canalized section. Most of the delta is a nature reserve and bird sanctuary. It includes the Austrian towns of Gai\u00dfau, H\u00f6chst and Fu\u00dfach. The natural Rhine originally branched into at least two arms and formed small islands by precipitating sediments. In the local Alemannic dialect, the singular is pronounced \"Isel\" and this is also the local pronunciation of Esel (\"Donkey\"). Many local fields have an official name containing this element.\n\nDocument 213:\nA few years after the First Crusade, in 1107, the Normans under the command of Bohemond, Robert's son, landed in Valona and besieged Dyrrachium using the most sophisticated military equipment of the time, but to no avail. Meanwhile, they occupied Petrela, the citadel of Mili at the banks of the river Deabolis, Gllavenica (Ballsh), Kanina and Jericho. This time, the Albanians sided with the Normans, dissatisfied by the heavy taxes the Byzantines had imposed upon them. With their help, the Normans secured the Arbanon passes and opened their way to Dibra. The lack of supplies, disease and Byzantine resistance forced Bohemond to retreat from his campaign and sign a peace treaty with the Byzantines in the city of Deabolis.\n- (part 3 of 6) transported to PoW camps in Germany, while the entire civilian population was expelled. Polish civilian deaths are estimated at between 150,000 and 200,000.\n\nDocument 282:\nJacksonville is in the First Coast region of northeast Florida and is centered on the banks of the St. Johns River, about 25 miles (40 km) south of the Georgia state line and about 340 miles (550 km) north of Miami. The Jacksonville Beaches communities are along the adjacent Atlantic coast. The area was originally inhabited by the Timucua people, and in 1564 was the site of the French colony of Fort Caroline, one of the earliest European settlements in what is now the continental United States. Under British rule, settlement grew at the narrow point in the river where cattle crossed, known as Wacca Pilatka to the Seminole and the Cow Ford to the British. A platted town was established there in 1822, a year after the United States gained Florida from Spain; it was named after Andrew Jackson, the first military governor of the Florida Territory and seventh President of the United States.\n  (part 4 of 6) gained Florida from Spain; it was named after Andrew Jackson, the first military governor of the Florida Territory and seventh President of the United States.\n\nDocument 283:\nThe Rhine emerges from Lake Constance, flows generally westward, as the Hochrhein, passes the Rhine Falls, and is joined by its major tributary, the river Aare. The Aare more than doubles the Rhine's water discharge, to an average of nearly 1,000 m3/s (35,000 cu ft/s), and provides more than a fifth of the discharge at the Dutch border. The Aare also contains the waters from the 4,274 m (14,022 ft) summit of Finsteraarhorn, the highest point of the Rhine basin. The Rhine roughly forms the German-Swiss border from Lake Constance with the exceptions of the canton of Schaffhausen and parts of the cantons of Z\u00fcrich and Basel-Stadt, until it turns north at the so-called Rhine knee at Basel, leaving Switzerland.\n- (part 2 of 5) attributed to Eratosthenes, is a simple method to compute primes, although the large primes found today with computers are not generated this way.\n\nDocument 1125:\nThe Lower Rhine flows through North Rhine-Westphalia. Its banks are usually heavily populated and industrialized, in particular the agglomerations Cologne, D\u00fcsseldorf and Ruhr area. Here the Rhine flows through the largest conurbation in Germany, the Rhine-Ruhr region. One of the most important cities in this region is Duisburg with the largest river port in Europe (Duisport). The region downstream of Duisburg is more agricultural. In Wesel, 30 km downstream of Duisburg, is located the western end of the second east-west shipping route, the Wesel-Datteln Canal, which runs parallel to the Lippe. Between Emmerich and Cleves the Emmerich Rhine Bridge, the longest suspension bridge in Germany, crosses the 400 m wide river. Near Krefeld, the river crosses the Uerdingen line, the line which separates the areas where Low German and High German are spoken.\n  (part 3 of 5) the 400 m wide river. Near Krefeld, the river crosses the Uerdingen line, the line which separates the areas where Low German and High German are spoken.\n\nDocument 1126:\nBritish researchers Richard G. Wilkinson and Kate Pickett have found higher rates of health and social problems (obesity, mental illness, homicides, teenage births, incarceration, child conflict, drug use), and lower rates of social goods (life expectancy by country, educational performance, trust among strangers, women's status, social mobility, even numbers of patents issued) in countries and states with higher inequality. Using statistics from 23 developed countries and the 50 states of the US, they found social/health problems lower in countries like Japan and Finland and states like Utah and New Hampshire with high levels of equality, than in countries (US and UK) and states (Mississippi and New York) with large differences in household income.\n  (part 5 of 5, excerpt) to strong decreases. The result indicates that the rainforest could be threatened though the 21st century by climate change in addition to deforestation.\n\nDocument 1129:\nIn some rural areas in the United Kingdom, there are dispensing physicians who are allowed to both prescribe and dispense prescription-only medicines to their patients from within their practices. The law requires that the GP practice be located in a designated rural area and that there is also a specified, minimum distance (currently 1.6 kilometres) between a patient's home and the nearest retail pharmacy. This law also exists in Austria for general physicians if the nearest pharmacy is more than 4 kilometers away, or where none is registered in the city.\n\nDocument 1130:",
+      "evidence": [
+        {
+          "sourceId": "memory:context-41",
+          "sourceVersion": "sha256:3463ba76ad8482d48ebe2de39e8c94c01e6ff682d9396c5d917e68fb5e33cf0d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-41",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "ern canalized section. Most of the delta is a nature reserve and bird sanctuary. It includes the Austrian towns of Gai\u00dfau, H\u00f6chst and Fu\u00dfach. The natural Rhine originally branched into at least two arms and formed small islands by precipitating sediments. In the local Alemannic dialect, the singular is pronounced \"Isel\" and this is also the local pronunciation of Esel (\"Donkey\"). Many local fields have an official name containing this element.\n\nDocument 213:\nA few years after the First Crusade, in 1107, the Normans under the command of Bohemond, Robert's son, landed in Valona and besieged Dyrrachium using the most sophisticated military equipment of the time, but to no avail. Meanwhile, they occupied Petrela, the citadel of Mili at the banks of the river Deabolis, Gllavenica (Ballsh), Kanina and Jericho. This time, the Albanians sided with the Normans, dissatisfied by the heavy taxes the Byzantines had imposed upon them. With their help, the Normans secured the Arbanon passes and opened their way to Dibra. The lack of supplies, disease and Byzantine resistance forced Bohemond to retreat from his campaign and sign a peace treaty with the Byzantines in the city of Deabolis.",
+          "id": "ev_b1ef2bbd2cba4827dfadc252",
+          "observedAt": "2026-10-14T15:18:05.257Z"
+        },
+        {
+          "sourceId": "memory:context-55",
+          "sourceVersion": "sha256:4533f81a680900c73ea2da1a9803c84f562e8018bc044ef05cd24a92cc83ee67",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-55",
+            "part": 3,
+            "parts": 6
+          },
+          "text": "transported to PoW camps in Germany, while the entire civilian population was expelled. Polish civilian deaths are estimated at between 150,000 and 200,000.\n\nDocument 282:\nJacksonville is in the First Coast region of northeast Florida and is centered on the banks of the St. Johns River, about 25 miles (40 km) south of the Georgia state line and about 340 miles (550 km) north of Miami. The Jacksonville Beaches communities are along the adjacent Atlantic coast. The area was originally inhabited by the Timucua people, and in 1564 was the site of the French colony of Fort Caroline, one of the earliest European settlements in what is now the continental United States. Under British rule, settlement grew at the narrow point in the river where cattle crossed, known as Wacca Pilatka to the Seminole and the Cow Ford to the British. A platted town was established there in 1822, a year after the United States gained Florida from Spain; it was named after Andrew Jackson, the first military governor of the Florida Territory and seventh President of the United States.",
+          "id": "ev_69b3836990cc294989ff7b90",
+          "observedAt": "2026-10-14T15:18:05.257Z"
+        },
+        {
+          "sourceId": "memory:context-55",
+          "sourceVersion": "sha256:4533f81a680900c73ea2da1a9803c84f562e8018bc044ef05cd24a92cc83ee67",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-55",
+            "part": 4,
+            "parts": 6
+          },
+          "text": "gained Florida from Spain; it was named after Andrew Jackson, the first military governor of the Florida Territory and seventh President of the United States.\n\nDocument 283:\nThe Rhine emerges from Lake Constance, flows generally westward, as the Hochrhein, passes the Rhine Falls, and is joined by its major tributary, the river Aare. The Aare more than doubles the Rhine's water discharge, to an average of nearly 1,000 m3/s (35,000 cu ft/s), and provides more than a fifth of the discharge at the Dutch border. The Aare also contains the waters from the 4,274 m (14,022 ft) summit of Finsteraarhorn, the highest point of the Rhine basin. The Rhine roughly forms the German-Swiss border from Lake Constance with the exceptions of the canton of Schaffhausen and parts of the cantons of Z\u00fcrich and Basel-Stadt, until it turns north at the so-called Rhine knee at Basel, leaving Switzerland.",
+          "id": "ev_5924fc2c17ed632fce17dc8a",
+          "observedAt": "2026-10-14T15:18:05.257Z"
+        },
+        {
+          "sourceId": "memory:context-225",
+          "sourceVersion": "sha256:64e0e3016984da7ca07d03e3ffaa3f89d0ddccac1c75867180a41dca4fd0ed4d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-225",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "attributed to Eratosthenes, is a simple method to compute primes, although the large primes found today with computers are not generated this way.\n\nDocument 1125:\nThe Lower Rhine flows through North Rhine-Westphalia. Its banks are usually heavily populated and industrialized, in particular the agglomerations Cologne, D\u00fcsseldorf and Ruhr area. Here the Rhine flows through the largest conurbation in Germany, the Rhine-Ruhr region. One of the most important cities in this region is Duisburg with the largest river port in Europe (Duisport). The region downstream of Duisburg is more agricultural. In Wesel, 30 km downstream of Duisburg, is located the western end of the second east-west shipping route, the Wesel-Datteln Canal, which runs parallel to the Lippe. Between Emmerich and Cleves the Emmerich Rhine Bridge, the longest suspension bridge in Germany, crosses the 400 m wide river. Near Krefeld, the river crosses the Uerdingen line, the line which separates the areas where Low German and High German are spoken.",
+          "id": "ev_2ab5ab8d476d514b1d95dc4d",
+          "observedAt": "2026-10-14T15:18:05.257Z"
+        },
+        {
+          "sourceId": "memory:context-225",
+          "sourceVersion": "sha256:64e0e3016984da7ca07d03e3ffaa3f89d0ddccac1c75867180a41dca4fd0ed4d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-225",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "the 400 m wide river. Near Krefeld, the river crosses the Uerdingen line, the line which separates the areas where Low German and High German are spoken.\n\nDocument 1126:\nBritish researchers Richard G. Wilkinson and Kate Pickett have found higher rates of health and social problems (obesity, mental illness, homicides, teenage births, incarceration, child conflict, drug use), and lower rates of social goods (life expectancy by country, educational performance, trust among strangers, women's status, social mobility, even numbers of patents issued) in countries and states with higher inequality. Using statistics from 23 developed countries and the 50 states of the US, they found social/health problems lower in countries like Japan and Finland and states like Utah and New Hampshire with high levels of equality, than in countries (US and UK) and states (Mississippi and New York) with large differences in household income.",
+          "id": "ev_4bc6593ba98e32f2aea7abd3",
+          "observedAt": "2026-10-14T15:18:05.257Z"
+        },
+        {
+          "sourceId": "memory:context-225",
+          "sourceVersion": "sha256:64e0e3016984da7ca07d03e3ffaa3f89d0ddccac1c75867180a41dca4fd0ed4d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-225",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "to strong decreases. The result indicates that the rainforest could be threatened though the 21st century by climate change in addition to deforestation.\n\nDocument 1129:\nIn some rural areas in the United Kingdom, there are dispensing physicians who are allowed to both prescribe and dispense prescription-only medicines to their patients from within their practices. The law requires that the GP practice be located in a designated rural area and that there is also a specified, minimum distance (currently 1.6 kilometres) between a patient's home and the nearest retail pharmacy. This law also exists in Austria for general physicians if the nearest pharmacy is more than 4 kilometers away, or where none is registered in the city.\n\nDocument 1130:",
+          "id": "ev_c580b6db4f7d9fd2a44d32c1",
+          "observedAt": "2026-10-14T15:18:05.257Z"
+        }
+      ],
+      "sourceIds": [
+        "context-41",
+        "context-55",
+        "context-225"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.30337499999996,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-41",
+    "context-55",
+    "context-225"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T15:18:05.259756+00:00"
+}

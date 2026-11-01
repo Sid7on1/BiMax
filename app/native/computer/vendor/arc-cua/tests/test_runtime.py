@@ -1,0 +1,533 @@
+from __future__ import annotations
+
+import threading
+import time
+
+from arc_cua import (
+    ActionKind,
+    Decision,
+    DesktopElement,
+    DesktopExecutor,
+    DesktopSnapshot,
+    RuntimeConfig,
+    StepEvent,
+    Subtask,
+    TerminalKind,
+)
+from arc_cua.backends import StateMachineBackend
+from arc_cua.policies import ScriptedPolicy
+
+
+def snapshot(state: dict) -> DesktopSnapshot:
+    elements = [
+        DesktopElement(
+            id="search",
+            role="text_field",
+            name="Search",
+            value=state["value"],
+            actions=(ActionKind.TYPE_TEXT,),
+            source="test",
+        )
+    ]
+    return DesktopSnapshot(
+        application="Test App",
+        window="Main",
+        revision=state["value"],
+        elements=tuple(elements),
+    )
+
+
+def transition(state: dict, action) -> None:
+    if action.kind == ActionKind.TYPE_TEXT:
+        state["value"] = action.value
+
+
+def test_agent_supplied_text_is_materialized() -> None:
+    backend = StateMachineBackend({"value": ""}, snapshot, transition)
+    policy = ScriptedPolicy(
+        [
+            Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query"),
+            Decision(terminal=TerminalKind.SUBTASK_COMPLETE),
+        ]
+    )
+    task = Subtask(
+        goal="Search for Gaussian Blur",
+        verification=("Search contains Gaussian Blur",),
+        inputs={"query": "Gaussian Blur"},
+    )
+
+    result = DesktopExecutor(backend, policy).run(task)
+    assert result.status == TerminalKind.SUBTASK_COMPLETE
+    assert result.final_snapshot.element("search").value == "Gaussian Blur"
+    assert result.history[0].action.value == "Gaussian Blur"
+
+
+def test_no_change_loop_is_blocked() -> None:
+    def no_op(state: dict, action) -> None:
+        pass
+
+    backend = StateMachineBackend({"value": ""}, snapshot, no_op)
+    policy = ScriptedPolicy(
+        [Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query") for _ in range(3)]
+    )
+    task = Subtask(
+        goal="Search",
+        verification=("Search contains x",),
+        inputs={"query": "x"},
+    )
+
+    result = DesktopExecutor(backend, policy).run(task)
+    assert result.status == TerminalKind.BLOCKED
+    assert result.actions_taken == 3
+
+
+# --- run_iter / step events ---
+
+
+def test_run_iter_yields_step_events() -> None:
+    backend = StateMachineBackend({"value": ""}, snapshot, transition)
+    policy = ScriptedPolicy(
+        [
+            Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query"),
+            Decision(terminal=TerminalKind.SUBTASK_COMPLETE),
+        ]
+    )
+    task = Subtask(
+        goal="Search",
+        verification=("Search done",),
+        inputs={"query": "hello"},
+    )
+
+    events: list[StepEvent] = []
+    executor = DesktopExecutor(backend, policy)
+    for event in executor.run_iter(task):
+        events.append(event)
+
+    assert len(events) == 2
+    assert not events[0].terminal
+    assert events[0].action is not None
+    assert events[0].record is not None
+    assert events[1].terminal
+    assert events[1].result is not None
+    assert events[1].result.status == TerminalKind.SUBTASK_COMPLETE
+
+
+def test_run_iter_returns_same_as_run() -> None:
+    policy1 = ScriptedPolicy(
+        [
+            Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query"),
+            Decision(terminal=TerminalKind.SUBTASK_COMPLETE),
+        ]
+    )
+    policy2 = ScriptedPolicy(
+        [
+            Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query"),
+            Decision(terminal=TerminalKind.SUBTASK_COMPLETE),
+        ]
+    )
+    task = Subtask(
+        goal="Search",
+        verification=("Search done",),
+        inputs={"query": "hello"},
+    )
+
+    run_result = DesktopExecutor(StateMachineBackend({"value": ""}, snapshot, transition), policy1).run(task)
+
+    iter_result = None
+    for event in DesktopExecutor(StateMachineBackend({"value": ""}, snapshot, transition), policy2).run_iter(task):
+        if event.result:
+            iter_result = event.result
+
+    assert iter_result is not None
+    assert run_result.status == iter_result.status
+    assert run_result.actions_taken == iter_result.actions_taken
+
+
+# --- verification hook ---
+
+
+def test_verification_callback_rejects_false_completion() -> None:
+    backend = StateMachineBackend({"value": ""}, snapshot, transition)
+    policy = ScriptedPolicy(
+        [
+            Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query"),
+            Decision(terminal=TerminalKind.SUBTASK_COMPLETE),
+        ]
+    )
+    task = Subtask(
+        goal="Search",
+        verification=("Search done",),
+        inputs={"query": "hello"},
+    )
+
+    config = RuntimeConfig(verify=lambda snap, sub: False)
+    result = DesktopExecutor(backend, policy, config=config).run(task)
+    assert result.status == TerminalKind.NEEDS_AGENT
+    assert "Verification callback rejected" in (result.reason or "")
+
+
+def test_verification_callback_accepts_true_completion() -> None:
+    backend = StateMachineBackend({"value": ""}, snapshot, transition)
+    policy = ScriptedPolicy(
+        [
+            Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query"),
+            Decision(terminal=TerminalKind.SUBTASK_COMPLETE),
+        ]
+    )
+    task = Subtask(
+        goal="Search",
+        verification=("Search done",),
+        inputs={"query": "hello"},
+    )
+
+    config = RuntimeConfig(verify=lambda snap, sub: True)
+    result = DesktopExecutor(backend, policy, config=config).run(task)
+    assert result.status == TerminalKind.SUBTASK_COMPLETE
+
+
+# --- timeout ---
+
+
+def test_wall_clock_timeout() -> None:
+    call_count = 0
+
+    class SlowPolicy:
+        def decide(self, *, subtask, snapshot, history):
+            nonlocal call_count
+            call_count += 1
+            time.sleep(0.05)
+            return Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query")
+
+    backend = StateMachineBackend({"value": ""}, snapshot, transition)
+    config = RuntimeConfig(timeout_s=0.1)
+    task = Subtask(
+        goal="Search",
+        verification=("Search done",),
+        inputs={"query": "x"},
+        max_actions=100,
+    )
+
+    result = DesktopExecutor(backend, SlowPolicy(), config=config).run(task)
+    assert result.status == TerminalKind.NEEDS_AGENT
+    assert "timeout" in (result.reason or "").lower()
+
+
+# --- cancellation ---
+
+
+def test_cancel_stops_execution() -> None:
+    call_count = 0
+
+    class WaitPolicy:
+        def decide(self, *, subtask, snapshot, history):
+            nonlocal call_count
+            call_count += 1
+            time.sleep(0.02)
+            return Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query")
+
+    backend = StateMachineBackend({"value": ""}, snapshot, transition)
+    task = Subtask(
+        goal="Search",
+        verification=("Search done",),
+        inputs={"query": "x"},
+        max_actions=100,
+    )
+
+    executor = DesktopExecutor(backend, WaitPolicy())
+
+    def cancel_after_delay():
+        time.sleep(0.08)
+        executor.cancel()
+
+    thread = threading.Thread(target=cancel_after_delay)
+    thread.start()
+    result = executor.run(task)
+    thread.join()
+
+    assert result.status == TerminalKind.NEEDS_AGENT
+    assert "cancelled" in (result.reason or "").lower()
+
+
+# --- action budget exhaustion ---
+
+
+def test_action_budget_exhaustion() -> None:
+    backend = StateMachineBackend({"value": ""}, snapshot, transition)
+    policy = ScriptedPolicy(
+        [Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query") for _ in range(5)]
+    )
+    task = Subtask(
+        goal="Search",
+        verification=("Search done",),
+        inputs={"query": "x"},
+        max_actions=3,
+    )
+
+    result = DesktopExecutor(backend, policy).run(task)
+    assert result.status == TerminalKind.NEEDS_AGENT
+    assert result.actions_taken == 3
+    assert "budget" in (result.reason or "").lower()
+
+
+# --- stale retry exhaustion ---
+
+
+def test_stale_retry_exhaustion() -> None:
+    revision_counter = 0
+
+    def changing_snapshot(state: dict) -> DesktopSnapshot:
+        nonlocal revision_counter
+        revision_counter += 1
+        return DesktopSnapshot(
+            application="Test App",
+            window="Main",
+            revision=str(revision_counter),
+            elements=(
+                DesktopElement(
+                    id="btn",
+                    role="button",
+                    name="Click",
+                    actions=(ActionKind.CLICK,),
+                    source="test",
+                ),
+            ),
+        )
+
+    backend = StateMachineBackend({"value": ""}, changing_snapshot, lambda s, a: None)
+    policy = ScriptedPolicy(
+        [Decision(kind=ActionKind.CLICK, target_id="btn") for _ in range(20)]
+    )
+    task = Subtask(goal="Click", verification=("Clicked",), max_actions=20)
+
+    config = RuntimeConfig(stale_retries=3)
+    result = DesktopExecutor(backend, policy, config=config).run(task)
+    assert result.status == TerminalKind.NEEDS_AGENT
+    assert "changed repeatedly" in (result.reason or "").lower()
+
+
+# --- backend execution error ---
+
+
+def test_backend_error_returns_needs_agent() -> None:
+    class FailingBackend:
+        def observe(self):
+            return DesktopSnapshot(
+                application="App",
+                window="Win",
+                revision="1",
+                elements=(
+                    DesktopElement(
+                        id="btn",
+                        role="button",
+                        name="Go",
+                        actions=(ActionKind.CLICK,),
+                        source="test",
+                    ),
+                ),
+            )
+
+        def is_fresh(self, snapshot, action):
+            return True
+
+        def execute(self, snapshot, action):
+            raise OSError("Quartz died")
+
+    policy = ScriptedPolicy([Decision(kind=ActionKind.CLICK, target_id="btn")])
+    task = Subtask(goal="Click", verification=("Done",), max_actions=5)
+    result = DesktopExecutor(FailingBackend(), policy).run(task)
+    assert result.status == TerminalKind.NEEDS_AGENT
+    assert "OSError" in (result.reason or "")
+
+
+def test_type_text_submit_key_is_pressed_after_the_value() -> None:
+    executed = []
+
+    def record(state: dict, action) -> None:
+        executed.append((action.kind, action.value, action.key))
+        transition(state, action)
+
+    backend = StateMachineBackend({"value": ""}, snapshot, record)
+    policy = ScriptedPolicy([
+        Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query", key="ENTER"),
+        Decision(terminal=TerminalKind.SUBTASK_COMPLETE),
+    ])
+    task = Subtask(goal="Search", verification=("Searched",), inputs={"query": "Blur"})
+    result = DesktopExecutor(backend, policy).run(task)
+    assert result.status == TerminalKind.SUBTASK_COMPLETE
+    assert executed == [(ActionKind.TYPE_TEXT, "Blur", "ENTER"), (ActionKind.PRESS_KEY, None, "ENTER")]
+    assert len(result.history) == 1
+    assert result.history[0].compact()["key"] == "ENTER"
+
+
+def test_type_text_rejects_non_submit_keys() -> None:
+    import pytest
+
+    from arc_cua.errors import InvalidDecision
+    from arc_cua.validation import materialize_action
+
+    task = Subtask(goal="Search", verification=("Searched",), inputs={"query": "Blur"})
+    decision = Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query", key="ESCAPE")
+    with pytest.raises(InvalidDecision, match="ESCAPE"):
+        materialize_action(decision, snapshot({"value": ""}), task)
+
+
+def test_click_modifier_reaches_the_backend_and_history() -> None:
+    executed = []
+
+    def rows(state: dict) -> DesktopSnapshot:
+        return DesktopSnapshot(application="Files", window="Inbox", revision=str(state["selected"]), elements=tuple(
+            DesktopElement(id=f"row_{index}", role="row", name=f"Report {index}.pdf", actions=(ActionKind.CLICK,),
+                           selected=index in state["selected"], source="test")
+            for index in range(3)
+        ))
+
+    def click(state: dict, action) -> None:
+        executed.append(action.click_modifier)
+        index = int(action.target_id.split("_")[1])
+        state["selected"] = state["selected"] | {index} if action.click_modifier == "MOD" else {index}
+
+    backend = StateMachineBackend({"selected": set()}, rows, click)
+    policy = ScriptedPolicy([
+        Decision(kind=ActionKind.CLICK, target_id="row_0"),
+        Decision(kind=ActionKind.CLICK, target_id="row_2", click_modifier="MOD"),
+        Decision(terminal=TerminalKind.SUBTASK_COMPLETE),
+    ])
+    result = DesktopExecutor(backend, policy).run(Subtask(goal="Select", verification=("Selected",)))
+    assert executed == [None, "MOD"]
+    assert backend.state["selected"] == {0, 2}
+    assert [record.compact()["click_modifier"] for record in result.history] == [None, "MOD"]
+
+
+def test_click_modifier_is_only_valid_on_click() -> None:
+    import pytest
+
+    from arc_cua.errors import InvalidDecision
+    from arc_cua.validation import materialize_action
+
+    task = Subtask(goal="Search", verification=("Searched",), inputs={"query": "Blur"})
+    for decision, message in [
+        (Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query", click_modifier="MOD"),
+         "does not take a click modifier"),
+        (Decision(kind=ActionKind.PRESS_KEY, key="ENTER", click_modifier="ALT"), "does not take a click modifier"),
+    ]:
+        with pytest.raises(InvalidDecision, match=message):
+            materialize_action(decision, snapshot({"value": ""}), task)
+
+
+# --- min_confidence ---
+
+
+def _run_with_threshold(decisions, threshold, *, margin=None):
+    backend = StateMachineBackend({"value": ""}, snapshot, transition)
+    task = Subtask(goal="Search", verification=("Search contains x",), inputs={"query": "x"})
+    config = RuntimeConfig(min_confidence=threshold, min_margin=margin)
+    return backend, DesktopExecutor(backend, ScriptedPolicy(decisions), config=config).run(task)
+
+
+def test_low_confidence_action_returns_needs_agent_without_acting() -> None:
+    backend, result = _run_with_threshold(
+        [Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query", confidence=0.4)], 0.6,
+    )
+    assert result.status == TerminalKind.NEEDS_AGENT
+    assert result.actions_taken == 0
+    assert backend.state["value"] == ""
+    assert "0.40 for TYPE_TEXT is below min_confidence 0.60" in result.reason
+
+
+def test_low_confidence_completion_returns_needs_agent() -> None:
+    _, result = _run_with_threshold([Decision(terminal=TerminalKind.SUBTASK_COMPLETE, confidence=0.5)], 0.6)
+    assert result.status == TerminalKind.NEEDS_AGENT
+    assert "SUBTASK_COMPLETE" in result.reason
+
+
+def test_confident_or_unscored_decisions_and_handbacks_are_not_gated() -> None:
+    backend, result = _run_with_threshold([
+        Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query", confidence=0.6),
+        Decision(terminal=TerminalKind.SUBTASK_COMPLETE),
+    ], 0.6)
+    assert result.status == TerminalKind.SUBTASK_COMPLETE
+    assert backend.state["value"] == "x"
+    _, result = _run_with_threshold([Decision(terminal=TerminalKind.BLOCKED, confidence=0.1)], 0.6)
+    assert result.status == TerminalKind.BLOCKED
+
+
+def test_min_confidence_must_be_a_probability() -> None:
+    import pytest
+
+    with pytest.raises(ValueError, match="min_confidence"):
+        RuntimeConfig(min_confidence=1.5)
+    with pytest.raises(ValueError, match="min_margin"):
+        RuntimeConfig(min_margin=-0.1)
+
+
+def test_near_tie_returns_needs_agent_without_acting() -> None:
+    backend, result = _run_with_threshold(
+        [Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query", confidence=0.9, margin=0.02)],
+        None, margin=0.1,
+    )
+    assert result.status == TerminalKind.NEEDS_AGENT
+    assert backend.state["value"] == ""
+    assert "margin 0.02 for TYPE_TEXT is below min_margin 0.10" in result.reason
+
+
+def test_needs_input_reports_the_field_without_acting() -> None:
+    backend = StateMachineBackend({"value": ""}, snapshot, transition)
+    policy = ScriptedPolicy([Decision(terminal=TerminalKind.NEEDS_INPUT, target_id="search", reason="needs text")])
+    result = DesktopExecutor(backend, policy).run(Subtask(goal="Search", verification=("Searched",)))
+    assert result.status == TerminalKind.NEEDS_INPUT
+    assert result.actions_taken == 0
+    assert result.needs_input == {"element_id": "search", "role": "text_field", "name": "Search", "value": ""}
+
+
+def test_dry_run_reports_the_next_action_without_acting() -> None:
+    backend = StateMachineBackend({"value": ""}, snapshot, transition)
+    policy = ScriptedPolicy([Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query")])
+    task = Subtask(goal="Search", verification=("Searched",), inputs={"query": "x"})
+    result = DesktopExecutor(backend, policy, config=RuntimeConfig(dry_run=True)).run(task)
+    assert result.status == TerminalKind.DRY_RUN
+    assert result.actions_taken == 0 and backend.state["value"] == ""
+    assert result.planned_action == {"action": "TYPE_TEXT", "target": "search", "target_name": "Search", "value": "x"}
+
+
+def _late_backend(delay_s: float) -> StateMachineBackend:
+    """A click whose result shows only after `delay_s`, like an app working before it redraws."""
+
+    def snapshot(state: dict) -> DesktopSnapshot:
+        shown = state["clicked_at"] is not None and time.monotonic() - state["clicked_at"] >= delay_s
+        elements = [DesktopElement(id="btn", role="button", name="Move", actions=(ActionKind.CLICK,))]
+        if shown:
+            elements.append(DesktopElement(id="folder", role="text", name="Invoices"))
+        return DesktopSnapshot(application="Files", window="Inbox", revision=str(shown), elements=tuple(elements))
+
+    def transition(state: dict, action) -> None:
+        state["clicked_at"] = time.monotonic()
+
+    backend = StateMachineBackend({"clicked_at": None}, snapshot, transition)
+    # The app posts nothing while it works, so probe-based settling ends before the result shows.
+    backend.settle_probe = lambda: 0  # type: ignore[attr-defined]
+    return backend
+
+
+def test_give_up_right_after_an_action_looks_again_and_decides_on_a_late_change() -> None:
+    policy = ScriptedPolicy([
+        Decision(kind=ActionKind.CLICK, target_id="btn"),
+        Decision(terminal=TerminalKind.NEEDS_AGENT),
+        Decision(terminal=TerminalKind.SUBTASK_COMPLETE),
+    ])
+    config = RuntimeConfig(late_reaction_s=0.3, settle_reaction_s=0.05)
+    result = DesktopExecutor(_late_backend(0.2), policy, config=config).run(
+        Subtask(goal="Move", verification=("Invoices is listed",)))
+    assert result.status == TerminalKind.SUBTASK_COMPLETE
+    assert any(e.name == "Invoices" for e in result.final_snapshot.elements)
+
+
+def test_give_up_stands_when_nothing_changes_on_the_second_look() -> None:
+    policy = ScriptedPolicy([
+        Decision(kind=ActionKind.CLICK, target_id="btn"),
+        Decision(terminal=TerminalKind.NEEDS_AGENT),
+        Decision(terminal=TerminalKind.SUBTASK_COMPLETE),
+    ])
+    config = RuntimeConfig(late_reaction_s=0.05, settle_reaction_s=0.05)
+    result = DesktopExecutor(_late_backend(10), policy, config=config).run(
+        Subtask(goal="Move", verification=("Invoices is listed",)))
+    assert result.status == TerminalKind.NEEDS_AGENT

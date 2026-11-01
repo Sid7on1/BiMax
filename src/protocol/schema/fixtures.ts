@@ -141,7 +141,7 @@ export const INBOUND_FIXTURES: Inbound[] = [
   { t: 'host_result', id: 14, ok: false, error: 'Pressed, but nothing in the window changed.', value: { code: 'no_effect' } },
   { t: 'host_result', id: 15, ok: true, value: { text: 'Typed into “alpha beta gamma” in BimaxCuFixture. The box now reads exactly: “hello”.' } },
   { t: 'host_result', id: 16, ok: false, error: 'Scrolled down at “Charts”, but nothing moved.', value: { code: 'no_effect' } },
-  { t: 'input', text: 'refactor the auth module' },
+  { t: 'input', text: 'refactor the auth module', displayText: 'Refactor auth', toolScope: { names: ['ReadFileTool', 'AskUserTool'], required: 'ReadFileTool' } },
   { t: 'interrupt' },
   { t: 'steer', text: 'also update the README' },
   { t: 'query', id: 3, text: '/g' },

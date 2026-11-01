@@ -1,0 +1,81 @@
+{
+  "scope": "one installed saved gpt-oss-20b Low / owned fixture / selected conversation; not WhatsApp or full M01",
+  "passed": true,
+  "graderMutants": [
+    {
+      "fault": "unchanged",
+      "rejected": true,
+      "reason": "exactly one send"
+    },
+    {
+      "fault": "duplicate",
+      "rejected": true,
+      "reason": "exactly one send"
+    },
+    {
+      "fault": "wrong-contact",
+      "rejected": true,
+      "reason": "correct new message/contact"
+    },
+    {
+      "fault": "wrong-text",
+      "rejected": true,
+      "reason": "correct new message/contact"
+    },
+    {
+      "fault": "touched-bystander",
+      "rejected": true,
+      "reason": "all prior contacts/messages unchanged"
+    },
+    {
+      "fault": "old-message-reused",
+      "rejected": true,
+      "reason": "fresh outgoing identity"
+    },
+    {
+      "fault": "false-success",
+      "rejected": true,
+      "reason": "exact verified result"
+    },
+    {
+      "fault": "partial",
+      "rejected": true,
+      "reason": "completed input steps"
+    },
+    {
+      "fault": "provider-error",
+      "rejected": true,
+      "reason": "exact verified result"
+    },
+    {
+      "fault": "missing-observation",
+      "rejected": true,
+      "reason": "'pid'"
+    },
+    {
+      "fault": "foreign-window",
+      "rejected": true,
+      "reason": "exact fixture target"
+    },
+    {
+      "fault": "stale-read",
+      "rejected": true,
+      "reason": "fresh snapshots"
+    },
+    {
+      "fault": "replayed-send",
+      "rejected": true,
+      "reason": "no input replay"
+    },
+    {
+      "fault": "fake-delivery",
+      "rejected": true,
+      "reason": "no invented delivery"
+    },
+    {
+      "fault": "uncleared-draft",
+      "rejected": true,
+      "reason": "conversation/draft"
+    }
+  ]
+}

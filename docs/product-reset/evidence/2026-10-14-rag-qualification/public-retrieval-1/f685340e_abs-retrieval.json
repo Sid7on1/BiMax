@@ -1,0 +1,235 @@
+{
+  "row": 441,
+  "id": "f685340e_abs",
+  "stratum": "abstention",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T04:50:43.206638+00:00",
+  "valid": true,
+  "question": "How often do I play table tennis with my friends at the local park?",
+  "references": [
+    "The information provided is not enough. You mentioned playing tennis but not table tennis."
+  ],
+  "kind": "knowledge-update",
+  "abstention": true,
+  "date": "2023/06/19 (Mon) 04:29",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 561.2906249999978,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 67,
+        "maxInputChars": 67,
+        "requiredProviderTruncation": false,
+        "promptTokens": 17,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_25df025b_abs_1",
+        "answer_25df025b_abs_2",
+        "6b895848_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 7 of 12) purchasing a multi-pack of socks, which often includes a combination of colors. This can be a great way to stock up and have a few spare pairs on hand.\n\nNow that you've chosen your socks, are you planning on getting back out on the court soon?\nuser: Yeah, I'm planning to play tennis with my friends this Sunday at the local park.\nassistant: That sounds like a lot of fun! It's great that you're staying active and enjoying the outdoors with your friends. Sunday tennis sessions are a great way to unwind and get some exercise at the same time.\n\nMake sure to wear your new Nike Court Flex Tennis Socks and your Air Zoom tennis shoes, and you'll be ready to take on the court in style and comfort. Don't forget to stay hydrated, wear sunscreen, and bring some towels to wipe off that sweat.\n\nIf you're feeling competitive, you could even make it a friendly tournament and see who comes out on top. Or, if you're just looking to have some fun, you could play a casual game and enjoy the camaraderie with your friends.\n\nWhatever you choose, I hope you have a blast playing tennis on Sunday and make some amazing memories with your friends!\n  (part 8 of 12, excerpt) user: I'm a big fan of Roger Federer, he's such a legend on the court. But I'm not really inspired by the pros, I just play for fun with my friends. Speaking of which, do you know any good ways to keep my tennis racket in good condition?\n- (part 1 of 13, excerpt) user: I'm looking to plan out my weekend. Can you suggest some jogging routes near my house? Oh, and by the way, I'm planning to play tennis with my friends at the local park this Sunday, like we do ever\n- (part 1 of 14, excerpt) user: I'm trying to find a good dog park near my place where I can take Max for some off-leash playtime. Do you have any rec",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_25df025b_abs_1",
+          "sourceVersion": "sha256:bdecb3ea79202f868494be8970be213bc7083d5b79280a8dbb256bef5d9f349d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_25df025b_abs_1",
+            "part": 7,
+            "parts": 12
+          },
+          "text": "purchasing a multi-pack of socks, which often includes a combination of colors. This can be a great way to stock up and have a few spare pairs on hand.\n\nNow that you've chosen your socks, are you planning on getting back out on the court soon?\nuser: Yeah, I'm planning to play tennis with my friends this Sunday at the local park.\nassistant: That sounds like a lot of fun! It's great that you're staying active and enjoying the outdoors with your friends. Sunday tennis sessions are a great way to unwind and get some exercise at the same time.\n\nMake sure to wear your new Nike Court Flex Tennis Socks and your Air Zoom tennis shoes, and you'll be ready to take on the court in style and comfort. Don't forget to stay hydrated, wear sunscreen, and bring some towels to wipe off that sweat.\n\nIf you're feeling competitive, you could even make it a friendly tournament and see who comes out on top. Or, if you're just looking to have some fun, you could play a casual game and enjoy the camaraderie with your friends.\n\nWhatever you choose, I hope you have a blast playing tennis on Sunday and make some amazing memories with your friends!",
+          "id": "ev_2b6a1da481a0fff25997a683",
+          "observedAt": "2026-10-14T04:50:43.783Z"
+        },
+        {
+          "sourceId": "memory:answer_25df025b_abs_1",
+          "sourceVersion": "sha256:bdecb3ea79202f868494be8970be213bc7083d5b79280a8dbb256bef5d9f349d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_25df025b_abs_1",
+            "part": 8,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "user: I'm a big fan of Roger Federer, he's such a legend on the court. But I'm not really inspired by the pros, I just play for fun with my friends. Speaking of which, do you know any good ways to keep my tennis racket in good condition?",
+          "id": "ev_5703fea684a2c091fab0b91e",
+          "observedAt": "2026-10-14T04:50:43.784Z"
+        },
+        {
+          "sourceId": "memory:answer_25df025b_abs_2",
+          "sourceVersion": "sha256:fbf88fe2f5586f33e4f4245a4fc80283050c72248d5427d4b367bc072c9f6155",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_25df025b_abs_2",
+            "part": 1,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "user: I'm looking to plan out my weekend. Can you suggest some jogging routes near my house? Oh, and by the way, I'm planning to play tennis with my friends at the local park this Sunday, like we do ever",
+          "id": "ev_b8313283732a689ec6b05935",
+          "observedAt": "2026-10-14T04:50:43.785Z"
+        },
+        {
+          "sourceId": "memory:6b895848_1",
+          "sourceVersion": "sha256:4fad1c30261da8b45112e11ac2e88706c9245225bf3154663d8794ccc8cb7027",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "6b895848_1",
+            "part": 1,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "user: I'm trying to find a good dog park near my place where I can take Max for some off-leash playtime. Do you have any rec",
+          "id": "ev_2208df17e4d81e83af3c4806",
+          "observedAt": "2026-10-14T04:50:43.785Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_25df025b_abs_1",
+        "answer_25df025b_abs_2",
+        "6b895848_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 18.510167000000365,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_25df025b_abs_1",
+        "answer_25df025b_abs_2",
+        "6b895848_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 7 of 12) purchasing a multi-pack of socks, which often includes a combination of colors. This can be a great way to stock up and have a few spare pairs on hand.\n\nNow that you've chosen your socks, are you planning on getting back out on the court soon?\nuser: Yeah, I'm planning to play tennis with my friends this Sunday at the local park.\nassistant: That sounds like a lot of fun! It's great that you're staying active and enjoying the outdoors with your friends. Sunday tennis sessions are a great way to unwind and get some exercise at the same time.\n\nMake sure to wear your new Nike Court Flex Tennis Socks and your Air Zoom tennis shoes, and you'll be ready to take on the court in style and comfort. Don't forget to stay hydrated, wear sunscreen, and bring some towels to wipe off that sweat.\n\nIf you're feeling competitive, you could even make it a friendly tournament and see who comes out on top. Or, if you're just looking to have some fun, you could play a casual game and enjoy the camaraderie with your friends.\n\nWhatever you choose, I hope you have a blast playing tennis on Sunday and make some amazing memories with your friends!\n  (part 8 of 12, excerpt) user: I'm a big fan of Roger Federer, he's such a legend on the court. But I'm not really inspired by the pros, I just play for fun with my friends. Speaking of which, do you know any good ways to keep my tennis racket in good condition?\n- (part 1 of 13, excerpt) user: I'm looking to plan out my weekend. Can you suggest some jogging routes near my house? Oh, and by the way, I'm planning to play tennis with my friends at the local park this Sunday, like we do ever\n- (part 1 of 14, excerpt) user: I'm trying to find a good dog park near my place where I can take Max for some off-leash playtime. Do you have any rec",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_25df025b_abs_1",
+          "sourceVersion": "sha256:bdecb3ea79202f868494be8970be213bc7083d5b79280a8dbb256bef5d9f349d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_25df025b_abs_1",
+            "part": 7,
+            "parts": 12
+          },
+          "text": "purchasing a multi-pack of socks, which often includes a combination of colors. This can be a great way to stock up and have a few spare pairs on hand.\n\nNow that you've chosen your socks, are you planning on getting back out on the court soon?\nuser: Yeah, I'm planning to play tennis with my friends this Sunday at the local park.\nassistant: That sounds like a lot of fun! It's great that you're staying active and enjoying the outdoors with your friends. Sunday tennis sessions are a great way to unwind and get some exercise at the same time.\n\nMake sure to wear your new Nike Court Flex Tennis Socks and your Air Zoom tennis shoes, and you'll be ready to take on the court in style and comfort. Don't forget to stay hydrated, wear sunscreen, and bring some towels to wipe off that sweat.\n\nIf you're feeling competitive, you could even make it a friendly tournament and see who comes out on top. Or, if you're just looking to have some fun, you could play a casual game and enjoy the camaraderie with your friends.\n\nWhatever you choose, I hope you have a blast playing tennis on Sunday and make some amazing memories with your friends!",
+          "id": "ev_2b6a1da481a0fff25997a683",
+          "observedAt": "2026-10-14T04:50:43.789Z"
+        },
+        {
+          "sourceId": "memory:answer_25df025b_abs_1",
+          "sourceVersion": "sha256:bdecb3ea79202f868494be8970be213bc7083d5b79280a8dbb256bef5d9f349d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_25df025b_abs_1",
+            "part": 8,
+            "parts": 12,
+            "partial": true
+          },
+          "text": "user: I'm a big fan of Roger Federer, he's such a legend on the court. But I'm not really inspired by the pros, I just play for fun with my friends. Speaking of which, do you know any good ways to keep my tennis racket in good condition?",
+          "id": "ev_5703fea684a2c091fab0b91e",
+          "observedAt": "2026-10-14T04:50:43.789Z"
+        },
+        {
+          "sourceId": "memory:answer_25df025b_abs_2",
+          "sourceVersion": "sha256:fbf88fe2f5586f33e4f4245a4fc80283050c72248d5427d4b367bc072c9f6155",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_25df025b_abs_2",
+            "part": 1,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "user: I'm looking to plan out my weekend. Can you suggest some jogging routes near my house? Oh, and by the way, I'm planning to play tennis with my friends at the local park this Sunday, like we do ever",
+          "id": "ev_b8313283732a689ec6b05935",
+          "observedAt": "2026-10-14T04:50:43.789Z"
+        },
+        {
+          "sourceId": "memory:6b895848_1",
+          "sourceVersion": "sha256:4fad1c30261da8b45112e11ac2e88706c9245225bf3154663d8794ccc8cb7027",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "6b895848_1",
+            "part": 1,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "user: I'm trying to find a good dog park near my place where I can take Max for some off-leash playtime. Do you have any rec",
+          "id": "ev_2208df17e4d81e83af3c4806",
+          "observedAt": "2026-10-14T04:50:43.790Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_25df025b_abs_1",
+        "answer_25df025b_abs_2",
+        "6b895848_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.9464999999981956,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:50:43.791621+00:00"
+}

@@ -1,5 +1,16 @@
 # X01 — build, run, and prove the real app
 
+## Current qualification scope — 2026-10-11
+
+[Record 83](../../83_DIRECT_AT_CU_EXPERIENCE.md) replaces the required picker with
+direct @CU and model discovery of actual app/window IDs. One installed Do fixture
+run passed exact text, exactly one Save and independent AX verification. This does
+not qualify this full journey; the remaining scope below stays Target.
+
+[Record 82](../../82_CU_MODES_AND_VERIFICATION_RECOVERY.md) qualifies scoped local
+Computer Use modes and fixture effects. It does not qualify this combined code
+and native journey. Mixed code/CU orchestration and full X01 remain Target.
+
 ## User prompt
 
 > Add a “Clear completed” action to this Mac to-do app. Keep the current visual style, add tests,
@@ -15,7 +26,7 @@
 
 ## Expected experience
 
-The task remains one thread but exposes two evidence lanes:
+The task remains one Bimax Thread but exposes two evidence lanes:
 
 1. **Code lane** — plan, edited files, targeted/full tests, build artifact, diff.
 2. **Mac lane** — launched bundle hash, target window, action, refreshed list state, screenshot/AX

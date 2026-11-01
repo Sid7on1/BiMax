@@ -1,0 +1,146 @@
+{
+  "runtime": "/Applications/Bimax.app/Contents/Resources/arc-runtime",
+  "toolNames": [
+    "mcp__bimax-arc__act",
+    "mcp__bimax-arc__apps",
+    "mcp__bimax-arc__click_at",
+    "mcp__bimax-arc__commands",
+    "mcp__bimax-arc__drag",
+    "mcp__bimax-arc__observe",
+    "mcp__bimax-arc__press",
+    "mcp__bimax-arc__release",
+    "mcp__bimax-arc__run_command",
+    "mcp__bimax-arc__screenshot",
+    "mcp__bimax-arc__scroll_at",
+    "mcp__bimax-arc__settle",
+    "mcp__bimax-arc__status",
+    "mcp__bimax-arc__type_text",
+    "mcp__bimax-arc__wait",
+    "mcp__bimax-arc__windows"
+  ],
+  "status": {
+    "version": "0.1.1",
+    "python": "3.13.1",
+    "macos": "27.0",
+    "permissions": {
+      "accessibility": true,
+      "screen_recording": true,
+      "driver_accessibility": true,
+      "host_accessibility": true
+    },
+    "background_input": true,
+    "virtual_display": true
+  },
+  "before": {
+    "saves": 0,
+    "text": ""
+  },
+  "after": {
+    "saves": 1,
+    "text": "arc-native-proof-20261007"
+  },
+  "final": {
+    "snapshot": "2bababdb-5217-4bb3-a12f-f9d6adc01a43:s5",
+    "pid": 96915,
+    "window_id": 693,
+    "application": "Arc Fixture",
+    "window": "Arc Driver Verification",
+    "elements": [
+      {
+        "id": "ax_1",
+        "role": "Window",
+        "name": "Arc Driver Verification"
+      },
+      {
+        "id": "ax_2",
+        "role": "TextField",
+        "name": "Verification message",
+        "value": "arc-native-proof-20261007",
+        "actions": [
+          "CLICK",
+          "RIGHT_CLICK",
+          "TYPE_TEXT",
+          "SET_VALUE"
+        ],
+        "focused": true,
+        "parent": "ax_1"
+      },
+      {
+        "id": "ax_3",
+        "role": "Button",
+        "name": "Save verification",
+        "actions": [
+          "CLICK"
+        ],
+        "parent": "ax_1"
+      },
+      {
+        "id": "ax_4",
+        "role": "StaticText",
+        "value": "Saved: arc-native-proof-20261007",
+        "parent": "ax_1"
+      },
+      {
+        "id": "ax_5",
+        "role": "Button",
+        "actions": [
+          "CLICK"
+        ],
+        "parent": "ax_1"
+      },
+      {
+        "id": "ax_6",
+        "role": "Button",
+        "actions": [
+          "CLICK",
+          "RIGHT_CLICK"
+        ],
+        "enabled": false,
+        "parent": "ax_1"
+      },
+      {
+        "id": "ax_7",
+        "role": "Group",
+        "parent": "ax_6"
+      },
+      {
+        "id": "ax_10",
+        "role": "Group",
+        "parent": "ax_7"
+      },
+      {
+        "id": "ax_8",
+        "role": "Button",
+        "actions": [
+          "CLICK"
+        ],
+        "parent": "ax_1"
+      },
+      {
+        "id": "ax_9",
+        "role": "StaticText",
+        "value": "Arc Driver Verification",
+        "parent": "ax_1"
+      }
+    ]
+  },
+  "approvals": [
+    {
+      "id": "fixture-turn",
+      "application": "Arc Fixture",
+      "operation": "Read this app for the current Bimax Thread turn"
+    },
+    {
+      "id": "fixture-turn",
+      "application": "Arc Fixture",
+      "operation": "act: {\"action\":\"SET_VALUE\",\"element\":\"ax_2\",\"value\":\"arc-native-proof-20261007\"}\nWindow: 693\nThis may commit changes in Arc Fixture."
+    },
+    {
+      "id": "fixture-turn",
+      "application": "Arc Fixture",
+      "operation": "act: {\"action\":\"CLICK\",\"element\":\"ax_3\"}\nWindow: 693\nThis may commit changes in Arc Fixture."
+    }
+  ],
+  "deniedReuse": true,
+  "stoppedInput": true
+}

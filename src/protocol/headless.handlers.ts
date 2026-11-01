@@ -59,12 +59,17 @@ export function buildHostHandlers(deps: { session: HeadlessSession; graphStore: 
 
   // The handlers are the same whatever the transport; only how messages travel differs.
   return {
-    onInput: (text) => {
-      void session.dispatch(text);
+    onInput: (text, scope, display) => {
+      void session.dispatch(text, scope, display);
     },
     onInterrupt: () => session.interrupt(),
     onSteer: (text) => session.steer(text),
     onQuery: async (text) => {
+      const UI = '\u0000presentation:';
+      if(text.startsWith(UI)) {
+        try { const result = await require('../mcp/ui.grants').requestMcpUi(JSON.parse(text.slice(UI.length))); return [{label:'presentation',kind:'path' as const,desc:'',value:JSON.stringify({result})}]; }
+        catch(error) { return [{label:'presentation',kind:'path' as const,desc:'',value:JSON.stringify({error:String(error)})}]; }
+      }
       // The completions channel doubles as the Composer's ingest channel.
       //
       // Attaching a file must READ IT THERE AND THEN, the way every assistant people already use

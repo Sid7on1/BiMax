@@ -71,6 +71,7 @@ export interface EngineConfig {
 // --- Event payloads --------------------------------------------------------------------------
 
 export interface ToolCallEntry {
+  parts?: import('../../../../src/protocol/protocol').PresentationPart[];
   id: string;
   toolName: string;
   input: string;

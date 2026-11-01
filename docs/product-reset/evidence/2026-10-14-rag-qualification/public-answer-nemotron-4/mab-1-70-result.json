@@ -1,0 +1,235 @@
+{
+  "row": 1,
+  "query": 70,
+  "id": "mab-1-70",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "question": "Which of Tara Strong major voice role in animated series is an American animated television series based on the DC Comics fictional superhero team, the \"Teen Titans\"?",
+  "references": [
+    "Teen Titans Go!"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 9.713708000010229,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 166,
+        "maxInputChars": 166,
+        "requiredProviderTruncation": false,
+        "promptTokens": 33,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-188",
+        "context-229",
+        "context-220"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 6) is derived from Old French \"cipres\", which was imported from Latin \"cypressus\", the latinisation of the Greek \u03ba\u03c5\u03c0\u03ac\u03c1\u03b9\u03c3\u03c3\u03bf\u03c2 (\"kyparissos\").\n\nDocument 1335:\nList of Teen Titans Go! episodes\n\"Teen Titans Go!\" is an American animated television series based on the DC Comics fictional superhero team, the \"Teen Titans\". The series was announced following the popularity of DC Nation's New Teen Titans shorts, both of which are based on the 2003 \"Teen Titans\" TV series. \"Teen Titans Go!\" is a more comedic take on the DC Comics franchise, dealing with situations that happen every day. Sporting a new animation style, \"Teen Titans Go!\" serves as a comedic spin-off with no continuity to the previous series, and only certain elements are retained. Many DC characters make cameo appearances and are referenced in the background. The original principal voice cast returns to reprise their respective roles.\n- (part 4 of 5, excerpt) \"Teen Titans\" is an American animated television series based on the DC comics series of the same name by Bob Haney and Bruno Premiani. Developed by David Slack for Cartoon Network, the series was produced by DC Entertainment and Warner Bros. Animation with Sander Schwartz serving as executive producer and Glen Murakami, Bruce Timm, and Linda M. Steiner signing on as producers. The series follows the adventures of a team of crime-fighting teenaged superheroes, consisting of the leader Robin (voiced by Scott Menville), foreign alien princess Starfire (voiced by Hynden Walch), the technological genius Cyborg (voiced by Khary Payton), the dark sorceress Raven (voiced by Tara Strong), and the green sh\n- (part 6 of 6, excerpt) Tara Strong (born Tara Lyn Charendoff; February 12, 1973) is a Canadian\u2013American actress who has done voice work for numerous",
+      "evidence": [
+        {
+          "sourceId": "memory:context-188",
+          "sourceVersion": "sha256:2b671f14075eab927eb8b0dd7b6262125ee525c7884f4989ef526f91d9f5a8d9",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-188",
+            "part": 1,
+            "parts": 6
+          },
+          "text": "is derived from Old French \"cipres\", which was imported from Latin \"cypressus\", the latinisation of the Greek \u03ba\u03c5\u03c0\u03ac\u03c1\u03b9\u03c3\u03c3\u03bf\u03c2 (\"kyparissos\").\n\nDocument 1335:\nList of Teen Titans Go! episodes\n\"Teen Titans Go!\" is an American animated television series based on the DC Comics fictional superhero team, the \"Teen Titans\". The series was announced following the popularity of DC Nation's New Teen Titans shorts, both of which are based on the 2003 \"Teen Titans\" TV series. \"Teen Titans Go!\" is a more comedic take on the DC Comics franchise, dealing with situations that happen every day. Sporting a new animation style, \"Teen Titans Go!\" serves as a comedic spin-off with no continuity to the previous series, and only certain elements are retained. Many DC characters make cameo appearances and are referenced in the background. The original principal voice cast returns to reprise their respective roles.",
+          "id": "ev_50b044e1600e7b03786fb06d",
+          "observedAt": "2026-10-14T04:49:03.794Z"
+        },
+        {
+          "sourceId": "memory:context-229",
+          "sourceVersion": "sha256:5fca442adecc5cc5cb701993660ab16aedb74fd63ebdda790c30ad4e92b00b49",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-229",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\"Teen Titans\" is an American animated television series based on the DC comics series of the same name by Bob Haney and Bruno Premiani. Developed by David Slack for Cartoon Network, the series was produced by DC Entertainment and Warner Bros. Animation with Sander Schwartz serving as executive producer and Glen Murakami, Bruce Timm, and Linda M. Steiner signing on as producers. The series follows the adventures of a team of crime-fighting teenaged superheroes, consisting of the leader Robin (voiced by Scott Menville), foreign alien princess Starfire (voiced by Hynden Walch), the technological genius Cyborg (voiced by Khary Payton), the dark sorceress Raven (voiced by Tara Strong), and the green sh",
+          "id": "ev_3c858a528a8e59b735525694",
+          "observedAt": "2026-10-14T04:49:03.794Z"
+        },
+        {
+          "sourceId": "memory:context-220",
+          "sourceVersion": "sha256:3383931ef3dabb718d410c043fed16e117b559863864b1b98e0b63e6c4414483",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-220",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Tara Strong (born Tara Lyn Charendoff; February 12, 1973) is a Canadian\u2013American actress who has done voice work for numerous",
+          "id": "ev_9e402c9d1cc2650cff64b432",
+          "observedAt": "2026-10-14T04:49:03.794Z"
+        }
+      ],
+      "sourceIds": [
+        "context-188",
+        "context-229",
+        "context-220"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.459541999996873,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-188",
+        "context-229",
+        "context-220"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 6) is derived from Old French \"cipres\", which was imported from Latin \"cypressus\", the latinisation of the Greek \u03ba\u03c5\u03c0\u03ac\u03c1\u03b9\u03c3\u03c3\u03bf\u03c2 (\"kyparissos\").\n\nDocument 1335:\nList of Teen Titans Go! episodes\n\"Teen Titans Go!\" is an American animated television series based on the DC Comics fictional superhero team, the \"Teen Titans\". The series was announced following the popularity of DC Nation's New Teen Titans shorts, both of which are based on the 2003 \"Teen Titans\" TV series. \"Teen Titans Go!\" is a more comedic take on the DC Comics franchise, dealing with situations that happen every day. Sporting a new animation style, \"Teen Titans Go!\" serves as a comedic spin-off with no continuity to the previous series, and only certain elements are retained. Many DC characters make cameo appearances and are referenced in the background. The original principal voice cast returns to reprise their respective roles.\n- (part 4 of 5, excerpt) \"Teen Titans\" is an American animated television series based on the DC comics series of the same name by Bob Haney and Bruno Premiani. Developed by David Slack for Cartoon Network, the series was produced by DC Entertainment and Warner Bros. Animation with Sander Schwartz serving as executive producer and Glen Murakami, Bruce Timm, and Linda M. Steiner signing on as producers. The series follows the adventures of a team of crime-fighting teenaged superheroes, consisting of the leader Robin (voiced by Scott Menville), foreign alien princess Starfire (voiced by Hynden Walch), the technological genius Cyborg (voiced by Khary Payton), the dark sorceress Raven (voiced by Tara Strong), and the green sh\n- (part 6 of 6, excerpt) Tara Strong (born Tara Lyn Charendoff; February 12, 1973) is a Canadian\u2013American actress who has done voice work for numerous",
+      "evidence": [
+        {
+          "sourceId": "memory:context-188",
+          "sourceVersion": "sha256:2b671f14075eab927eb8b0dd7b6262125ee525c7884f4989ef526f91d9f5a8d9",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-188",
+            "part": 1,
+            "parts": 6
+          },
+          "text": "is derived from Old French \"cipres\", which was imported from Latin \"cypressus\", the latinisation of the Greek \u03ba\u03c5\u03c0\u03ac\u03c1\u03b9\u03c3\u03c3\u03bf\u03c2 (\"kyparissos\").\n\nDocument 1335:\nList of Teen Titans Go! episodes\n\"Teen Titans Go!\" is an American animated television series based on the DC Comics fictional superhero team, the \"Teen Titans\". The series was announced following the popularity of DC Nation's New Teen Titans shorts, both of which are based on the 2003 \"Teen Titans\" TV series. \"Teen Titans Go!\" is a more comedic take on the DC Comics franchise, dealing with situations that happen every day. Sporting a new animation style, \"Teen Titans Go!\" serves as a comedic spin-off with no continuity to the previous series, and only certain elements are retained. Many DC characters make cameo appearances and are referenced in the background. The original principal voice cast returns to reprise their respective roles.",
+          "id": "ev_50b044e1600e7b03786fb06d",
+          "observedAt": "2026-10-14T04:49:03.798Z"
+        },
+        {
+          "sourceId": "memory:context-229",
+          "sourceVersion": "sha256:5fca442adecc5cc5cb701993660ab16aedb74fd63ebdda790c30ad4e92b00b49",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-229",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\"Teen Titans\" is an American animated television series based on the DC comics series of the same name by Bob Haney and Bruno Premiani. Developed by David Slack for Cartoon Network, the series was produced by DC Entertainment and Warner Bros. Animation with Sander Schwartz serving as executive producer and Glen Murakami, Bruce Timm, and Linda M. Steiner signing on as producers. The series follows the adventures of a team of crime-fighting teenaged superheroes, consisting of the leader Robin (voiced by Scott Menville), foreign alien princess Starfire (voiced by Hynden Walch), the technological genius Cyborg (voiced by Khary Payton), the dark sorceress Raven (voiced by Tara Strong), and the green sh",
+          "id": "ev_3c858a528a8e59b735525694",
+          "observedAt": "2026-10-14T04:49:03.799Z"
+        },
+        {
+          "sourceId": "memory:context-220",
+          "sourceVersion": "sha256:3383931ef3dabb718d410c043fed16e117b559863864b1b98e0b63e6c4414483",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-220",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Tara Strong (born Tara Lyn Charendoff; February 12, 1973) is a Canadian\u2013American actress who has done voice work for numerous",
+          "id": "ev_9e402c9d1cc2650cff64b432",
+          "observedAt": "2026-10-14T04:49:03.799Z"
+        }
+      ],
+      "sourceIds": [
+        "context-188",
+        "context-229",
+        "context-220"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.157624999992549,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:48:39.538308+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Tara Strong voices **Raven** in the *Teen Titans* animated series, which is an American animated television series based on the DC Comics fictional superhero team.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 534,
+    "completion_tokens": 703,
+    "total_tokens": 1237,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 668,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 292,
+    "completion_tokens": 1026,
+    "total_tokens": 1318,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 7431.2491250002495,
+  "judgeWallMs": 13818.442042000243,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.16
+  },
+  "ended": "2026-10-14T07:49:02.271083+00:00"
+}

@@ -27,37 +27,16 @@ const config: Config = {
   // developer's real ~/.breakglass. See jest.setup.ts — this is not hygiene, it is a fix for a
   // measured incident where the suite blanked the user's configured model.
   setupFiles: ['<rootDir>/jest.setup.ts'],
+  globalSetup: '<rootDir>/scripts/jest-renderer-setup.cjs',
   // marked (the app's Markdown parser) is published as ESM, which ts-jest's CommonJS run cannot load; its own UMD
   // build is the same library in a form it can. Used by app/src/main/thread.export.ts (N4).
-  moduleNameMapper: { '^marked$': '<rootDir>/app/node_modules/marked/lib/marked.umd.js' },
-  // RETRIEVAL SUITES RUN UNDER BUN, NOT HERE — and that is a property of the RUNTIME, not the code.
-  //
-  // Measured 2026-09-19: plain Node's `node:sqlite` has no FTS5 ("no such module: fts5"), while bun
-  // AND Electron both do — and Electron is what actually runs the shipped engine, so production is
-  // unaffected. Left in this runner these 11 suites contributed ~38 permanent failures that no one
-  // could act on, and a red suite nobody acts on is where real bugs hide: two genuinely broken
-  // rerank fixtures sat inside this noise until the suites were run somewhere they could pass.
-  //
-  // `npm test` runs them through `npm run test:bun`, so nothing is skipped overall.
-  // fts5.contract.test.ts fails if this list and that script ever drift apart.
+  moduleNameMapper: { '^react-dom$': '<rootDir>/app/node_modules/react-dom/index.js', '^react$': '<rootDir>/app/node_modules/react/index.js', '^react/(.*)$': '<rootDir>/app/node_modules/react/$1', '^marked$': '<rootDir>/app/node_modules/marked/lib/marked.umd.js', '^streamdown$': '<rootDir>/node_modules/.cache/bimax-jest/streamdown.cjs', '\\.css$': '<rootDir>/scripts/jest-style.cjs' },
+  // Node 24 ships FTS5; retrieval suites now run in the normal suite as well as Bun parity.
+  transform: { "^.+\\.[tj]sx?$": "ts-jest" },
+  transformIgnorePatterns: ["/node_modules/(?!@noble)/"],
   testPathIgnorePatterns: [
     '/node_modules/', '<rootDir>/archive/',
-    '<rootDir>/src/__tests__/code.index.test.ts',
-    '<rootDir>/src/__tests__/code.index.eval.test.ts',
-    '<rootDir>/src/__tests__/code.index.large.test.ts',
-    '<rootDir>/src/__tests__/code.store.ram.ledger.test.ts',
-    '<rootDir>/src/__tests__/composer.contextual.test.ts',
-    '<rootDir>/src/__tests__/composer.corpus.test.ts',
-    '<rootDir>/src/__tests__/composer.facts.test.ts',
-    '<rootDir>/src/__tests__/composer.identifiers.test.ts',
-    '<rootDir>/src/__tests__/composer.retrieval.traps.test.ts',
-    '<rootDir>/src/__tests__/document.read.test.ts',
-    '<rootDir>/src/__tests__/memory.eval.test.ts',
-    '<rootDir>/src/__tests__/memory.retrieval.test.ts',
-    // Builds the REAL container to inspect all 51 tool schemas. Under jest that races the
-    // environment teardown — container.ts keeps lazily require()-ing after the last test and
-    // throws "require after teardown", passing 5/5 on one run and 0/5 on the next. Stable under
-    // bun, which is where it runs.
+    // Container's asynchronous discovery is qualified in Bun; it outlives Jest teardown.
     '<rootDir>/src/__tests__/tool.registry.contract.test.ts',
   ],
   collectCoverage: true,

@@ -1,0 +1,41 @@
+{
+  "at": "2026-10-14T15:13:30.732136+00:00",
+  "request": {
+    "model": "all-minilm:latest",
+    "input": [
+      "Independent CPU execution control."
+    ],
+    "truncate": false,
+    "keep_alive": "30s",
+    "options": {
+      "num_gpu": 0,
+      "num_thread": 1
+    }
+  },
+  "responseModel": "all-minilm:latest",
+  "dimensions": 384,
+  "reportedDurationNs": 911140625,
+  "loadedModel": {
+    "name": "all-minilm:latest",
+    "model": "all-minilm:latest",
+    "size": 48999955,
+    "digest": "1b226e2802dbb772b5fc32a58f103ca1804ef7501331012de126ab22f67475ef",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "bert",
+      "families": [
+        "bert"
+      ],
+      "parameter_size": "23M",
+      "quantization_level": "F16"
+    },
+    "expires_at": "2026-10-14T20:44:00.726303+05:30",
+    "size_vram": 0,
+    "context_length": 256,
+    "runner": "llamacpp"
+  },
+  "cpuOnlyObserved": true,
+  "apiReaderJudgeCalls": 0,
+  "scope": "Independent control,not a scored question; no global Ollama/OS setting changed."
+}

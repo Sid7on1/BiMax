@@ -20,6 +20,9 @@
 export interface EngineWorkerData {
   /** The engine's working folder; a worker cannot chdir (src/engine/worker.folder.ts). */
   bimaxEngineRoot: string;
+  /** Private app-owned capabilities, transferred at worker creation; never sourced from MCP/project config. */
+  bimaxEmbeddedTools?: EmbeddedToolSpec[];
+  bimaxEmbeddedToolsPort?: { postMessage(value: unknown): void };
   /** The app's end of the protocol channel is kept by the app; this is the engine's end. */
   bimaxEnginePort: { postMessage(value: unknown): void };
 }
@@ -39,3 +42,13 @@ export * from '../evidence/schema';
 /** Secret detection (rules ported from gitleaks): the engine scrubs what it saves, the app what it shows and exports. */
 export { RULES, entropy, findSecrets, looksLikeSecret } from '../security/secret.scan';
 export type { SecretRule, Found } from '../security/secret.scan';
+
+/** Generic host seam: no native implementation or permission ownership enters the coding engine. */
+export interface EmbeddedToolSpec {
+  name: string;
+  description: string;
+  schema: unknown;
+  outputSource?: 'screen';
+  /** This host tool is available only in an explicitly scoped user turn. */
+  scopeOnly?: boolean;
+}

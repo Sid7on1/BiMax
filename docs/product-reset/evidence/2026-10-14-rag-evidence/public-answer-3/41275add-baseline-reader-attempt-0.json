@@ -1,0 +1,64 @@
+{
+  "started": "2026-10-14T09:02:44.108155+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 0,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/30 (Tue) 14:25\nQuestion: I wanted to follow up on our previous conversation about YouTube videos for workplace posture. Can you remind me of the Mayo Clinic video you recommended?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- Session date: 2023/05/23 (Tue) 18:17\nuser: any youtube video i can share with them?\nassistant: Certainly! There are plenty of helpful videos on YouTube that demonstrate proper workplace posture and provide tips for staying comfortable while working at a desk. Here are a few videos you could share with your staff:\n\n1. \"How to Sit Properly at a Desk to Avoid Back Pain\" by the Mayo Clinic: <https://www.youtube.com/watch?v=UfOvNlX9Hh0>\n2. \"5 Tips for Better Posture at Your Desk\" by Harvard Health Publishing: <https://www.youtube.com/watch?v=LT_dFRnmdGs>\n3. \"Office Ergonomics - Computer Workstation Ergonomics\" by Ohio State University Wexner Medical Center: <https://www.youtube.com/watch?v=0TtTXsQsRd8>\n4. \"10 Easy Ways to Improve Your Posture at Work\" by Healthline: <https://www.youtube.com/watch?v=nvVbWYfNn_0>\n\nThese videos offer clear demonstrations and practical advice for improving workplace posture and reducing discomfort. Sharing these resources with your staff can help to promote a healthier, more comfortable work environment.\n- (part 10 of 16, excerpt) assistant: That's a great idea! Watching live videos of these bands will definitely give you a sense of their energy and performance style. Snarky Puppy and Lettuce are both known for their incredible live shows, and they have a lot of great live videos available online.\n\nSnarky Puppy, in particular, has a fantastic YouTube channel with a ton of live videos from their performances around the world. They're known for their dynamic, improvisational live shows, and their videos really capture the energy and excitement of their performances.\n- (part 7 of 18, excerpt) assistant: Recording gameplay footage for your YouTube channel is a great idea!"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 200,
+  "response": {
+    "id": "chatcmpl-52ed3853-12b9-464c-944d-c879a321516f",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "content": "The Mayo Clinic video I recommended was **\"How to Sit Properly at a Desk to Avoid Back Pain\"**: https://www.youtube.com/watch?v=UfOvNlX9Hh0",
+          "role": "assistant",
+          "reasoning_content": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - User date: 2023/05/30 (Tue) 14:25\n   - Question: \"I wanted to follow up on our previous conversation about YouTube videos for workplace posture. Can you remind me of the Mayo Clinic video you recommended?\"\n   - This is a follow-up question referencing a previous conversation.\n\n2.  **Check Retrieved History:**\n   - The retrieved history shows a session from 2023/05/23 (Tue) 18:17.\n   - In that session, the user asked: \"any youtube video i can share with them?\"\n   - The assistant responded with a list of videos, including: \"1. 'How to Sit Properly at a Desk to Avoid Back Pain' by the Mayo Clinic: <https://www.youtube.com/watch?v=UfOvNlX9Hh0>\"\n   - There are also other entries in the history that seem unrelated (about Snarky Puppy, Lettuce, recording gameplay), but the relevant part is the first entry.\n\n3.  **Verify the Mayo Clinic Video:**\n   - The history explicitly lists: \"How to Sit Properly at a Desk to Avoid Back Pain\" by the Mayo Clinic with URL: https://www.youtube.com/watch?v=UfOvNlX9Hh0\n   - The user is asking for a reminder of the Mayo Clinic video recommended in the previous conversation.\n   - I should provide that specific video recommendation based on the retrieved history.\n\n4.  **Check for Restrictions/Constraints:**\n   - \"Answer the question using only the retrieved history. If it is insufficient, say you do not know.\"\n   - \"Prefer the latest dated evidence when facts change.\"\n   - \"Give a concise, complete answer.\"\n   - The retrieved history is from 2023/05/23, and the user is following up on 2023/05/30. The history directly contains the Mayo Clinic video recommendation. It seems sufficient.\n\n5.  **Formulate Answer:**\n   - I need to recall and state the Mayo Clinic video that was recommended.\n   - From the history: \"How to Sit Properly at a Desk to Avoid Back Pain\" by the Mayo Clinic: <https://www.youtube.com/watch?v=UfOvNlX9Hh0>\n   - I should present it concisely.\n   - I'll just give the video title and link as per the history.\n\n   Let's double-check if there's any other Mayo Clinic video mentioned. The list has 4 videos, only the first is Mayo Clinic. The others are Harvard Health, Ohio State, Healthline. So the Mayo Clinic one is uniquely identified.\n\n   I'll answer with the video title and URL as retrieved. I should make sure I'm only using the retrieved history. The history clearly has it. I'll output it concisely.\n\n   Format: \"The Mayo Clinic video I recommended was 'How to Sit Properly at a Desk to Avoid Back Pain': https://www.youtube.com/watch?v=UfOvNlX9Hh0\"\n\n   That's it. I'll output just that.\u2705"
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "created": 1791968564,
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "service_tier": null,
+    "system_fingerprint": null,
+    "object": "chat.completion",
+    "usage": {
+      "prompt_tokens": 567,
+      "completion_tokens": 735,
+      "total_tokens": 1302,
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 691,
+        "rejected_prediction_tokens": null
+      }
+    }
+  },
+  "valid": true,
+  "wallMs": 11877.339540999856
+}

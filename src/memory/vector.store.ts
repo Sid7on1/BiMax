@@ -11,6 +11,8 @@ import { reciprocalRankFusion } from './fusion';
 import { chunkDocument } from './chunking';
 import { dot, type EmbeddingBackend } from './embeddings';
 import type { Reranker } from './rerank';
+import { randomUUID } from 'node:crypto';
+import { withMemoryWriteTransaction } from './write.transaction';
 
 /**
  * File-backed memory with a four-stage retrieval pipeline.
@@ -59,6 +61,8 @@ export interface StoredChunk {
 
 export interface VectorDocument {
   id: string;
+  /** Fresh on each content replacement; binds delayed work even across an old→new→old edit. */
+  generation?: string;
   metadata: {
     tags: string[];
     content: string;
@@ -223,7 +227,9 @@ export class VectorStore {
   /** Indexed over CHUNKS, not documents — the unit retrieval scores. */
   private index = new Bm25Index();
   private indexDirty = true;
-  private chunkOwner = new Map<string, VectorDocument>();
+  /** Mixed-radix positions reuse the stored arrays without allocating an object per chunk. */
+  private chunkOwner = new Map<string, number | readonly [number, number]>();
+  private duplicateChunkOwners = false;
   private mode: SearchMode = { lexical: true, dense: false, reranked: false };
   /** Recency changed on the read path and is waiting for the coalesced flush (see semanticSearch). */
   private recencyDirty = false;
@@ -269,7 +275,7 @@ export class VectorStore {
         cached = { content, stems: new Set(contentStems(content)) };
         this.stemCache.set(doc, cached);
       }
-      for (const term of cached.stems) remaining.delete(term);
+      for (const term of remaining) if (cached.stems.has(term)) remaining.delete(term);
     }
     return [...remaining];
   }
@@ -300,12 +306,12 @@ export class VectorStore {
       try {
         // A retrieval may have updated recency in memory while its coalesced disk flush is still
         // pending. Reloading the file for the next search must not erase that newer timestamp.
-        const pendingRecency = this.recencyDirty
-          ? new Map(this.store.map((doc) => [doc.id, doc.lastUsedAt ?? 0]))
-          : null;
         const stat = await fs.stat(this.STORE_PATH, { bigint: true });
         const identity = `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeNs}:${stat.ctimeNs}`;
         if (identity === this.diskIdentity) return;
+        const pendingRecency = this.recencyDirty
+          ? new Map(this.store.map((doc) => [doc.id, doc.lastUsedAt ?? 0]))
+          : null;
         const data = await fs.readFile(this.STORE_PATH, 'utf-8');
         const parsed = JSON.parse(data);
         if (!Array.isArray(parsed)) throw new Error('Invalid memory store');
@@ -356,9 +362,9 @@ export class VectorStore {
   private async saveStore() {
     try {
       await fs.mkdir(path.dirname(this.STORE_PATH), { recursive: true });
-      const tmp = `${this.STORE_PATH}.${process.pid}.${Date.now()}.tmp`;
+      const tmp = `${this.STORE_PATH}.${randomUUID()}.tmp`;
       try {
-        await fs.writeFile(tmp, JSON.stringify(this.store, null, 2), 'utf-8');
+        await fs.writeFile(tmp, JSON.stringify(this.store, null, 2), { encoding: 'utf8', mode: 0o600, flag: 'wx' });
         const written = await fs.stat(tmp, { bigint: true });
         await fs.rename(tmp, this.STORE_PATH);
         const stat = await fs.stat(this.STORE_PATH, { bigint: true });
@@ -378,18 +384,50 @@ export class VectorStore {
     }
   }
 
+  /** All JSON mutators share one reload/publication authority, including background recency. */
+  private async mutateStore<T>(run: () => Promise<T>): Promise<T> {
+    return this.rwMutex.runExclusive(() => withMemoryWriteTransaction(this.STORE_PATH, async () => {
+      await this.loadStore(true);
+      try { return await run(); }
+      catch (error) {
+        // A rejected write must not leave a cache identity that can later republish ghost edits.
+        this.diskIdentity = null;
+        this.indexDirty = true;
+        throw error;
+      }
+    }));
+  }
+
   private rebuildIndex(): void {
     if (!this.indexDirty) return;
     const documents: { id: string; text: string }[] = [];
     this.chunkOwner = new Map();
-    for (const doc of this.store) {
-      for (const chunk of doc.chunks ?? []) {
+    this.duplicateChunkOwners = false;
+    const width = this.store.length;
+    for (const [docAt, doc] of this.store.entries()) {
+      for (const [chunkAt, chunk] of (doc.chunks ?? []).entries()) {
         documents.push({ id: chunk.id, text: chunk.text });
-        this.chunkOwner.set(chunk.id, doc);
+        // Preserve the original lookup's first chunk within the last owning document.
+        const previous = this.chunkOwner.get(chunk.id);
+        const ownerAt = typeof previous === 'number' ? previous % width : previous?.[0];
+        if (ownerAt === docAt) continue;
+        if (previous !== undefined) this.duplicateChunkOwners = true;
+        const address = chunkAt * width + docAt;
+        // The tuple is only a correctness fallback for positions beyond safe integer arithmetic.
+        this.chunkOwner.set(chunk.id, Number.isSafeInteger(address) ? address : [docAt, chunkAt]);
       }
     }
     this.index.build(documents);
     this.indexDirty = false;
+  }
+
+  private ownerOf(chunkId: string): VectorDocument | undefined {
+    const address = this.chunkOwner.get(chunkId);
+    return address === undefined ? undefined : this.store[typeof address === 'number' ? address % this.store.length : address[0]];
+  }
+
+  private chunkAt(address: number | readonly [number, number], doc: VectorDocument): StoredChunk | undefined {
+    return doc.chunks?.[typeof address === 'number' ? Math.floor(address / this.store.length) : address[1]];
   }
 
   async storeDocument(id: string, text: string, tags: string[]): Promise<void> {
@@ -427,9 +465,7 @@ export class VectorStore {
       }
     }
 
-    await this.rwMutex.runExclusive(async () => {
-      // Never overwrite an unreadable store with the constructor's empty in-memory default.
-      await this.loadStore(true);
+    await this.mutateStore(async () => {
       for (const input of prepared) {
         // Near-duplicate merge BEFORE insert (memory only — see VectorStoreOptions.dedup): a
         // store that keeps every phrasing of one fact spends its top-three retrieval budget
@@ -443,6 +479,7 @@ export class VectorStore {
         const mergedTags = Array.from(new Set([...(existing?.metadata?.tags ?? []), ...input.tags]));
         const doc: VectorDocument = {
           id: targetId,
+          generation: randomUUID(),
           metadata: { tags: mergedTags, content: input.text },
           chunks: input.chunks,
           lastUsedAt: Date.now(),
@@ -500,8 +537,7 @@ export class VectorStore {
 
   /** Remove documents matching the predicate. Returns how many were removed. Persists immediately. */
   async deleteWhere(predicate: (doc: VectorDocument) => boolean): Promise<number> {
-    return this.rwMutex.runExclusive(async () => {
-      await this.loadStore(true);
+    return this.mutateStore(async () => {
       const before = this.store.length;
       this.store = this.store.filter((doc) => !predicate(doc));
       const removed = before - this.store.length;
@@ -548,7 +584,7 @@ export class VectorStore {
         if (options.where && !options.where(tags)) return false;
         return true;
       };
-      const allowed = (chunkId: string): boolean => docAllowed(this.chunkOwner.get(chunkId));
+      const allowed = (chunkId: string): boolean => docAllowed(this.ownerOf(chunkId));
 
       // Deeper than `limit` on purpose: fusion can only promote a candidate that appears in a list,
       // and the reranker can only reorder what it is given. Truncating early throws away the
@@ -556,39 +592,82 @@ export class VectorStore {
       // with corpus reality: 32 was tuned on a memory store of hundreds of chunks; a code index
       // runs to thousands, where a 32-deep window is a sample, not a ranking.
       const depth = Math.max(limit * 8, 64);
-      const lexical = mode === 'dense'
-        ? []
-        : this.index.search(query).filter((h) => allowed(h.id)).slice(0, depth).map((h) => h.id);
-
+      const lexicalHits = mode === 'dense' ? [] : this.index.search(query).filter(h => allowed(h.id));
+      const lexical = lexicalHits.slice(0, depth).map(h => h.id);
       let dense: string[] = [];
+      type DenseCandidate = { id: string; score: number; recency: number };
+      let denseScored: DenseCandidate[] = [];
+      const compare = (a: DenseCandidate, b: DenseCandidate): number =>
+        b.score - a.score
+        || b.recency - a.recency
+        || a.id.localeCompare(b.id);
       if (queryVector) {
-        const scored = new BoundedTopK<{ id: string; score: number }>(depth, (a, b) =>
-          b.score - a.score
-          || (this.chunkOwner.get(b.id)?.lastUsedAt ?? 0) - (this.chunkOwner.get(a.id)?.lastUsedAt ?? 0)
-          || a.id.localeCompare(b.id),
-        );
+        const scored = new BoundedTopK<DenseCandidate>(depth, compare);
         for (const doc of this.store) {
           if (!docAllowed(doc)) continue;
           for (const chunk of doc.chunks ?? []) {
             if (!chunk.embedding || chunk.space !== this.embeddings?.id) continue;
-            scored.add({ id: chunk.id, score: dot(queryVector, chunk.embedding) });
+            scored.add({ id: chunk.id, score: dot(queryVector, chunk.embedding),
+              recency: (this.duplicateChunkOwners ? this.ownerOf(chunk.id)?.lastUsedAt : doc.lastUsedAt) ?? 0 });
           }
         }
-        dense = scored.sorted().map((s) => s.id);
+        denseScored = scored.sorted();
+        dense = denseScored.map(s => s.id);
       }
 
       const fused = reciprocalRankFusion({ lexical: { ids: lexical }, dense: { ids: dense } });
-      return {
-        dense: dense.length > 0,
-        // Chunk id → its text, for the reranker; and → its document, for the result.
-        candidates: fused
-          .map((hit) => {
-            const doc = this.chunkOwner.get(hit.id);
-            const chunk = doc?.chunks?.find((c) => c.id === hit.id);
-            return doc && chunk ? { id: hit.id, text: chunk.text, doc, chunk, fromDense: hit.ranks.dense !== undefined } : null;
-          })
-          .filter((c): c is NonNullable<typeof c> => c !== null),
-      };
+      const candidates = (hits: typeof fused) => hits.map(hit => {
+        const address = this.chunkOwner.get(hit.id);
+        const doc = address === undefined ? undefined : this.store[typeof address === 'number' ? address % this.store.length : address[0]];
+        const chunk = address === undefined || !doc ? undefined : this.chunkAt(address, doc);
+        return doc && chunk ? { id: hit.id, text: chunk.text, doc, chunk, fromDense: hit.ranks.dense !== undefined } : null;
+      }).filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== null);
+      const primary = candidates(fused);
+      const eligible = new Set<string>();
+      for (const candidate of primary) {
+        if (!candidate.fromDense && minScore > 0 && lexicalRelevance(query, candidate.text) < minScore) continue;
+        eligible.add(candidate.doc.id);
+        // Reranking reorders this pool; it never removes a candidate. No backfill is needed.
+        if (eligible.size >= limit) return { dense: dense.length > 0, candidates: primary, backfill: [] };
+      }
+
+      // Only an underfull primary pool needs document diversity. Keep its original ranks/prefix.
+      const lexicalDocuments: string[] = [];
+      const seenDocuments = new Set<string>();
+      for (const hit of lexicalHits) {
+        const doc = this.ownerOf(hit.id)!;
+        if (seenDocuments.has(doc.id)) continue;
+        const chunk = this.chunkAt(this.chunkOwner.get(hit.id)!, doc)!;
+        if (minScore > 0 && lexicalRelevance(query, chunk.text) < minScore) continue;
+        seenDocuments.add(doc.id);
+        lexicalDocuments.push(hit.id);
+        if (lexicalDocuments.length >= limit) break;
+      }
+      let denseDocuments: string[] = [];
+      if (queryVector) {
+        const known = new Map<VectorDocument, DenseCandidate>();
+        if (!this.duplicateChunkOwners) for (const candidate of denseScored) {
+          const doc = this.ownerOf(candidate.id)!;
+          if (!known.has(doc)) known.set(doc, candidate);
+        }
+        const documents = new BoundedTopK<DenseCandidate>(limit, compare);
+        for (const doc of this.store) {
+          if (!docAllowed(doc)) continue;
+          // A document represented in the global top-k already has its best chunk there.
+          // Reuse it rather than rescoring the long document that crowded out the other sources.
+          let best = known.get(doc);
+          if (!best) for (const chunk of doc.chunks ?? []) {
+            if (!chunk.embedding || chunk.space !== this.embeddings?.id) continue;
+            const candidate = { id: chunk.id, score: dot(queryVector, chunk.embedding),
+              recency: (this.duplicateChunkOwners ? this.ownerOf(chunk.id)?.lastUsedAt : doc.lastUsedAt) ?? 0 };
+            if (!best || compare(candidate, best) < 0) best = candidate;
+          }
+          if (best) documents.add(best);
+        }
+        denseDocuments = documents.sorted().map(s => s.id);
+      }
+      const backfill = reciprocalRankFusion({ lexical: { ids: lexicalDocuments }, dense: { ids: denseDocuments } });
+      return { dense: dense.length > 0, candidates: primary, backfill: candidates(backfill) };
     });
 
     if (!fusedCandidates) {
@@ -643,6 +722,18 @@ export class VectorStore {
       results.push(candidate.doc);
     }
 
+    // This pool is document-diverse, at most one champion per document from each retriever.
+    // It neither reorders the successful prefix nor adds another remote reranking request.
+    if (results.length < limit) {
+      for (const candidate of fusedCandidates.backfill) {
+        if (matched.has(candidate.doc.id)) continue;
+        if (!candidate.fromDense && minScore > 0 && lexicalRelevance(query, candidate.text) < minScore) continue;
+        matched.set(candidate.doc.id, [candidate.chunk]);
+        results.push(candidate.doc);
+        if (results.length >= limit) break;
+      }
+    }
+
     // Retrieval is what "used" means for eviction. Writing the file on EVERY search was the
     // obvious implementation and it was wrong twice: it puts a disk write on the read path of every
     // query, and — because it cannot be awaited without making every search wait on I/O it does not
@@ -673,8 +764,7 @@ export class VectorStore {
     this.recencyTimer = setTimeout(() => {
       this.recencyTimer = null;
       if (!this.recencyDirty) return;
-      this.rwMutex.runExclusive(async () => {
-        await this.loadStore(true);
+      this.mutateStore(async () => {
         await this.saveStore();
         this.recencyDirty = false;
       }).catch(() => {
@@ -691,10 +781,13 @@ export class VectorStore {
 
     const stale = await this.rwMutex.runExclusive(async () => {
       await this.loadStore(true);
-      const out: { id: string; text: string }[] = [];
+      const out: { id: string; text: string; documentId: string; generation?: string; documentText: string; ordinal: number }[] = [];
       for (const doc of this.store) {
-        for (const chunk of doc.chunks ?? []) {
-          if (!chunk.embedding || chunk.space !== this.embeddings!.id) out.push({ id: chunk.id, text: chunk.text });
+        for (const [ordinal, chunk] of (doc.chunks ?? []).entries()) {
+          if (!chunk.embedding || chunk.space !== this.embeddings!.id) out.push({
+            id: chunk.id, text: chunk.text, documentId: doc.id, generation: doc.generation,
+            documentText: doc.metadata.content, ordinal,
+          });
           if (out.length >= batch) return out;
         }
       }
@@ -704,17 +797,22 @@ export class VectorStore {
 
     const vectors = await this.embeddings.embed(stale.map((s) => s.text), 'passage').catch(() => null);
     if (!vectors) return { embedded: 0, pending: stale.length };
+    // A backend can learn its actual width on the first response. Bind that observed space now,
+    // then recheck it after waiting for publication rather than stamping a later active space.
+    const returnedSpace = this.embeddings.id;
 
-    return this.rwMutex.runExclusive(async () => {
-      const byId = new Map<string, StoredChunk>();
-      for (const doc of this.store) for (const chunk of doc.chunks ?? []) byId.set(chunk.id, chunk);
+    return this.mutateStore(async () => {
+      const byId = new Map(this.store.map(doc => [doc.id, doc]));
 
       let embedded = 0;
       stale.forEach((item, i) => {
-        const chunk = byId.get(item.id);
-        if (!chunk || !vectors[i]) return;
+        const doc = byId.get(item.documentId);
+        const chunk = doc?.chunks?.[item.ordinal];
+        if (!doc || doc.generation !== item.generation || doc.metadata.content !== item.documentText
+          || !chunk || chunk.id !== item.id || chunk.text !== item.text
+          || !vectors[i] || this.embeddings!.id !== returnedSpace) return;
         chunk.embedding = vectors[i];
-        chunk.space = this.embeddings!.id;
+        chunk.space = returnedSpace;
         embedded++;
       });
       if (embedded) { this.indexDirty = true; await this.saveStore(); }

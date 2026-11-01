@@ -1,0 +1,134 @@
+[
+  {
+    "name": "focused",
+    "command": [
+      "node",
+      "node_modules/jest/bin/jest.js",
+      "--coverage=false",
+      "--runInBand",
+      "src/__tests__/compiler.lifetime.sprint.test.ts",
+      "src/__tests__/request.deadline.settlement.test.ts",
+      "src/__tests__/graph.freshness.sprint.test.ts",
+      "src/__tests__/performance.sprint.test.ts"
+    ],
+    "started": "2026-10-13T13:25:28.646096+00:00",
+    "seconds": 9.711791542000356,
+    "exit": 0,
+    "log": "focused.log"
+  },
+  {
+    "name": "build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "started": "2026-10-13T13:25:38.358902+00:00",
+    "seconds": 3.17712287500035,
+    "exit": 0,
+    "log": "build.log"
+  },
+  {
+    "name": "app-typecheck",
+    "command": [
+      "npm",
+      "--prefix",
+      "app",
+      "run",
+      "typecheck"
+    ],
+    "started": "2026-10-13T13:25:41.536363+00:00",
+    "seconds": 3.436763624999003,
+    "exit": 0,
+    "log": "app-typecheck.log"
+  },
+  {
+    "name": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "started": "2026-10-13T13:25:44.973617+00:00",
+    "seconds": 4.6998650000005,
+    "exit": 0,
+    "log": "lint.log"
+  },
+  {
+    "name": "full-jest",
+    "command": [
+      "node",
+      "node_modules/jest/bin/jest.js",
+      "--coverage=false",
+      "--maxWorkers=2"
+    ],
+    "started": "2026-10-13T13:25:49.674131+00:00",
+    "seconds": 73.39279179099867,
+    "exit": 0,
+    "log": "full-jest.log"
+  },
+  {
+    "name": "full-bun",
+    "command": [
+      "npm",
+      "run",
+      "test:bun"
+    ],
+    "started": "2026-10-13T13:27:03.074170+00:00",
+    "seconds": 58.01357404199916,
+    "exit": 1,
+    "log": "full-bun.log"
+  },
+  {
+    "name": "node-scripts",
+    "command": [
+      "npm",
+      "run",
+      "test:scripts"
+    ],
+    "started": "2026-10-13T13:30:03.838043+00:00",
+    "seconds": 0.5110762080003042,
+    "exit": 0,
+    "log": "node-scripts.log"
+  },
+  {
+    "name": "app-build",
+    "command": [
+      "npm",
+      "--prefix",
+      "app",
+      "run",
+      "build"
+    ],
+    "started": "2026-10-13T13:30:04.349766+00:00",
+    "seconds": 3.06719429199984,
+    "exit": 0,
+    "log": "app-build.log"
+  },
+  {
+    "name": "engine-build",
+    "command": [
+      "npm",
+      "run",
+      "build:engine"
+    ],
+    "started": "2026-10-13T13:30:07.417302+00:00",
+    "seconds": 0.4583559160000732,
+    "exit": 0,
+    "log": "engine-build.log"
+  },
+  {
+    "name": "engine-smoke",
+    "command": [
+      "npm",
+      "--prefix",
+      "app",
+      "run",
+      "verify:engine"
+    ],
+    "started": "2026-10-13T13:30:07.876015+00:00",
+    "seconds": 1.9745624160004809,
+    "exit": 0,
+    "log": "engine-smoke.log"
+  }
+]

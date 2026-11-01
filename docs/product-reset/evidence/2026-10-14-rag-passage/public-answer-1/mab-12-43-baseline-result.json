@@ -1,0 +1,162 @@
+{
+  "row": 12,
+  "query": 43,
+  "id": "mab-12-43",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:29:41.333329+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n40. Debbie caught the gaze of Madelyn Yelena standing apart from the crowd.\n41. Debbie pinched Kamala's hand in frustration during their conversation.\n42. Debbie felt indignation at Madelyn Yelena's statement about the boys being fools.\n43. Debbie hid in the library while waiting for Kali.\n44. Kali revealed that he was going to marry Edgar.\n\n\nBelow is a list of possible subsequent events:\n\n['Kali admitted that he cared for Debbie but insisted on his upcoming marriage.', 'Kali confessed that he cherished his friendship with Debbie but emphasized his unwavering commitment to his fianc\u00e9.', 'Kali conveyed that he appreciated his bond with Debbie but affirmed his intention to proceed with his marriage.', 'Kali revealed that he held warm feelings for Debbie but reiterated his dedication to his planned wedding.', \"Kali acknowledged that he valued Debbie's company but maintained that his focus was on his future spouse.\", 'Kali expressed that he thought highly of Debbie but asserted that his priority was his impending nuptials.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Kali admitted that he cared for Debbie but insisted on his upcoming marriage."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-57",
+    "context-17",
+    "context-72"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T15:30:38.770230+00:00",
+  "rag": {
+    "ids": [
+      "context-57",
+      "context-17",
+      "context-72"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) woman present or observed by a man.\n\nDebbie giggled as she saw three men dragged out of the line of her charms to investigate landmarks familiar to the girls from childhood, and cut her eye sharply to see if Kali had taken note.\n\nBut he was playing with the ends of Edgar\u2019s sash and smiling up at her.\n\nPain twisted Debbie\u2019s heart.\n\nShe felt that she could claw Edgar\u2019s ivory skin till the blood ran and take pleasure in doing it.\n\nAs her eyes wandered from Edgar, she caught the gaze of Madelyn Yelena, who was not mixing with the crowd but standing apart talking to John Abrianna.\n\nHe had been watching her and when she looked at him he laughed outright.\n\nDebbie had an uneasy feeling that this man who was not received was the only one present who knew what lay behind her wild gaiety and that it was affording him sardonic amusement.\n\nShe could have clawed him with pleasure too.\n\n\u201cIf I can just live through this barbecue till this afternoon,\u201d she thought, \u201call the girls will go upstairs to take naps to be fresh for tonight and I\u2019ll stay downstairs and get to talk to Kali.\n  (part 3 of 4, excerpt) It was two o\u2019clock and the sun was warm overhead, but Kellan, wearied with the three-day preparations for the barbecue, was only too glad to remain sitting beneath the arbor, shouting remarks to a deaf old gentleman from Fayetteville.\n\nA lazy somnolence descended on the crowd.\n\nThe negroes idled about, clearing the long tables on which the food had been laid.\n- (part 1 of 4, excerpt) Through it all, she felt her father\u2019s eyes on her, a little pitying, a little annoyed at being faced with a problem for which he knew no\n- (part 1 of 5, excerpt) Don\u2019t you dare touch me!\u201d So Kamala Kaitlin spent his wedding night in an armchair in the corner, not too unhappily, for he un",
+    "evidence": [
+      {
+        "sourceId": "memory:context-57",
+        "sourceVersion": "sha256:db127a693433ecd9b424ccc9108d645ac0bcb78c70bbd5b3a9cc2325d6e5d746",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-57",
+          "part": 1,
+          "parts": 4
+        },
+        "text": "woman present or observed by a man.\n\nDebbie giggled as she saw three men dragged out of the line of her charms to investigate landmarks familiar to the girls from childhood, and cut her eye sharply to see if Kali had taken note.\n\nBut he was playing with the ends of Edgar\u2019s sash and smiling up at her.\n\nPain twisted Debbie\u2019s heart.\n\nShe felt that she could claw Edgar\u2019s ivory skin till the blood ran and take pleasure in doing it.\n\nAs her eyes wandered from Edgar, she caught the gaze of Madelyn Yelena, who was not mixing with the crowd but standing apart talking to John Abrianna.\n\nHe had been watching her and when she looked at him he laughed outright.\n\nDebbie had an uneasy feeling that this man who was not received was the only one present who knew what lay behind her wild gaiety and that it was affording him sardonic amusement.\n\nShe could have clawed him with pleasure too.\n\n\u201cIf I can just live through this barbecue till this afternoon,\u201d she thought, \u201call the girls will go upstairs to take naps to be fresh for tonight and I\u2019ll stay downstairs and get to talk to Kali.",
+        "id": "ev_361a2c8613fe5c3696167914",
+        "observedAt": "2026-10-14T15:18:06.201Z"
+      },
+      {
+        "sourceId": "memory:context-57",
+        "sourceVersion": "sha256:db127a693433ecd9b424ccc9108d645ac0bcb78c70bbd5b3a9cc2325d6e5d746",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-57",
+          "part": 3,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "It was two o\u2019clock and the sun was warm overhead, but Kellan, wearied with the three-day preparations for the barbecue, was only too glad to remain sitting beneath the arbor, shouting remarks to a deaf old gentleman from Fayetteville.\n\nA lazy somnolence descended on the crowd.\n\nThe negroes idled about, clearing the long tables on which the food had been laid.",
+        "id": "ev_46fd77980e05d8aedb8e8f71",
+        "observedAt": "2026-10-14T15:18:06.201Z"
+      },
+      {
+        "sourceId": "memory:context-17",
+        "sourceVersion": "sha256:86dd0c04b7ca6648d7247e5a13669286d87e58d4cf516127cdeaca5bdae5a1b8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-17",
+          "part": 1,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Through it all, she felt her father\u2019s eyes on her, a little pitying, a little annoyed at being faced with a problem for which he knew no",
+        "id": "ev_30a7664996934c7c9f440d1b",
+        "observedAt": "2026-10-14T15:18:06.202Z"
+      },
+      {
+        "sourceId": "memory:context-72",
+        "sourceVersion": "sha256:6009492de9a1bead74886dacaf638ee419a2a2b08421239ba9f118e89efe0df0",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-72",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Don\u2019t you dare touch me!\u201d So Kamala Kaitlin spent his wedding night in an armchair in the corner, not too unhappily, for he un",
+        "id": "ev_c5f6c7c6650895248e1196ae",
+        "observedAt": "2026-10-14T15:18:06.203Z"
+      }
+    ],
+    "sourceIds": [
+      "context-57",
+      "context-17",
+      "context-72"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 8.806500000000028,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+  "prediction": "Kali confessed that he cherished his friendship with Debbie but emphasized his unwavering commitment to his fianc\u00e9.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.4
+  },
+  "readerUsage": {
+    "prompt_tokens": 787,
+    "completion_tokens": 1048,
+    "total_tokens": 1835,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 525,
+    "completion_tokens": 1026,
+    "total_tokens": 1551,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 22766.314458000124,
+  "judgeWallMs": 34665.89208400001
+}

@@ -1,0 +1,162 @@
+{
+  "scope": "local renderer lifecycle and operation counts; synthetic preload, no installed/provider journey",
+  "baseCommit": "808644a9c7559d4d2e06d06f73849c89ad54183d",
+  "jestPassed": 3977,
+  "jestSkipped": 19,
+  "jestSuitesPassed": 428,
+  "bunPassed": 132,
+  "bunFailed": 0,
+  "focusedTests": 60,
+  "assertionCaughtMutants": 28,
+  "exactMutationSourceRestoration": true,
+  "unrelatedTrackedFilesUnchanged": 2482,
+  "unexpectedTrackedChanges": [],
+  "checks": [
+    {
+      "name": "root-typecheck",
+      "command": [
+        "npx",
+        "tsc",
+        "--noEmit"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "root-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "app-typecheck-final",
+      "command": [
+        "npm",
+        "--prefix",
+        "app",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "app-build",
+      "command": [
+        "npm",
+        "--prefix",
+        "app",
+        "run",
+        "build"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "changed-lint-scope",
+      "command": null,
+      "exit": 0
+    },
+    {
+      "name": "browser-script-syntax",
+      "command": [
+        "node",
+        "--check",
+        "app/scripts/ui/chat-experience-sprint.mjs"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "proof-script-syntax",
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "scripts/prove-chat-experience-sprint.py",
+        "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-06-chat-experience-sprint/run-staged-engine.py",
+        "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-06-chat-experience-sprint/run-local-checks.py"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "browser-final",
+      "command": [
+        "node",
+        "app/scripts/ui/chat-experience-sprint.mjs"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "staged-engine",
+      "command": [
+        "python3",
+        "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-06-chat-experience-sprint/run-staged-engine.py"
+      ],
+      "exit": 0
+    }
+  ],
+  "lint": {
+    "rawExit": 1,
+    "unchangedLegacyErrors": [
+      {
+        "file": "app/src/renderer/src/components/ThreadSurfaces.tsx",
+        "line": 95,
+        "baselineLine": 94,
+        "rule": "consistent-return"
+      },
+      {
+        "file": "app/src/renderer/src/components/ThreadSurfaces.tsx",
+        "line": 171,
+        "baselineLine": 166,
+        "rule": "consistent-return"
+      },
+      {
+        "file": "app/src/renderer/src/components/ThreadSurfaces.tsx",
+        "line": 181,
+        "baselineLine": 176,
+        "rule": "consistent-return"
+      },
+      {
+        "file": "app/src/renderer/src/components/ThreadSurfaces.tsx",
+        "line": 979,
+        "baselineLine": 974,
+        "rule": "consistent-return"
+      },
+      {
+        "file": "app/src/renderer/src/engine.state.ts",
+        "line": 154,
+        "baselineLine": 154,
+        "rule": "no-control-regex"
+      }
+    ],
+    "introducedErrors": [],
+    "warnings": 15
+  },
+  "stagedEngine": {
+    "exchanges": 7,
+    "credentialsScrubbed": true,
+    "stateRedirected": true,
+    "modelTurn": false,
+    "installed": false,
+    "bundleSha256": "fbdecda7281b335e4d142609ad12010b7e1e8af6c0ae8b2c51971ed318d36853"
+  },
+  "rendering": {
+    "fixtureSha256": "dc5c10eb460245b1161dfdfcfa2155f16eec304e063057e51af024d0e4b9ea53",
+    "before": {
+      "lex": 21,
+      "highlight": 42
+    },
+    "after": {
+      "lex": 1,
+      "highlight": 2
+    },
+    "parentUpdates": 20,
+    "wallLatencyMeasured": false,
+    "energyMeasured": false
+  },
+  "missingResearch": [
+    "docs/product-reset/competitive/03_CAPABILITY_MATRIX.md",
+    "docs/product-reset/competitive/examples/P01_FAST_CODE_AND_COWORK.md",
+    "docs/product-reset/34_FAST_CODE_AND_COWORK_IMPLEMENTATION_RECORD.md"
+  ]
+}

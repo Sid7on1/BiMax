@@ -12,6 +12,8 @@ import type { VectorStore } from '../memory/vector.store';
 import { droppedRecall, recallForTurn, recallKey, recallQuery } from '../memory/recall';
 import { derivedEvidence } from '../context/evidence';
 import { overflowMessage, planRequest } from '../context/request.budget';
+import { latestHumanRequest, retainRecentHistory } from '../context/history';
+import { withRequestDeadline } from '../utils/request.deadline';
 import { engineEvents, ToolCallEntry } from '../engine/events';
 import { getActiveTodos, todosTouchedThisTurn } from '../tools/implementations/todo.tool';
 import { getCompletionChecks } from '../outcome/completion.check';
@@ -183,20 +185,31 @@ export class AgentLoop {
    *
    * Guarded by `recallQuery`, which is pure and tested separately. Lookup failures are reported by recallForTurn without failing the user's turn.
    */
-  private async injectRecall(): Promise<void> {
+  private async injectRecall(signal?: AbortSignal): Promise<void> {
     if (!this.memoryStore) return;
-    const last = [...this.messages].reverse().find((m) => m.role === 'user');
+    signal?.throwIfAborted();
+    const owner = this.messages;
+    const manager = this.contextManager;
+    const last = latestHumanRequest(owner);
     if (!last) return;
 
     const query = recallQuery(last.role, last.content, this.recalled);
     if (!query) return;
     this.recalled.add(recallKey(query));
 
-    const recalled = await recallForTurn(this.memoryStore, query).catch(() => {
+    const recalled = await withRequestDeadline(30_000, signal, () => new Error('Memory recall deadline exceeded.'),
+      (innerSignal) => recallForTurn(this.memoryStore!, query, { signal: innerSignal })).catch(() => {
+      this.recalled.delete(recallKey(query));
+      signal?.throwIfAborted();
       reportCapability({ id: 'memory-recall', label: 'Memory recall', state: 'degraded',
         reason: 'Memory lookup failed.', impact: 'This turn continues without recalled context.', action: 'Check memory storage and retrieval settings.' });
       return null;
     });
+    signal?.throwIfAborted();
+    if (this.messages !== owner || this.contextManager !== manager || !owner.includes(last)) {
+      this.recalled.delete(recallKey(query));
+      return;
+    }
     if (!recalled) return;
 
     // Placed before the user's message, so the model reads the evidence and then the question —
@@ -216,31 +229,29 @@ export class AgentLoop {
    * question still being worked on recalls its evidence again on the next round instead of losing it for
    * the rest of the session (record 47, A04).
    */
-  private async prepareContext(contextMode: ContextMode): Promise<void> {
-    await this.injectRecall();
+  private async prepareContext(contextMode: ContextMode, signal?: AbortSignal): Promise<void> {
+    await this.injectRecall(signal);
     const beforeCompaction = this.messages;
-    this.messages = await this.contextManager.checkAndCompact(this.messages, contextMode);
+    this.messages = await this.contextManager.checkAndCompact(this.messages, contextMode, signal);
     if (droppedRecall(beforeCompaction, this.messages)) {
       this.recalled.clear();
       // The request about to be sent needs that evidence too: recall it again now, after compaction, rather than a
       // round later. A round that ends in a final answer had no later round, so it went without (audit 51, U08).
-      await this.injectRecall();
+      await this.injectRecall(signal);
     }
   }
 
   private truncateContext(messages: Message[], keepRecentTurns = 4): Message[] {
     const systemMessages = messages.filter(message => message.role === 'system');
-    const nonSystemMessages = messages.filter(message => message.role !== 'system');
-    let recentMessages = nonSystemMessages.slice(-keepRecentTurns);
-    while (recentMessages[0]?.role === 'tool') recentMessages = recentMessages.slice(1);
+    const recentMessages = retainRecentHistory(messages, keepRecentTurns);
     return [...systemMessages, ...recentMessages];
   }
 
   /** Move the user's steering words into the conversation, in order, and say they were taken (F7). */
   /** The loop's side of the tool round (agent.tool.round.ts): its tools, its model, and its live message list. */
   private toolRoundHost(): ToolRoundHost {
-    const loop = this;
-    return { tools: this.tools, llm: this.llm, get messages() { return loop.messages; } };
+    const messages = () => this.messages;
+    return { tools: this.tools, llm: this.llm, get messages() { return messages(); } };
   }
 
   private takeSteering(): void {
@@ -427,8 +438,8 @@ export class AgentLoop {
     // invariant, independent of whether a transform reported that it changed objects.
     while (st.contextRecoveries < st.MAX_CONTEXT_RECOVERIES) {
       const tier = st.contextRecoveries;
-      const beforeTokens = this.contextManager.estimateTokens(this.messages);
-      let recoveredMessages = this.messages;
+      const beforeTokens = this.contextManager.requestTokens(this.messages);
+      let recoveredMessages: Message[];
       let transformChanged = true;
       let action: string;
 
@@ -450,7 +461,7 @@ export class AgentLoop {
           break;
       }
 
-      const afterTokens = this.contextManager.estimateTokens(recoveredMessages);
+      const afterTokens = this.contextManager.requestTokens(recoveredMessages);
       const strictlyShrank = transformChanged && afterTokens < beforeTokens;
       st.contextRecoveries++;
 
@@ -552,19 +563,8 @@ export class AgentLoop {
    * prompt, the schemas and the reply's reserve. `overflow` when even the fitted history cannot be sent.
    */
   private async prepareRound(
-    st: RunState, systemPrompt: string, options: AgentLoopOptions | undefined, contextMode: ContextMode,
+    st: RunState, systemPrompt: string, options: AgentLoopOptions | undefined, contextMode: ContextMode, signal?: AbortSignal,
   ): Promise<{ schemas: any[]; forceRequiredTool: boolean; callOutputTokenBudget: number | undefined } | { overflow: string }> {
-    await this.prepareContext(contextMode);
-    if (options?.skipRepoMap) {
-      // ContextManager refreshes the code RepoMap on every round. It is valuable for coding, but
-      // actively harmful during a visual-control loop: it adds thousands of irrelevant tokens and
-      // invites weak models to inspect the repository instead of the live screen.
-      this.messages = this.messages.filter(message => !(
-        (message.role === 'system' || message.role === 'user')
-        && typeof message.content === 'string'
-        && message.content.startsWith('[RepoMap]')
-      ));
-    }
     // In smart mode the registry returns only the core working set + ToolSearch + any tools the
     // model has already surfaced via ToolSearchTool; in full mode it returns every schema. This
     // is recomputed each turn so a tool discovered mid-task becomes available immediately.
@@ -589,8 +589,22 @@ export class AgentLoop {
     const plan = planRequest({
       window: this.contextManager.contextWindow, systemPrompt, tools: schemas, outputBudget: callOutputTokenBudget ?? st.configuredBudget,
     });
+    // Refuse impossible fixed costs before spending auxiliary recall or summary work.
+    if (plan.messageBudget > 0) {
+      await this.prepareContext(contextMode, signal);
+      if (options?.skipRepoMap) {
+        // ContextManager refreshes the code RepoMap on every round. It is valuable for coding, but
+        // actively harmful during a visual-control loop: it adds thousands of irrelevant tokens and
+        // invites weak models to inspect the repository instead of the live screen.
+        this.messages = this.messages.filter(message => !(
+          (message.role === 'system' || message.role === 'user')
+          && typeof message.content === 'string'
+          && message.content.startsWith('[RepoMap]')
+        ));
+      }
+    }
     const fitted = plan.messageBudget > 0
-      ? await this.contextManager.fitWithin(this.messages, plan.messageBudget)
+      ? await this.contextManager.fitWithin(this.messages, plan.messageBudget, signal)
       : { messages: this.messages, tokens: this.contextManager.requestTokens(this.messages), steps: [] as string[] };
     const recallDropped = droppedRecall(this.messages, fitted.messages);
     this.messages = fitted.messages;
@@ -599,10 +613,11 @@ export class AgentLoop {
       // Fitting removed this round's recall block: put it back if there is still room for it (audit 51, U08).
       this.recalled.clear();
       const before = this.messages;
-      await this.injectRecall();
+      await this.injectRecall(signal);
       messageTokens = this.contextManager.requestTokens(this.messages);
       if (messageTokens > plan.messageBudget) { this.messages = before; messageTokens = fitted.tokens; }
     }
+    signal?.throwIfAborted();
     const sendable = plan.messageBudget > 0 && messageTokens <= plan.messageBudget;
     this.contextManager.recordRequest({
       ...plan, messages: messageTokens, sent: sendable, steps: fitted.steps,
@@ -982,7 +997,10 @@ export class AgentLoop {
       // 0. Automatic recall, BEFORE compaction so the injected block is subject to the same
       //    passes as everything else — a recall that could not be compacted would be the one thing
       //    in the window that grows without limit.
-      const prepared = await this.prepareRound(st, systemPrompt, options, contextMode);
+      let prepared: Awaited<ReturnType<AgentLoop['prepareRound']>>;
+      try { prepared = await this.prepareRound(st, systemPrompt, options, contextMode, signal); }
+      catch (error) { if (signal?.aborted) return; throw error; }
+      if (signal?.aborted) return;
       if ('overflow' in prepared) {
         st.anyTextYielded = true;
         yield prepared.overflow;

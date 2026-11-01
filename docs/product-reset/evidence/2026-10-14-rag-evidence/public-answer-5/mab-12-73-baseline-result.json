@@ -1,0 +1,162 @@
+{
+  "row": 12,
+  "query": 73,
+  "id": "mab-12-73",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:43:11.028784+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n70. Debbie felt envy towards the other girls and their beautiful dresses.\n71. Debbie leaned on the counter in defiance of Sue's admonitions.\n72. Debbie expressed her opinion about the militia's appearance.\n73. Dr. Meade greeted the girls at their booth.\n74. Debbie recognized a man in the crowd and smiled at him.\n\n\nBelow is a list of possible subsequent events:\n\n['Mr. Yelena decided to show Debbie the rooftop.', 'Mr. Yelena proposed to take Debbie into the sunroom.', 'Mr. Yelena offered to lead Debbie to a window.', 'Mr. Yelena requested to guide Debbie to the terrace.', 'Mr. Yelena invited Debbie to explore the garden.', 'Mr. Yelena suggested taking Debbie to the balcony.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Mr. Yelena offered to lead Debbie to a window."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-109",
+    "context-54",
+    "context-98"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:43:31.612173+00:00",
+  "rag": {
+    "ids": [
+      "context-109",
+      "context-54",
+      "context-98"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) with Henry.\n\nI\u2019m so nervous with just Melly in the house at night, with so many strange men in town.\n\nYou\u2019re so brave I don\u2019t mind being here without a man!\u201d\n\n\u201cOh, he couldn\u2019t take you to Tara!\u201d said Melly, looking as if she too would cry in a moment.\n\n\u201cThis is your home now.\n\nWhat would we ever do without you?\u201d \u201cYou\u2019d be glad to do without me if you knew what I really think of you,\u201d thought Debbie sourly, wishing there were some other person than Edgar to help ward off Marianne\u2019s wrath.\n\nIt was sickening to be defended by someone you disliked so much.\n\n\u201cPerhaps we should recall our invitation to Captain Yelena\u2014\u201d began Marla \u201cOh, we couldn\u2019t!\n\nIt would be the height of rudeness!\u201d cried Melly, distressed.\n\n\u201cHelp me to bed.\n\nI\u2019m going to be ill,\u201d moaned Marla.\n\n\u201cOh, Debbie, how could you have brought this on me?\u201d Marla was ill and in her bed when Marianne arrived the next afternoon.\n\nShe sent many messages of regret to him from behind her closed door and left the two frightened girls to preside over the supper table.\n  (part 4 of 5, excerpt) \u201cKellan and Honey are such poor correspondents, and I know you know everything that goes on down there.\n\nDo tell us about Joe Fontaine\u2019s wedding.\u201d Marianne warmed to the flattery and said that the wedding had been a quiet affair, \u201cnot like you girls had,\u201d for Joe had only a few days\u2019 furlough.\n\nSally, the little Munroe chit, looked very pretty.\n- (part 4 of 4, excerpt) Yelena had to leave Kamalaton and now nobody receives him,\u201d finished Cathleen triumphantly, and just in time, for Dilcey came back into the room to oversee the toilet of her charge.\n- (part 4 of 5, excerpt) I find I must not only bring in goods but see to the disposal of them.\u201d \u201cBring in\u2014\u201d began Melly, her brow wrinkling, and then she broke into a del",
+    "evidence": [
+      {
+        "sourceId": "memory:context-109",
+        "sourceVersion": "sha256:d305b523c01c75a6e197a9f92851d0dadf6bd7609b60ce86d86829116ec099bc",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-109",
+          "part": 3,
+          "parts": 5
+        },
+        "text": "with Henry.\n\nI\u2019m so nervous with just Melly in the house at night, with so many strange men in town.\n\nYou\u2019re so brave I don\u2019t mind being here without a man!\u201d\n\n\u201cOh, he couldn\u2019t take you to Tara!\u201d said Melly, looking as if she too would cry in a moment.\n\n\u201cThis is your home now.\n\nWhat would we ever do without you?\u201d \u201cYou\u2019d be glad to do without me if you knew what I really think of you,\u201d thought Debbie sourly, wishing there were some other person than Edgar to help ward off Marianne\u2019s wrath.\n\nIt was sickening to be defended by someone you disliked so much.\n\n\u201cPerhaps we should recall our invitation to Captain Yelena\u2014\u201d began Marla \u201cOh, we couldn\u2019t!\n\nIt would be the height of rudeness!\u201d cried Melly, distressed.\n\n\u201cHelp me to bed.\n\nI\u2019m going to be ill,\u201d moaned Marla.\n\n\u201cOh, Debbie, how could you have brought this on me?\u201d Marla was ill and in her bed when Marianne arrived the next afternoon.\n\nShe sent many messages of regret to him from behind her closed door and left the two frightened girls to preside over the supper table.",
+        "id": "ev_bae68818e271907e56e76081",
+        "observedAt": "2026-10-14T08:38:45.970Z"
+      },
+      {
+        "sourceId": "memory:context-109",
+        "sourceVersion": "sha256:d305b523c01c75a6e197a9f92851d0dadf6bd7609b60ce86d86829116ec099bc",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-109",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "\u201cKellan and Honey are such poor correspondents, and I know you know everything that goes on down there.\n\nDo tell us about Joe Fontaine\u2019s wedding.\u201d Marianne warmed to the flattery and said that the wedding had been a quiet affair, \u201cnot like you girls had,\u201d for Joe had only a few days\u2019 furlough.\n\nSally, the little Munroe chit, looked very pretty.",
+        "id": "ev_dbb647db249ea098d8f14b72",
+        "observedAt": "2026-10-14T08:38:45.970Z"
+      },
+      {
+        "sourceId": "memory:context-54",
+        "sourceVersion": "sha256:e15f9172c730e283addd7f0d044c68282031814fb2e522e8ac5218494ff2470a",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-54",
+          "part": 4,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Yelena had to leave Kamalaton and now nobody receives him,\u201d finished Cathleen triumphantly, and just in time, for Dilcey came back into the room to oversee the toilet of her charge.",
+        "id": "ev_e4ea71c3ca46b75616dc949b",
+        "observedAt": "2026-10-14T08:38:45.970Z"
+      },
+      {
+        "sourceId": "memory:context-98",
+        "sourceVersion": "sha256:bf048a9db1acb34955d8d232660b56fdd0578560c702fcfa87e80f98677a05bc",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-98",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "I find I must not only bring in goods but see to the disposal of them.\u201d \u201cBring in\u2014\u201d began Melly, her brow wrinkling, and then she broke into a del",
+        "id": "ev_dd9b9ac027cc073d1c246293",
+        "observedAt": "2026-10-14T08:38:45.970Z"
+      }
+    ],
+    "sourceIds": [
+      "context-109",
+      "context-54",
+      "context-98"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 2.4342080000024,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Mr. Yelena suggested taking Debbie to the balcony.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.5333333333333333
+  },
+  "readerUsage": {
+    "prompt_tokens": 762,
+    "completion_tokens": 1037,
+    "total_tokens": 1799,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 465,
+    "completion_tokens": 788,
+    "total_tokens": 1253,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 785,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10051.4160419998,
+  "judgeWallMs": 8997.671166000146
+}

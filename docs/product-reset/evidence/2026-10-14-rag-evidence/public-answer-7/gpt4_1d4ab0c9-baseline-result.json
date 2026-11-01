@@ -1,0 +1,164 @@
+{
+  "row": 243,
+  "id": "gpt4_1d4ab0c9",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T12:25:18.682694+00:00",
+  "valid": true,
+  "question": "How many days passed between the day I started watering my herb garden and the day I harvested my first batch of fresh herbs?",
+  "references": [
+    "24 days. 25 days (including the last day) is also acceptable."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/04/18 (Tue) 10:43",
+  "benchmarkSessionIds": [
+    "answer_febde667_1",
+    "answer_febde667_2",
+    "2f50399c"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T12:27:51.510597+00:00",
+  "rag": {
+    "ids": [
+      "answer_febde667_1",
+      "answer_febde667_2",
+      "2f50399c"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 18) Session date: 2023/03/22 (Wed) 11:41\nuser: I'm planning to make a salad for dinner tonight and I want to use some fresh herbs. Can you give me some advice on how to keep my herbs fresh for a longer period? By the way, I started watering my herb garden every morning today, and I'm excited to see them grow.\nassistant: Fresh herbs can elevate any salad to a whole new level!\n\nCongratulations on starting to water your herb garden every morning! Consistent watering is essential for healthy herb growth. Here are some tips to help you keep your fresh herbs fresh for a longer period:\n\n1.\n\n**Store them properly**: After harvesting, gently rinse the herbs with cold water to remove any dirt or debris.\n\nPat them dry with a clean towel or paper towels to remove excess moisture.\n\nStore them in a sealed container or plastic bag in the refrigerator to maintain humidity and keep them fresh.\n\n2.\n\n**Keep them cool**: Most herbs prefer cooler temperatures, so store them in the refrigerator at a temperature between 32\u00b0F and 40\u00b0F (0\u00b0C and 4\u00b0C).\n\n3.\n\n**Monitor moisture**: Make sure the herbs aren't too wet or too dry.\n\nCheck on them daily and remove any wilted or brown leaves to prevent spoilage.\n\n4.\n  (part 2 of 18, excerpt) 7.\n\n**Harvest in the morning**: Herbs are typically at their best in the morning, after the dew has dried but before the heat of the day.\n\nThis is when they're most flavorful and aromatic.\n\n8.\n- (part 8 of 17, excerpt) user: I'd like to know more about composting. I started creating a compost bin in my backyard using a wooden pallet and started adding vegetable scraps, eggshells, and coffee grounds to it.\n- (part 1 of 14, excerpt) 2. **How many posts**: Approximately how many posts do you have on your Instagram account?",
+    "evidence": [
+      {
+        "sourceId": "memory:answer_febde667_1",
+        "sourceVersion": "sha256:28ea4d093d809e635f7569a128a0399753efa762ccab26103fb3ba7bf96f7228",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_febde667_1",
+          "part": 1,
+          "parts": 18
+        },
+        "text": "Session date: 2023/03/22 (Wed) 11:41\nuser: I'm planning to make a salad for dinner tonight and I want to use some fresh herbs. Can you give me some advice on how to keep my herbs fresh for a longer period? By the way, I started watering my herb garden every morning today, and I'm excited to see them grow.\nassistant: Fresh herbs can elevate any salad to a whole new level!\n\nCongratulations on starting to water your herb garden every morning! Consistent watering is essential for healthy herb growth. Here are some tips to help you keep your fresh herbs fresh for a longer period:\n\n1.\n\n**Store them properly**: After harvesting, gently rinse the herbs with cold water to remove any dirt or debris.\n\nPat them dry with a clean towel or paper towels to remove excess moisture.\n\nStore them in a sealed container or plastic bag in the refrigerator to maintain humidity and keep them fresh.\n\n2.\n\n**Keep them cool**: Most herbs prefer cooler temperatures, so store them in the refrigerator at a temperature between 32\u00b0F and 40\u00b0F (0\u00b0C and 4\u00b0C).\n\n3.\n\n**Monitor moisture**: Make sure the herbs aren't too wet or too dry.\n\nCheck on them daily and remove any wilted or brown leaves to prevent spoilage.\n\n4.",
+        "id": "ev_8a39bc3a4cf8413dcb87b9fa",
+        "observedAt": "2026-10-14T09:00:13.445Z"
+      },
+      {
+        "sourceId": "memory:answer_febde667_1",
+        "sourceVersion": "sha256:28ea4d093d809e635f7569a128a0399753efa762ccab26103fb3ba7bf96f7228",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_febde667_1",
+          "part": 2,
+          "parts": 18,
+          "partial": true
+        },
+        "text": "7.\n\n**Harvest in the morning**: Herbs are typically at their best in the morning, after the dew has dried but before the heat of the day.\n\nThis is when they're most flavorful and aromatic.\n\n8.",
+        "id": "ev_18545da7904eb90c584cfdcb",
+        "observedAt": "2026-10-14T09:00:13.447Z"
+      },
+      {
+        "sourceId": "memory:answer_febde667_2",
+        "sourceVersion": "sha256:b69e8b3d528ad29a735f3ca56b62750de0332dc430e30f9749220165c39691da",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_febde667_2",
+          "part": 8,
+          "parts": 17,
+          "partial": true
+        },
+        "text": "user: I'd like to know more about composting. I started creating a compost bin in my backyard using a wooden pallet and started adding vegetable scraps, eggshells, and coffee grounds to it.",
+        "id": "ev_05c47b7e88020ff2a6c2da41",
+        "observedAt": "2026-10-14T09:00:13.447Z"
+      },
+      {
+        "sourceId": "memory:2f50399c",
+        "sourceVersion": "sha256:16499eea2f2721112580ec6c8fe77e94f935d56bfe5385f25bf7d9230264c600",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "2f50399c",
+          "part": 1,
+          "parts": 14,
+          "partial": true
+        },
+        "text": "2. **How many posts**: Approximately how many posts do you have on your Instagram account?",
+        "id": "ev_e168fe3ec370e22eac5476dc",
+        "observedAt": "2026-10-14T09:00:13.447Z"
+      }
+    ],
+    "sourceIds": [
+      "answer_febde667_1",
+      "answer_febde667_2",
+      "2f50399c"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 30.697374999999738,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7",
+  "prediction": "The retrieved history records that you started watering your herb garden on 2023/03/22, but it does not contain any mention of when you harvested your first batch of fresh herbs. Without the harvest date, I cannot calculate the number of days that passed. Based on the available information, I do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.034482758620689655
+  },
+  "readerUsage": {
+    "prompt_tokens": 576,
+    "completion_tokens": 1094,
+    "total_tokens": 1670,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 468,
+    "completion_tokens": 1026,
+    "total_tokens": 1494,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 72891.74883399982,
+  "judgeWallMs": 79933.13054200007
+}

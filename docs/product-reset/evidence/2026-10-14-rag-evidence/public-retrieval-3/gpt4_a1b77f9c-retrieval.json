@@ -1,0 +1,352 @@
+{
+  "row": 251,
+  "id": "gpt4_a1b77f9c",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T08:50:23.220955+00:00",
+  "valid": true,
+  "question": "How many weeks in total do I spent on reading 'The Nightingale' and listening to 'Sapiens: A Brief History of Humankind' and 'The Power'?",
+  "references": [
+    "2 weeks for 'The Nightingale', 4 weeks for 'Sapiens: A Brief History of Humankind', and 2 weeks for 'The Power', so a total of 8 weeks."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2022/04/30 (Sat) 13:22",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 100.20587500000329,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 137,
+        "maxInputChars": 137,
+        "requiredProviderTruncation": false,
+        "promptTokens": 36,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_e9ad5914_3",
+        "answer_e9ad5914_4",
+        "answer_e9ad5914_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 19, excerpt) Session date: 2022/02/01 (Tue) 18:18\nuser: I'm trying to explore more non-fiction books. Can you recommend some popular non-fiction books on psychology or sociology that I might enjoy, just like 'Sapiens: A Brief History of Humankind'?\n  (part 11 of 19) of boredom or restlessness?\n\nBy understanding the cue and reward in your habit loop, you can start to develop more intentional habits that serve you better.\n\nRemember, identifying the cue and reward takes time and self-reflection. Be patient, and don't be afraid to experiment and adjust your approach as you learn more about your habits.\nuser: That's really helpful, thanks! I think I can apply this to some of my own habits. Speaking of habits, I just started listening to 'Sapiens: A Brief History of Humankind' by Yuval Noah Harari today, and it got me thinking about how humans have developed certain habits and behaviors over time.\nassistant: What a great coincidence! 'Sapiens' is an fascinating book that offers a unique perspective on human history and development. It's amazing how Harari weaves together insights from biology, anthropology, sociology, and psychology to tell the story of our species.\n\nIt's interesting that you mention habits and behaviors in the context of 'Sapiens.' Harari's book does highlight how humans have developed certain habits and behaviors over time, often in response to environmental pressures, cultural norms, and technological advancements.\n- (part 1 of 31, excerpt) user: I just finished listening to 'Sapiens: A Brief History of Humankind' by Yuval Noah Harari today, and it got me thinking about the impact of technolog\n- (part 1 of 25, excerpt) user: I'm looking for some book recommendations. I just finished reading \"The Nightingale\" by Kristin Hannah today, and I'm",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_e9ad5914_3",
+          "sourceVersion": "sha256:90d1286cb57b3c0f0155624039ff31a2b16ebd678f82c13d0fd494c728f2f626",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_3",
+            "part": 1,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "Session date: 2022/02/01 (Tue) 18:18\nuser: I'm trying to explore more non-fiction books. Can you recommend some popular non-fiction books on psychology or sociology that I might enjoy, just like 'Sapiens: A Brief History of Humankind'?",
+          "id": "ev_94c6f6dc9b355fe11e97d36b",
+          "observedAt": "2026-10-14T08:50:23.344Z"
+        },
+        {
+          "sourceId": "memory:answer_e9ad5914_3",
+          "sourceVersion": "sha256:90d1286cb57b3c0f0155624039ff31a2b16ebd678f82c13d0fd494c728f2f626",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_3",
+            "part": 11,
+            "parts": 19
+          },
+          "text": "of boredom or restlessness?\n\nBy understanding the cue and reward in your habit loop, you can start to develop more intentional habits that serve you better.\n\nRemember, identifying the cue and reward takes time and self-reflection. Be patient, and don't be afraid to experiment and adjust your approach as you learn more about your habits.\nuser: That's really helpful, thanks! I think I can apply this to some of my own habits. Speaking of habits, I just started listening to 'Sapiens: A Brief History of Humankind' by Yuval Noah Harari today, and it got me thinking about how humans have developed certain habits and behaviors over time.\nassistant: What a great coincidence! 'Sapiens' is an fascinating book that offers a unique perspective on human history and development. It's amazing how Harari weaves together insights from biology, anthropology, sociology, and psychology to tell the story of our species.\n\nIt's interesting that you mention habits and behaviors in the context of 'Sapiens.' Harari's book does highlight how humans have developed certain habits and behaviors over time, often in response to environmental pressures, cultural norms, and technological advancements.",
+          "id": "ev_13ea85fda43dfb0535c68b05",
+          "observedAt": "2026-10-14T08:50:23.345Z"
+        },
+        {
+          "sourceId": "memory:answer_e9ad5914_4",
+          "sourceVersion": "sha256:8a5058a1954359f876730626051fd93d3d5c29dc3d5b1e9f2e0b14ae42717118",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_4",
+            "part": 1,
+            "parts": 31,
+            "partial": true
+          },
+          "text": "user: I just finished listening to 'Sapiens: A Brief History of Humankind' by Yuval Noah Harari today, and it got me thinking about the impact of technolog",
+          "id": "ev_f0e5996d0fea1cb7071d0c83",
+          "observedAt": "2026-10-14T08:50:23.345Z"
+        },
+        {
+          "sourceId": "memory:answer_e9ad5914_2",
+          "sourceVersion": "sha256:d80afd2ab5387372b167b5d449bb20b58fced0843e587e9548bcf5b66edb625b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_2",
+            "part": 1,
+            "parts": 25,
+            "partial": true
+          },
+          "text": "user: I'm looking for some book recommendations. I just finished reading \"The Nightingale\" by Kristin Hannah today, and I'm",
+          "id": "ev_7bd7d5d7787ccd5c01d2f1e2",
+          "observedAt": "2026-10-14T08:50:23.345Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_e9ad5914_3",
+        "answer_e9ad5914_4",
+        "answer_e9ad5914_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 25.88079199999993,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_e9ad5914_3",
+        "answer_e9ad5914_4",
+        "answer_e9ad5914_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 19, excerpt) Session date: 2022/02/01 (Tue) 18:18\nuser: I'm trying to explore more non-fiction books. Can you recommend some popular non-fiction books on psychology or sociology that I might enjoy, just like 'Sapiens: A Brief History of Humankind'?\nassistant: What a great choice to start with! 'Sapiens' is an incredible book that offers a fascinating perspective on human history. If you're interested in exploring more non-fiction books on psychology and sociology, here are some popular and thought-provoking recommendations:\n  (part 11 of 19, excerpt) user: That's really helpful, thanks! I think I can apply this to some of my own habits. Speaking of habits, I just started listening to 'Sapiens: A Brief History of Humankind' by Yuval Noah Harari today, and it got me thinking about how humans have developed certain habits and behaviors over time.\n  (part 13 of 19, excerpt) famines, and pandemics. He argues that our ability to cooperate and adapt in the face of adversity has been crucial to our survival and success as a species.\n\nAs you continue listening to 'Sapiens,' you might find it interesting to reflect on how the concepts and ideas Harari presents relate to your own habits and behaviors. You might ask yourself:\n\n* How have my habits and behaviors been shaped by my cultural background, upbringing, and environment?\n  (part 19 of 19) values and goals.\n\nFeel free to reach out if you have any more questions or need further recommendations. I'm always here to help. Happy reading and learning!\n\n(And don't forget to enjoy the rest of 'Sapiens'! It's a thought-provoking book that will likely continue to spark interesting reflections and connections.)\n- (part 1 of 31) Session date: 2022/03/01 (Tue) 22:45\nuser: I just finished listening to 'Sapiens: A Brief History of Humankind' by Yuval Noah Harari today, and it got me thinking about the impact of technology on human evolution. Can you tell me more about the latest advancements in AI and its potential applications in various industries?\nassistant: What a great topic! Congratulations on finishing \"Sapiens\" - it's a thought-provoking book that indeed sparks interesting questions about humanity's future. I'd be happy to provide an update on the latest advancements in AI and its potential applications across various industries.\n\n**Current State of AI**\n\nArtificial Intelligence (AI) has made tremendous progress in recent years, with significant advancements in machine learning, deep learning, and natural language processing. AI systems can now perform tasks that were previously thought to be the exclusive domain of humans, such as:\n  (part 8 of 31) professional reviews the AI's output, considering their own clinical judgment and expertise, to make a final diagnosis.\n\n**Benefits of AI-assisted diagnosis**\n\n1. **Improved accuracy**: AI can analyze vast amounts of data more quickly and accurately than humans, reducing the likelihood of errors.\n2. **Enhanced patient safety**: AI can detect rare or unusual conditions that might be missed by human clinicians.\n3. **Increased efficiency**: AI can help reduce the time spent on diagnosis, allowing healthcare professionals to focus on treatment and patient care.\n4. **Personalized medicine**: AI can help tailor treatment plans to individual patients based on their unique characteristics and medical history.\n5. **Cost savings**: AI-assisted diagnosis can reduce healthcare costs by reducing unnecessary tests, procedures, and hospital stays.\n\n**Real-world examples**\n- (part 1 of 25, excerpt) Session date: 2022/01/15 (Sat) 11:56\nuser: I'm looking for some book recommendations. I just finished reading \"The Nightingale\" by Kristin Hannah today, and I'm still reeling from the emotional impact. I'm open to trying out different genres, so feel free to suggest anything that you think I might enjoy.\n  (part 13 of 25) 3. **Let the atmosphere wash over you**: Allow yourself to become immersed in the world Doerr has created, and let the emotions and themes resonate with you.\n\nOverall, Anthony Doerr's writing style is a key aspect of the book's magic. It adds depth, emotion, and beauty to the story, making \"All the Light We Cannot See\" a truly unforgettable reading experience.\nuser: I'm curious about how \"All the Light We Cannot See\" will compare in terms of its emotional impact. Can you tell me more about how the book handles the theme of war and its effects on individuals?\nassistant: What a great question! Both \"The Nightingale\" and \"All the Light We Cannot See\" are powerful explorations of war and its human cost. While they share some similarities, they approach the theme in distinct ways. Here's how \"All the Light We Cannot See\" handles the theme of war and its effects on individuals:\n\n**War as a Character**\n  (part 16 of 25, excerpt) within themselves. Doerr's portrayal of PTSD, anxiety, and the long-term effects of trauma is both haunting and heart-wrenching.\n\n**Hope and Resilience**\n\nDespite the darkness, the novel offers a message of hope and resilience. Through the characters' stories, Doerr shows how human connection, empathy, and kindness can help individuals survive even the most desperate of times. The book ultimately affirms the power of the human spirit to endure, to resist, and to find beauty in the midst of destruction.\n\n**Comparison to \"The Nightingale\"**\n  (part 17 of 25, excerpt) I hope this helps you prepare for the emotional journey that awaits you in \"All the Light We Cannot See\"!\nuser: I'm interested in learning more about the character of Werner Pfennig. Can you tell me more about his backstory and how he becomes embroiled in the Nazi war machine?\nassistant: Werner Pfennig is a complex and intriguing character, and his backstory is a crucial part of the novel. Here's more about his history and how he becomes embroiled in the Nazi war machine:\n\n**Werner's Early Life**",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_e9ad5914_3",
+          "sourceVersion": "sha256:90d1286cb57b3c0f0155624039ff31a2b16ebd678f82c13d0fd494c728f2f626",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_3",
+            "part": 1,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "Session date: 2022/02/01 (Tue) 18:18\nuser: I'm trying to explore more non-fiction books. Can you recommend some popular non-fiction books on psychology or sociology that I might enjoy, just like 'Sapiens: A Brief History of Humankind'?\nassistant: What a great choice to start with! 'Sapiens' is an incredible book that offers a fascinating perspective on human history. If you're interested in exploring more non-fiction books on psychology and sociology, here are some popular and thought-provoking recommendations:",
+          "id": "ev_c0c5f8ef62c353a03aee13c1",
+          "observedAt": "2026-10-14T08:50:23.351Z"
+        },
+        {
+          "sourceId": "memory:answer_e9ad5914_3",
+          "sourceVersion": "sha256:90d1286cb57b3c0f0155624039ff31a2b16ebd678f82c13d0fd494c728f2f626",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_3",
+            "part": 11,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "user: That's really helpful, thanks! I think I can apply this to some of my own habits. Speaking of habits, I just started listening to 'Sapiens: A Brief History of Humankind' by Yuval Noah Harari today, and it got me thinking about how humans have developed certain habits and behaviors over time.",
+          "id": "ev_afa896c8142ca9a833dbb8eb",
+          "observedAt": "2026-10-14T08:50:23.351Z"
+        },
+        {
+          "sourceId": "memory:answer_e9ad5914_3",
+          "sourceVersion": "sha256:90d1286cb57b3c0f0155624039ff31a2b16ebd678f82c13d0fd494c728f2f626",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_3",
+            "part": 13,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "famines, and pandemics. He argues that our ability to cooperate and adapt in the face of adversity has been crucial to our survival and success as a species.\n\nAs you continue listening to 'Sapiens,' you might find it interesting to reflect on how the concepts and ideas Harari presents relate to your own habits and behaviors. You might ask yourself:\n\n* How have my habits and behaviors been shaped by my cultural background, upbringing, and environment?",
+          "id": "ev_91516dd4b1356cc45efe8bfc",
+          "observedAt": "2026-10-14T08:50:23.351Z"
+        },
+        {
+          "sourceId": "memory:answer_e9ad5914_3",
+          "sourceVersion": "sha256:90d1286cb57b3c0f0155624039ff31a2b16ebd678f82c13d0fd494c728f2f626",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_3",
+            "part": 19,
+            "parts": 19
+          },
+          "text": "values and goals.\n\nFeel free to reach out if you have any more questions or need further recommendations. I'm always here to help. Happy reading and learning!\n\n(And don't forget to enjoy the rest of 'Sapiens'! It's a thought-provoking book that will likely continue to spark interesting reflections and connections.)",
+          "id": "ev_e726eb29fee32e98f27786a0",
+          "observedAt": "2026-10-14T08:50:23.351Z"
+        },
+        {
+          "sourceId": "memory:answer_e9ad5914_4",
+          "sourceVersion": "sha256:8a5058a1954359f876730626051fd93d3d5c29dc3d5b1e9f2e0b14ae42717118",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_4",
+            "part": 1,
+            "parts": 31
+          },
+          "text": "Session date: 2022/03/01 (Tue) 22:45\nuser: I just finished listening to 'Sapiens: A Brief History of Humankind' by Yuval Noah Harari today, and it got me thinking about the impact of technology on human evolution. Can you tell me more about the latest advancements in AI and its potential applications in various industries?\nassistant: What a great topic! Congratulations on finishing \"Sapiens\" - it's a thought-provoking book that indeed sparks interesting questions about humanity's future. I'd be happy to provide an update on the latest advancements in AI and its potential applications across various industries.\n\n**Current State of AI**\n\nArtificial Intelligence (AI) has made tremendous progress in recent years, with significant advancements in machine learning, deep learning, and natural language processing. AI systems can now perform tasks that were previously thought to be the exclusive domain of humans, such as:",
+          "id": "ev_f840afc0aac0ed341e86ff36",
+          "observedAt": "2026-10-14T08:50:23.351Z"
+        },
+        {
+          "sourceId": "memory:answer_e9ad5914_4",
+          "sourceVersion": "sha256:8a5058a1954359f876730626051fd93d3d5c29dc3d5b1e9f2e0b14ae42717118",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_4",
+            "part": 8,
+            "parts": 31
+          },
+          "text": "professional reviews the AI's output, considering their own clinical judgment and expertise, to make a final diagnosis.\n\n**Benefits of AI-assisted diagnosis**\n\n1. **Improved accuracy**: AI can analyze vast amounts of data more quickly and accurately than humans, reducing the likelihood of errors.\n2. **Enhanced patient safety**: AI can detect rare or unusual conditions that might be missed by human clinicians.\n3. **Increased efficiency**: AI can help reduce the time spent on diagnosis, allowing healthcare professionals to focus on treatment and patient care.\n4. **Personalized medicine**: AI can help tailor treatment plans to individual patients based on their unique characteristics and medical history.\n5. **Cost savings**: AI-assisted diagnosis can reduce healthcare costs by reducing unnecessary tests, procedures, and hospital stays.\n\n**Real-world examples**",
+          "id": "ev_4f3e15a017ba9943738c7bf9",
+          "observedAt": "2026-10-14T08:50:23.352Z"
+        },
+        {
+          "sourceId": "memory:answer_e9ad5914_2",
+          "sourceVersion": "sha256:d80afd2ab5387372b167b5d449bb20b58fced0843e587e9548bcf5b66edb625b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_2",
+            "part": 1,
+            "parts": 25,
+            "partial": true
+          },
+          "text": "Session date: 2022/01/15 (Sat) 11:56\nuser: I'm looking for some book recommendations. I just finished reading \"The Nightingale\" by Kristin Hannah today, and I'm still reeling from the emotional impact. I'm open to trying out different genres, so feel free to suggest anything that you think I might enjoy.",
+          "id": "ev_b469aef59d2c1dc733016a98",
+          "observedAt": "2026-10-14T08:50:23.352Z"
+        },
+        {
+          "sourceId": "memory:answer_e9ad5914_2",
+          "sourceVersion": "sha256:d80afd2ab5387372b167b5d449bb20b58fced0843e587e9548bcf5b66edb625b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_2",
+            "part": 13,
+            "parts": 25
+          },
+          "text": "3. **Let the atmosphere wash over you**: Allow yourself to become immersed in the world Doerr has created, and let the emotions and themes resonate with you.\n\nOverall, Anthony Doerr's writing style is a key aspect of the book's magic. It adds depth, emotion, and beauty to the story, making \"All the Light We Cannot See\" a truly unforgettable reading experience.\nuser: I'm curious about how \"All the Light We Cannot See\" will compare in terms of its emotional impact. Can you tell me more about how the book handles the theme of war and its effects on individuals?\nassistant: What a great question! Both \"The Nightingale\" and \"All the Light We Cannot See\" are powerful explorations of war and its human cost. While they share some similarities, they approach the theme in distinct ways. Here's how \"All the Light We Cannot See\" handles the theme of war and its effects on individuals:\n\n**War as a Character**",
+          "id": "ev_5d99b9196ebbdc0fe7b3b271",
+          "observedAt": "2026-10-14T08:50:23.352Z"
+        },
+        {
+          "sourceId": "memory:answer_e9ad5914_2",
+          "sourceVersion": "sha256:d80afd2ab5387372b167b5d449bb20b58fced0843e587e9548bcf5b66edb625b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_2",
+            "part": 16,
+            "parts": 25,
+            "partial": true
+          },
+          "text": "within themselves. Doerr's portrayal of PTSD, anxiety, and the long-term effects of trauma is both haunting and heart-wrenching.\n\n**Hope and Resilience**\n\nDespite the darkness, the novel offers a message of hope and resilience. Through the characters' stories, Doerr shows how human connection, empathy, and kindness can help individuals survive even the most desperate of times. The book ultimately affirms the power of the human spirit to endure, to resist, and to find beauty in the midst of destruction.\n\n**Comparison to \"The Nightingale\"**",
+          "id": "ev_ea0bb0f7dc9a85113af08cad",
+          "observedAt": "2026-10-14T08:50:23.352Z"
+        },
+        {
+          "sourceId": "memory:answer_e9ad5914_2",
+          "sourceVersion": "sha256:d80afd2ab5387372b167b5d449bb20b58fced0843e587e9548bcf5b66edb625b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e9ad5914_2",
+            "part": 17,
+            "parts": 25,
+            "partial": true
+          },
+          "text": "I hope this helps you prepare for the emotional journey that awaits you in \"All the Light We Cannot See\"!\nuser: I'm interested in learning more about the character of Werner Pfennig. Can you tell me more about his backstory and how he becomes embroiled in the Nazi war machine?\nassistant: Werner Pfennig is a complex and intriguing character, and his backstory is a crucial part of the novel. Here's more about his history and how he becomes embroiled in the Nazi war machine:\n\n**Werner's Early Life**",
+          "id": "ev_49965c57bb8e0893d0303ed3",
+          "observedAt": "2026-10-14T08:50:23.352Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_e9ad5914_3",
+        "answer_e9ad5914_4",
+        "answer_e9ad5914_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 8.37275000000227,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "answer_e9ad5914_3",
+    "answer_e9ad5914_4",
+    "answer_e9ad5914_2"
+  ],
+  "sources": {
+    "recallAt3": 0.5,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:50:23.357739+00:00"
+}

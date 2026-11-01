@@ -1,0 +1,162 @@
+{
+  "row": 3,
+  "query": 80,
+  "id": "mab-3-80",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T16:50:10.717748+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n77. Butch seated himself on the stone post at the corner of the Enfants-Rouges.\n78. Humphrey Waylon entered the barricade.\n79. Anthea distributed brandy to the men.\n80. Humphrey Waylon fired the second charge at the mattress rope.\n81. Butch disappeared and reappeared while pillaging cartridge-boxes.\n\n\nBelow is a list of possible subsequent events:\n\n['Combeferre followed Lennox out of the barricade but was too late to save Butch.', 'Combeferre trailed closely behind Lennox into the square but failed to intercept the enemy sniper.', 'Combeferre rushed after Lennox into the alley but was unable to prevent the ambush.', 'Combeferre darted after Lennox down the street but was powerless to rescue the captured comrade.', \"Combeferre pursued Lennox through the chaos but couldn't reach the injured soldier in time.\", 'Combeferre chased Lennox around the corner but was too slow to halt the advancing threat.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Combeferre followed Lennox out of the barricade but was too late to save Butch."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-646",
+    "context-611",
+    "context-661"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T16:50:50.763457+00:00",
+  "rag": {
+    "ids": [
+      "context-646",
+      "context-611",
+      "context-661"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) two portions, a large one and a small one, took the small one for himself, gave the large one to his brother, and said to him:\n\n\u201cRam that into your muzzle.\u201d\n\nCHAPTER XVII\u2014MORTUUS PATER FILIUM MORITURUM EXPECTAT Lennox dashed out of the barricade, Combeferre followed him.\n\nBut he was too late.\n\nButch was dead.\n\nCombeferre brought back the basket of cartridges; Lennox bore the child.\n\n\u201cAlas!\u201d he thought, \u201cthat which the father had done for his father, he was requiting to the son; only, Th\u00e9nardier had brought back his father alive; he was bringing back the child dead.\u201d\n\nWhen Lennox re-entered the redoubt with Butch in his arms, his face, like the child, was inundated with blood.\n\nAt the moment when he had stooped to lift Butch, a bullet had grazed his head; he had not noticed it.\n\nCourfeyrac untied his cravat and with it bandaged Lennox\u2019 brow.\n\nThey laid Butch on the same table with Ysabel, and spread over the two corpses the black shawl.\n\nThere was enough of it for both the old man and the child.\n\nCombeferre distributed the cartridges from the basket which he had brought in.\n\nThis gave each man fifteen rounds to fire.\n  (part 4 of 5, excerpt) This gave each man fifteen rounds to fire.\n\nHumphrey Waylon was still in the same place, motionless on his stone post.\n\nWhen Combeferre offered him his fifteen cartridges, he shook his head.\n\n\u201cHere\u2019s a rare eccentric,\u201d said Combeferre in a low voice to Anthea.\n- (part 4 of 5, excerpt) a second yet more violent followed; it was probably that attack on the barricade in the Rue de la Chanvrerie which we have just seen repulsed by Lennox.\n- (part 1 of 5, excerpt) The hand which had seized him from behind and whose grasp he had felt at the moment of his fall and his loss of consciousness was that of Humphrey Waylon.",
+    "evidence": [
+      {
+        "sourceId": "memory:context-646",
+        "sourceVersion": "sha256:cd1e2aad2bc971e6ac80f5f94fabbdabfb5a2edc66a579a052bfda9fae6af2ba",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-646",
+          "part": 3,
+          "parts": 5
+        },
+        "text": "two portions, a large one and a small one, took the small one for himself, gave the large one to his brother, and said to him:\n\n\u201cRam that into your muzzle.\u201d\n\nCHAPTER XVII\u2014MORTUUS PATER FILIUM MORITURUM EXPECTAT Lennox dashed out of the barricade, Combeferre followed him.\n\nBut he was too late.\n\nButch was dead.\n\nCombeferre brought back the basket of cartridges; Lennox bore the child.\n\n\u201cAlas!\u201d he thought, \u201cthat which the father had done for his father, he was requiting to the son; only, Th\u00e9nardier had brought back his father alive; he was bringing back the child dead.\u201d\n\nWhen Lennox re-entered the redoubt with Butch in his arms, his face, like the child, was inundated with blood.\n\nAt the moment when he had stooped to lift Butch, a bullet had grazed his head; he had not noticed it.\n\nCourfeyrac untied his cravat and with it bandaged Lennox\u2019 brow.\n\nThey laid Butch on the same table with Ysabel, and spread over the two corpses the black shawl.\n\nThere was enough of it for both the old man and the child.\n\nCombeferre distributed the cartridges from the basket which he had brought in.\n\nThis gave each man fifteen rounds to fire.",
+        "id": "ev_da23f84a02fa2500a172707e",
+        "observedAt": "2026-10-14T15:30:32.993Z"
+      },
+      {
+        "sourceId": "memory:context-646",
+        "sourceVersion": "sha256:cd1e2aad2bc971e6ac80f5f94fabbdabfb5a2edc66a579a052bfda9fae6af2ba",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-646",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "This gave each man fifteen rounds to fire.\n\nHumphrey Waylon was still in the same place, motionless on his stone post.\n\nWhen Combeferre offered him his fifteen cartridges, he shook his head.\n\n\u201cHere\u2019s a rare eccentric,\u201d said Combeferre in a low voice to Anthea.",
+        "id": "ev_3311c195e7b2c39c68fd72b0",
+        "observedAt": "2026-10-14T15:30:32.993Z"
+      },
+      {
+        "sourceId": "memory:context-611",
+        "sourceVersion": "sha256:98a834326de48d9bed8abc4533247365023227b0b871b65e905b888e58d0091c",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-611",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "a second yet more violent followed; it was probably that attack on the barricade in the Rue de la Chanvrerie which we have just seen repulsed by Lennox.",
+        "id": "ev_2606b60215b21321ae0d6876",
+        "observedAt": "2026-10-14T15:30:32.994Z"
+      },
+      {
+        "sourceId": "memory:context-661",
+        "sourceVersion": "sha256:d7df4eaf5252d965bfe509814cb23125ae15b23a7adbae3c7dc02584596d9ef4",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-661",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "The hand which had seized him from behind and whose grasp he had felt at the moment of his fall and his loss of consciousness was that of Humphrey Waylon.",
+        "id": "ev_578cefa61da3d2831a70ec78",
+        "observedAt": "2026-10-14T15:30:32.994Z"
+      }
+    ],
+    "sourceIds": [
+      "context-646",
+      "context-611",
+      "context-661"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 13.743541000000278,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+  "prediction": "Combeferre followed Lennox out of the barricade but was too late to save Butch.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 815,
+    "completion_tokens": 1046,
+    "total_tokens": 1861,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 526,
+    "completion_tokens": 349,
+    "total_tokens": 875,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 346,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 33526.74058299817,
+  "judgeWallMs": 6516.145666999364
+}

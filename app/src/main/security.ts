@@ -32,6 +32,7 @@ export const REQUIRED_WEB_PREFERENCES = {
   webSecurity: true,
   allowRunningInsecureContent: false,
   experimentalFeatures: false,
+  navigateOnDragDrop: false,
 } as const;
 
 /**
@@ -80,18 +81,23 @@ export interface TrustedRenderer {
   auxiliaryWebContentsIds?: number[];
   /** ELECTRON_RENDERER_URL in dev; undefined in a packaged build. */
   devServerUrl?: string;
+  /** Exact app-owned packaged documents; no scheme-wide file authority. */
+  packagedRendererUrls?: readonly string[];
 }
 
-/**
- * Packaged renderer documents are file: URLs; dev is the electron-vite server. Anything else — a
- * remote origin, a data:/blob: document, an about:blank frame someone navigated into place — is
- * refused. `file:` is accepted as a scheme rather than an exact path because Electron URL-encodes
- * and normalizes the loaded path, and a spoofed file: document still cannot reach preload's bridge.
- */
-export function isTrustedRendererUrl(url: string | undefined, devServerUrl?: string): boolean {
-  if (!url) return false;
-  if (devServerUrl && url.startsWith(devServerUrl)) return true;
-  return url.startsWith('file://');
+/** Compare document identities; a foreign local file never acquires preload authority. */
+function documentKey(raw:string):string|null {
+ try { const url=new URL(raw); if(url.username||url.password)return null; url.search='';url.hash='';return url.href; }
+ catch{return null;}
+}
+export function isTrustedRendererUrl(raw:string|undefined,dev:string|undefined,packaged:readonly string[]=[]):boolean {
+ if(!raw)return false;
+ try{
+  const url=new URL(raw);
+  if(dev){const base=new URL(dev);return (base.protocol==='http:'||base.protocol==='https:')&&url.origin===base.origin&&(url.pathname===base.pathname||(base.pathname.endsWith('/')&&url.pathname===base.pathname+'index.html'))&&!url.username&&!url.password;}
+  const key=documentKey(raw);
+  return url.protocol==='file:'&&key!==null&&packaged.some(p=>documentKey(p)===key);
+ }catch{return false;}
 }
 
 /**
@@ -104,7 +110,7 @@ export function isTrustedSender(sender: SenderIdentity, trusted: TrustedRenderer
     || (trusted.auxiliaryWebContentsIds ?? []).includes(sender.senderId);
   if (!allowed) return false;
   if (!sender.isMainFrame) return false;
-  return isTrustedRendererUrl(sender.frameUrl, trusted.devServerUrl);
+  return isTrustedRendererUrl(sender.frameUrl, trusted.devServerUrl, trusted.packagedRendererUrls);
 }
 
 /**
@@ -114,7 +120,7 @@ export function isTrustedSender(sender: SenderIdentity, trusted: TrustedRenderer
  * system browser by the caller.
  */
 export function isAllowedNavigation(url: string, trusted: TrustedRenderer): boolean {
-  return isTrustedRendererUrl(url, trusted.devServerUrl);
+  return isTrustedRendererUrl(url, trusted.devServerUrl, trusted.packagedRendererUrls);
 }
 
 /**

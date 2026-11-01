@@ -1,0 +1,86 @@
+{
+  "scope": "one installed gpt-oss-20b / owned fixture / direct Do run; not full M02/X01 or broad model reliability",
+  "passed": true,
+  "faults": [
+    {
+      "fault": "unchanged-state",
+      "rejected": true,
+      "assertion": "persisted exact text / one save"
+    },
+    {
+      "fault": "duplicate-save",
+      "rejected": true,
+      "assertion": "persisted exact text / one save"
+    },
+    {
+      "fault": "wrong-text",
+      "rejected": true,
+      "assertion": "persisted exact text / one save"
+    },
+    {
+      "fault": "unfinished",
+      "rejected": true,
+      "assertion": "unfinished"
+    },
+    {
+      "fault": "missing-discovery",
+      "rejected": true,
+      "assertion": "extra/failed tool"
+    },
+    {
+      "fault": "duplicate-workflow",
+      "rejected": true,
+      "assertion": "extra/failed tool"
+    },
+    {
+      "fault": "picker-filtered-apps",
+      "rejected": true,
+      "assertion": "manual target filtering instead of automatic discovery"
+    },
+    {
+      "fault": "wrong-mode",
+      "rejected": true,
+      "assertion": "verified exact Do"
+    },
+    {
+      "fault": "foreign-pid",
+      "rejected": true,
+      "assertion": "actual pid"
+    },
+    {
+      "fault": "foreign-window",
+      "rejected": true,
+      "assertion": "actual window"
+    },
+    {
+      "fault": "false-done",
+      "rejected": true,
+      "assertion": "verified exact Do"
+    },
+    {
+      "fault": "partial",
+      "rejected": true,
+      "assertion": "completed steps"
+    },
+    {
+      "fault": "replayed-input",
+      "rejected": true,
+      "assertion": "repeated/partial input"
+    },
+    {
+      "fault": "stale-readback",
+      "rejected": true,
+      "assertion": "stale observation"
+    },
+    {
+      "fault": "foreign-final-window",
+      "rejected": true,
+      "assertion": "final target"
+    },
+    {
+      "fault": "wrong-independent-AX",
+      "rejected": true,
+      "assertion": "independent AX"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import { dialog, Menu, shell, type BrowserWindow, type MessageBoxOptions } from 'electron';
 import type { IpcGate } from './ipc.gate';
+import type { ProjectFiles } from './project.files';
 import { gitDiff, gitBranches, gitLog, gitRemoteInfo, gitFetch, gitPull, gitPush, stampedGitStatus } from './git';
 import { discoverLocalModels } from './local.models';
 import { listDir, readFilePreview, writeFileContent, readSessionMeta, searchFiles } from './files';
@@ -10,6 +11,8 @@ import { asBoundedInt, asFileContent, asPtyInput, resolveWithinRoot } from './se
 export interface WorkspaceIpcHost {
   /** The open project; '' when none is open, and every resolver below then fails closed. */
   projectDir(): string;
+  /** Opened at trusted selection, retired only after its in-flight I/O drains. */
+  projectFiles(): ProjectFiles;
   /** Rises on every project switch, so a slow git read cannot be applied to the next project. */
   projectGeneration(): number;
   /** Send to the main window. */
@@ -43,7 +46,7 @@ export function registerWorkspaceIpc(ipc: IpcGate, host: WorkspaceIpcHost): void
   // Filename search for the Files filter. Read-only, bounded, and confined to the project root by
   // the same resolver the tree uses.
   ipc.handle<unknown>('files:search', { hits: [], truncated: false }, (_e, query: unknown) =>
-    searchFiles(host.projectDir(), query));
+    searchFiles(host.projectFiles(), query));
   ipc.handle<unknown>('git:fetch', { ok: false, output: 'unavailable' }, () => gitFetch(host.projectDir()));
   ipc.handle<unknown>('git:pull', { ok: false, output: 'unavailable' }, () => gitPull(host.projectDir()));
   ipc.handle<unknown>('git:push', { ok: false, output: 'unavailable' }, (_e, setUpstream: unknown) =>
@@ -53,15 +56,15 @@ export function registerWorkspaceIpc(ipc: IpcGate, host: WorkspaceIpcHost): void
 
   // Files panel — lazy tree + capped read-only viewer. Every path is resolved inside the project;
   // with no project open the resolver fails closed rather than falling back to the filesystem root.
-  ipc.handle<unknown>('files:list', [], (_e, rel: unknown) => listDir(host.projectDir(), rel));
-  ipc.handle<unknown>('files:read', null, (_e, rel: unknown) => readFilePreview(host.projectDir(), rel));
+  ipc.handle<unknown>('files:list', [], (_e, rel: unknown) => listDir(host.projectFiles(), rel));
+  ipc.handle<unknown>('files:read', null, (_e, rel: unknown) => readFilePreview(host.projectFiles(), rel));
   ipc.handle<void>('files:reveal', undefined, (_e, rel: unknown) => {
     shell.showItemInFolder(resolveWithinRoot(host.projectDir(), rel, 'reveal path'));
   });
   // Editor pane ⌘S — the user's own edit, so it writes directly like any IDE (agent edits still
   // flow through the engine's tools + Edit Shield).
   ipc.handle<void>('files:write', undefined, (_e, rel: unknown, content: unknown) =>
-    writeFileContent(host.projectDir(), rel, asFileContent(content)));
+    writeFileContent(host.projectFiles(), rel, asFileContent(content)));
 
   // The file tabs (fix list item 8). Closing a tab with unsaved edits asks, as a native sheet on the
   // window: a ✕ on every tab made discarding work one stray click away, and the menu's "Unsaved
@@ -101,8 +104,8 @@ export function registerWorkspaceIpc(ipc: IpcGate, host: WorkspaceIpcHost): void
       });
     }));
 
-  // Home dashboard + Sessions gallery: full session history from the engine's meta JSONL.
-  ipc.handle<unknown>('sessions:meta', [], () => readSessionMeta(host.projectDir()));
+  // Home dashboard + Sessions gallery: bounded recent metadata from the engine's JSONL.
+  ipc.handle<unknown>('sessions:meta', [], () => readSessionMeta(host.projectFiles()));
 
   // Terminal panel — pty lives here so the shell survives renderer tab switches.
   ipc.handle<number>('pty:create', -1, (_e, cols: unknown, rows: unknown) =>

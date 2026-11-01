@@ -1,0 +1,275 @@
+{
+  "row": 338,
+  "id": "gpt4_d9af6064",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "question": "Which device did I set up first, the smart thermostat or the new router?",
+  "references": [
+    "new router"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/03/28 (Tue) 01:25",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 919.1167090000017,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 72,
+        "maxInputChars": 72,
+        "requiredProviderTruncation": false,
+        "promptTokens": 22,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_da704e79_1",
+        "answer_da704e79_2",
+        "sharegpt_w9YUs4c_0"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 20, excerpt) Session date: 2023/03/28 (Tue) 15:46\nuser: I'm having some issues with my internet speed, especially when I'm working from home. Can you help me troubleshoot the problem or suggest some ways to improve my internet speed? By the way, I finally set up my smart thermostat on 2/10, after procrastinating for weeks, and it's been a game-changer.\n  (part 4 of 20) which can improve performance and security.\n* Limit device connections: If you have many devices connected, try disconnecting some to see if it improves speed.\n\nLooking forward to helping you troubleshoot and improve your internet speed!\nuser: I'm with XYZ Internet, and I currently have a 500 Mbps plan. I recently got a new router on January 15th, which has improved my Wi-Fi signal strength significantly. However, I still need to figure out how to set up the guest network feature. As for devices, I have around 5-6 devices connected, including my laptop, smart TV, and smart speaker. I usually work from my home office, which is about 10-15 feet away from the router. I've been using Wi-Fi, but I do have an Ethernet cable if needed. I haven't run a speed test recently, but I'll do that now.\nassistant: Thank you for providing that information!\n\nIt's great to hear that your new router has improved your Wi-Fi signal strength. Setting up a guest network is a good idea to isolate visitors from your main network. I can provide you with general steps to set it up, if you'd like.\n- (part 1 of 18, excerpt) user: I'm having some issues with my internet speed, especially when working from home. I've been experiencing slow speeds lately and I'm considering c\n- (part 10 of 11, excerpt) gp_channel_t channel;\n    gp_open_channel(&ctx, &card, 0x01, &channel);\n\n    // Send APDU commands to the smart card",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_da704e79_1",
+          "sourceVersion": "sha256:2ecb34bfab831f6e9b7e91e0b2ef6bd21c7e59a22165ebbb15684e91959a6917",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_da704e79_1",
+            "part": 1,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "Session date: 2023/03/28 (Tue) 15:46\nuser: I'm having some issues with my internet speed, especially when I'm working from home. Can you help me troubleshoot the problem or suggest some ways to improve my internet speed? By the way, I finally set up my smart thermostat on 2/10, after procrastinating for weeks, and it's been a game-changer.",
+          "id": "ev_3f46bdf112385a2c07b20456",
+          "observedAt": "2026-10-14T05:01:27.427Z"
+        },
+        {
+          "sourceId": "memory:answer_da704e79_1",
+          "sourceVersion": "sha256:2ecb34bfab831f6e9b7e91e0b2ef6bd21c7e59a22165ebbb15684e91959a6917",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_da704e79_1",
+            "part": 4,
+            "parts": 20
+          },
+          "text": "which can improve performance and security.\n* Limit device connections: If you have many devices connected, try disconnecting some to see if it improves speed.\n\nLooking forward to helping you troubleshoot and improve your internet speed!\nuser: I'm with XYZ Internet, and I currently have a 500 Mbps plan. I recently got a new router on January 15th, which has improved my Wi-Fi signal strength significantly. However, I still need to figure out how to set up the guest network feature. As for devices, I have around 5-6 devices connected, including my laptop, smart TV, and smart speaker. I usually work from my home office, which is about 10-15 feet away from the router. I've been using Wi-Fi, but I do have an Ethernet cable if needed. I haven't run a speed test recently, but I'll do that now.\nassistant: Thank you for providing that information!\n\nIt's great to hear that your new router has improved your Wi-Fi signal strength. Setting up a guest network is a good idea to isolate visitors from your main network. I can provide you with general steps to set it up, if you'd like.",
+          "id": "ev_c4d02dcf14f45ed0b08a0fcf",
+          "observedAt": "2026-10-14T05:01:27.429Z"
+        },
+        {
+          "sourceId": "memory:answer_da704e79_2",
+          "sourceVersion": "sha256:1a6d47907ccd6070f241f2478f21c0ca4f8929cae83c1e30ee77f8c64346e684",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_da704e79_2",
+            "part": 1,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I'm having some issues with my internet speed, especially when working from home. I've been experiencing slow speeds lately and I'm considering c",
+          "id": "ev_785c9e31e1a17392fe6b626f",
+          "observedAt": "2026-10-14T05:01:27.429Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_w9YUs4c_0",
+          "sourceVersion": "sha256:432aeb1e15d4e1cd46da9fc5b0a03a322a296068d57ae412ac9f2730e9ecfd87",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_w9YUs4c_0",
+            "part": 10,
+            "parts": 11,
+            "partial": true
+          },
+          "text": "gp_channel_t channel;\n    gp_open_channel(&ctx, &card, 0x01, &channel);\n\n    // Send APDU commands to the smart card",
+          "id": "ev_e559d44f1966e97b36899197",
+          "observedAt": "2026-10-14T05:01:27.430Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_da704e79_1",
+        "answer_da704e79_2",
+        "sharegpt_w9YUs4c_0"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 45.14258300000074,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_da704e79_1",
+        "answer_da704e79_2",
+        "sharegpt_w9YUs4c_0"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 20, excerpt) Session date: 2023/03/28 (Tue) 15:46\nuser: I'm having some issues with my internet speed, especially when I'm working from home. Can you help me troubleshoot the problem or suggest some ways to improve my internet speed? By the way, I finally set up my smart thermostat on 2/10, after procrastinating for weeks, and it's been a game-changer.\n  (part 4 of 20) which can improve performance and security.\n* Limit device connections: If you have many devices connected, try disconnecting some to see if it improves speed.\n\nLooking forward to helping you troubleshoot and improve your internet speed!\nuser: I'm with XYZ Internet, and I currently have a 500 Mbps plan. I recently got a new router on January 15th, which has improved my Wi-Fi signal strength significantly. However, I still need to figure out how to set up the guest network feature. As for devices, I have around 5-6 devices connected, including my laptop, smart TV, and smart speaker. I usually work from my home office, which is about 10-15 feet away from the router. I've been using Wi-Fi, but I do have an Ethernet cable if needed. I haven't run a speed test recently, but I'll do that now.\nassistant: Thank you for providing that information!\n\nIt's great to hear that your new router has improved your Wi-Fi signal strength. Setting up a guest network is a good idea to isolate visitors from your main network. I can provide you with general steps to set it up, if you'd like.\n- (part 1 of 18, excerpt) user: I'm having some issues with my internet speed, especially when working from home. I've been experiencing slow speeds lately and I'm considering c\n- (part 10 of 11, excerpt) gp_channel_t channel;\n    gp_open_channel(&ctx, &card, 0x01, &channel);\n\n    // Send APDU commands to the smart card",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_da704e79_1",
+          "sourceVersion": "sha256:2ecb34bfab831f6e9b7e91e0b2ef6bd21c7e59a22165ebbb15684e91959a6917",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_da704e79_1",
+            "part": 1,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "Session date: 2023/03/28 (Tue) 15:46\nuser: I'm having some issues with my internet speed, especially when I'm working from home. Can you help me troubleshoot the problem or suggest some ways to improve my internet speed? By the way, I finally set up my smart thermostat on 2/10, after procrastinating for weeks, and it's been a game-changer.",
+          "id": "ev_3f46bdf112385a2c07b20456",
+          "observedAt": "2026-10-14T05:01:27.444Z"
+        },
+        {
+          "sourceId": "memory:answer_da704e79_1",
+          "sourceVersion": "sha256:2ecb34bfab831f6e9b7e91e0b2ef6bd21c7e59a22165ebbb15684e91959a6917",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_da704e79_1",
+            "part": 4,
+            "parts": 20
+          },
+          "text": "which can improve performance and security.\n* Limit device connections: If you have many devices connected, try disconnecting some to see if it improves speed.\n\nLooking forward to helping you troubleshoot and improve your internet speed!\nuser: I'm with XYZ Internet, and I currently have a 500 Mbps plan. I recently got a new router on January 15th, which has improved my Wi-Fi signal strength significantly. However, I still need to figure out how to set up the guest network feature. As for devices, I have around 5-6 devices connected, including my laptop, smart TV, and smart speaker. I usually work from my home office, which is about 10-15 feet away from the router. I've been using Wi-Fi, but I do have an Ethernet cable if needed. I haven't run a speed test recently, but I'll do that now.\nassistant: Thank you for providing that information!\n\nIt's great to hear that your new router has improved your Wi-Fi signal strength. Setting up a guest network is a good idea to isolate visitors from your main network. I can provide you with general steps to set it up, if you'd like.",
+          "id": "ev_c4d02dcf14f45ed0b08a0fcf",
+          "observedAt": "2026-10-14T05:01:27.444Z"
+        },
+        {
+          "sourceId": "memory:answer_da704e79_2",
+          "sourceVersion": "sha256:1a6d47907ccd6070f241f2478f21c0ca4f8929cae83c1e30ee77f8c64346e684",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_da704e79_2",
+            "part": 1,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I'm having some issues with my internet speed, especially when working from home. I've been experiencing slow speeds lately and I'm considering c",
+          "id": "ev_785c9e31e1a17392fe6b626f",
+          "observedAt": "2026-10-14T05:01:27.445Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_w9YUs4c_0",
+          "sourceVersion": "sha256:432aeb1e15d4e1cd46da9fc5b0a03a322a296068d57ae412ac9f2730e9ecfd87",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_w9YUs4c_0",
+            "part": 10,
+            "parts": 11,
+            "partial": true
+          },
+          "text": "gp_channel_t channel;\n    gp_open_channel(&ctx, &card, 0x01, &channel);\n\n    // Send APDU commands to the smart card",
+          "id": "ev_e559d44f1966e97b36899197",
+          "observedAt": "2026-10-14T05:01:27.446Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_da704e79_1",
+        "answer_da704e79_2",
+        "sharegpt_w9YUs4c_0"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 17.591082999999344,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:41:15.644067+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Based on the retrieved history, you set up the new router on January 15th and the smart thermostat on February 10th. Therefore, the router was set up first.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 587,
+    "completion_tokens": 1064,
+    "total_tokens": 1651,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 413,
+    "completion_tokens": 690,
+    "total_tokens": 1103,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 687,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 14869.671083999947,
+  "judgeWallMs": 13464.10687499997,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.15384615384615385
+  },
+  "ended": "2026-10-14T07:41:43.981754+00:00"
+}

@@ -1,0 +1,233 @@
+{
+  "row": 14,
+  "query": 64,
+  "id": "mab-14-64",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T05:16:07.747564+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n61. The stranger demonstrated how he made a penknife from an old candlestick.\n62. The stranger revealed he had planned an escape using the ladder he made.\n63. The stranger encouraged Pascal to reflect on the motivations behind his arrest.\n64. Pascal realized Blaire was involved in the events leading to his accusation.\n65. Davion invited Pascal to share his supper.\n\n\nBelow is a list of possible subsequent events:\n\n['The abbe and Pascal exchanged thoughts on their favorite literary works.', 'The abbe and Pascal planned a surprise gathering for their friends.', 'The abbe and Pascal crafted a complicated riddle for their students.', 'The abbe and Pascal organized a friendly competition to test their wits.', 'The abbe and Pascal discussed their escape plan.', 'The abbe and Pascal debated the merits of their new invention.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "The abbe and Pascal discussed their escape plan."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 1609.4844589999993,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1055,
+        "maxInputChars": 1055,
+        "requiredProviderTruncation": false,
+        "promptTokens": 230,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-77",
+        "context-78",
+        "context-80"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) \"Were they alone?\"\n\n\"There was a third person with them whom I knew perfectly well, and who had, in all probability made their acquaintance; he was a tailor named Corbin, but he was very drunk.\n\nStay!\n\n-- stay!\n  (part 2 of 4) made their acquaintance; he was a tailor named Corbin, but he was very drunk.\n\nStay!\n\n-- stay!\n\n-- How strange that it should not have occurred to me before!\n\nNow I remember quite well, that on the table round which they were sitting were pens, ink, and paper.\n\nOh, the heartless, treacherous scoundrels!\"\n\nexclaimed Pascal, pressing his hand to his throbbing brows.\n\n\"Is there anything else I can assist you in discovering, besides the villany of your friends?\" inquired the abbe with a laugh.\n\n\"Yes, yes,\" replied Pascal eagerly; \"I would beg of you, who see so completely to the depths of things, and to whom the greatest mystery seems but an easy riddle, to explain to me how it was that I underwent no second examination, was never brought to trial, and, above all, was condemned without ever having had sentence passed on me?\"\n\n\"That is altogether a different and more serious matter,\"\n\nresponded the abbe.\n\n\"The ways of justice are frequently too dark and mysterious to be easily penetrated.\n\nAll we have hitherto done in the matter has been child's play.\n\nIf you wish me to enter upon the more difficult part of the business, you must assist me by the most minute information on every point.\"\n- (part 4 of 5, excerpt) regaled each Sunday with a small quantity of wine.\n\nNow this was a Sunday, and the abbe had come to ask his young companion to share the luxuries with him.\n- (part 1 of 5, excerpt) Come, let me show you my plan.\" The abbe then showed Pascal the sketch he had made for their escape.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-77",
+          "sourceVersion": "sha256:b20974ce4a2f38c284a070a1527f648dff745cc27c915941ca6c0f799b1f72e1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-77",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\"Were they alone?\"\n\n\"There was a third person with them whom I knew perfectly well, and who had, in all probability made their acquaintance; he was a tailor named Corbin, but he was very drunk.\n\nStay!\n\n-- stay!",
+          "id": "ev_b8384d7bf9db5be2cb662c48",
+          "observedAt": "2026-10-14T05:16:09.384Z"
+        },
+        {
+          "sourceId": "memory:context-77",
+          "sourceVersion": "sha256:b20974ce4a2f38c284a070a1527f648dff745cc27c915941ca6c0f799b1f72e1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-77",
+            "part": 2,
+            "parts": 4
+          },
+          "text": "made their acquaintance; he was a tailor named Corbin, but he was very drunk.\n\nStay!\n\n-- stay!\n\n-- How strange that it should not have occurred to me before!\n\nNow I remember quite well, that on the table round which they were sitting were pens, ink, and paper.\n\nOh, the heartless, treacherous scoundrels!\"\n\nexclaimed Pascal, pressing his hand to his throbbing brows.\n\n\"Is there anything else I can assist you in discovering, besides the villany of your friends?\" inquired the abbe with a laugh.\n\n\"Yes, yes,\" replied Pascal eagerly; \"I would beg of you, who see so completely to the depths of things, and to whom the greatest mystery seems but an easy riddle, to explain to me how it was that I underwent no second examination, was never brought to trial, and, above all, was condemned without ever having had sentence passed on me?\"\n\n\"That is altogether a different and more serious matter,\"\n\nresponded the abbe.\n\n\"The ways of justice are frequently too dark and mysterious to be easily penetrated.\n\nAll we have hitherto done in the matter has been child's play.\n\nIf you wish me to enter upon the more difficult part of the business, you must assist me by the most minute information on every point.\"",
+          "id": "ev_c7ead4c4472fee6b56b7f16b",
+          "observedAt": "2026-10-14T05:16:09.384Z"
+        },
+        {
+          "sourceId": "memory:context-78",
+          "sourceVersion": "sha256:fd00b3ffcd1154904befc0f4ab808e90493aff248fcdb80f1a27b2075b9c1e65",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-78",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "regaled each Sunday with a small quantity of wine.\n\nNow this was a Sunday, and the abbe had come to ask his young companion to share the luxuries with him.",
+          "id": "ev_5809fa13d8bc85b7e7a05e58",
+          "observedAt": "2026-10-14T05:16:09.385Z"
+        },
+        {
+          "sourceId": "memory:context-80",
+          "sourceVersion": "sha256:c4be116022a728b797891eed3423021901a29596486eff565e050a97cee0f4ae",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-80",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Come, let me show you my plan.\" The abbe then showed Pascal the sketch he had made for their escape.",
+          "id": "ev_05d705f0d6e4c6a919ace2f2",
+          "observedAt": "2026-10-14T05:16:09.386Z"
+        }
+      ],
+      "sourceIds": [
+        "context-77",
+        "context-78",
+        "context-80"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 30.177167000001646,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-77",
+        "context-78",
+        "context-80"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) \"Were they alone?\"\n\n\"There was a third person with them whom I knew perfectly well, and who had, in all probability made their acquaintance; he was a tailor named Corbin, but he was very drunk.\n\nStay!\n\n-- stay!\n  (part 2 of 4) made their acquaintance; he was a tailor named Corbin, but he was very drunk.\n\nStay!\n\n-- stay!\n\n-- How strange that it should not have occurred to me before!\n\nNow I remember quite well, that on the table round which they were sitting were pens, ink, and paper.\n\nOh, the heartless, treacherous scoundrels!\"\n\nexclaimed Pascal, pressing his hand to his throbbing brows.\n\n\"Is there anything else I can assist you in discovering, besides the villany of your friends?\" inquired the abbe with a laugh.\n\n\"Yes, yes,\" replied Pascal eagerly; \"I would beg of you, who see so completely to the depths of things, and to whom the greatest mystery seems but an easy riddle, to explain to me how it was that I underwent no second examination, was never brought to trial, and, above all, was condemned without ever having had sentence passed on me?\"\n\n\"That is altogether a different and more serious matter,\"\n\nresponded the abbe.\n\n\"The ways of justice are frequently too dark and mysterious to be easily penetrated.\n\nAll we have hitherto done in the matter has been child's play.\n\nIf you wish me to enter upon the more difficult part of the business, you must assist me by the most minute information on every point.\"\n- (part 4 of 5, excerpt) regaled each Sunday with a small quantity of wine.\n\nNow this was a Sunday, and the abbe had come to ask his young companion to share the luxuries with him.\n- (part 1 of 5, excerpt) Come, let me show you my plan.\" The abbe then showed Pascal the sketch he had made for their escape.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-77",
+          "sourceVersion": "sha256:b20974ce4a2f38c284a070a1527f648dff745cc27c915941ca6c0f799b1f72e1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-77",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\"Were they alone?\"\n\n\"There was a third person with them whom I knew perfectly well, and who had, in all probability made their acquaintance; he was a tailor named Corbin, but he was very drunk.\n\nStay!\n\n-- stay!",
+          "id": "ev_b8384d7bf9db5be2cb662c48",
+          "observedAt": "2026-10-14T05:16:09.397Z"
+        },
+        {
+          "sourceId": "memory:context-77",
+          "sourceVersion": "sha256:b20974ce4a2f38c284a070a1527f648dff745cc27c915941ca6c0f799b1f72e1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-77",
+            "part": 2,
+            "parts": 4
+          },
+          "text": "made their acquaintance; he was a tailor named Corbin, but he was very drunk.\n\nStay!\n\n-- stay!\n\n-- How strange that it should not have occurred to me before!\n\nNow I remember quite well, that on the table round which they were sitting were pens, ink, and paper.\n\nOh, the heartless, treacherous scoundrels!\"\n\nexclaimed Pascal, pressing his hand to his throbbing brows.\n\n\"Is there anything else I can assist you in discovering, besides the villany of your friends?\" inquired the abbe with a laugh.\n\n\"Yes, yes,\" replied Pascal eagerly; \"I would beg of you, who see so completely to the depths of things, and to whom the greatest mystery seems but an easy riddle, to explain to me how it was that I underwent no second examination, was never brought to trial, and, above all, was condemned without ever having had sentence passed on me?\"\n\n\"That is altogether a different and more serious matter,\"\n\nresponded the abbe.\n\n\"The ways of justice are frequently too dark and mysterious to be easily penetrated.\n\nAll we have hitherto done in the matter has been child's play.\n\nIf you wish me to enter upon the more difficult part of the business, you must assist me by the most minute information on every point.\"",
+          "id": "ev_c7ead4c4472fee6b56b7f16b",
+          "observedAt": "2026-10-14T05:16:09.397Z"
+        },
+        {
+          "sourceId": "memory:context-78",
+          "sourceVersion": "sha256:fd00b3ffcd1154904befc0f4ab808e90493aff248fcdb80f1a27b2075b9c1e65",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-78",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "regaled each Sunday with a small quantity of wine.\n\nNow this was a Sunday, and the abbe had come to ask his young companion to share the luxuries with him.",
+          "id": "ev_5809fa13d8bc85b7e7a05e58",
+          "observedAt": "2026-10-14T05:16:09.398Z"
+        },
+        {
+          "sourceId": "memory:context-80",
+          "sourceVersion": "sha256:c4be116022a728b797891eed3423021901a29596486eff565e050a97cee0f4ae",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-80",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Come, let me show you my plan.\" The abbe then showed Pascal the sketch he had made for their escape.",
+          "id": "ev_05d705f0d6e4c6a919ace2f2",
+          "observedAt": "2026-10-14T05:16:09.399Z"
+        }
+      ],
+      "sourceIds": [
+        "context-77",
+        "context-78",
+        "context-80"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 12.63670799999818,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:16:09.402162+00:00"
+}

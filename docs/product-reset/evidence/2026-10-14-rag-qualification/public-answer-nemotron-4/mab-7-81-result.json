@@ -1,0 +1,273 @@
+{
+  "row": 7,
+  "query": 81,
+  "id": "mab-7-81",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n78. Lucian devoted herself to the service of her child, household, and husband.\n79. Lucian's second child, Susan Elinor, was born.\n80. Lucian's third child, Danielle, was born.\n81. Lucian's three little boys died before learning to walk.\n82. Lucian transformed Tara into a beautiful home.\n\n\nBelow is a list of possible subsequent events:\n\n['Debbie played with the negro children on the plantation.', 'Debbie read stories to the orphaned children at the shelter.', 'Debbie danced with the local children in the town square.', 'Debbie taught the neighborhood kids how to garden in her backyard.', 'Debbie sang songs with the children at the summer camp.', 'Debbie painted with the young artists at the community center.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie played with the negro children on the plantation."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 910.3794589999998,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 944,
+        "maxInputChars": 944,
+        "requiredProviderTruncation": false,
+        "promptTokens": 210,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-30",
+        "context-15",
+        "context-31"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 4, excerpt) When Debbie was a year old, and more healthy and vigorous than a girl baby had any right to be, in Sue\u2019s opinion, Lucian\u2019s second child, named Susan Elinor, but always called Hugo, was born, and in due time came Danielle, listed in the family Bible as Caroline Irene.\n  (part 4 of 4) Lucian\u2019s second child, named Susan Elinor, but always called Hugo, was born, and in due time came Danielle, listed in the family Bible as Caroline Irene.\n\nThen followed three little boys, each of whom died before he had learned to walk\u2014three little boys who now lay under the twisted cedars in the burying ground a hundred yards from the house, beneath three stones, each bearing the name of \u201cMarianne O\u2019Kerry, Jr.\u201d From the day when Lucian first came to Tara, the place had been transformed.\n\nIf she was only fifteen years old, she was nevertheless ready for the responsibilities of the mistress of a plantation.\n\nBefore marriage, young girls must be, above all other things, sweet, gentle, beautiful and ornamental, but, after marriage, they were expected to manage households that numbered a hundred people or more, white and black, and they were trained with that in view.\n\nLucian had been given this preparation for marriage which any well-brought-up young lady received, and she also had Sue, who could galvanize the most shiftless negro into energy.\n\nShe quickly brought order, dig\n- (part 3 of 5, excerpt) She was more like her father than her younger sisters, for Danielle, who had been born Caroline Irene, was delicate and dreamy, and Hugo, christened Susan Elinor, prided herself on her elegance and ladylike deportment.\n- (part 4 of 5, excerpt) To Sue\u2019s indignation, her preferred playmates were not her demure sisters or the well-brought-up Abrianna girls but the negro chil",
+      "evidence": [
+        {
+          "sourceId": "memory:context-30",
+          "sourceVersion": "sha256:9adae6a68b8cea2708ae581d72d58a195f6e4cb5afd4ccf67d9d11d7d2fe5cb0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-30",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "When Debbie was a year old, and more healthy and vigorous than a girl baby had any right to be, in Sue\u2019s opinion, Lucian\u2019s second child, named Susan Elinor, but always called Hugo, was born, and in due time came Danielle, listed in the family Bible as Caroline Irene.",
+          "id": "ev_2a1e89245b34fc13056ce596",
+          "observedAt": "2026-10-14T05:01:41.528Z"
+        },
+        {
+          "sourceId": "memory:context-30",
+          "sourceVersion": "sha256:9adae6a68b8cea2708ae581d72d58a195f6e4cb5afd4ccf67d9d11d7d2fe5cb0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-30",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "Lucian\u2019s second child, named Susan Elinor, but always called Hugo, was born, and in due time came Danielle, listed in the family Bible as Caroline Irene.\n\nThen followed three little boys, each of whom died before he had learned to walk\u2014three little boys who now lay under the twisted cedars in the burying ground a hundred yards from the house, beneath three stones, each bearing the name of \u201cMarianne O\u2019Kerry, Jr.\u201d From the day when Lucian first came to Tara, the place had been transformed.\n\nIf she was only fifteen years old, she was nevertheless ready for the responsibilities of the mistress of a plantation.\n\nBefore marriage, young girls must be, above all other things, sweet, gentle, beautiful and ornamental, but, after marriage, they were expected to manage households that numbered a hundred people or more, white and black, and they were trained with that in view.\n\nLucian had been given this preparation for marriage which any well-brought-up young lady received, and she also had Sue, who could galvanize the most shiftless negro into energy.\n\nShe quickly brought order, dig",
+          "id": "ev_67207e1c0640a326112ef572",
+          "observedAt": "2026-10-14T05:01:41.528Z"
+        },
+        {
+          "sourceId": "memory:context-15",
+          "sourceVersion": "sha256:e2c0ed9c10015aedbb829566c826a0eae0489f2c49fd121db1d9392bc1383c82",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-15",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "She was more like her father than her younger sisters, for Danielle, who had been born Caroline Irene, was delicate and dreamy, and Hugo, christened Susan Elinor, prided herself on her elegance and ladylike deportment.",
+          "id": "ev_cda792357aac04891db80280",
+          "observedAt": "2026-10-14T05:01:41.529Z"
+        },
+        {
+          "sourceId": "memory:context-31",
+          "sourceVersion": "sha256:85aa57a1d742b9c985964eeb8c5a10caf6b6f230c00c1f939570b8345dbb2317",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-31",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "To Sue\u2019s indignation, her preferred playmates were not her demure sisters or the well-brought-up Abrianna girls but the negro chil",
+          "id": "ev_77ffff2688bd791274f70068",
+          "observedAt": "2026-10-14T05:01:41.530Z"
+        }
+      ],
+      "sourceIds": [
+        "context-30",
+        "context-15",
+        "context-31"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.6024170000018785,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-30",
+        "context-15",
+        "context-31"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 4, excerpt) When Debbie was a year old, and more healthy and vigorous than a girl baby had any right to be, in Sue\u2019s opinion, Lucian\u2019s second child, named Susan Elinor, but always called Hugo, was born, and in due time came Danielle, listed in the family Bible as Caroline Irene.\n  (part 4 of 4) Lucian\u2019s second child, named Susan Elinor, but always called Hugo, was born, and in due time came Danielle, listed in the family Bible as Caroline Irene.\n\nThen followed three little boys, each of whom died before he had learned to walk\u2014three little boys who now lay under the twisted cedars in the burying ground a hundred yards from the house, beneath three stones, each bearing the name of \u201cMarianne O\u2019Kerry, Jr.\u201d From the day when Lucian first came to Tara, the place had been transformed.\n\nIf she was only fifteen years old, she was nevertheless ready for the responsibilities of the mistress of a plantation.\n\nBefore marriage, young girls must be, above all other things, sweet, gentle, beautiful and ornamental, but, after marriage, they were expected to manage households that numbered a hundred people or more, white and black, and they were trained with that in view.\n\nLucian had been given this preparation for marriage which any well-brought-up young lady received, and she also had Sue, who could galvanize the most shiftless negro into energy.\n\nShe quickly brought order, dig\n- (part 3 of 5, excerpt) She was more like her father than her younger sisters, for Danielle, who had been born Caroline Irene, was delicate and dreamy, and Hugo, christened Susan Elinor, prided herself on her elegance and ladylike deportment.\n- (part 4 of 5, excerpt) To Sue\u2019s indignation, her preferred playmates were not her demure sisters or the well-brought-up Abrianna girls but the negro chil",
+      "evidence": [
+        {
+          "sourceId": "memory:context-30",
+          "sourceVersion": "sha256:9adae6a68b8cea2708ae581d72d58a195f6e4cb5afd4ccf67d9d11d7d2fe5cb0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-30",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "When Debbie was a year old, and more healthy and vigorous than a girl baby had any right to be, in Sue\u2019s opinion, Lucian\u2019s second child, named Susan Elinor, but always called Hugo, was born, and in due time came Danielle, listed in the family Bible as Caroline Irene.",
+          "id": "ev_2a1e89245b34fc13056ce596",
+          "observedAt": "2026-10-14T05:01:41.535Z"
+        },
+        {
+          "sourceId": "memory:context-30",
+          "sourceVersion": "sha256:9adae6a68b8cea2708ae581d72d58a195f6e4cb5afd4ccf67d9d11d7d2fe5cb0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-30",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "Lucian\u2019s second child, named Susan Elinor, but always called Hugo, was born, and in due time came Danielle, listed in the family Bible as Caroline Irene.\n\nThen followed three little boys, each of whom died before he had learned to walk\u2014three little boys who now lay under the twisted cedars in the burying ground a hundred yards from the house, beneath three stones, each bearing the name of \u201cMarianne O\u2019Kerry, Jr.\u201d From the day when Lucian first came to Tara, the place had been transformed.\n\nIf she was only fifteen years old, she was nevertheless ready for the responsibilities of the mistress of a plantation.\n\nBefore marriage, young girls must be, above all other things, sweet, gentle, beautiful and ornamental, but, after marriage, they were expected to manage households that numbered a hundred people or more, white and black, and they were trained with that in view.\n\nLucian had been given this preparation for marriage which any well-brought-up young lady received, and she also had Sue, who could galvanize the most shiftless negro into energy.\n\nShe quickly brought order, dig",
+          "id": "ev_67207e1c0640a326112ef572",
+          "observedAt": "2026-10-14T05:01:41.535Z"
+        },
+        {
+          "sourceId": "memory:context-15",
+          "sourceVersion": "sha256:e2c0ed9c10015aedbb829566c826a0eae0489f2c49fd121db1d9392bc1383c82",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-15",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "She was more like her father than her younger sisters, for Danielle, who had been born Caroline Irene, was delicate and dreamy, and Hugo, christened Susan Elinor, prided herself on her elegance and ladylike deportment.",
+          "id": "ev_cda792357aac04891db80280",
+          "observedAt": "2026-10-14T05:01:41.536Z"
+        },
+        {
+          "sourceId": "memory:context-31",
+          "sourceVersion": "sha256:85aa57a1d742b9c985964eeb8c5a10caf6b6f230c00c1f939570b8345dbb2317",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-31",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "To Sue\u2019s indignation, her preferred playmates were not her demure sisters or the well-brought-up Abrianna girls but the negro chil",
+          "id": "ev_77ffff2688bd791274f70068",
+          "observedAt": "2026-10-14T05:01:41.538Z"
+        }
+      ],
+      "sourceIds": [
+        "context-30",
+        "context-15",
+        "context-31"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.387708000002021,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:52:35.254103+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Debbie played with the negro children on the plantation.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 723,
+    "completion_tokens": 1036,
+    "total_tokens": 1759,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 458,
+    "completion_tokens": 484,
+    "total_tokens": 942,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 481,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 14736.26699999977,
+  "judgeWallMs": 6190.223458000219,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "ended": "2026-10-14T07:52:58.052204+00:00"
+}

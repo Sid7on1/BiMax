@@ -1,0 +1,275 @@
+{
+  "row": 288,
+  "id": "71017277",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "question": "I received a piece of jewelry last Saturday from whom?",
+  "references": [
+    "my aunt"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/03/09 (Thu) 15:47",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 273.6956250000003,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 54,
+        "maxInputChars": 54,
+        "requiredProviderTruncation": false,
+        "promptTokens": 13,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "ultrachat_557308",
+        "answer_0b4a8adc_1",
+        "e5b86922_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 6) Women may also carry a small purse or potli bag made of silk or velvet, and men may wear a flower boutonniere or brooch on their sherwani, kurta, or blazer.\n\nAll these accessories add a touch of elegance to the traditional wedding attire worn during Indian weddings.\nuser: Wow, I had no idea that jewelry played such a significant role in Indian weddings! Do the different types of jewelry carry any specific meanings or symbolism?\nassistant: Yes, the different types of jewelry worn on Indian weddings do carry specific meanings and symbolism. Here are some of them:\n\n1. Mangalsutra: The mangalsutra is a necklace that the groom ties around his bride's neck during the wedding ceremony. It is made of black and gold beads and is believed to represent the bond between the couple and ward off evil spirits.\n\n2. Nose rings: Nose rings, also known as nath, are common among Indian brides. It is believed to be a symbol of fertility and married life.\n\n3. Bangles: Bangles, also known as choodiyan or kangan, are worn on the wrists of Indian women during weddings. They signify good luck, prosperity, and fortune.\n  (part 6 of 6, excerpt) 6. Armlets: Armlets, also known as bajuband, are worn on the upper arm. They are a symbol of married life and represent beauty and grace.\n\nThese are just a few examples of the many different types of jewelry that have specific meanings and symbolism in Indian weddings.\n- (part 8 of 23, excerpt) Dealers Association of America (ADA): The ADA website features a directory of reputable antique dealers, some of whom may specialize in crystal chandeliers.\n- (part 14 of 16, excerpt) user: I'm thinking of using some wire-wrapped jewelry-making tools I have to create some decorative accents for the coasters. Do you think that's a good idea, or should",
+      "evidence": [
+        {
+          "sourceId": "memory:ultrachat_557308",
+          "sourceVersion": "sha256:967cee388afa3d63dec8d30b27c45916343f2d77fd33eed9649f38ff7e6a8c88",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_557308",
+            "part": 5,
+            "parts": 6
+          },
+          "text": "Women may also carry a small purse or potli bag made of silk or velvet, and men may wear a flower boutonniere or brooch on their sherwani, kurta, or blazer.\n\nAll these accessories add a touch of elegance to the traditional wedding attire worn during Indian weddings.\nuser: Wow, I had no idea that jewelry played such a significant role in Indian weddings! Do the different types of jewelry carry any specific meanings or symbolism?\nassistant: Yes, the different types of jewelry worn on Indian weddings do carry specific meanings and symbolism. Here are some of them:\n\n1. Mangalsutra: The mangalsutra is a necklace that the groom ties around his bride's neck during the wedding ceremony. It is made of black and gold beads and is believed to represent the bond between the couple and ward off evil spirits.\n\n2. Nose rings: Nose rings, also known as nath, are common among Indian brides. It is believed to be a symbol of fertility and married life.\n\n3. Bangles: Bangles, also known as choodiyan or kangan, are worn on the wrists of Indian women during weddings. They signify good luck, prosperity, and fortune.",
+          "id": "ev_27c9b1131fabb597de8c387f",
+          "observedAt": "2026-10-14T04:44:53.158Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_557308",
+          "sourceVersion": "sha256:967cee388afa3d63dec8d30b27c45916343f2d77fd33eed9649f38ff7e6a8c88",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_557308",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "6. Armlets: Armlets, also known as bajuband, are worn on the upper arm. They are a symbol of married life and represent beauty and grace.\n\nThese are just a few examples of the many different types of jewelry that have specific meanings and symbolism in Indian weddings.",
+          "id": "ev_43c2b2a381c38c34f5e92b06",
+          "observedAt": "2026-10-14T04:44:53.159Z"
+        },
+        {
+          "sourceId": "memory:answer_0b4a8adc_1",
+          "sourceVersion": "sha256:87e0d85da5725af4ca584747f481b46901ba912815c06694d3d131d3148ff5b3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_0b4a8adc_1",
+            "part": 8,
+            "parts": 23,
+            "partial": true
+          },
+          "text": "Dealers Association of America (ADA): The ADA website features a directory of reputable antique dealers, some of whom may specialize in crystal chandeliers.",
+          "id": "ev_eb03bd4f107d1bca8bc2ce88",
+          "observedAt": "2026-10-14T04:44:53.160Z"
+        },
+        {
+          "sourceId": "memory:e5b86922_1",
+          "sourceVersion": "sha256:fbe2bd8a0cfaf13602d72d604dc252c26e356d8e846db1bc9b491b8bc5f0359b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "e5b86922_1",
+            "part": 14,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "user: I'm thinking of using some wire-wrapped jewelry-making tools I have to create some decorative accents for the coasters. Do you think that's a good idea, or should",
+          "id": "ev_57342eb3b591c4d5ea90342f",
+          "observedAt": "2026-10-14T04:44:53.160Z"
+        }
+      ],
+      "sourceIds": [
+        "ultrachat_557308",
+        "answer_0b4a8adc_1",
+        "e5b86922_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 18.22454199999993,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "ultrachat_557308",
+        "answer_0b4a8adc_1",
+        "e5b86922_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 6) Women may also carry a small purse or potli bag made of silk or velvet, and men may wear a flower boutonniere or brooch on their sherwani, kurta, or blazer.\n\nAll these accessories add a touch of elegance to the traditional wedding attire worn during Indian weddings.\nuser: Wow, I had no idea that jewelry played such a significant role in Indian weddings! Do the different types of jewelry carry any specific meanings or symbolism?\nassistant: Yes, the different types of jewelry worn on Indian weddings do carry specific meanings and symbolism. Here are some of them:\n\n1. Mangalsutra: The mangalsutra is a necklace that the groom ties around his bride's neck during the wedding ceremony. It is made of black and gold beads and is believed to represent the bond between the couple and ward off evil spirits.\n\n2. Nose rings: Nose rings, also known as nath, are common among Indian brides. It is believed to be a symbol of fertility and married life.\n\n3. Bangles: Bangles, also known as choodiyan or kangan, are worn on the wrists of Indian women during weddings. They signify good luck, prosperity, and fortune.\n  (part 6 of 6, excerpt) 6. Armlets: Armlets, also known as bajuband, are worn on the upper arm. They are a symbol of married life and represent beauty and grace.\n\nThese are just a few examples of the many different types of jewelry that have specific meanings and symbolism in Indian weddings.\n- (part 8 of 23, excerpt) Dealers Association of America (ADA): The ADA website features a directory of reputable antique dealers, some of whom may specialize in crystal chandeliers.\n- (part 14 of 16, excerpt) user: I'm thinking of using some wire-wrapped jewelry-making tools I have to create some decorative accents for the coasters. Do you think that's a good idea, or should",
+      "evidence": [
+        {
+          "sourceId": "memory:ultrachat_557308",
+          "sourceVersion": "sha256:967cee388afa3d63dec8d30b27c45916343f2d77fd33eed9649f38ff7e6a8c88",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_557308",
+            "part": 5,
+            "parts": 6
+          },
+          "text": "Women may also carry a small purse or potli bag made of silk or velvet, and men may wear a flower boutonniere or brooch on their sherwani, kurta, or blazer.\n\nAll these accessories add a touch of elegance to the traditional wedding attire worn during Indian weddings.\nuser: Wow, I had no idea that jewelry played such a significant role in Indian weddings! Do the different types of jewelry carry any specific meanings or symbolism?\nassistant: Yes, the different types of jewelry worn on Indian weddings do carry specific meanings and symbolism. Here are some of them:\n\n1. Mangalsutra: The mangalsutra is a necklace that the groom ties around his bride's neck during the wedding ceremony. It is made of black and gold beads and is believed to represent the bond between the couple and ward off evil spirits.\n\n2. Nose rings: Nose rings, also known as nath, are common among Indian brides. It is believed to be a symbol of fertility and married life.\n\n3. Bangles: Bangles, also known as choodiyan or kangan, are worn on the wrists of Indian women during weddings. They signify good luck, prosperity, and fortune.",
+          "id": "ev_27c9b1131fabb597de8c387f",
+          "observedAt": "2026-10-14T04:44:53.164Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_557308",
+          "sourceVersion": "sha256:967cee388afa3d63dec8d30b27c45916343f2d77fd33eed9649f38ff7e6a8c88",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_557308",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "6. Armlets: Armlets, also known as bajuband, are worn on the upper arm. They are a symbol of married life and represent beauty and grace.\n\nThese are just a few examples of the many different types of jewelry that have specific meanings and symbolism in Indian weddings.",
+          "id": "ev_43c2b2a381c38c34f5e92b06",
+          "observedAt": "2026-10-14T04:44:53.164Z"
+        },
+        {
+          "sourceId": "memory:answer_0b4a8adc_1",
+          "sourceVersion": "sha256:87e0d85da5725af4ca584747f481b46901ba912815c06694d3d131d3148ff5b3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_0b4a8adc_1",
+            "part": 8,
+            "parts": 23,
+            "partial": true
+          },
+          "text": "Dealers Association of America (ADA): The ADA website features a directory of reputable antique dealers, some of whom may specialize in crystal chandeliers.",
+          "id": "ev_eb03bd4f107d1bca8bc2ce88",
+          "observedAt": "2026-10-14T04:44:53.164Z"
+        },
+        {
+          "sourceId": "memory:e5b86922_1",
+          "sourceVersion": "sha256:fbe2bd8a0cfaf13602d72d604dc252c26e356d8e846db1bc9b491b8bc5f0359b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "e5b86922_1",
+            "part": 14,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "user: I'm thinking of using some wire-wrapped jewelry-making tools I have to create some decorative accents for the coasters. Do you think that's a good idea, or should",
+          "id": "ev_57342eb3b591c4d5ea90342f",
+          "observedAt": "2026-10-14T04:44:53.164Z"
+        }
+      ],
+      "sourceIds": [
+        "ultrachat_557308",
+        "answer_0b4a8adc_1",
+        "e5b86922_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.9381670000002487,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:51:43.005268+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "I do not know. The retrieved history does not contain any information about who gave you jewelry last Saturday.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 552,
+    "completion_tokens": 526,
+    "total_tokens": 1078,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 503,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 389,
+    "completion_tokens": 994,
+    "total_tokens": 1383,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 991,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 18453.861708000204,
+  "judgeWallMs": 11125.133375000132,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:52:13.053183+00:00"
+}

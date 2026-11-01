@@ -245,3 +245,20 @@ describe('session recall dedup across turns', () => {
 function fakeLoopLlm(): any {
   return { chat: async function* () {} };
 }
+
+test('explicit host scope reaches both the persona prompt and actual loop options', async () => {
+ const {loadConfig}=await import('../engine/config');await loadConfig();
+ const registry=new ToolRegistry();
+ for(const name of ['NativeHost','AskUserTool','BashTool']) registry.register({name,description:`${name}_SENTINEL`,schema:{type:'object'},isDestructive:false,isConcurrencySafe:false,execute:async()=> 'ok'});
+ const persona=new WiringPersona({name:'wiring',roleDescription:'Test',allowedTools:registry.getToolNames()},registry,{activeCapabilities:async()=>undefined} as any);
+ await persona.execute('Use the selected app.',undefined,{toolNames:['NativeHost','AskUserTool'],requireTool:'NativeHost'});
+ const args=(globalThis as any).__bimaxLoopExecuteArgs;
+ expect(args[2]).toMatchObject({toolNames:['NativeHost','AskUserTool'],requireTool:'NativeHost'});
+ expect(args[1]).toContain('NativeHost_SENTINEL');expect(args[1]).not.toContain('BashTool_SENTINEL');
+});
+
+test('an unavailable scoped capability fails before the model or fallback tools run', async () => {
+ const persona=new WiringPersona({name:'wiring',roleDescription:'Test',allowedTools:[]},new ToolRegistry(),{} as any);
+ await expect(persona.execute('Do a native task',undefined,{toolNames:['MissingHost'],requireTool:'MissingHost'})).rejects.toThrow(/capability is unavailable/);
+ expect(persona.messages).toHaveLength(0);
+});

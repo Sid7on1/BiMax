@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-24",
+  "source": "non-secret tool stdout observation in this task; raw provider payload not retained",
+  "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "request": {
+    "model": "openai/gpt-oss-20b",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Reply with the single word READY."
+      }
+    ],
+    "max_tokens": 128,
+    "stream": true
+  },
+  "result": {
+    "providerHTTP": 200,
+    "milliseconds": 44915,
+    "done": true,
+    "contentEvents": 3,
+    "reasoningEvents": 27
+  },
+  "scope": "single direct provider response, not phone/gateway or sustained performance"
+}

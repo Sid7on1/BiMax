@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 /**
- * The retrieval suites live in TWO files' opinions: jest.config.ts excludes them, package.json's
+ * Runtime-specific suites live in TWO files' opinions: jest.config.ts excludes them, package.json's
  * `test:bun` runs them under bun. Nothing enforced that those two lists agree, and a suite
  * that falls out of both is a suite nobody runs — green the way an unread file is green. That has
  * already happened here three times with packaging.sidecar.test.ts, so this pins it.
@@ -13,8 +13,8 @@ const scripts = JSON.parse(fs.readFileSync(path.join(REPO, 'package.json'), 'utf
 
 const excluded = [...jestConfig.matchAll(/'<rootDir>\/(src\/__tests__\/[^']+)'/g)].map((m) => m[1]!);
 
-describe('the suites jest cannot run are run somewhere else', () => {
-  it('excludes at least the retrieval suites, and every one of them still exists', () => {
+describe('the normal Node-24 retrieval runner and Bun parity stay coordinated', () => {
+  it('every explicitly Bun-owned suite still exists', () => {
     expect(excluded.length).toBeGreaterThan(0);
     for (const suite of excluded) {
       expect(fs.existsSync(path.join(REPO, suite))).toBe(true);
@@ -31,9 +31,8 @@ describe('the suites jest cannot run are run somewhere else', () => {
     expect(scripts['test:ci']).toContain('test:bun');
   });
 
-  it('is still necessary — this runtime really cannot do FTS5', () => {
-    // A self-retiring guard. If Node ever ships FTS5 in node:sqlite, this fails and says to move
-    // the suites back into the normal run instead of leaving the workaround in place forever.
+  it('the normal Node runner supports retrieval and does not exclude its suites', () => {
+    // The old FTS5 workaround is retired: Node 24 runs these in the normal suite.
     let hasFts5 = false;
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -41,7 +40,8 @@ describe('the suites jest cannot run are run somewhere else', () => {
       const db = new DatabaseSync(':memory:');
       db.exec('CREATE VIRTUAL TABLE t USING fts5(x)');
       hasFts5 = true;
-    } catch { /* the expected case: no FTS5 under plain Node */ }
-    expect(hasFts5).toBe(false);
+    } catch { /* fails the supported Node-24 runtime contract below */ }
+    expect(hasFts5).toBe(true);
+    expect(excluded).toEqual(['src/__tests__/tool.registry.contract.test.ts']);
   });
 });

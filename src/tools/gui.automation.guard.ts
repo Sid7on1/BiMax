@@ -1,6 +1,6 @@
 /**
- * Computer Use is retired. Keep a narrow shell boundary so known GUI scripting cannot silently
- * replace the removed tools. This is a refusal, not a sandbox or a claim about arbitrary scripts.
+ * Native Computer Use belongs to the Mac app. Keep a narrow shell boundary so known GUI scripting
+ * cannot bypass its session and approval policy. This is not a sandbox for arbitrary scripts.
  * Ordinary builds, file commands, URLs and launching a local build by path remain available.
  */
 const COMMAND_START = String.raw`(?:^|[;&|]\s*|\n\s*|\$\(\s*|\`\s*)`;
@@ -9,6 +9,8 @@ const APPLESCRIPT_APP_CONTROL = new RegExp(
 const OPEN_APPLICATION = new RegExp(
   `${COMMAND_START}(?:sudo\\s+)?open\\s+(?:-[a-zA-Z]*\\s+)*-[a-zA-Z]*[ab]\\b`, 'i');
 const SYNTHETIC_INPUT = new RegExp(`${COMMAND_START}(?:sudo\\s+)?cliclick\\b`, 'i');
+const NATIVE_CU_BINARY = new RegExp(
+  `${COMMAND_START}(?:sudo\\s+)?(?:env\\s+(?:[A-Za-z_]\\w*=[^\\s]+\\s+)*)?["']?(?:[^\\s"']*/)?(?:arc-cua|bimax-cu)["']?(?=\\s|$|[;&|])`, 'i');
 
 export interface GuiAutomationVerdict {
   refused: boolean;
@@ -19,9 +21,10 @@ export function guiAutomationRefusal(command: string): GuiAutomationVerdict {
   const text = String(command || '');
   const matched = APPLESCRIPT_APP_CONTROL.test(text) ? 'AppleScript application control'
     : OPEN_APPLICATION.test(text) ? 'launching an application by name or bundle id'
-      : SYNTHETIC_INPUT.test(text) ? 'synthetic keyboard/mouse input' : null;
+      : SYNTHETIC_INPUT.test(text) ? 'synthetic keyboard/mouse input'
+        : NATIVE_CU_BINARY.test(text) ? 'direct native Computer Use driver execution' : null;
   return matched ? {
     refused: true,
-    reason: `Computer Use has been removed from Bimax. This command performs ${matched}; run coding commands without controlling other apps.`,
+    reason: `GUI control is unavailable through the coding shell. This command performs ${matched}; use the app-owned capability when available.`,
   } : { refused: false };
 }

@@ -1,0 +1,410 @@
+{
+  "row": 287,
+  "id": "gpt4_e061b84g",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T08:49:34.624806+00:00",
+  "valid": true,
+  "question": "I mentioned participating in a sports event two weeks ago. What was the event?",
+  "references": [
+    "The company's annual charity soccer tournament."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/07/01 (Sat) 13:38",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 197.7002500000017,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 78,
+        "maxInputChars": 78,
+        "requiredProviderTruncation": false,
+        "promptTokens": 18,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "9dac9e37_1",
+        "3929e6cc_1",
+        "ae15e8b6_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 14 of 20, excerpt) 2. **Promotion**: Offer to promote the instructors' or facilitators' services or businesses during the event or on your social media channels.\n3. **Networking opportunities**: Highlight the potential networking opportunities and exposure that instructors or facilitators will gain by participating in your event.\n  (part 15 of 20) by participating in your event.\n\nBy providing value and incentives, you can attract more qualified and interested instructors or facilitators to your event.\n\nGood luck with your outreach, and I hope you receive some great responses!\nuser: I'll definitely keep that in mind. I'll create the event page and post about the need for instructors or facilitators, and make sure to include all the necessary details and incentives. I'll also encourage my friends to share the post and reach out to their networks. Since I have a strong online presence, I'm hoping to get some good responses. With 500 friends on Facebook, I'm confident that I can find the right instructors or facilitators for my event. Do you have any tips on how to screen or evaluate the responses I receive from potential instructors or facilitators?\nassistant: With a strong online presence and a well-crafted post, you're likely to receive some interested responses. Evaluating and screening potential instructors or facilitators is a crucial step to ensure you find the right fit for your event. Here are some tips to help you screen and evaluate the responses:\n- (part 8 of 18, excerpt) your products and the event.\n- (part 1 of 16, excerpt) user: I'm looking for a nice jewelry store in the mall. I remember buying a beautiful silver necklace with a small pendant for my sister's birthday exactly three weeks ago, on a Saturday afternoon, at a new boutique store that jus",
+      "evidence": [
+        {
+          "sourceId": "memory:9dac9e37_1",
+          "sourceVersion": "sha256:b8391a38712530a218ca62d99ca6fd7c9045d1fdc5eaa58d0bd620315c84434b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "9dac9e37_1",
+            "part": 14,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "2. **Promotion**: Offer to promote the instructors' or facilitators' services or businesses during the event or on your social media channels.\n3. **Networking opportunities**: Highlight the potential networking opportunities and exposure that instructors or facilitators will gain by participating in your event.",
+          "id": "ev_cfcc0a05fc1e5da153f58f7b",
+          "observedAt": "2026-10-14T08:49:34.843Z"
+        },
+        {
+          "sourceId": "memory:9dac9e37_1",
+          "sourceVersion": "sha256:b8391a38712530a218ca62d99ca6fd7c9045d1fdc5eaa58d0bd620315c84434b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "9dac9e37_1",
+            "part": 15,
+            "parts": 20
+          },
+          "text": "by participating in your event.\n\nBy providing value and incentives, you can attract more qualified and interested instructors or facilitators to your event.\n\nGood luck with your outreach, and I hope you receive some great responses!\nuser: I'll definitely keep that in mind. I'll create the event page and post about the need for instructors or facilitators, and make sure to include all the necessary details and incentives. I'll also encourage my friends to share the post and reach out to their networks. Since I have a strong online presence, I'm hoping to get some good responses. With 500 friends on Facebook, I'm confident that I can find the right instructors or facilitators for my event. Do you have any tips on how to screen or evaluate the responses I receive from potential instructors or facilitators?\nassistant: With a strong online presence and a well-crafted post, you're likely to receive some interested responses. Evaluating and screening potential instructors or facilitators is a crucial step to ensure you find the right fit for your event. Here are some tips to help you screen and evaluate the responses:",
+          "id": "ev_5e7717597a77e40117c73141",
+          "observedAt": "2026-10-14T08:49:34.844Z"
+        },
+        {
+          "sourceId": "memory:3929e6cc_1",
+          "sourceVersion": "sha256:b2e3d930f831cdccacc1fd0d5f2408753f86823925afdd6bd766a402188a2060",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "3929e6cc_1",
+            "part": 8,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "your products and the event.",
+          "id": "ev_d5aff5a2a00f41cca75b0df0",
+          "observedAt": "2026-10-14T08:49:34.844Z"
+        },
+        {
+          "sourceId": "memory:ae15e8b6_1",
+          "sourceVersion": "sha256:9823ecdc42f08efa1fa97d1415cd1cc17ec632062566514ded11bbd3f98f538d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ae15e8b6_1",
+            "part": 1,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "user: I'm looking for a nice jewelry store in the mall. I remember buying a beautiful silver necklace with a small pendant for my sister's birthday exactly three weeks ago, on a Saturday afternoon, at a new boutique store that jus",
+          "id": "ev_265ad4e576c9385e1a549371",
+          "observedAt": "2026-10-14T08:49:34.844Z"
+        }
+      ],
+      "sourceIds": [
+        "9dac9e37_1",
+        "3929e6cc_1",
+        "ae15e8b6_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 22.96612499999901,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "9dac9e37_1",
+        "3929e6cc_1",
+        "ae15e8b6_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 20, excerpt) Session date: 2023/06/17 (Sat) 20:20\nuser: I'm trying to organize a social event and I'm wondering if you can help me with some ideas on how to make it more engaging for all attendees. I'm thinking of having a mix of group activities and one-on-one conversations. By the way, I've noticed that I tend to have more female friends online - I have around 500 friends on Facebook, and I'm pretty active on the platform.\nassistant: What a great question! I'd be happy to help you make your social event more engaging for all attendees.\n  (part 5 of 20, excerpt) activities.\n4. **Encourage feedback**: Collect feedback during or after the event to understand what worked well and what can be improved for future events.\n\nRemember to tailor your event to your audience's interests and preferences to ensure everyone has a great time. Good luck with your event, and I hope these ideas help make it a success!\nuser: That's really helpful, thanks! I especially like the idea of workshops or classes. I think it would be great if I could have a mix of both male and female instructors to lead the sessions. Do you know of any platforms or resources where I can find instructors or facilitators for events like these?\n  (part 14 of 20, excerpt) 2. **Promotion**: Offer to promote the instructors' or facilitators' services or businesses during the event or on your social media channels.\n3. **Networking opportunities**: Highlight the potential networking opportunities and exposure that instructors or facilitators will gain by participating in your event.\n\nBy providing value and incentives, you can attract more qualified and interested instructors or facilitators to your event.\n  (part 15 of 20, excerpt) by participating in your event.\n\nBy providing value and incentives, you can attract more qualified and interested instructors or facilitators to your event.\n\nGood luck with your outreach, and I hope you receive some great responses!\n- Session date: 2023/06/03 (Sat) 13:39\n  (part 1 of 18, excerpt) 1.\n\n**Research the competition**: Attend the Foodie Fest before your event (if possible) or research online to see what similar vendors are charging for similar products.\n\nThis will give you an idea of the price range that customers are willing to pay.\n\n2.\n\n**Calculate your costs**: Make sure you factor in all your costs, including:\n\n* Ingredients and materials\n\n* Time and labor\n\n* Packaging and labeling\n  (part 7 of 18, excerpt) page?\nassistant: Both options can be effective, but I'd recommend creating a Facebook event for the Foodie Fest and inviting your followers. Here's why:\n\n1. **Separate from regular posts**: By creating a dedicated event page, you can keep the promotional content and updates specific to the Foodie Fest separate from your regular posts. This helps to avoid cluttering your main page and allows you to focus on the event specifically.\n  (part 8 of 18, excerpt) your products and the event.\n6. **Easy to share**: Followers can easily share the event with their friends and family, increasing the reach of your promotion.\n\nTo make the most of your Facebook event, be sure to:\n\n* Add eye-catching visuals, such as images or videos, to showcase your products and the event.\n* Include essential details like dates, times, location, and a brief description of your products and the bundle deal.\n  (part 9 of 18, excerpt) share the event with their friends.\n* Post regular updates leading up to the event to keep the excitement going and remind followers about your bundle deal.\n\nBy creating a Facebook event, you'll be able to reach a wider audience, generate buzz around the Foodie Fest, and drive sales for your products.\nuser: I'm also thinking of sharing some behind-the-scenes content on my Instagram story, like sneak peeks of my products and booth setup. Do you think that's a good idea?\n- (part 1 of 16, excerpt) Session date: 2023/06/17 (Sat) 14:36\nuser: I'm looking for a nice jewelry store in the mall. I remember buying a beautiful silver necklace with a small pendant for my sister's birthday exactly three weeks ago, on a Saturday afternoon, at a new boutique store that just opened in the mall. Do you know if they have any new collections or promotions?\n  (part 2 of 16, excerpt) you're referring to, nor can I know which store you visited three weeks ago.\n\nBut I can offer some suggestions to help you find the store you're looking for:\n\n1. Check the mall's website or social media pages: You can try searching for the mall's website or social media pages to see if they have a directory of stores or a list of new openings. You might be able to find the store you're looking for and get information on their collections and promotions.\n  (part 3 of 16, excerpt) a stroll around and look for a store that matches your description. You might be able to find it and get information on their new collections and promotions.\n\nI hope these suggestions help you find the store you're looking for!\nuser: I'll try searching the mall's website and social media pages. Do you think they would have a section for promotions or sales? I'd love to know if they have any discounts or deals on their jewelry collections.\nassistant: That's a great idea! Yes, many malls and stores have a section on their website or social media pages that lists their current promotions, sales, and\n  (part 8 of 16, excerpt) Do you have any other questions about eco-friendly gift wrapping or sustainable living in general?\nuser: I'm actually planning to buy a handmade wooden jewelry box from Etsy for my mom's birthday. It's $40, and I think it'll pair nicely with a nice piece of jewelry from the local boutique store I visited three weeks ago. Do you have any tips on how to choose a good piece of jewelry to go with the box?\nassistant: What a lovely gift idea! A handmade wooden jewelry box from Etsy is a thoughtful and unique present, and pairing it with a beautiful piece of jewelry will make it even more special.",
+      "evidence": [
+        {
+          "sourceId": "memory:9dac9e37_1",
+          "sourceVersion": "sha256:b8391a38712530a218ca62d99ca6fd7c9045d1fdc5eaa58d0bd620315c84434b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "9dac9e37_1",
+            "part": 1,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "Session date: 2023/06/17 (Sat) 20:20\nuser: I'm trying to organize a social event and I'm wondering if you can help me with some ideas on how to make it more engaging for all attendees. I'm thinking of having a mix of group activities and one-on-one conversations. By the way, I've noticed that I tend to have more female friends online - I have around 500 friends on Facebook, and I'm pretty active on the platform.\nassistant: What a great question! I'd be happy to help you make your social event more engaging for all attendees.",
+          "id": "ev_b4a5888751a93361be5b94a7",
+          "observedAt": "2026-10-14T08:49:34.849Z"
+        },
+        {
+          "sourceId": "memory:9dac9e37_1",
+          "sourceVersion": "sha256:b8391a38712530a218ca62d99ca6fd7c9045d1fdc5eaa58d0bd620315c84434b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "9dac9e37_1",
+            "part": 5,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "activities.\n4. **Encourage feedback**: Collect feedback during or after the event to understand what worked well and what can be improved for future events.\n\nRemember to tailor your event to your audience's interests and preferences to ensure everyone has a great time. Good luck with your event, and I hope these ideas help make it a success!\nuser: That's really helpful, thanks! I especially like the idea of workshops or classes. I think it would be great if I could have a mix of both male and female instructors to lead the sessions. Do you know of any platforms or resources where I can find instructors or facilitators for events like these?",
+          "id": "ev_de0c19fc8996f10fe4ed83dc",
+          "observedAt": "2026-10-14T08:49:34.849Z"
+        },
+        {
+          "sourceId": "memory:9dac9e37_1",
+          "sourceVersion": "sha256:b8391a38712530a218ca62d99ca6fd7c9045d1fdc5eaa58d0bd620315c84434b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "9dac9e37_1",
+            "part": 14,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "2. **Promotion**: Offer to promote the instructors' or facilitators' services or businesses during the event or on your social media channels.\n3. **Networking opportunities**: Highlight the potential networking opportunities and exposure that instructors or facilitators will gain by participating in your event.\n\nBy providing value and incentives, you can attract more qualified and interested instructors or facilitators to your event.",
+          "id": "ev_03bb70a8e15708abef26f9bd",
+          "observedAt": "2026-10-14T08:49:34.849Z"
+        },
+        {
+          "sourceId": "memory:9dac9e37_1",
+          "sourceVersion": "sha256:b8391a38712530a218ca62d99ca6fd7c9045d1fdc5eaa58d0bd620315c84434b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "9dac9e37_1",
+            "part": 15,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "by participating in your event.\n\nBy providing value and incentives, you can attract more qualified and interested instructors or facilitators to your event.\n\nGood luck with your outreach, and I hope you receive some great responses!",
+          "id": "ev_e6583b796f37848d69e3ccd2",
+          "observedAt": "2026-10-14T08:49:34.849Z"
+        },
+        {
+          "sourceId": "memory:3929e6cc_1",
+          "sourceVersion": "sha256:b2e3d930f831cdccacc1fd0d5f2408753f86823925afdd6bd766a402188a2060",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "3929e6cc_1"
+          },
+          "text": "Session date: 2023/06/03 (Sat) 13:39",
+          "id": "ev_1b5497837fa8a610b07f2e42",
+          "observedAt": "2026-10-14T08:49:34.850Z"
+        },
+        {
+          "sourceId": "memory:3929e6cc_1",
+          "sourceVersion": "sha256:b2e3d930f831cdccacc1fd0d5f2408753f86823925afdd6bd766a402188a2060",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "3929e6cc_1",
+            "part": 1,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "1.\n\n**Research the competition**: Attend the Foodie Fest before your event (if possible) or research online to see what similar vendors are charging for similar products.\n\nThis will give you an idea of the price range that customers are willing to pay.\n\n2.\n\n**Calculate your costs**: Make sure you factor in all your costs, including:\n\n* Ingredients and materials\n\n* Time and labor\n\n* Packaging and labeling",
+          "id": "ev_202446498fbff21d92d56305",
+          "observedAt": "2026-10-14T08:49:34.850Z"
+        },
+        {
+          "sourceId": "memory:3929e6cc_1",
+          "sourceVersion": "sha256:b2e3d930f831cdccacc1fd0d5f2408753f86823925afdd6bd766a402188a2060",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "3929e6cc_1",
+            "part": 7,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "page?\nassistant: Both options can be effective, but I'd recommend creating a Facebook event for the Foodie Fest and inviting your followers. Here's why:\n\n1. **Separate from regular posts**: By creating a dedicated event page, you can keep the promotional content and updates specific to the Foodie Fest separate from your regular posts. This helps to avoid cluttering your main page and allows you to focus on the event specifically.",
+          "id": "ev_f0e8da7d9974fd47a8ac5b51",
+          "observedAt": "2026-10-14T08:49:34.850Z"
+        },
+        {
+          "sourceId": "memory:3929e6cc_1",
+          "sourceVersion": "sha256:b2e3d930f831cdccacc1fd0d5f2408753f86823925afdd6bd766a402188a2060",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "3929e6cc_1",
+            "part": 8,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "your products and the event.\n6. **Easy to share**: Followers can easily share the event with their friends and family, increasing the reach of your promotion.\n\nTo make the most of your Facebook event, be sure to:\n\n* Add eye-catching visuals, such as images or videos, to showcase your products and the event.\n* Include essential details like dates, times, location, and a brief description of your products and the bundle deal.",
+          "id": "ev_7b6d5eff859b32196c3eaa17",
+          "observedAt": "2026-10-14T08:49:34.850Z"
+        },
+        {
+          "sourceId": "memory:3929e6cc_1",
+          "sourceVersion": "sha256:b2e3d930f831cdccacc1fd0d5f2408753f86823925afdd6bd766a402188a2060",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "3929e6cc_1",
+            "part": 9,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "share the event with their friends.\n* Post regular updates leading up to the event to keep the excitement going and remind followers about your bundle deal.\n\nBy creating a Facebook event, you'll be able to reach a wider audience, generate buzz around the Foodie Fest, and drive sales for your products.\nuser: I'm also thinking of sharing some behind-the-scenes content on my Instagram story, like sneak peeks of my products and booth setup. Do you think that's a good idea?",
+          "id": "ev_ae7a5fd1e22e1097989ab02c",
+          "observedAt": "2026-10-14T08:49:34.850Z"
+        },
+        {
+          "sourceId": "memory:ae15e8b6_1",
+          "sourceVersion": "sha256:9823ecdc42f08efa1fa97d1415cd1cc17ec632062566514ded11bbd3f98f538d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ae15e8b6_1",
+            "part": 1,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "Session date: 2023/06/17 (Sat) 14:36\nuser: I'm looking for a nice jewelry store in the mall. I remember buying a beautiful silver necklace with a small pendant for my sister's birthday exactly three weeks ago, on a Saturday afternoon, at a new boutique store that just opened in the mall. Do you know if they have any new collections or promotions?",
+          "id": "ev_0e5c90106c31fb367607770e",
+          "observedAt": "2026-10-14T08:49:34.851Z"
+        },
+        {
+          "sourceId": "memory:ae15e8b6_1",
+          "sourceVersion": "sha256:9823ecdc42f08efa1fa97d1415cd1cc17ec632062566514ded11bbd3f98f538d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ae15e8b6_1",
+            "part": 2,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "you're referring to, nor can I know which store you visited three weeks ago.\n\nBut I can offer some suggestions to help you find the store you're looking for:\n\n1. Check the mall's website or social media pages: You can try searching for the mall's website or social media pages to see if they have a directory of stores or a list of new openings. You might be able to find the store you're looking for and get information on their collections and promotions.",
+          "id": "ev_acd3fa8c3d3705c2bf652233",
+          "observedAt": "2026-10-14T08:49:34.851Z"
+        },
+        {
+          "sourceId": "memory:ae15e8b6_1",
+          "sourceVersion": "sha256:9823ecdc42f08efa1fa97d1415cd1cc17ec632062566514ded11bbd3f98f538d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ae15e8b6_1",
+            "part": 3,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "a stroll around and look for a store that matches your description. You might be able to find it and get information on their new collections and promotions.\n\nI hope these suggestions help you find the store you're looking for!\nuser: I'll try searching the mall's website and social media pages. Do you think they would have a section for promotions or sales? I'd love to know if they have any discounts or deals on their jewelry collections.\nassistant: That's a great idea! Yes, many malls and stores have a section on their website or social media pages that lists their current promotions, sales, and",
+          "id": "ev_080e9dce9c04a8e40abad179",
+          "observedAt": "2026-10-14T08:49:34.851Z"
+        },
+        {
+          "sourceId": "memory:ae15e8b6_1",
+          "sourceVersion": "sha256:9823ecdc42f08efa1fa97d1415cd1cc17ec632062566514ded11bbd3f98f538d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ae15e8b6_1",
+            "part": 8,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "Do you have any other questions about eco-friendly gift wrapping or sustainable living in general?\nuser: I'm actually planning to buy a handmade wooden jewelry box from Etsy for my mom's birthday. It's $40, and I think it'll pair nicely with a nice piece of jewelry from the local boutique store I visited three weeks ago. Do you have any tips on how to choose a good piece of jewelry to go with the box?\nassistant: What a lovely gift idea! A handmade wooden jewelry box from Etsy is a thoughtful and unique present, and pairing it with a beautiful piece of jewelry will make it even more special.",
+          "id": "ev_d12b2a3a68843960c76f3030",
+          "observedAt": "2026-10-14T08:49:34.851Z"
+        }
+      ],
+      "sourceIds": [
+        "9dac9e37_1",
+        "3929e6cc_1",
+        "ae15e8b6_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 8.226582999999664,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "9dac9e37_1",
+    "3929e6cc_1",
+    "ae15e8b6_1"
+  ],
+  "sources": {
+    "recallAt3": 0.0,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:49:34.856228+00:00"
+}

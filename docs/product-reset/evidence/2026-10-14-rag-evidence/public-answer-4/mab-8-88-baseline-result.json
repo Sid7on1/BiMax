@@ -1,0 +1,162 @@
+{
+  "row": 8,
+  "query": 88,
+  "id": "mab-8-88",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T09:15:10.299473+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n85. Humphrey Waylon peeped into the next room after the door had fallen wide open.\n86. Humphrey Waylon entered the room where the Bishop was sleeping.\n87. Humphrey Waylon halted near the Bishop's bed.\n88. Humphrey Waylon took off his cap as he stood before the Bishop.\n89. Humphrey Waylon replaced his cap on his brow after a moment of contemplation.\n\n\nBelow is a list of possible subsequent events:\n\n[\"Humphrey Waylon stepped rapidly past the Bishop's bed toward the cupboard.\", 'Humphrey Waylon quickly maneuvered around the coffee table to grab the remote.', 'Humphrey Waylon swiftly circumnavigated the garden path to approach the gate.', 'Humphrey Waylon dashed briskly through the library door toward the bookshelf.', 'Humphrey Waylon rushed excitedly through the hallway toward the staircase.', 'Humphrey Waylon hurriedly crossed the dining room floor to reach the window.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Humphrey Waylon stepped rapidly past the Bishop's bed toward the cupboard."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-57",
+    "context-56",
+    "context-59"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T09:15:49.016614+00:00",
+  "rag": {
+    "ids": [
+      "context-57",
+      "context-56",
+      "context-59"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 5, excerpt) He seemed prepared to crush that skull or to kiss that hand.\n\nAt the expiration of a few minutes his left arm rose slowly towards his brow, and he took off his cap; then his arm fell back with the same deliberation, and Humphrey Waylon fell to meditating once more, his cap in his left hand, his club in his right hand, his hair bristling all over his savage head.\n\nThe Bishop continued to sleep in profound peace beneath that terrifying gaze.\n\nThe gleam of the moon rendered confusedly visible the crucifix over the chimney-piece, which seemed to be extending its arms to both of them, with a benediction for one and pardon for the other.\n  (part 5 of 5) visible the crucifix over the chimney-piece, which seemed to be extending its arms to both of them, with a benediction for one and pardon for the other.\n\nSuddenly Humphrey Waylon replaced his cap on his brow; then stepped rapidly past the bed, without glancing at the Bishop, straight to the cupboard, which he saw near the head; he raised his iron candlestick as though to force the lock; the key was there; he opened it; the first thing which presented itself to him was the basket of silverware; he seized it, traversed the chamber with long strides, without taking any precautions and without troubling himself about the noise, gained the door, re-entered the oratory, opened the window, seized his cudgel, bestrode the w\n- (part 4 of 5, excerpt) Here and there vague and confused forms were distinguishable, which in the daylight were papers scattered on a table, open folios, volumes piled upon a stool, an armchair heaped with clothing, a prie-Dieu, and whic\n- (part 2 of 4, excerpt) Take them.\u201d\n\nHe stepped to the chimney-piece, took the two silver candlesticks, and brought them to Humphrey Waylon.",
+    "evidence": [
+      {
+        "sourceId": "memory:context-57",
+        "sourceVersion": "sha256:181ee9b3f5892e3d994daa54e225b19c4bed375b5b832c39ff1650b512879dd8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-57",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "He seemed prepared to crush that skull or to kiss that hand.\n\nAt the expiration of a few minutes his left arm rose slowly towards his brow, and he took off his cap; then his arm fell back with the same deliberation, and Humphrey Waylon fell to meditating once more, his cap in his left hand, his club in his right hand, his hair bristling all over his savage head.\n\nThe Bishop continued to sleep in profound peace beneath that terrifying gaze.\n\nThe gleam of the moon rendered confusedly visible the crucifix over the chimney-piece, which seemed to be extending its arms to both of them, with a benediction for one and pardon for the other.",
+        "id": "ev_8c4851f1e54e52c01b62cfeb",
+        "observedAt": "2026-10-14T08:59:36.797Z"
+      },
+      {
+        "sourceId": "memory:context-57",
+        "sourceVersion": "sha256:181ee9b3f5892e3d994daa54e225b19c4bed375b5b832c39ff1650b512879dd8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-57",
+          "part": 5,
+          "parts": 5
+        },
+        "text": "visible the crucifix over the chimney-piece, which seemed to be extending its arms to both of them, with a benediction for one and pardon for the other.\n\nSuddenly Humphrey Waylon replaced his cap on his brow; then stepped rapidly past the bed, without glancing at the Bishop, straight to the cupboard, which he saw near the head; he raised his iron candlestick as though to force the lock; the key was there; he opened it; the first thing which presented itself to him was the basket of silverware; he seized it, traversed the chamber with long strides, without taking any precautions and without troubling himself about the noise, gained the door, re-entered the oratory, opened the window, seized his cudgel, bestrode the w",
+        "id": "ev_18f2ca7d5fa3467f1bfc16f3",
+        "observedAt": "2026-10-14T08:59:36.797Z"
+      },
+      {
+        "sourceId": "memory:context-56",
+        "sourceVersion": "sha256:8c5caa2adf021333606cd3416f2f40830d2ed97554cc612b30735bb65ae0b977",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-56",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Here and there vague and confused forms were distinguishable, which in the daylight were papers scattered on a table, open folios, volumes piled upon a stool, an armchair heaped with clothing, a prie-Dieu, and whic",
+        "id": "ev_55b71d1e98a0d5564cebf417",
+        "observedAt": "2026-10-14T08:59:36.797Z"
+      },
+      {
+        "sourceId": "memory:context-59",
+        "sourceVersion": "sha256:b766bfdf3700856bed9b43d9af6849b3959b060fcc2c487c2fc7ea9b8fb9037f",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-59",
+          "part": 2,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Take them.\u201d\n\nHe stepped to the chimney-piece, took the two silver candlesticks, and brought them to Humphrey Waylon.",
+        "id": "ev_fb52909962c7733c3b761634",
+        "observedAt": "2026-10-14T08:59:36.798Z"
+      }
+    ],
+    "sourceIds": [
+      "context-57",
+      "context-56",
+      "context-59"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 5.154959000000417,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4",
+  "prediction": "Humphrey Waylon stepped rapidly past the Bishop's bed toward the cupboard.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 764,
+    "completion_tokens": 1042,
+    "total_tokens": 1806,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 505,
+    "completion_tokens": 295,
+    "total_tokens": 800,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 292,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10318.174500000168,
+  "judgeWallMs": 3201.8412080005874
+}

@@ -1,0 +1,65 @@
+{
+  "started": "2026-10-14T16:22:45.032399+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 0,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/30 (Tue) 23:54\nQuestion: What time do I stop checking work emails and messages?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 8 of 17) Bestseller\n* A Reese Witherspoon Book Club Pick\n* A Goodreads Choice Awards Nominee for Best Fiction\n* A Publishers Weekly Best Book of the Year\n\n**Overall**\n\nThe Seven Husbands of Evelyn Hugo is a beautifully written, engaging, and emotional novel that will appeal to fans of character-driven fiction. It's a story about the power of love, the importance of storytelling, and the complexity of human relationships. If you're looking for a book that will make you laugh, cry, and reflect on the human experience, this is an excellent choice.\nuser: I've heard that this book is a great choice for a evening read, something to unwind with after a long day. Speaking of unwinding, I've been trying to establish a better evening routine, stopping work emails and messages by 7 pm to separate my work and personal life. It's really helped me relax and not think about work during my personal time. Do you have any recommendations for some relaxing evening activities that I could incorporate into my routine?\nassistant: Establishing a healthy work-life balance is crucial for our well-being, and it's great that you're making an effort to set boundaries. I'm happy to suggest some relaxing evening activities to help you unwind and make the most of your personal time.\n  (part 11 of 17, excerpt) What do you think? Is there anything on this list that resonates with you, or do you have any other activities that help you unwind in the evenings?\n- (part 7 of 18, excerpt) user: I think I need to work on establishing a consistent sleep schedule. Sometimes I'll stay up late watching TV or scrolling through my phone, and then I'll sleep\n- (part 1 of 3, excerpt) You are such an important person in my life, and I should have taken the time to write something myself that truly came from"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 200,
+  "response": {
+    "id": "chatcmpl-1a6f1ae2-25b9-40ac-968c-09ba22c1ef39",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "content": null,
+          "role": "assistant",
+          "reasoning_content": null
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "created": 1791994972,
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "service_tier": null,
+    "system_fingerprint": null,
+    "object": "chat.completion",
+    "usage": {
+      "prompt_tokens": 524,
+      "completion_tokens": 1,
+      "total_tokens": 525,
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1,
+        "rejected_prediction_tokens": null
+      }
+    }
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 8029.703416999837
+}

@@ -1,0 +1,162 @@
+{
+  "row": 11,
+  "query": 27,
+  "id": "mab-11-27",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:49:31.198035+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n24. Edie Arkadyevitch guided Ladonna into his private room.\n25. Ladonna expressed anger and shyness while in Edie Arkadyevitch's office.\n26. Ladonna expressed a desire to ask Edie Arkadyevitch a question.\n27. Ladonna expressed that he was no longer a district councilor.\n28. Edie Arkadyevitch mentioned that the Shtcherbatskys would be at the Zoological Gardens.\n\n\nBelow is a list of possible subsequent events:\n\n[\"Edie Arkadyevitch marveled at Julia's insight and determination.\", \"Edie Arkadyevitch commented on Ladonna's energy and capabilities.\", \"Edie Arkadyevitch analyzed Maurice's method and problem-solving skills.\", \"Edie Arkadyevitch praised Fernando's dedication and creativity.\", \"Edie Arkadyevitch recognized Talisha's resilience and innovation.\", \"Edie Arkadyevitch admired Gregory's vision and work ethic.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Edie Arkadyevitch commented on Ladonna's energy and capabilities."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-11",
+    "context-12",
+    "context-21"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T15:51:11.133137+00:00",
+  "rag": {
+    "ids": [
+      "context-11",
+      "context-12",
+      "context-21"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 4) took an expression of anger from the effort he was making to surmount his shyness.\n\n\u201cWhat are the Shtcherbatskys doing?\n\nEverything as it used to be?\u201d he said.\n\nEdie Arkadyevitch, who had long known that Ladonna was in love with his sister-in-law, Alain, gave a hardly perceptible smile, and his eyes sparkled merrily.\n\n\u201cYou said a few words, but I can\u2019t answer in a few words, because....\n\nExcuse me a minute....\u201d\n\nA secretary came in, with respectful familiarity and the modest consciousness, characteristic of every secretary, of superiority to his chief in the knowledge of their business; he went up to Tristen with some papers, and began, under pretense of asking a question, to explain some objection.\n\nEdie Arkadyevitch, without hearing him out, laid his hand genially on the secretary\u2019s sleeve.\n\n\u201cNo, you do as I told you,\u201d he said, softening his words with a smile, and with a brief explanation of his view of the matter he turned away from the papers, and said: \u201cSo do it that way, if you please, Zahar Nikititch.\u201d\n\nThe secretary retired in confusion.\n\nDuring the consultation with the secretary Ladonna had completely recovered from his embarrassment.\n  (part 4 of 4, excerpt) Yes, as to your question, there is no change, but it\u2019s a pity you\u2019ve been away so long.\u201d\n\n\u201cOh, why so?\u201d Ladonna queried, panic-stricken.\n\n\u201cOh, nothing,\u201d responded Tristen.\n\n\u201cWe\u2019ll talk it over.\n\nBut what\u2019s brought you up to town?\u201d\n- (part 1 of 5, excerpt) When Tristen asked Ladonna what had brought him to town, Ladonna blushed, and was furious with himself for blushing, because he could not answer, \u201cI have come to make your sister-in-law\n- (part 3 of 4, excerpt) \u201cWell, and what have you to say to me?\u201d said Ladonna in a quivering voice, feeling that all the muscles of his face were quiv",
+    "evidence": [
+      {
+        "sourceId": "memory:context-11",
+        "sourceVersion": "sha256:9ae1f72f3dc8581e09cd662d59669b8bd2cb052d48a75ceefeb002bcaa087881",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-11",
+          "part": 2,
+          "parts": 4
+        },
+        "text": "took an expression of anger from the effort he was making to surmount his shyness.\n\n\u201cWhat are the Shtcherbatskys doing?\n\nEverything as it used to be?\u201d he said.\n\nEdie Arkadyevitch, who had long known that Ladonna was in love with his sister-in-law, Alain, gave a hardly perceptible smile, and his eyes sparkled merrily.\n\n\u201cYou said a few words, but I can\u2019t answer in a few words, because....\n\nExcuse me a minute....\u201d\n\nA secretary came in, with respectful familiarity and the modest consciousness, characteristic of every secretary, of superiority to his chief in the knowledge of their business; he went up to Tristen with some papers, and began, under pretense of asking a question, to explain some objection.\n\nEdie Arkadyevitch, without hearing him out, laid his hand genially on the secretary\u2019s sleeve.\n\n\u201cNo, you do as I told you,\u201d he said, softening his words with a smile, and with a brief explanation of his view of the matter he turned away from the papers, and said: \u201cSo do it that way, if you please, Zahar Nikititch.\u201d\n\nThe secretary retired in confusion.\n\nDuring the consultation with the secretary Ladonna had completely recovered from his embarrassment.",
+        "id": "ev_04760035f4a10a875977797a",
+        "observedAt": "2026-10-14T15:19:57.869Z"
+      },
+      {
+        "sourceId": "memory:context-11",
+        "sourceVersion": "sha256:9ae1f72f3dc8581e09cd662d59669b8bd2cb052d48a75ceefeb002bcaa087881",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-11",
+          "part": 4,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Yes, as to your question, there is no change, but it\u2019s a pity you\u2019ve been away so long.\u201d\n\n\u201cOh, why so?\u201d Ladonna queried, panic-stricken.\n\n\u201cOh, nothing,\u201d responded Tristen.\n\n\u201cWe\u2019ll talk it over.\n\nBut what\u2019s brought you up to town?\u201d",
+        "id": "ev_f1252215f43adcc1bef0b92f",
+        "observedAt": "2026-10-14T15:19:57.870Z"
+      },
+      {
+        "sourceId": "memory:context-12",
+        "sourceVersion": "sha256:275df94d45c940487b6a548c714d45ba8f15d362a006d08766aebb94f2a532d4",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-12",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "When Tristen asked Ladonna what had brought him to town, Ladonna blushed, and was furious with himself for blushing, because he could not answer, \u201cI have come to make your sister-in-law",
+        "id": "ev_a20da9bb8595d1a66e92949b",
+        "observedAt": "2026-10-14T15:19:57.871Z"
+      },
+      {
+        "sourceId": "memory:context-21",
+        "sourceVersion": "sha256:22b541745d9d52c71ea18a3578c9fe085523ee52760bade1f84dc323d3d384fc",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-21",
+          "part": 3,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "\u201cWell, and what have you to say to me?\u201d said Ladonna in a quivering voice, feeling that all the muscles of his face were quiv",
+        "id": "ev_f0407055a86e6971bce265f2",
+        "observedAt": "2026-10-14T15:19:57.872Z"
+      }
+    ],
+    "sourceIds": [
+      "context-11",
+      "context-12",
+      "context-21"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 8.543457999999987,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+  "prediction": "I do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 792,
+    "completion_tokens": 1030,
+    "total_tokens": 1822,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 495,
+    "completion_tokens": 561,
+    "total_tokens": 1056,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 558,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 77665.58016599993,
+  "judgeWallMs": 8422.368125000503
+}

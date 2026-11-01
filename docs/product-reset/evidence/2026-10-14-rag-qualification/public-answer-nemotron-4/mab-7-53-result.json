@@ -1,0 +1,273 @@
+{
+  "row": 7,
+  "query": 53,
+  "id": "mab-7-53",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n50. Marianne won a plantation in a poker game with a stranger.\n51. Marianne felt joy and a sense of ownership standing on the foundation of his new plantation.\n52. Marianne bought field hands and moved to Tara to live.\n53. Marianne cleared fields and planted cotton on his plantation.\n54. Marianne's plantation, Tara, was built by slave labor.\n\n\nBelow is a list of possible subsequent events:\n\n['Marianne arranged the estate\u2019s garden and flower beds.', \"Marianne managed the orchard's production and seasonal harvests.\", \"Marianne maintained his plantation's lawn and grounds.\", \"Marianne orchestrated the estate's events and social gatherings.\", \"Marianne cultivated the vineyard's grapes and wine selection.\", \"Marianne oversaw the mansion's upkeep and structural integrity.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Marianne maintained his plantation's lawn and grounds."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 1334.4049159999995,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1003,
+        "maxInputChars": 1003,
+        "requiredProviderTruncation": false,
+        "promptTokens": 216,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-25",
+        "context-24",
+        "context-18"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) To Marianne, standing on the small knoll where the house had been, this tall barrier of green was as visible and pleasing an evidence of ownership as though it were a fence that he himself had built to mark his own.\n  (part 4 of 5) interest.\n\nGradually the plantation widened out, as Marianne bought more acres lying near him, and in time the white house became a reality instead of a dream.\n\nIt was built by slave labor, a clumsy sprawling building that crowned the rise of ground overlooking the green incline of pasture land running down to the river; and it pleased Marianne greatly, for, even when new, it wore a look of mellowed years.\n\nThe old oaks, which had seen Kellanns pass under their limbs, hugged the house closely with their great trunks and towered their branches over the roof in dense shade.\n\nThe lawn, reclaimed from weeds, grew thick with clover and Bermuda grass, and Marianne saw to it that it was well kept.\n\nFrom the avenue of cedars to the row of white cabins in the slave quarters, there was an air of solidness, of stability and permanence about Tara, and whenever Marianne galloped around the bend in the road and saw his own roof rising through green branches, his heart swelled with pride as though each sight of it were the first sight.\n\nHe had done it all, little, hard-headed, blustering Marianne.\n- (part 2 of 5, excerpt) Then the hand of Fate and a hand of poker combined to give him the plantation which he afterwards called Tara, and at the same time moved him out of the Coast into the upland country of north Georgia.\n- (part 4 of 5, excerpt) Plantations don\u2019t amount to anything when\u2014\u201d She was going to say \u201cwhen you haven\u2019t the man you want,\u201d but Marianne, incensed by the cavalier way in which she treated his proffered gift, the",
+      "evidence": [
+        {
+          "sourceId": "memory:context-25",
+          "sourceVersion": "sha256:2c159b751b6b973d8f449bef34cdb0f0d9a229a3e6c6cc41c0465d80e33c0a01",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-25",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "To Marianne, standing on the small knoll where the house had been, this tall barrier of green was as visible and pleasing an evidence of ownership as though it were a fence that he himself had built to mark his own.",
+          "id": "ev_18f00ef1434ab0ef6783c4c0",
+          "observedAt": "2026-10-14T05:01:38.368Z"
+        },
+        {
+          "sourceId": "memory:context-25",
+          "sourceVersion": "sha256:2c159b751b6b973d8f449bef34cdb0f0d9a229a3e6c6cc41c0465d80e33c0a01",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-25",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "interest.\n\nGradually the plantation widened out, as Marianne bought more acres lying near him, and in time the white house became a reality instead of a dream.\n\nIt was built by slave labor, a clumsy sprawling building that crowned the rise of ground overlooking the green incline of pasture land running down to the river; and it pleased Marianne greatly, for, even when new, it wore a look of mellowed years.\n\nThe old oaks, which had seen Kellanns pass under their limbs, hugged the house closely with their great trunks and towered their branches over the roof in dense shade.\n\nThe lawn, reclaimed from weeds, grew thick with clover and Bermuda grass, and Marianne saw to it that it was well kept.\n\nFrom the avenue of cedars to the row of white cabins in the slave quarters, there was an air of solidness, of stability and permanence about Tara, and whenever Marianne galloped around the bend in the road and saw his own roof rising through green branches, his heart swelled with pride as though each sight of it were the first sight.\n\nHe had done it all, little, hard-headed, blustering Marianne.",
+          "id": "ev_d8747a7f8e69553c5351ed10",
+          "observedAt": "2026-10-14T05:01:38.368Z"
+        },
+        {
+          "sourceId": "memory:context-24",
+          "sourceVersion": "sha256:f509fa4d8a07d61317ae9338fb37859769e5539818b28d0debac049786b60d10",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-24",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Then the hand of Fate and a hand of poker combined to give him the plantation which he afterwards called Tara, and at the same time moved him out of the Coast into the upland country of north Georgia.",
+          "id": "ev_601dcef4528e0fba02a11a36",
+          "observedAt": "2026-10-14T05:01:38.372Z"
+        },
+        {
+          "sourceId": "memory:context-18",
+          "sourceVersion": "sha256:2ce690165037d49305d28366706da7f2b38d10f53f4f2423df1afe86f4c59184",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-18",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Plantations don\u2019t amount to anything when\u2014\u201d She was going to say \u201cwhen you haven\u2019t the man you want,\u201d but Marianne, incensed by the cavalier way in which she treated his proffered gift, the",
+          "id": "ev_b5cecb813af19ad92ba1b0de",
+          "observedAt": "2026-10-14T05:01:38.375Z"
+        }
+      ],
+      "sourceIds": [
+        "context-25",
+        "context-24",
+        "context-18"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 19.78916599999866,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-25",
+        "context-24",
+        "context-18"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) To Marianne, standing on the small knoll where the house had been, this tall barrier of green was as visible and pleasing an evidence of ownership as though it were a fence that he himself had built to mark his own.\n  (part 4 of 5) interest.\n\nGradually the plantation widened out, as Marianne bought more acres lying near him, and in time the white house became a reality instead of a dream.\n\nIt was built by slave labor, a clumsy sprawling building that crowned the rise of ground overlooking the green incline of pasture land running down to the river; and it pleased Marianne greatly, for, even when new, it wore a look of mellowed years.\n\nThe old oaks, which had seen Kellanns pass under their limbs, hugged the house closely with their great trunks and towered their branches over the roof in dense shade.\n\nThe lawn, reclaimed from weeds, grew thick with clover and Bermuda grass, and Marianne saw to it that it was well kept.\n\nFrom the avenue of cedars to the row of white cabins in the slave quarters, there was an air of solidness, of stability and permanence about Tara, and whenever Marianne galloped around the bend in the road and saw his own roof rising through green branches, his heart swelled with pride as though each sight of it were the first sight.\n\nHe had done it all, little, hard-headed, blustering Marianne.\n- (part 2 of 5, excerpt) Then the hand of Fate and a hand of poker combined to give him the plantation which he afterwards called Tara, and at the same time moved him out of the Coast into the upland country of north Georgia.\n- (part 4 of 5, excerpt) Plantations don\u2019t amount to anything when\u2014\u201d She was going to say \u201cwhen you haven\u2019t the man you want,\u201d but Marianne, incensed by the cavalier way in which she treated his proffered gift, the",
+      "evidence": [
+        {
+          "sourceId": "memory:context-25",
+          "sourceVersion": "sha256:2c159b751b6b973d8f449bef34cdb0f0d9a229a3e6c6cc41c0465d80e33c0a01",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-25",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "To Marianne, standing on the small knoll where the house had been, this tall barrier of green was as visible and pleasing an evidence of ownership as though it were a fence that he himself had built to mark his own.",
+          "id": "ev_18f00ef1434ab0ef6783c4c0",
+          "observedAt": "2026-10-14T05:01:38.383Z"
+        },
+        {
+          "sourceId": "memory:context-25",
+          "sourceVersion": "sha256:2c159b751b6b973d8f449bef34cdb0f0d9a229a3e6c6cc41c0465d80e33c0a01",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-25",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "interest.\n\nGradually the plantation widened out, as Marianne bought more acres lying near him, and in time the white house became a reality instead of a dream.\n\nIt was built by slave labor, a clumsy sprawling building that crowned the rise of ground overlooking the green incline of pasture land running down to the river; and it pleased Marianne greatly, for, even when new, it wore a look of mellowed years.\n\nThe old oaks, which had seen Kellanns pass under their limbs, hugged the house closely with their great trunks and towered their branches over the roof in dense shade.\n\nThe lawn, reclaimed from weeds, grew thick with clover and Bermuda grass, and Marianne saw to it that it was well kept.\n\nFrom the avenue of cedars to the row of white cabins in the slave quarters, there was an air of solidness, of stability and permanence about Tara, and whenever Marianne galloped around the bend in the road and saw his own roof rising through green branches, his heart swelled with pride as though each sight of it were the first sight.\n\nHe had done it all, little, hard-headed, blustering Marianne.",
+          "id": "ev_d8747a7f8e69553c5351ed10",
+          "observedAt": "2026-10-14T05:01:38.384Z"
+        },
+        {
+          "sourceId": "memory:context-24",
+          "sourceVersion": "sha256:f509fa4d8a07d61317ae9338fb37859769e5539818b28d0debac049786b60d10",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-24",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Then the hand of Fate and a hand of poker combined to give him the plantation which he afterwards called Tara, and at the same time moved him out of the Coast into the upland country of north Georgia.",
+          "id": "ev_601dcef4528e0fba02a11a36",
+          "observedAt": "2026-10-14T05:01:38.384Z"
+        },
+        {
+          "sourceId": "memory:context-18",
+          "sourceVersion": "sha256:2ce690165037d49305d28366706da7f2b38d10f53f4f2423df1afe86f4c59184",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-18",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Plantations don\u2019t amount to anything when\u2014\u201d She was going to say \u201cwhen you haven\u2019t the man you want,\u201d but Marianne, incensed by the cavalier way in which she treated his proffered gift, the",
+          "id": "ev_b5cecb813af19ad92ba1b0de",
+          "observedAt": "2026-10-14T05:01:38.386Z"
+        }
+      ],
+      "sourceIds": [
+        "context-25",
+        "context-24",
+        "context-18"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 10.131833999999799,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:57:09.420016+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Marianne maintained his plantation's lawn and grounds.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 720,
+    "completion_tokens": 1036,
+    "total_tokens": 1756,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 459,
+    "completion_tokens": 320,
+    "total_tokens": 779,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 317,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 14951.658334000058,
+  "judgeWallMs": 4240.48324999967,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "ended": "2026-10-14T07:57:28.614963+00:00"
+}

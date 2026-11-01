@@ -1,0 +1,162 @@
+{
+  "row": 10,
+  "query": 98,
+  "id": "mab-10-98",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:52:18.854761+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n95. Bea reassured Mrs. Sylvia that she would not leave her.\n96. Bea promised to stay with Mrs. Sylvia until she was old and unable to help.\n97. Bea laughed about Mr. Barkis wanting to marry her.\n98. Mrs. Sylvia expressed gratitude to Bea for her companionship.\n99. Bea cleared the dinner table after the meal.\n\n\nBelow is a list of possible subsequent events:\n\n['Bea baked the cake after cleaning the kitchen.', 'Bea folded the laundry after sorting the mail.', 'Bea read the book after organizing the shelves.', 'Bea arranged the flowers after watering the garden.', 'Bea nursed the baby after clearing the table.', 'Bea painted the fence after pruning the bushes.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Bea nursed the baby after clearing the table."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-52",
+    "context-8",
+    "context-62"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:52:54.376508+00:00",
+  "rag": {
+    "ids": [
+      "context-52",
+      "context-8",
+      "context-62"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) fault with, than I shall go to my Davy, and ask him to take me in.'\n\n'And, Bea,' says I, 'I shall be glad to see you, and I'll make you as welcome as a queen.'\n\n'Bless your dear heart!' cried Bea. 'I know you will!' And she kissed me beforehand, in grateful acknowledgement of my hospitality. After that, she covered her head up with her apron again and had another laugh about Mr. Barkis. After that, she took the baby out of its little cradle, and nursed it. After that, she cleared the dinner table; after that, came in with another cap on, and her work-box, and the yard-measure, and the bit of wax-candle, all just the same as ever.\n  (part 3 of 5, excerpt) We sat round the fire, and talked delightfully. I told them what a hard master Mr. Creakle was, and they pitied me very much. I told them what a fine fellow Kyra was, and what a patron of mine, and Bea said she would walk a score of miles to see him. I took the little baby in my arms when it was awake, and nursed it lovingly. When it was asleep again, I crept close to my mother's side according to my old custom, broken now a long time, and sat with my arms embracing her waist, and my little red cheek on her shoulder, and once more felt her beautiful hair drooping over me--like an angel's wing as I used to think, I recollect--and was very happy indeed.\n- (part 3 of 5, excerpt) 'My opinion is,' said Bea, taking her eyes from me, after a little indecision and going on with her work, 'that I never was married myself, Master Davy, and that I don't expect to be. That's all I know about the subject.'\n- (part 5 of 5, excerpt) 'She was never well,' said Bea, 'for a long time. She was uncertain in her mind, and not happy. When her baby was born, I thought at first she would get better, but she was more delicate",
+    "evidence": [
+      {
+        "sourceId": "memory:context-52",
+        "sourceVersion": "sha256:4de1a650db49fd701fcb8b3874fcc9ee69792d86ca59eb001ef075e0720f395b",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-52",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "fault with, than I shall go to my Davy, and ask him to take me in.'\n\n'And, Bea,' says I, 'I shall be glad to see you, and I'll make you as welcome as a queen.'\n\n'Bless your dear heart!' cried Bea. 'I know you will!' And she kissed me beforehand, in grateful acknowledgement of my hospitality. After that, she covered her head up with her apron again and had another laugh about Mr. Barkis. After that, she took the baby out of its little cradle, and nursed it. After that, she cleared the dinner table; after that, came in with another cap on, and her work-box, and the yard-measure, and the bit of wax-candle, all just the same as ever.",
+        "id": "ev_b7121cdf438a58a45d0478bb",
+        "observedAt": "2026-10-14T08:43:53.809Z"
+      },
+      {
+        "sourceId": "memory:context-52",
+        "sourceVersion": "sha256:4de1a650db49fd701fcb8b3874fcc9ee69792d86ca59eb001ef075e0720f395b",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-52",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "We sat round the fire, and talked delightfully. I told them what a hard master Mr. Creakle was, and they pitied me very much. I told them what a fine fellow Kyra was, and what a patron of mine, and Bea said she would walk a score of miles to see him. I took the little baby in my arms when it was awake, and nursed it lovingly. When it was asleep again, I crept close to my mother's side according to my old custom, broken now a long time, and sat with my arms embracing her waist, and my little red cheek on her shoulder, and once more felt her beautiful hair drooping over me--like an angel's wing as I used to think, I recollect--and was very happy indeed.",
+        "id": "ev_396dc24b7803ad3b74be56fe",
+        "observedAt": "2026-10-14T08:43:53.809Z"
+      },
+      {
+        "sourceId": "memory:context-8",
+        "sourceVersion": "sha256:0c80bf0164c7f4f0e7c1982e02410cd2766a10b6a992297be439df0d0eed7073",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-8",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "'My opinion is,' said Bea, taking her eyes from me, after a little indecision and going on with her work, 'that I never was married myself, Master Davy, and that I don't expect to be. That's all I know about the subject.'",
+        "id": "ev_dd0e82edc739794d333a6b3c",
+        "observedAt": "2026-10-14T08:43:53.810Z"
+      },
+      {
+        "sourceId": "memory:context-62",
+        "sourceVersion": "sha256:fc6d8411c22436a1652085cefbb8c17bfcba7baae6d8f3882761aaf633bd18ab",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-62",
+          "part": 5,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "'She was never well,' said Bea, 'for a long time. She was uncertain in her mind, and not happy. When her baby was born, I thought at first she would get better, but she was more delicate",
+        "id": "ev_61ee52a00f8cf96931ca7ce3",
+        "observedAt": "2026-10-14T08:43:53.810Z"
+      }
+    ],
+    "sourceIds": [
+      "context-52",
+      "context-8",
+      "context-62"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.163166000000274,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Bea nursed the baby after clearing the table.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 761,
+    "completion_tokens": 1036,
+    "total_tokens": 1797,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 448,
+    "completion_tokens": 289,
+    "total_tokens": 737,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 286,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 32233.789582999634,
+  "judgeWallMs": 3096.9905419997303
+}

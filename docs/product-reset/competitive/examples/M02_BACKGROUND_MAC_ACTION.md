@@ -1,5 +1,19 @@
 # M02 — complete a Mac action without stealing focus
 
+## Current qualification scope — 2026-10-11
+
+[Record 83](../../83_DIRECT_AT_CU_EXPERIENCE.md) replaces the required picker with
+direct @CU and model discovery of actual app/window IDs. One installed Do fixture
+run passed exact text, exactly one Save and independent AX verification. This does
+not qualify this full journey; the remaining scope below stays Target.
+
+[Record 82](../../82_CU_MODES_AND_VERIFICATION_RECOVERY.md) implements visible
+Pause/Take over/Resume/Stop in the current built-in Bimax CU, with local interlock
+fault tests and an installed assisted fixture run. Its single-window Do/Guide/Teach
+receipts do not qualify this full reminder/bystander/focus/reopen journey. Full M02
+on the current Arc-backed build remains Target; the August qualification below is
+historical evidence for the former native service.
+
 ## User prompt
 
 > In the Bimax Fixture app, change the reminder called “Mom demo” to 7:30 PM. Keep this app in the

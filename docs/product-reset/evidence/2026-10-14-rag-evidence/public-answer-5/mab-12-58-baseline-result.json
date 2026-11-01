@@ -1,0 +1,162 @@
+{
+  "row": 12,
+  "query": 58,
+  "id": "mab-12-58",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:42:46.015244+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n55. Debbie thought Atlanta would be less boring than previous locations.\n56. Debbie felt frustrated with her nurse Israel's inexperience.\n57. Debbie's spirits began to rise as she saw the new sights in Atlanta.\n58. Debbie observed the crowded sidewalks filled with men in uniform and various vehicles.\n59. Debbie promised various ladies to join their committees while passing through the streets.\n\n\nBelow is a list of possible subsequent events:\n\n['Debbie examined her attachment to the countryside alongside her experiences in the suburbs.', 'Debbie evaluated her opinions regarding the coast in relation to her childhood residence.', 'Debbie assessed her enthusiasm for the forest relative to her experiences in the metropolis.', 'Debbie contrasted her impressions of the mountains with her time spent in the city.', 'Debbie compared her feelings about Atlanta to her previous homes.', 'Debbie reflected on her sentiments toward the desert compared to her life in the plains.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie compared her feelings about Atlanta to her previous homes."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-78",
+    "context-121",
+    "context-76"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:43:06.006325+00:00",
+  "rag": {
+    "ids": [
+      "context-78",
+      "context-121",
+      "context-76"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) She would never have arrived at this eminence so early in life had not the exigencies of war and the demands of the commissary department on Tara made it impossible for Lucian to spare Sue or Dilcey or even Rosa or Teena.\n  (part 3 of 4) that morning by Sue, and the baby\u2019s wails subsided.\n\nWith quiet restored and with the new sights that met her eyes, Debbie\u2019s spirits began to rise a little.\n\nWhen Uncle Peter finally maneuvered the carriage out of the mudholes and onto Peachtree Street, she felt the first surge of interest she had known in months.\n\nHow the town had grown!\n\nIt was not much more than a year since she had last been here, and it did not seem possible that the little Atlanta she knew could have changed so much.\n\nFor the past year, she had been so engrossed in her own woes, so bored by any mention of war, she did not know that from the minute the fighting first began, Atlanta had been transformed.\n\nThe same railroads which had made the town the crossroads of commerce in time of peace were now of vital strategic importance in time of war.\n\nFar from the battle lines, the town and its railroads provided the connecting link between the two armies of the Confederacy, the army in Virginia and the army in Tennessee and the West And Atlanta likewise linked both of the armies with the deeper South from which they drew their supplies.\n- (part 4 of 5, excerpt) If he had ever once made love to her, seemed jealous of the other men who crowded about her, even tried to hold her hand or begged for a picture or a handkerchief to cherish, she would have thought triumphantly he had been caught by her c\n- (part 1 of 4, excerpt) that Atlanta couldn\u2019t possibly be so boring as Kamalaton and Savannah had been and, in spite of her distaste for Miss Marla a",
+    "evidence": [
+      {
+        "sourceId": "memory:context-78",
+        "sourceVersion": "sha256:75bee7ee55863b4ae2cbd49c17805b28e54cade2655e1ea604b5b259e61cbcc5",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-78",
+          "part": 1,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "She would never have arrived at this eminence so early in life had not the exigencies of war and the demands of the commissary department on Tara made it impossible for Lucian to spare Sue or Dilcey or even Rosa or Teena.",
+        "id": "ev_b19655adb86a586fdc91a6e6",
+        "observedAt": "2026-10-14T08:38:45.384Z"
+      },
+      {
+        "sourceId": "memory:context-78",
+        "sourceVersion": "sha256:75bee7ee55863b4ae2cbd49c17805b28e54cade2655e1ea604b5b259e61cbcc5",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-78",
+          "part": 3,
+          "parts": 4
+        },
+        "text": "that morning by Sue, and the baby\u2019s wails subsided.\n\nWith quiet restored and with the new sights that met her eyes, Debbie\u2019s spirits began to rise a little.\n\nWhen Uncle Peter finally maneuvered the carriage out of the mudholes and onto Peachtree Street, she felt the first surge of interest she had known in months.\n\nHow the town had grown!\n\nIt was not much more than a year since she had last been here, and it did not seem possible that the little Atlanta she knew could have changed so much.\n\nFor the past year, she had been so engrossed in her own woes, so bored by any mention of war, she did not know that from the minute the fighting first began, Atlanta had been transformed.\n\nThe same railroads which had made the town the crossroads of commerce in time of peace were now of vital strategic importance in time of war.\n\nFar from the battle lines, the town and its railroads provided the connecting link between the two armies of the Confederacy, the army in Virginia and the army in Tennessee and the West And Atlanta likewise linked both of the armies with the deeper South from which they drew their supplies.",
+        "id": "ev_084206f1bcb16df3a7f83753",
+        "observedAt": "2026-10-14T08:38:45.385Z"
+      },
+      {
+        "sourceId": "memory:context-121",
+        "sourceVersion": "sha256:870b48b351c50dddbc9d4172495ab876a273946e34a9a4905f55e7f65d42c4bb",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-121",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "If he had ever once made love to her, seemed jealous of the other men who crowded about her, even tried to hold her hand or begged for a picture or a handkerchief to cherish, she would have thought triumphantly he had been caught by her c",
+        "id": "ev_c809754a6d303aff94144ba0",
+        "observedAt": "2026-10-14T08:38:45.386Z"
+      },
+      {
+        "sourceId": "memory:context-76",
+        "sourceVersion": "sha256:27d57563a31d6fe12e6e271996476339e0e1ce6fb1c4183a53698b29855a8576",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-76",
+          "part": 1,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "that Atlanta couldn\u2019t possibly be so boring as Kamalaton and Savannah had been and, in spite of her distaste for Miss Marla a",
+        "id": "ev_4cff6ceb30c8a26ae2b5dbcf",
+        "observedAt": "2026-10-14T08:38:45.386Z"
+      }
+    ],
+    "sourceIds": [
+      "context-78",
+      "context-121",
+      "context-76"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 7.860082999999577,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Debbie compared her feelings about Atlanta to her previous homes.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 742,
+    "completion_tokens": 1037,
+    "total_tokens": 1779,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 483,
+    "completion_tokens": 433,
+    "total_tokens": 916,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 430,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10483.852040999409,
+  "judgeWallMs": 8064.544458000455
+}

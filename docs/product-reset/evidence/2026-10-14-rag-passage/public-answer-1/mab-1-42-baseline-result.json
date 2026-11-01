@@ -1,0 +1,143 @@
+{
+  "row": 1,
+  "query": 42,
+  "id": "mab-1-42",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:47:09.953820+00:00",
+  "valid": true,
+  "question": "A Japanese manga series based on a 16 year old high school student Ichitaka Seto, is written and illustrated by someone born in what year?",
+  "references": [
+    "1962"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-32",
+    "context-145",
+    "context-284"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T15:48:52.491887+00:00",
+  "rag": {
+    "ids": [
+      "context-32",
+      "context-145",
+      "context-284"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) stars. The U.S. Treasury Department in 1946 and 1947 listed her as the highest-salaried American woman; she earned more than $3 million during her career.\n\nDocument 235:\nI&quot;s\nI\"s (\u30a2\u30a4\u30ba , Aizu ) is a Japanese manga series written and illustrated by Masakazu Katsura. The story's main character is 16-year-old high school student Ichitaka Seto who is in love with his classmate Iori Yoshizuki, but too shy to tell her. Again and again he plans to tell her his true feelings, but each time something (usually a misunderstanding of some kind) gets in the way. Things become even more complicated when Itsuki Akiba returns to Japan; she is a girl Ichitaka was friends with in their childhood before she moved to the United States, and who had a huge crush on him.\n\nDocument 236:\nRobert Barton\nRobert Childers Barton (4 March 1881 \u2013 10 August 1975) was an Irish nationalist, politician and farmer who participated in the negotiations leading up to the signature of the Anglo-Irish Treaty. His father was Charles William Barton and his mother was Agnes Childers. His wife was Rachel Warren of Boston, daughter of Fiske Warren. His double first cousin and close friend was Robert Erskine Childers.\n- (part 5 of 5, excerpt) Document 1040:\nSilver Spoon (manga)\nSilver Spoon (Japanese: \u9280\u306e\u5319 , Hepburn: Gin no Saji ) is a Japanese manga series written and illustrated by Hiromu Arakawa, set in the fictional Ooezo Agricultural High School in Hokkaido. It depicts the daily life of Yuugo Hachiken, a high school student from Sapporo who enrolled at Ezo fleeing from the demands of his strict father. Howeve\n- (part 1 of 5, excerpt) in Japanese and each volume is illustrated by a Japanese manga artist. Each book is adapted from the Bible by Hidenori Kumai. The first two books were illustrat",
+    "evidence": [
+      {
+        "sourceId": "memory:context-32",
+        "sourceVersion": "sha256:d639fba95f3e3186cf8e44a5a42ba48d6fc2d34f6eae4b95eb648d0c81a7c1a9",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-32",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "stars. The U.S. Treasury Department in 1946 and 1947 listed her as the highest-salaried American woman; she earned more than $3 million during her career.\n\nDocument 235:\nI&quot;s\nI\"s (\u30a2\u30a4\u30ba , Aizu ) is a Japanese manga series written and illustrated by Masakazu Katsura. The story's main character is 16-year-old high school student Ichitaka Seto who is in love with his classmate Iori Yoshizuki, but too shy to tell her. Again and again he plans to tell her his true feelings, but each time something (usually a misunderstanding of some kind) gets in the way. Things become even more complicated when Itsuki Akiba returns to Japan; she is a girl Ichitaka was friends with in their childhood before she moved to the United States, and who had a huge crush on him.\n\nDocument 236:\nRobert Barton\nRobert Childers Barton (4 March 1881 \u2013 10 August 1975) was an Irish nationalist, politician and farmer who participated in the negotiations leading up to the signature of the Anglo-Irish Treaty. His father was Charles William Barton and his mother was Agnes Childers. His wife was Rachel Warren of Boston, daughter of Fiske Warren. His double first cousin and close friend was Robert Erskine Childers.",
+        "id": "ev_c7787ddf729604b5ec917706",
+        "observedAt": "2026-10-14T15:19:21.309Z"
+      },
+      {
+        "sourceId": "memory:context-145",
+        "sourceVersion": "sha256:26358c73fac9a336093ee8e91737c40da725cbf8dae78c15b973164446360856",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-145",
+          "part": 5,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Document 1040:\nSilver Spoon (manga)\nSilver Spoon (Japanese: \u9280\u306e\u5319 , Hepburn: Gin no Saji ) is a Japanese manga series written and illustrated by Hiromu Arakawa, set in the fictional Ooezo Agricultural High School in Hokkaido. It depicts the daily life of Yuugo Hachiken, a high school student from Sapporo who enrolled at Ezo fleeing from the demands of his strict father. Howeve",
+        "id": "ev_b19e9ade8493639d78402f56",
+        "observedAt": "2026-10-14T15:19:21.309Z"
+      },
+      {
+        "sourceId": "memory:context-284",
+        "sourceVersion": "sha256:8fcfb2cfe35057f35c5dda1d9f9af6dbd0e4f131ff43d062a90c6415409cad95",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-284",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "in Japanese and each volume is illustrated by a Japanese manga artist. Each book is adapted from the Bible by Hidenori Kumai. The first two books were illustrat",
+        "id": "ev_1ec1fcc00a55e6a875cabd45",
+        "observedAt": "2026-10-14T15:19:21.309Z"
+      }
+    ],
+    "sourceIds": [
+      "context-32",
+      "context-145",
+      "context-284"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 6.327457999999751,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+  "prediction": "The retrieved history identifies the manga series as *I's*, written and illustrated by Masakazu Katsura, but it does not provide the author's birth year. Therefore, the information is insufficient to answer the question.\n\nI do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 582,
+    "completion_tokens": 962,
+    "total_tokens": 1544,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 910,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 314,
+    "completion_tokens": 579,
+    "total_tokens": 893,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 576,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 29160.959209000794,
+  "judgeWallMs": 67338.94650000002
+}

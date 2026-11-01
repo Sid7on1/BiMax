@@ -1,0 +1,235 @@
+{
+  "row": 241,
+  "id": "gpt4_b5700ca9",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T04:48:03.842272+00:00",
+  "valid": true,
+  "question": "How many days ago did I attend the Maundy Thursday service at the Episcopal Church?",
+  "references": [
+    "4 days."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/04/10 (Mon) 10:28",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 475.87212499999805,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 83,
+        "maxInputChars": 83,
+        "requiredProviderTruncation": false,
+        "promptTokens": 20,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_a17423e7_1",
+        "5053474c_2",
+        "ultrachat_46958"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 8 of 16) procedure to ensure the safety and security of their clients and staff. Don't worry, it's a quick and easy process that can be done online or in person.\n\nIf you're interested in volunteering at the food bank, I can provide you with the contact information and application form. Would you like to take the next step?\nuser: Yes, I'd like to take the next step. Please provide me with the contact information and application form. I'm looking forward to volunteering at the food bank and making a difference in my community. By the way, I'm glad I got to attend the Maundy Thursday service at the Episcopal Church today, it was a beautiful and moving experience.\nassistant: I'm so glad to hear that! Here's the contact information and application form for the food bank:\n\n**Contact Information:**\n\n* Phone: 555-555-5555\n* Email: [volunteer@foodbank.org](mailto:volunteer@foodbank.org)\n* Website: foodbank.org\n* Address: 123 Main St, Anytown, USA 12345\n\n**Application Form:**\n\nYou can download the application form from their website or pick one up in person at the food bank. Here's a brief summary of the application process:\n  (part 10 of 16, excerpt) And I'm glad to hear that the Maundy Thursday service at the Episcopal Church was a beautiful and moving experience for you. It's wonderful that you're finding ways to connect with your community and nurture your spirit.\n\nIf you have any more questions or need further assistance, feel free to ask!\n- (part 1 of 18, excerpt) user: I'm looking for some tips on how to practice gratitude in my daily life. I was thinking about it during the Easter Sunday service at my local church\n- (part 2 of 9, excerpt) great!\n\nDo you have any suggestions for how often I should do this workout routine each week?",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_a17423e7_1",
+          "sourceVersion": "sha256:ee2a2c46d023795b300b86721c7035626b932ced19fec407674ea45123c65c28",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a17423e7_1",
+            "part": 8,
+            "parts": 16
+          },
+          "text": "procedure to ensure the safety and security of their clients and staff. Don't worry, it's a quick and easy process that can be done online or in person.\n\nIf you're interested in volunteering at the food bank, I can provide you with the contact information and application form. Would you like to take the next step?\nuser: Yes, I'd like to take the next step. Please provide me with the contact information and application form. I'm looking forward to volunteering at the food bank and making a difference in my community. By the way, I'm glad I got to attend the Maundy Thursday service at the Episcopal Church today, it was a beautiful and moving experience.\nassistant: I'm so glad to hear that! Here's the contact information and application form for the food bank:\n\n**Contact Information:**\n\n* Phone: 555-555-5555\n* Email: [volunteer@foodbank.org](mailto:volunteer@foodbank.org)\n* Website: foodbank.org\n* Address: 123 Main St, Anytown, USA 12345\n\n**Application Form:**\n\nYou can download the application form from their website or pick one up in person at the food bank. Here's a brief summary of the application process:",
+          "id": "ev_5632e213fc63a5173b5a63ab",
+          "observedAt": "2026-10-14T04:48:04.333Z"
+        },
+        {
+          "sourceId": "memory:answer_a17423e7_1",
+          "sourceVersion": "sha256:ee2a2c46d023795b300b86721c7035626b932ced19fec407674ea45123c65c28",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a17423e7_1",
+            "part": 10,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "And I'm glad to hear that the Maundy Thursday service at the Episcopal Church was a beautiful and moving experience for you. It's wonderful that you're finding ways to connect with your community and nurture your spirit.\n\nIf you have any more questions or need further assistance, feel free to ask!",
+          "id": "ev_22767099b394f718782ffac2",
+          "observedAt": "2026-10-14T04:48:04.334Z"
+        },
+        {
+          "sourceId": "memory:5053474c_2",
+          "sourceVersion": "sha256:c16306eb633123abbb9177f4d13f0db39810455d76a59a021c73e73703dd5115",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "5053474c_2",
+            "part": 1,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I'm looking for some tips on how to practice gratitude in my daily life. I was thinking about it during the Easter Sunday service at my local church",
+          "id": "ev_1a4078919d894af34cd24c3d",
+          "observedAt": "2026-10-14T04:48:04.335Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_46958",
+          "sourceVersion": "sha256:cb953d0b9274da8b82a5b7bc9f61da4f1b8b794f9c28d93ff3f1fbb5012b4401",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_46958",
+            "part": 2,
+            "parts": 9,
+            "partial": true
+          },
+          "text": "great!\n\nDo you have any suggestions for how often I should do this workout routine each week?",
+          "id": "ev_0841866848b14427a2cec13a",
+          "observedAt": "2026-10-14T04:48:04.335Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_a17423e7_1",
+        "5053474c_2",
+        "ultrachat_46958"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 18.199584000001778,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_a17423e7_1",
+        "5053474c_2",
+        "ultrachat_46958"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 8 of 16) procedure to ensure the safety and security of their clients and staff. Don't worry, it's a quick and easy process that can be done online or in person.\n\nIf you're interested in volunteering at the food bank, I can provide you with the contact information and application form. Would you like to take the next step?\nuser: Yes, I'd like to take the next step. Please provide me with the contact information and application form. I'm looking forward to volunteering at the food bank and making a difference in my community. By the way, I'm glad I got to attend the Maundy Thursday service at the Episcopal Church today, it was a beautiful and moving experience.\nassistant: I'm so glad to hear that! Here's the contact information and application form for the food bank:\n\n**Contact Information:**\n\n* Phone: 555-555-5555\n* Email: [volunteer@foodbank.org](mailto:volunteer@foodbank.org)\n* Website: foodbank.org\n* Address: 123 Main St, Anytown, USA 12345\n\n**Application Form:**\n\nYou can download the application form from their website or pick one up in person at the food bank. Here's a brief summary of the application process:\n  (part 10 of 16, excerpt) And I'm glad to hear that the Maundy Thursday service at the Episcopal Church was a beautiful and moving experience for you. It's wonderful that you're finding ways to connect with your community and nurture your spirit.\n\nIf you have any more questions or need further assistance, feel free to ask!\n- (part 1 of 18, excerpt) user: I'm looking for some tips on how to practice gratitude in my daily life. I was thinking about it during the Easter Sunday service at my local church\n- (part 2 of 9, excerpt) great!\n\nDo you have any suggestions for how often I should do this workout routine each week?",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_a17423e7_1",
+          "sourceVersion": "sha256:ee2a2c46d023795b300b86721c7035626b932ced19fec407674ea45123c65c28",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a17423e7_1",
+            "part": 8,
+            "parts": 16
+          },
+          "text": "procedure to ensure the safety and security of their clients and staff. Don't worry, it's a quick and easy process that can be done online or in person.\n\nIf you're interested in volunteering at the food bank, I can provide you with the contact information and application form. Would you like to take the next step?\nuser: Yes, I'd like to take the next step. Please provide me with the contact information and application form. I'm looking forward to volunteering at the food bank and making a difference in my community. By the way, I'm glad I got to attend the Maundy Thursday service at the Episcopal Church today, it was a beautiful and moving experience.\nassistant: I'm so glad to hear that! Here's the contact information and application form for the food bank:\n\n**Contact Information:**\n\n* Phone: 555-555-5555\n* Email: [volunteer@foodbank.org](mailto:volunteer@foodbank.org)\n* Website: foodbank.org\n* Address: 123 Main St, Anytown, USA 12345\n\n**Application Form:**\n\nYou can download the application form from their website or pick one up in person at the food bank. Here's a brief summary of the application process:",
+          "id": "ev_5632e213fc63a5173b5a63ab",
+          "observedAt": "2026-10-14T04:48:04.339Z"
+        },
+        {
+          "sourceId": "memory:answer_a17423e7_1",
+          "sourceVersion": "sha256:ee2a2c46d023795b300b86721c7035626b932ced19fec407674ea45123c65c28",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_a17423e7_1",
+            "part": 10,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "And I'm glad to hear that the Maundy Thursday service at the Episcopal Church was a beautiful and moving experience for you. It's wonderful that you're finding ways to connect with your community and nurture your spirit.\n\nIf you have any more questions or need further assistance, feel free to ask!",
+          "id": "ev_22767099b394f718782ffac2",
+          "observedAt": "2026-10-14T04:48:04.339Z"
+        },
+        {
+          "sourceId": "memory:5053474c_2",
+          "sourceVersion": "sha256:c16306eb633123abbb9177f4d13f0db39810455d76a59a021c73e73703dd5115",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "5053474c_2",
+            "part": 1,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I'm looking for some tips on how to practice gratitude in my daily life. I was thinking about it during the Easter Sunday service at my local church",
+          "id": "ev_1a4078919d894af34cd24c3d",
+          "observedAt": "2026-10-14T04:48:04.340Z"
+        },
+        {
+          "sourceId": "memory:ultrachat_46958",
+          "sourceVersion": "sha256:cb953d0b9274da8b82a5b7bc9f61da4f1b8b794f9c28d93ff3f1fbb5012b4401",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ultrachat_46958",
+            "part": 2,
+            "parts": 9,
+            "partial": true
+          },
+          "text": "great!\n\nDo you have any suggestions for how often I should do this workout routine each week?",
+          "id": "ev_0841866848b14427a2cec13a",
+          "observedAt": "2026-10-14T04:48:04.340Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_a17423e7_1",
+        "5053474c_2",
+        "ultrachat_46958"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.534166999997979,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:48:04.341679+00:00"
+}

@@ -23,6 +23,7 @@ jest.mock('electron', () => ({
 }));
 
 import { registerWorkspaceIpc } from '../main/workspace.ipc';
+import { ProjectFiles } from '../main/project.files';
 import type { IpcGate } from '../main/ipc.gate';
 
 type Handler = (event: unknown, ...args: unknown[]) => unknown;
@@ -34,15 +35,16 @@ const gate: IpcGate = {
 };
 
 let project = '';
+const authorities = new Map<string, ProjectFiles>();
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-workspace-ipc-'));
 beforeAll(() => {
   fs.mkdirSync(path.join(root, 'a', 'src'), { recursive: true });
   fs.writeFileSync(path.join(root, 'a', 'src', 'main.ts'), 'export const x = 1;\n');
   fs.mkdirSync(path.join(root, 'b'), { recursive: true });
   fs.writeFileSync(path.join(root, 'b', 'other.txt'), 'b\n');
-  registerWorkspaceIpc(gate, { projectDir: () => project, projectGeneration: () => 7, broadcast: () => undefined, window: () => null });
+  registerWorkspaceIpc(gate, { projectDir: () => project, projectFiles: () => { let files = authorities.get(project); if (!files) { files = new ProjectFiles(project); authorities.set(project, files); } return files; }, projectGeneration: () => 7, broadcast: () => undefined, window: () => null });
 });
-afterAll(() => fs.rmSync(root, { recursive: true, force: true }));
+afterAll(async () => { await Promise.all([...authorities.values()].map(files => files.close())); fs.rmSync(root, { recursive: true, force: true }); });
 
 test('registers exactly the workspace channels, all through the gate', () => {
   expect([...handlers.keys()].sort()).toEqual([

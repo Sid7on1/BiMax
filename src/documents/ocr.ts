@@ -121,7 +121,7 @@ export class VisionOcrBackend implements OcrBackend {
     const binary = await this.ensureBinary();
     // A non-zero exit means at least one page failed; the per-page JSON still carries the rest, so
     // the output is parsed either way rather than discarding good pages over one bad one.
-    let stdout = '';
+    let stdout: string;
     try {
       ({ stdout } = await run(binary, imagePaths, { maxBuffer: 1 << 26, timeout: 300_000 }));
     } catch (error: unknown) {

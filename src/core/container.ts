@@ -1,3 +1,4 @@
+import { registerEmbeddedHostTools } from '../tools/embedded.host';
 /**
  * Dependency Injection container for Bimax.
  * Creates and wires the engine's core dependency graph — tools, graph, LLM, governor.
@@ -54,17 +55,15 @@ import { loadHooksConfig } from '../tools/hooks.loader';
 import { createMemoryQueryTool } from '../tools/implementations/memory.tool';
 import { createRememberTool } from '../tools/implementations/remember.tool';
 import { globalProjectMemory } from '../memory/project.memory';
-import { VectorStore } from '../memory';
 import { ComposerCorpus, setComposerCorpus, createComposerStore } from '../memory/corpus';
 import { FactStore, setFactStore } from '../memory/facts';
 import { createFactQueryTool } from '../tools/implementations/facts.tool';
 import { createComposerSearchTool, createComposerIngestTool } from '../tools/implementations/composer.tool';
 import { SocketRegistry, setSocketRegistry } from '../sockets/registry';
 import { createSocketQueryTool } from '../tools/implementations/socket.tool';
-import { RemoteEmbeddingBackend } from '../memory/embeddings';
-import { ChainedReranker, RemoteReranker } from '../memory/rerank';
-import { LocalReranker } from '../memory/local.rerank';
-import { resolveMemorySettings, rerankURLFor } from '../memory/settings';
+import { ChainedReranker } from '../memory/rerank';
+import { resolveMemorySettings } from '../memory/settings';
+import { createMemoryRetrieval } from '../memory/retrieval.factory';
 import { createCodeSearchTool } from '../tools/implementations/code.search.tool';
 import { createSpawnSubagentTool } from '../tools/implementations/spawn.tool';
 import { createTasksTool } from '../tools/implementations/tasks.tool';
@@ -240,44 +239,14 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
    * to rank on. Model ids come from memory settings (env → config → default).
    */
   const memorySettings = resolveMemorySettings(cfg);
-  const embeddings = new RemoteEmbeddingBackend({
-    resolve: async () => {
-      // A configured embeddings endpoint outranks the chat provider AND does not need its key: a
-      // loopback Ollama/vLLM has no credential, and requiring one would have made "run the embedder
-      // locally" impossible for exactly the sovereign install that wants it most.
-      if (memorySettings.embeddingBaseURL) {
-        return { apiKey: 'local', baseURL: memorySettings.embeddingBaseURL };
-      }
+  const { embeddings, reranker, localReranker, store: vectorStore } = createMemoryRetrieval({
+    settings: memorySettings,
+    resolveChat: async () => {
       const key = await apiKeyManager.getNextKey();
       if (!key.keyStr) return null;
       return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1' };
     },
-    // User-configurable (config key or env) so a provider deprecation is a setting change, not a
-    // source edit. Resolution: env → config → default (src/memory/settings.ts).
-    model: memorySettings.embeddingModel,
-    dimensions: memorySettings.embeddingDimensions,
   });
-  /**
-   * The fourth stage. Both retrievers score a document without ever seeing it beside the query,
-   * which is what makes them fast enough to run over everything and is also their ceiling: fusion
-   * is good at putting the right document somewhere in the top twenty and mediocre at putting it in
-   * the top three — and the top three is all that fits in a prompt.
-   */
-  const remoteReranker = new RemoteReranker({
-    statusId: 'reranking',
-    resolve: async () => {
-      const key = await apiKeyManager.getNextKey();
-      if (!key.keyStr) return null;
-      return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1', rerankURL: rerankURLFor(key.baseURL || 'https://integrate.api.nvidia.com/v1') };
-    },
-    model: memorySettings.rerankModel,
-  });
-  // The on-device reranker is OFF unless BIMAX_LOCAL_RERANK=1 (record 61): loaded, it costs ~240 MB — about one more
-  // engine on an 8 GB Mac — for a gain measured only on a 15-query set. When on, memory, the Composer and code search
-  // share its single model, loaded by the first search that needs it, never at boot.
-  const localReranker = process.env.BIMAX_LOCAL_RERANK === '1' ? new LocalReranker() : null;
-  const reranker = localReranker ? new ChainedReranker(remoteReranker, localReranker) : remoteReranker;
-  const vectorStore = new VectorStore(embeddings, reranker);
   // One store process-wide. Without this, globalProjectMemory searches with a bare BM25-only
   // VectorStore (no embeddings backend) even when keys exist, and its whole-file writes race
   // this instance's — last writer wins, memories silently lost. After this call the remember
@@ -459,6 +428,7 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
   // The embedding host's provider is part of readiness, not optional MCP background work. Bimax
   // Terminal supplies no host descriptor, while Bimax.app waits here until its one app-owned Mac
   // capability is either registered (including an honest blocked tool) or visibly failed.
+  registerEmbeddedHostTools(toolRegistry, governor);
   await globalMcpManager.connectHostCapabilities(toolRegistry, governor);
 
   // External MCP servers — best-effort, never blocks boot. Once the initial (parallel) connect

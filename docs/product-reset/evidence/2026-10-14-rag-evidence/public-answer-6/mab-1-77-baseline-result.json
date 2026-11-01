@@ -1,0 +1,143 @@
+{
+  "row": 1,
+  "query": 77,
+  "id": "mab-1-77",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:46:48.113047+00:00",
+  "valid": true,
+  "question": "Alvaro Mexia had a diplomatic mission with which tribe of indigenous people?",
+  "references": [
+    "Apalachees"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-267",
+    "context-136",
+    "context-56"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:47:01.938109+00:00",
+  "rag": {
+    "ids": [
+      "context-267",
+      "context-136",
+      "context-56"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 4) in series one to three, and again during the sixth series for two episodes.\n\nFollowing Vicky's arrest, she was absent from the final half of the series.\n\nThis series included the cast members taking part in a number of activities on their bucket list, new cast member Marnie isolating herself after breaking up the friendship between Gaz and Scott, and Jay returning to fix the drift between the cast members.\n\nDocument 1917:\nKiley Williams\n\"Not to be confused with Kiely Williams, the American singer and actress, former member of 3LW and The Cheetah Girls.\"\n\nDocument 1918:\nAlvaro Mexia\nAlvaro Mexia was a 17th-century Spanish explorer and cartographer of the east coast of Florida. Mexia was stationed in St Augustine and was given a diplomatic mission to the native populations living south of St. Augustine and in the Cape Canaveral area. This mission resulted in a \"Period of Friendship\" between the Spanish and the Ais native population.\n\nDocument 1919:\n2008 Texas Tech Red Raiders football team\nThe 2008 Texas Tech Red Raiders football team represented Texas Tech University in the 2008 NCAA Division I FBS\n- (part 1 of 5, excerpt) Indigenous peoples of Florida\nThe Indigenous peoples of Florida lived in what is now known as Florida for more than 12,000 years before the time of first contact with Europeans. However, the indigenous Floridians had largely died out by the early 18th century. Some Apalachees migrated to Louisiana, where their descendants now live, some were taken to Cuba and Mexico by the Spanish in the 18th century, and a few may have been absorbed into the Seminole and Miccosukee tribes.\n- (part 2 of 5, excerpt) A diplomatic mission or foreign mission is a group of people from one state or an organisation present in another state to represent the",
+    "evidence": [
+      {
+        "sourceId": "memory:context-267",
+        "sourceVersion": "sha256:c2f92e8592920414d394c5ac22679cdd21e6f68aedaf86f4f24fb7b1ab64a836",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-267",
+          "part": 4,
+          "parts": 4
+        },
+        "text": "in series one to three, and again during the sixth series for two episodes.\n\nFollowing Vicky's arrest, she was absent from the final half of the series.\n\nThis series included the cast members taking part in a number of activities on their bucket list, new cast member Marnie isolating herself after breaking up the friendship between Gaz and Scott, and Jay returning to fix the drift between the cast members.\n\nDocument 1917:\nKiley Williams\n\"Not to be confused with Kiely Williams, the American singer and actress, former member of 3LW and The Cheetah Girls.\"\n\nDocument 1918:\nAlvaro Mexia\nAlvaro Mexia was a 17th-century Spanish explorer and cartographer of the east coast of Florida. Mexia was stationed in St Augustine and was given a diplomatic mission to the native populations living south of St. Augustine and in the Cape Canaveral area. This mission resulted in a \"Period of Friendship\" between the Spanish and the Ais native population.\n\nDocument 1919:\n2008 Texas Tech Red Raiders football team\nThe 2008 Texas Tech Red Raiders football team represented Texas Tech University in the 2008 NCAA Division I FBS",
+        "id": "ev_ae80fbb50e5e71d454a72776",
+        "observedAt": "2026-10-14T08:41:08.314Z"
+      },
+      {
+        "sourceId": "memory:context-136",
+        "sourceVersion": "sha256:a921fc946371b69d5d13fbec1bd89662eec22cdcbf33ea07ba208ebeb172344e",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-136",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Indigenous peoples of Florida\nThe Indigenous peoples of Florida lived in what is now known as Florida for more than 12,000 years before the time of first contact with Europeans. However, the indigenous Floridians had largely died out by the early 18th century. Some Apalachees migrated to Louisiana, where their descendants now live, some were taken to Cuba and Mexico by the Spanish in the 18th century, and a few may have been absorbed into the Seminole and Miccosukee tribes.",
+        "id": "ev_e0e7956bad86410b76ba6376",
+        "observedAt": "2026-10-14T08:41:08.314Z"
+      },
+      {
+        "sourceId": "memory:context-56",
+        "sourceVersion": "sha256:9425d01b989eb0459e3246a5b5d045f04795f61ef84d330a565002f25f252010",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-56",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "A diplomatic mission or foreign mission is a group of people from one state or an organisation present in another state to represent the",
+        "id": "ev_007e1f2f068d4a91300e16ac",
+        "observedAt": "2026-10-14T08:41:08.315Z"
+      }
+    ],
+    "sourceIds": [
+      "context-267",
+      "context-136",
+      "context-56"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.010167000000365,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "The diplomatic mission led by Alvaro Mexia was with the **Ais** native population.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 525,
+    "completion_tokens": 602,
+    "total_tokens": 1127,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 581,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 265,
+    "completion_tokens": 516,
+    "total_tokens": 781,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 513,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 6456.330624999282,
+  "judgeWallMs": 7366.715709000346
+}

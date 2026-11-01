@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T12:34:18.112450+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 1,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/09/30 (Sat) 23:15\nQuestion: How long have I been sticking to my daily tidying routine?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 19, excerpt) Session date: 2023/06/11 (Sun) 22:24\nuser: I need help organizing my garage this weekend. Can you give me some tips on how to sort through all the boxes and storage bins? Oh, and by the way, I've been feeling really proud of myself for sticking to my daily tidying routine - it's already been 3 weeks!\n  (part 14 of 19) process even more enjoyable. Having a specific area for your cleaning supplies will also make it easier to maintain your space and keep everything organized.\n\nIt's great that you've been doing your daily tidying routine for 3 weeks now! Consistency is key to developing habits, and it's amazing that you've been able to stick to it. By creating a dedicated workstation, you'll be able to take your daily tidying to the next level and make it an even more integral part of your daily routine.\n\nHaving a designated area for your cleaning supplies will also help you:\n\n* Keep everything in one place, making it easier to find what you need when you need it\n* Reduce clutter and mess in other areas of your home\n* Save time by having all your supplies within reach\n* Stay organized and focused during your daily tidying routine\n\nRemember to make your workstation comfortable and inviting. Consider adding some plants, a fun mug for your coffee or tea, or even a motivational quote to keep you inspired. Make it a space that you enjoy spending time in, and you'll be more likely to stick to your daily routine.\n- (part 1 of 16, excerpt) user: I'm planning to clean out the garage this weekend, but I need some advice on how to organize all the storage bins and boxes. Do you have any tips? By the way, I've\n- (part 4 of 19, excerpt) user: I'm interested in trying out some of these tools. Do you think any of them can help me identify which social media pla"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 116781.72866600016
+}

@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T09:08:41.504133+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 3,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/30 (Tue) 18:25\nQuestion: How many pages do I have left to read in 'Sapiens'?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 9, excerpt) user: I've been tracking my reading habits and I want to update my spreadsheet. Can you help me calculate how many pages I need to read per day to reach my goal of 50 books by the end of the year, considering I've already read 12 books so far? By the way, I ju\n  (part 2 of 9) the number of days you have left in the year:\n\nAssuming today is [current date], there are approximately 154 days left in the year (until December 31st).\n\nTo find out how many pages you need to read per day:\n\n15,200 pages \u00f7 154 days \u2248 99 pages per day\n\nSo, you would need to read approximately 99 pages per day to reach your goal of 50 books by the end of the year.\n\nKeep in mind that this is just an estimate, and you can adjust it based on your actual reading speed and the page counts of your future reads. Good luck with your reading challenge, and I hope you enjoy finishing \"The Nightingale\"!\nuser: That's a great calculation, thanks. I think my reading speed is a bit slower than that, especially since I've been reading a mix of dense non-fiction and graphic novels. Can you help me adjust the calculation based on my reading speed? For example, I've been reading \"Sapiens\" at a pace of 10-20 pages a week.\nassistant: Let's adjust the calculation based on your reading speed.\n\nSince you've been reading \"Sapiens\" at a pace of 10-20 pages a week, we can use that as a rough estimate of your average reading speed. Let's assume you read 15 pages per week, which translates to:\n- (part 3 of 16, excerpt) * Divide the remaining books you need to read (38) by the number of months you have left: 38 books / 4 months = 9.5 books per month\n- (part 11 of 14, excerpt) What about you? Have you read \"The Seven Husbands of Evelyn Hugo\" or any other books by Taylor Jenkins Reid?"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 176.41962499965302
+}

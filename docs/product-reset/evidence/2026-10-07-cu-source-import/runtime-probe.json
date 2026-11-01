@@ -1,0 +1,49 @@
+{
+  "scope": "In-memory runtime only; no native or provider execution",
+  "checks": [
+    {
+      "name": "completion_without_verifier",
+      "status": "SUBTASK_COMPLETE",
+      "fake_dispatches": [],
+      "reason": null
+    },
+    {
+      "name": "independent_verifier_rejects",
+      "status": "NEEDS_AGENT",
+      "fake_dispatches": [],
+      "reason": "Verification callback rejected SUBTASK_COMPLETE."
+    },
+    {
+      "name": "cancel_during_decision",
+      "status": "NEEDS_AGENT",
+      "fake_dispatches": [
+        "CLICK"
+      ],
+      "reason": "Execution cancelled by caller."
+    },
+    {
+      "name": "deadline_passed_during_decision",
+      "status": "NEEDS_AGENT",
+      "fake_dispatches": [
+        "CLICK"
+      ],
+      "reason": "Wall-clock timeout (0.01s) exceeded."
+    },
+    {
+      "name": "named_send_click_refused",
+      "status": "NEEDS_AGENT",
+      "fake_dispatches": [],
+      "reason": "Refused CLICK on 'Send': a send action, which the subtask does not allow (allowed_risks)."
+    },
+    {
+      "name": "type_plus_enter_outside_named_click_risk_gate",
+      "status": "SUBTASK_COMPLETE",
+      "fake_dispatches": [
+        "TYPE_TEXT",
+        "PRESS_KEY"
+      ],
+      "reason": null
+    }
+  ],
+  "assertions_passed": 6
+}

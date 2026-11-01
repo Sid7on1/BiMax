@@ -1,0 +1,5592 @@
+{
+  "scope": "New query-heldout balanced 100 classic LongMemEval_S +100 MemoryAgentBench Accurate_Retrieval; no prior selected IDs or normalized questions. Shared public corpora, not corpus-heldout or official leaderboard.",
+  "selectionSha256": "0137810e7340a2a58347c6dbbcbbdbb89f81581706ec598b3b8a9ecb6319ddc6",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "settings": {
+    "readerMaxTokens": 2048,
+    "judgeMaxTokens": 2048,
+    "temperature": 0,
+    "reasoning": {
+      "enable_thinking": true,
+      "reasoning_budget": 1024
+    },
+    "rpm": 40
+  },
+  "candidateSourceSnapshot": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/rejected/src/memory/recall.ts",
+  "all400AnswersValid": true,
+  "all200QuestionsPaired": true,
+  "rawReaderJudgeAudits": 400,
+  "provenanceAudits": 400,
+  "maximumCachedSourceCorpora": 1,
+  "oldQuestionIdsOverlap": 0,
+  "oldNormalizedQuestionsOverlap": 0,
+  "datasets": {
+    "longmemeval": {
+      "questions": 100,
+      "baselineCorrect": 43,
+      "currentCorrect": 64,
+      "baselineAccuracy": 0.43,
+      "currentAccuracy": 0.64,
+      "gainPercentagePoints": 21.0,
+      "gained": 23,
+      "lost": 2,
+      "bothCorrect": 41,
+      "bothWrong": 34,
+      "strata": {
+        "abstention": {
+          "questions": 15,
+          "baselineCorrect": 14,
+          "currentCorrect": 15,
+          "baselineAccuracy": 0.9333333333333333,
+          "currentAccuracy": 1.0,
+          "gainPercentagePoints": 6.666666666666667,
+          "gained": 1,
+          "lost": 0,
+          "bothCorrect": 14,
+          "bothWrong": 0
+        },
+        "knowledge-update": {
+          "questions": 15,
+          "baselineCorrect": 4,
+          "currentCorrect": 12,
+          "baselineAccuracy": 0.26666666666666666,
+          "currentAccuracy": 0.8,
+          "gainPercentagePoints": 53.333333333333336,
+          "gained": 8,
+          "lost": 0,
+          "bothCorrect": 4,
+          "bothWrong": 3
+        },
+        "multi-session": {
+          "questions": 14,
+          "baselineCorrect": 1,
+          "currentCorrect": 3,
+          "baselineAccuracy": 0.07142857142857142,
+          "currentAccuracy": 0.21428571428571427,
+          "gainPercentagePoints": 14.285714285714286,
+          "gained": 2,
+          "lost": 0,
+          "bothCorrect": 1,
+          "bothWrong": 11
+        },
+        "single-session-assistant": {
+          "questions": 14,
+          "baselineCorrect": 10,
+          "currentCorrect": 11,
+          "baselineAccuracy": 0.7142857142857143,
+          "currentAccuracy": 0.7857142857142857,
+          "gainPercentagePoints": 7.142857142857143,
+          "gained": 2,
+          "lost": 1,
+          "bothCorrect": 9,
+          "bothWrong": 2
+        },
+        "single-session-preference": {
+          "questions": 14,
+          "baselineCorrect": 2,
+          "currentCorrect": 3,
+          "baselineAccuracy": 0.14285714285714285,
+          "currentAccuracy": 0.21428571428571427,
+          "gainPercentagePoints": 7.142857142857143,
+          "gained": 2,
+          "lost": 1,
+          "bothCorrect": 1,
+          "bothWrong": 10
+        },
+        "single-session-user": {
+          "questions": 14,
+          "baselineCorrect": 8,
+          "currentCorrect": 12,
+          "baselineAccuracy": 0.5714285714285714,
+          "currentAccuracy": 0.8571428571428571,
+          "gainPercentagePoints": 28.571428571428573,
+          "gained": 4,
+          "lost": 0,
+          "bothCorrect": 8,
+          "bothWrong": 2
+        },
+        "temporal-reasoning": {
+          "questions": 14,
+          "baselineCorrect": 4,
+          "currentCorrect": 8,
+          "baselineAccuracy": 0.2857142857142857,
+          "currentAccuracy": 0.5714285714285714,
+          "gainPercentagePoints": 28.571428571428573,
+          "gained": 4,
+          "lost": 0,
+          "bothCorrect": 4,
+          "bothWrong": 6
+        }
+      },
+      "answerable": {
+        "questions": 85,
+        "baselineCorrect": 29,
+        "currentCorrect": 49,
+        "baselineAccuracy": 0.3411764705882353,
+        "currentAccuracy": 0.5764705882352941,
+        "gainPercentagePoints": 23.529411764705884,
+        "gained": 22,
+        "lost": 2,
+        "bothCorrect": 27,
+        "bothWrong": 34
+      },
+      "sourceCoverage": {
+        "baseline": {
+          "questions": 85,
+          "recallAt3": 0.9152941176470588,
+          "complete": 74
+        },
+        "current": {
+          "questions": 85,
+          "recallAt3": 0.9152941176470588,
+          "complete": 74
+        }
+      },
+      "literalReferencePresence": {
+        "baseline": {
+          "eligible": 71,
+          "present": 33,
+          "definition": "Diagnostic containment only; excludes preferences and abstentions, not answer correctness."
+        },
+        "current": {
+          "eligible": 71,
+          "present": 40,
+          "definition": "Diagnostic containment only; excludes preferences and abstentions, not answer correctness."
+        }
+      },
+      "promptChars": {
+        "baseline": {
+          "count": 100,
+          "median": 1912.0,
+          "p95": 1914,
+          "min": 1785,
+          "max": 1914
+        },
+        "current": {
+          "count": 100,
+          "median": 6050.5,
+          "p95": 6112,
+          "min": 5000,
+          "max": 6114
+        }
+      },
+      "readerLatencyMs": {
+        "baseline": {
+          "count": 100,
+          "median": 15993.406187500113,
+          "p95": 131876.9632500007,
+          "min": 4702.069332999599,
+          "max": 173916.79058299997
+        },
+        "current": {
+          "count": 100,
+          "median": 18090.03352100035,
+          "p95": 144483.73970900048,
+          "min": 6653.632333000132,
+          "max": 202807.59691599995
+        }
+      },
+      "judgeLatencyMs": {
+        "baseline": {
+          "count": 100,
+          "median": 13833.567499999845,
+          "p95": 121246.77100000008,
+          "min": 3430.0165409995316,
+          "max": 165006.71833399974
+        },
+        "current": {
+          "count": 100,
+          "median": 12485.414416500134,
+          "p95": 145789.7558750001,
+          "min": 2659.9460419993193,
+          "max": 191613.3007920007
+        }
+      },
+      "acceptedCallLatency": {
+        "baseline": {
+          "reader": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 100,
+              "median": 15993.406187500113,
+              "p95": 131876.9632500007,
+              "min": 4702.069332999599,
+              "max": 173916.79058299997
+            },
+            "httpWallMs": {
+              "count": 100,
+              "median": 12138.698770999781,
+              "p95": 28566.416500000058,
+              "min": 4702.069332999599,
+              "max": 76552.41662500065
+            },
+            "slotAndGateWaitMs": {
+              "count": 100,
+              "median": 0.0,
+              "p95": 119811.56525000006,
+              "min": 0,
+              "max": 160128.58774999948
+            }
+          },
+          "judge": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 100,
+              "median": 13833.567499999845,
+              "p95": 121246.77100000008,
+              "min": 3430.0165409995316,
+              "max": 165006.71833399974
+            },
+            "httpWallMs": {
+              "count": 100,
+              "median": 9824.588041500192,
+              "p95": 26087.55849999943,
+              "min": 3430.0165409995316,
+              "max": 53856.79795800024
+            },
+            "slotAndGateWaitMs": {
+              "count": 100,
+              "median": 0.0,
+              "p95": 111837.55279200022,
+              "min": 0,
+              "max": 157005.0622919998
+            }
+          }
+        },
+        "current": {
+          "reader": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 100,
+              "median": 18090.03352100035,
+              "p95": 144483.73970900048,
+              "min": 6653.632333000132,
+              "max": 202807.59691599995
+            },
+            "httpWallMs": {
+              "count": 100,
+              "median": 14143.626583500009,
+              "p95": 24584.100666000268,
+              "min": 6653.632333000132,
+              "max": 40239.15316700004
+            },
+            "slotAndGateWaitMs": {
+              "count": 100,
+              "median": 0.0,
+              "p95": 128201.17141599985,
+              "min": 0,
+              "max": 182655.54791699923
+            }
+          },
+          "judge": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 100,
+              "median": 12485.414416500134,
+              "p95": 145789.7558750001,
+              "min": 2659.9460419993193,
+              "max": 191613.3007920007
+            },
+            "httpWallMs": {
+              "count": 100,
+              "median": 9986.216416500156,
+              "p95": 25177.083166999182,
+              "min": 2659.9460419993193,
+              "max": 83253.79595800041
+            },
+            "slotAndGateWaitMs": {
+              "count": 100,
+              "median": 0.0,
+              "p95": 120099.78295899987,
+              "min": 0,
+              "max": 154455.68608399935
+            }
+          }
+        }
+      },
+      "acceptedUsage": {
+        "baseline": {
+          "reader": {
+            "prompt_tokens": 57057,
+            "completion_tokens": 93207,
+            "total_tokens": 150264
+          },
+          "judge": {
+            "prompt_tokens": 34389,
+            "completion_tokens": 74439,
+            "total_tokens": 108828
+          }
+        },
+        "current": {
+          "reader": {
+            "prompt_tokens": 157053,
+            "completion_tokens": 107508,
+            "total_tokens": 264561
+          },
+          "judge": {
+            "prompt_tokens": 38843,
+            "completion_tokens": 74649,
+            "total_tokens": 113492
+          }
+        }
+      },
+      "acceptedUsageAvailability": {
+        "baseline": {
+          "reader": {
+            "calls": 100,
+            "callsWithUsage": 100
+          },
+          "judge": {
+            "calls": 100,
+            "callsWithUsage": 100
+          }
+        },
+        "current": {
+          "reader": {
+            "calls": 100,
+            "callsWithUsage": 100
+          },
+          "judge": {
+            "calls": 100,
+            "callsWithUsage": 100
+          }
+        }
+      }
+    },
+    "memoryagentbench": {
+      "questions": 100,
+      "baselineCorrect": 51,
+      "currentCorrect": 45,
+      "baselineAccuracy": 0.51,
+      "currentAccuracy": 0.45,
+      "gainPercentagePoints": -6.0,
+      "gained": 9,
+      "lost": 15,
+      "bothCorrect": 36,
+      "bothWrong": 40,
+      "strata": {
+        "eventqa_131072": {
+          "questions": 17,
+          "baselineCorrect": 12,
+          "currentCorrect": 10,
+          "baselineAccuracy": 0.7058823529411765,
+          "currentAccuracy": 0.5882352941176471,
+          "gainPercentagePoints": -11.764705882352942,
+          "gained": 2,
+          "lost": 4,
+          "bothCorrect": 8,
+          "bothWrong": 3
+        },
+        "eventqa_65536": {
+          "questions": 17,
+          "baselineCorrect": 12,
+          "currentCorrect": 9,
+          "baselineAccuracy": 0.7058823529411765,
+          "currentAccuracy": 0.5294117647058824,
+          "gainPercentagePoints": -17.647058823529413,
+          "gained": 2,
+          "lost": 5,
+          "bothCorrect": 7,
+          "bothWrong": 3
+        },
+        "eventqa_full": {
+          "questions": 17,
+          "baselineCorrect": 9,
+          "currentCorrect": 6,
+          "baselineAccuracy": 0.5294117647058824,
+          "currentAccuracy": 0.35294117647058826,
+          "gainPercentagePoints": -17.647058823529413,
+          "gained": 0,
+          "lost": 3,
+          "bothCorrect": 6,
+          "bothWrong": 8
+        },
+        "longmemeval_s*": {
+          "questions": 17,
+          "baselineCorrect": 4,
+          "currentCorrect": 6,
+          "baselineAccuracy": 0.23529411764705882,
+          "currentAccuracy": 0.35294117647058826,
+          "gainPercentagePoints": 11.764705882352942,
+          "gained": 2,
+          "lost": 0,
+          "bothCorrect": 4,
+          "bothWrong": 11
+        },
+        "ruler_qa1_197K": {
+          "questions": 16,
+          "baselineCorrect": 7,
+          "currentCorrect": 7,
+          "baselineAccuracy": 0.4375,
+          "currentAccuracy": 0.4375,
+          "gainPercentagePoints": 0.0,
+          "gained": 3,
+          "lost": 3,
+          "bothCorrect": 4,
+          "bothWrong": 6
+        },
+        "ruler_qa2_421K": {
+          "questions": 16,
+          "baselineCorrect": 7,
+          "currentCorrect": 7,
+          "baselineAccuracy": 0.4375,
+          "currentAccuracy": 0.4375,
+          "gainPercentagePoints": 0.0,
+          "gained": 0,
+          "lost": 0,
+          "bothCorrect": 7,
+          "bothWrong": 9
+        }
+      },
+      "literalReferencePresence": {
+        "baseline": {
+          "eligible": 98,
+          "present": 23,
+          "definition": "Diagnostic containment only; excludes preferences and abstentions, not answer correctness."
+        },
+        "current": {
+          "eligible": 98,
+          "present": 27,
+          "definition": "Diagnostic containment only; excludes preferences and abstentions, not answer correctness."
+        }
+      },
+      "promptChars": {
+        "baseline": {
+          "count": 100,
+          "median": 1912.0,
+          "p95": 1912,
+          "min": 1818,
+          "max": 1912
+        },
+        "current": {
+          "count": 100,
+          "median": 5598.0,
+          "p95": 6098,
+          "min": 2788,
+          "max": 6105
+        }
+      },
+      "readerLatencyMs": {
+        "baseline": {
+          "count": 100,
+          "median": 14216.765541999848,
+          "p95": 124208.78091699979,
+          "min": 4604.340957999739,
+          "max": 147397.87083299962
+        },
+        "current": {
+          "count": 100,
+          "median": 15705.921312500323,
+          "p95": 138164.6542920007,
+          "min": 6065.450416999738,
+          "max": 169298.478875
+        }
+      },
+      "judgeLatencyMs": {
+        "baseline": {
+          "count": 100,
+          "median": 10967.547145499793,
+          "p95": 130734.36054099965,
+          "min": 2525.304750000032,
+          "max": 163935.65462500008
+        },
+        "current": {
+          "count": 100,
+          "median": 11460.15010400015,
+          "p95": 132206.3212920002,
+          "min": 3175.312249999479,
+          "max": 162870.64429099974
+        }
+      },
+      "acceptedCallLatency": {
+        "baseline": {
+          "reader": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 100,
+              "median": 14216.765541999848,
+              "p95": 124208.78091699979,
+              "min": 4604.340957999739,
+              "max": 147397.87083299962
+            },
+            "httpWallMs": {
+              "count": 100,
+              "median": 13103.406187000473,
+              "p95": 24527.13779199985,
+              "min": 4604.340957999739,
+              "max": 48682.61066600007
+            },
+            "slotAndGateWaitMs": {
+              "count": 100,
+              "median": 0.0,
+              "p95": 109954.3685000001,
+              "min": 0,
+              "max": 132525.51875000063
+            }
+          },
+          "judge": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 100,
+              "median": 10967.547145499793,
+              "p95": 130734.36054099965,
+              "min": 2525.304750000032,
+              "max": 163935.65462500008
+            },
+            "httpWallMs": {
+              "count": 100,
+              "median": 8660.969833000308,
+              "p95": 27006.311042000107,
+              "min": 2525.304750000032,
+              "max": 36282.277582999996
+            },
+            "slotAndGateWaitMs": {
+              "count": 100,
+              "median": 0.0,
+              "p95": 109400.69674999994,
+              "min": 0,
+              "max": 160243.3571670008
+            }
+          }
+        },
+        "current": {
+          "reader": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 100,
+              "median": 15705.921312500323,
+              "p95": 138164.6542920007,
+              "min": 6065.450416999738,
+              "max": 169298.478875
+            },
+            "httpWallMs": {
+              "count": 100,
+              "median": 12513.039645500157,
+              "p95": 23829.510499999742,
+              "min": 5229.187249999995,
+              "max": 50412.32404099992
+            },
+            "slotAndGateWaitMs": {
+              "count": 100,
+              "median": 0.0,
+              "p95": 125448.23045799967,
+              "min": 0,
+              "max": 159862.16720799985
+            }
+          },
+          "judge": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 100,
+              "median": 11460.15010400015,
+              "p95": 132206.3212920002,
+              "min": 3175.312249999479,
+              "max": 162870.64429099974
+            },
+            "httpWallMs": {
+              "count": 100,
+              "median": 8820.757417000095,
+              "p95": 19486.037083000156,
+              "min": 2847.32591699958,
+              "max": 25394.761250000556
+            },
+            "slotAndGateWaitMs": {
+              "count": 100,
+              "median": 0.0,
+              "p95": 120101.10445899954,
+              "min": 0,
+              "max": 150407.67058299936
+            }
+          }
+        }
+      },
+      "acceptedUsage": {
+        "baseline": {
+          "reader": {
+            "prompt_tokens": 67574,
+            "completion_tokens": 95587,
+            "total_tokens": 163161
+          },
+          "judge": {
+            "prompt_tokens": 40926,
+            "completion_tokens": 66649,
+            "total_tokens": 107575
+          }
+        },
+        "current": {
+          "reader": {
+            "prompt_tokens": 148104,
+            "completion_tokens": 99132,
+            "total_tokens": 247236
+          },
+          "judge": {
+            "prompt_tokens": 41934,
+            "completion_tokens": 69784,
+            "total_tokens": 111718
+          }
+        }
+      },
+      "acceptedUsageAvailability": {
+        "baseline": {
+          "reader": {
+            "calls": 100,
+            "callsWithUsage": 100
+          },
+          "judge": {
+            "calls": 100,
+            "callsWithUsage": 100
+          }
+        },
+        "current": {
+          "reader": {
+            "calls": 100,
+            "callsWithUsage": 100
+          },
+          "judge": {
+            "calls": 100,
+            "callsWithUsage": 100
+          }
+        }
+      }
+    }
+  },
+  "mabUpstreamMetrics": {
+    "method": "Preserved upstream functions and family postprocessing; no ROUGE or complete official evaluator/leaderboard.",
+    "sourceSha256": "d77976be409298970614d477a9d8003850caddb0510e56a7e821a037d98493a2",
+    "arms": {
+      "baseline": {
+        "overall": {
+          "exactMatch": 0.34,
+          "tokenF1": 0.4455869863236284,
+          "substringExactMatch": 0.5
+        },
+        "families": {
+          "eventqa_131072": {
+            "count": 17,
+            "exactMatch": 0.5882352941176471,
+            "tokenF1": 0.789362674619427,
+            "substringExactMatch": 0.5882352941176471,
+            "eventqaRecall": 0.5882352941176471
+          },
+          "eventqa_65536": {
+            "count": 17,
+            "exactMatch": 0.7058823529411765,
+            "tokenF1": 0.7875135936727632,
+            "substringExactMatch": 0.7058823529411765,
+            "eventqaRecall": 0.7058823529411765
+          },
+          "eventqa_full": {
+            "count": 17,
+            "exactMatch": 0.5294117647058824,
+            "tokenF1": 0.6611786135646497,
+            "substringExactMatch": 0.5294117647058824,
+            "eventqaRecall": 0.5882352941176471
+          },
+          "longmemeval_s*": {
+            "count": 17,
+            "exactMatch": 0.0,
+            "tokenF1": 0.06976908793734277,
+            "substringExactMatch": 0.23529411764705882
+          },
+          "ruler_qa1_197K": {
+            "count": 16,
+            "exactMatch": 0.1875,
+            "tokenF1": 0.23330917634386306,
+            "substringExactMatch": 0.5
+          },
+          "ruler_qa2_421K": {
+            "count": 16,
+            "exactMatch": 0.0,
+            "tokenF1": 0.09954652027249541,
+            "substringExactMatch": 0.4375
+          }
+        }
+      },
+      "current": {
+        "overall": {
+          "exactMatch": 0.25,
+          "tokenF1": 0.37695975344464966,
+          "substringExactMatch": 0.47
+        },
+        "families": {
+          "eventqa_131072": {
+            "count": 17,
+            "exactMatch": 0.5294117647058824,
+            "tokenF1": 0.7270678925477687,
+            "substringExactMatch": 0.5882352941176471,
+            "eventqaRecall": 0.5882352941176471
+          },
+          "eventqa_65536": {
+            "count": 17,
+            "exactMatch": 0.5294117647058824,
+            "tokenF1": 0.6821049505496165,
+            "substringExactMatch": 0.5294117647058824,
+            "eventqaRecall": 0.5294117647058824
+          },
+          "eventqa_full": {
+            "count": 17,
+            "exactMatch": 0.35294117647058826,
+            "tokenF1": 0.5261725321543986,
+            "substringExactMatch": 0.35294117647058826,
+            "eventqaRecall": 0.35294117647058826
+          },
+          "longmemeval_s*": {
+            "count": 17,
+            "exactMatch": 0.0,
+            "tokenF1": 0.07670069854396432,
+            "substringExactMatch": 0.29411764705882354
+          },
+          "ruler_qa1_197K": {
+            "count": 16,
+            "exactMatch": 0.0625,
+            "tokenF1": 0.13376030198195948,
+            "substringExactMatch": 0.625
+          },
+          "ruler_qa2_421K": {
+            "count": 16,
+            "exactMatch": 0.0,
+            "tokenF1": 0.08443920363911861,
+            "substringExactMatch": 0.4375
+          }
+        }
+      }
+    },
+    "questions": [
+      {
+        "id": "mab-0-0",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-0",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-24",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-24",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-25",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-25",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-3",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-3",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.03636363636363636,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-44",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.125,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-44",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.04081632653061225,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-47",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-47",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-52",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.029411764705882353,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-52",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.020618556701030924,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-58",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.028985507246376812,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-58",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.02631578947368421,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-6",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-6",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.09523809523809523,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-60",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.33333333333333337,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-60",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.4615384615384615,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-69",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-69",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.19354838709677416,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-74",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-74",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-83",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.21621621621621626,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-83",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.11594202898550725,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-84",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-84",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-9",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-9",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.028571428571428574,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-92",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-92",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.12121212121212122,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-16",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-16",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.06896551724137931,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-18",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.16666666666666666,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-18",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.16666666666666666,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-23",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.10526315789473684,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-23",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.06521739130434782,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-25",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.07407407407407407,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-25",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.10256410256410256,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-29",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.08510638297872342,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-29",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-37",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.17142857142857143,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-37",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.19999999999999998,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-38",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-38",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-47",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-47",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-68",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-68",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-72",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.0689655172413793,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-72",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.05714285714285715,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-77",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-77",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-8",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.059701492537313446,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-8",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.059701492537313446,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-80",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-80",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-82",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-82",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-85",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.4615384615384615,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-85",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.23076923076923078,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-95",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.4,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-95",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.4,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-2-47",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-2-47",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-2-50",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-2-50",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-2-63",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.3333333333333333,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-2-63",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.2727272727272727,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-3-15",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-3-15",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.30769230769230765,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-3-17",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5714285714285714,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-3-17",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5714285714285714,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-3-18",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-3-18",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.0816326530612245,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-3-47",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-3-47",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-3-87",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-3-87",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-3-91",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.46153846153846156,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-3-91",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-4-14",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-4-14",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5333333333333333,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-4-19",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-4-19",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.2105263157894737,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-4-35",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-4-35",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-4-79",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-4-79",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-5-19",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.4827586206896552,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-5-19",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5925925925925926,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-5-43",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-5-43",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-5-54",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.28571428571428575,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-5-54",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.37499999999999994,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-5-83",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.10526315789473685,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-5-83",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-7-25",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.39999999999999997,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-7-25",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5333333333333333,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-7-59",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-7-59",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.3,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-7-75",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-7-75",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-7-8",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-7-8",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-8-34",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.11764705882352941,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-8-34",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-8-63",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-8-63",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5384615384615384,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-8-70",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-8-70",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-8-72",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-8-72",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.24999999999999994,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-8-88",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-8-88",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-9-42",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.3571428571428571,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-9-42",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.3571428571428571,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-10-27",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.3529411764705882,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-10-27",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.10169491525423728,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-10-51",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-10-51",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-10-67",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-10-67",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-10-83",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-10-83",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-10-98",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-10-98",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.3333333333333333,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-11-15",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.16,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-11-15",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-11-56",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-11-56",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.18181818181818182,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-12-58",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-12-58",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-12-7",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.47619047619047616,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-12-7",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-12-73",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5333333333333333,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-12-73",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5333333333333333,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-13-11",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-13-11",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-13-18",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-13-18",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-13-53",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-13-53",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-13-69",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-13-69",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-13-84",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.6363636363636365,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-13-84",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-13-87",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5517241379310344,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-13-87",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-14-66",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-14-66",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.4444444444444445,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-14-71",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.42857142857142855,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-14-71",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-15-39",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-15-39",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-15-45",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-15-45",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5833333333333334,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-15-53",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.26666666666666666,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-15-53",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-15-90",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5263157894736842,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-15-90",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5263157894736842,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-16-26",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-16-26",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-16-89",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-16-89",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.2727272727272727,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-17-18",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.0625,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-17-18",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-17-20",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.12048192771084337,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-17-20",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.09411764705882353,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-17-49",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-17-49",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.02197802197802198,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-18-14",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.03636363636363636,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-18-14",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-18-20",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.13333333333333336,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-18-20",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.16666666666666669,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-18-22",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.0425531914893617,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-18-22",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.01639344262295082,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-18-24",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.06666666666666667,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-18-24",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.07142857142857142,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-18-28",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-18-28",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-19-8",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-19-8",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.010471204188481674,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-20-1",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-20-1",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.07407407407407407,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-20-2",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.11363636363636363,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-20-2",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.24074074074074076,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-20-40",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-20-40",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-20-55",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.26315789473684215,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-20-55",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.28125,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-21-36",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.0967741935483871,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-21-36",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.15789473684210528,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-21-44",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.03333333333333333,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-21-44",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.03636363636363636,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-21-48",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.14035087719298248,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-21-48",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.08602150537634409,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-21-6",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.07692307692307693,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-21-6",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.046511627906976744,
+        "substringExactMatch": 1.0
+      }
+    ]
+  },
+  "embedding": "ollama:all-minilm:1b226e2802dbb772b5fc32a58f103ca1804ef7501331012de126ab22f67475ef:384",
+  "corpora": 121,
+  "documents": 10943,
+  "chunks": 88793,
+  "embeddingCache": {
+    "freshPassageInputs": 81495,
+    "cachedPassageInputs": 7158,
+    "cachedPotentiallyTruncatedInputs": 7158
+  },
+  "embeddingTruncation": {
+    "freshAffectedPassageBatches": 1314,
+    "freshAffectedInputBound": [
+      1314,
+      81388
+    ],
+    "definition": "Batch bounds only. Cached vectors retain conservative original batch truncation flags; no per-chunk truncation rate."
+  },
+  "providerAttempts": 1195,
+  "providerStatusCounts": {
+    "200": 856,
+    "429": 334,
+    "None": 5
+  },
+  "invalidProviderAttempts": [
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-13-87-baseline-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 75695.30874999873,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-17-18-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 29572.699500000454,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-15-39-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 60253.58783299998,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-18-20-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 103979.90120799933,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-13-84-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 60152.55379199971,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/29f2956b-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 85453.12812499923,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-3-47-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 91234.74445899956,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/22d2cb42-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 132584.41987500008,
+      "status": null,
+      "error": "ConnectionError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/0ea62687-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 78197.7319589987,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-3-47-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 130476.06100000121,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-8-72-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 99838.3759999997,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/60bf93ed-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 101660.3662919997,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/29f2956b-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 72166.25141700024,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-15-39-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 100845.3083330005,
+      "status": null,
+      "error": "ConnectionError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-14-66-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 69220.0665829996,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-8-72-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 100488.97895899972,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-3-47-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 85218.39616700163,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/a4996e51-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 126574.26225000017,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/d7c942c3-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 62599.97466599998,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-3-47-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 153598.66075000173,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-17-18-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 73835.346459,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/81507db6-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 105888.85562500036,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-3-17-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 26105.908165999608,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-15-39-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 88980.15870800009,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-3-17-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 60303.462791999664,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/1568498a-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 68557.76858299942,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-8-72-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 107570.07554099982,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-13-11-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 87952.60595800028,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-8-63-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 115233.64737500015,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-18-22-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 64345.658583999466,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-13-87-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 61527.17825000036,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-13-18-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 103043.04787500041,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-15-90-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 66226.197125,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/29f2956b-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 112084.87787499963,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-15-90-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 114125.02912499986,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-13-11-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 71210.56058300019,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/a4996e51-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 91225.09050000008,
+      "status": null,
+      "error": "ConnectionError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/mab-13-87-baseline-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 157227.087958001,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8/d7c942c3-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 72191.96699999974,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/18bc8abd-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 70727.96362500003,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/7a87bd0c-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 213893.40870799968,
+      "status": null,
+      "error": "ReadTimeout"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/7a87bd0c-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 116781.72866600016,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/7a87bd0c-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 73262.43554199982,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/mab-19-8-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 71898.28945800013,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/7527f7e2-current-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 127623.023042,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/7527f7e2-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 65959.12675,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/mab-3-91-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 93352.43808300015,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/a89d7624-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 134048.62991700007,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/mab-3-17-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 71327.44624999986,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/6a27ffc2-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 97168.33595899993,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/f8c5f88b-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 70194.3272919998,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/7527f7e2-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 29855.385083000103,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/gpt4_1d4ab0c9-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 95377.9205840001,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7/mab-3-91-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 134648.57195900002,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-6/mab-7-25-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 12858.222250000039,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-6/mab-3-87-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 60108.83233300001,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-6/a89d7624-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 12880.540082999914,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/66f24dbb-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 106060.97741699978,
+      "status": null,
+      "error": "ConnectionError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/66f24dbb-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 71875.6889589995,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/66f24dbb-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 20648.69437500056,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/1a1907b4-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 54219.258916999934,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/mab-7-25-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 31052.111500000137,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/1a1907b4-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 72173.9800840005,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/ac031881-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 144.82549999956973,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/mab-3-87-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 48276.04212500046,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/mab-18-24-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 6012.121792000471,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/66f24dbb-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 21953.82870799949,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/66f24dbb-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 15574.119542000517,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/6b7dfb22-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 83996.86324999947,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/mab-7-25-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 103714.60479199959,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5/mab-7-25-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 97492.81883299955,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/eaca4986-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 66.29829200028325,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/031748ae_abs-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 36.755707999873266,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/mab-18-28-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 32.066957999631995,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/mab-18-28-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 120.36041700048372,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/195a1a1b-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 159.1575410002406,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/54026fce-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 38.77029199975368,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/54026fce-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 71.8479170000137,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/1a1907b4-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 35.149250000358734,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/mab-18-28-baseline-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 202.05941699987306,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/ac031881-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 114.33429199951206,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/ac031881-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 201.12587499988877,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/mab-18-28-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 42.547832999844104,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/1a1907b4-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 102.9143749992727,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/ac031881-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 46.15449999982957,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/031748ae_abs-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 27.433707999989565,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/ac031881-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 324.46004200028256,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/mab-18-28-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 33.55645800002094,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/mab-18-28-baseline-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 129.34245799988275,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/ac031881-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 36.01154199986922,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/031748ae_abs-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 34.98220900019078,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/ac031881-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 177.5956250003219,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/195a1a1b-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 97.3137080000015,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/e3038f8c-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 42.18854100054159,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/mab-18-28-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 101.85191699929419,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/6b7dfb22-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 184.54000000019732,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4/6b7dfb22-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 193.34825000078126,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/853b0a1d-current-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 207.69687500069267,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-0-44-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 20755.29691599968,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/15745da0_abs-current-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 113.8468749995809,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-24-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 101.29412500009494,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/2311e44b_abs-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 146.11704100025236,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_ec93e27f-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 22109.582374999263,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/d7c942c3-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 102.86991700013459,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/853b0a1d-baseline-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 188.2987500002855,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/54026fce-baseline-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 287.6605829997061,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-12-73-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 453.29504199980875,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/2311e44b_abs-current-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 113.81095799970353,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-14-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 105.61162500016508,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/ac031881-current-judge-attempt-3.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 240.74449999989156,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-22-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 143.93091700003424,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e3038f8c-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 98.09183299967117,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-7-25-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 125.75254200055497,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-20-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 173.68562499996187,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-28-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 301.105667000229,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/7527f7e2-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 160.5150830000639,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6b7dfb22-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 176.89304199939215,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/29f2956b-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 116.21550000018033,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f8c5f88b-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 126.1863749996337,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-19-8-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 195.37908300026174,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f8c5f88b-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 100.53462500036403,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/29f2956b-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 123.22066599972459,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/8a2466db-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 146.64887499930046,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/58470ed2-baseline-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 135.0546249996114,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-26-baseline-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 124.61891699967964,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_85da3956-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 110.96375000033731,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/2311e44b_abs-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 119.79654099923209,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/22d2cb42-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 106.19058300017059,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f4f1d8a4_abs-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 111.86033400008455,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-28-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 107.8954579998026,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-24-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 540.7727080000768,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6a27ffc2-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 334.87645800050814,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6a27ffc2-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 139.77737500044896,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f4f1d8a4_abs-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 106.20474999996077,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-28-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 104.02925000016694,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-24-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 168.09162499976082,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/2311e44b_abs-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 176.41962499965302,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/22d2cb42-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 130.860749999556,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-26-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 95.00874999957887,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_85da3956-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 104.9444999998741,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/58470ed2-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 45.34400000011374,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/853b0a1d-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 132.7618329996767,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/29f2956b-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 103.90687500057538,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f8c5f88b-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 101.13733300022432,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/8a2466db-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 470.21595899968816,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f8c5f88b-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 186.8618750004316,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/29f2956b-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 113.71787500047503,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-19-8-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 109.8384580000129,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/07b6f563-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 48284.89895799976,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6b7dfb22-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 120.6863749994227,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-28-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 113.50804200083076,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/7527f7e2-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 147.02345800014882,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-20-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 174.3722080000225,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-7-25-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 232.95120799957658,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e3038f8c-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 102.34358300021995,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/ac031881-current-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 113.73629099944083,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-22-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 111.34025000046677,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/2311e44b_abs-current-judge-attempt-3.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 123.02045799970074,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-14-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 335.1912909993189,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/54026fce-baseline-judge-attempt-3.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 288.6236670001381,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/d7c942c3-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 287.2618749997855,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/853b0a1d-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 33.08237500004907,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-24-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 99.01512499982346,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/2311e44b_abs-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 109.31183299999248,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/15745da0_abs-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 96.81887500028097,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-0-44-current-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 22078.547791000346,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/853b0a1d-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 33.095624999987194,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/ac031881-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 114.85458300012397,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e66b632c-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 85.35708300041733,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/15745da0_abs-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 112.87679199995182,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/54026fce-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 506.87124999967637,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/60bf93ed-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 104.46337499979563,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/a4996e51-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 102.758167000502,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_85da3956-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 181.69812500036642,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/15745da0_abs-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 142.52758299971902,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/c18a7dc8-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 105.99629199987248,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/22d2cb42-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 503.46158299998933,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/c18a7dc8-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 430.29699999988225,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/a4996e51-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 117.23729200002708,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f4f1d8a4_abs-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 177.2778329996072,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-28-current-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 122.34525000076246,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_468eb063-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 33040.70920800041,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-89-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 104.5782910005073,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-13-18-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 124.51724999937142,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6a27ffc2-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 165.98091699961515,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-1-23-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 21016.073875000075,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/7527f7e2-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 108.09741699995357,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-26-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 128.53466599972307,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/60bf93ed-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 442.85287500042614,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/58470ed2-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 112.67437500009692,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-20-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 191.96245900002396,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-19-8-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 101.67841699967539,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/d7c942c3-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 200.2455829997416,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6b7dfb22-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 189.87179200030369,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/8a2466db-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 148.39062499959255,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-22-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 115.47483399954217,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-14-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 108.20795800009364,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e66b632c-current-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 167.62104100052966,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-7-25-baseline-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 102.27958300038154,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-89-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 164.04125000008207,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-7-25-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 34.056708000207436,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-89-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 336.6419590001897,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e66b632c-current-judge-attempt-3.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 331.30487500056915,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-22-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 109.93616599989764,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-14-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 97.94954199969652,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/d7c942c3-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 151.34183400004986,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6b7dfb22-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 118.32316700019874,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/8a2466db-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 242.88875000002008,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/60bf93ed-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 116.66387500008568,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/58470ed2-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 182.49045799984742,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-20-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 107.48012499971082,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-19-8-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 105.07954199965752,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-26-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 213.45308300078614,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/7527f7e2-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 111.06587499943998,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6a27ffc2-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 122.9948330001207,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/ac031881-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 211.0794159998477,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-13-18-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 99.77400000025227,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-89-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 194.48095900042972,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f4f1d8a4_abs-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 183.34287499965285,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-28-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 48.02937499971449,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/a4996e51-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 106.29375000007713,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/c18a7dc8-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 277.9313339997316,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/22d2cb42-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 109.84758300037356,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/c18a7dc8-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 224.06462499930058,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_85da3956-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 143.599207999614,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/15745da0_abs-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 47.806124999624444,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/60bf93ed-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 185.65770799978054,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/a4996e51-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 123.76833300004364,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/15745da0_abs-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 189.66933299998345,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/54026fce-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 121.6175839999778,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e66b632c-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 126.33958399965195,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/ac031881-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 109.54733400012628,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e66b632c-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 106.86354199970083,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-28-current-judge-attempt-3.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 195.77741700049955,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-13-84-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 101.91849999955593,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f4f1d8a4_abs-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 169.21487499985233,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/a4996e51-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 302.25541699928726,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/c18a7dc8-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 122.14766699980828,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/22d2cb42-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 126.82008299998415,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/c18a7dc8-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 263.4403749998455,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_85da3956-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 134.22066700059077,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/a4996e51-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 184.94708399975934,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/60bf93ed-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 294.35354199995345,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/54026fce-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 155.95158300038747,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/15745da0_abs-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 172.6184170001943,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e66b632c-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 176.34512499989796,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/ac031881-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 185.57650000002468,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/852ce960-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 19421.987208000246,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-89-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 441.4550000001327,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-7-25-baseline-judge-attempt-3.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 103.16779199911252,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e66b632c-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 37.84891699979198,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-22-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 101.47320799933368,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-14-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 95.3210420002506,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/8a2466db-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 220.3630840003825,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6b7dfb22-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 105.66212499998073,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/d7c942c3-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 116.01154199979646,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-19-8-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 128.34979200033558,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-20-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 109.5949999998993,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/60bf93ed-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 155.85845799978415,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/58470ed2-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 125.31212500016409,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-26-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 120.77241699989827,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_2ba83207-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 24526.84304200011,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/7527f7e2-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 108.90687499977503,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6a27ffc2-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 164.32983399954537,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/ac031881-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 95.51808300057019,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-89-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 368.76595800004,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-89-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 134.1299160003473,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-13-18-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 186.31920799998625,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/ac031881-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 157.22195800026384,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-4-79-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 24888.59500000035,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6a27ffc2-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 532.8060000001642,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/7527f7e2-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 209.42999999988388,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_2ba83207-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 22834.752207999372,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-26-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 144.2147500001738,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-19-8-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 150.75916699970549,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-20-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 130.75041699994472,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/60bf93ed-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 99.65970900066168,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/58470ed2-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 152.58204199926695,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-4-19-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 682.5411250001707,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/8a2466db-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 100.59291699963069,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6b7dfb22-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 108.98708300010185,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/d7c942c3-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 102.88204100015719,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-22-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 169.3206250001822,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-14-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 209.58762500049488,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_cd90e484-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 439.45691700082534,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e66b632c-current-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 112.36050000024989,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-89-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 120.68595799973991,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-7-25-baseline-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 182.97395900026459,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/ac031881-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 115.06358399947203,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e66b632c-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 97.54024999983812,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_b0863698-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 19347.94241599957,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-7-75-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 36.709708000671526,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/54026fce-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 266.8202080003539,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/15745da0_abs-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 105.1613340005133,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/a4996e51-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 95.98120800001197,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/60bf93ed-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 107.80533400065906,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/15745da0_abs-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 102.04683300071338,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_85da3956-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 510.7618749998437,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/c18a7dc8-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 99.67795800002932,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/22d2cb42-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 221.74604199972237,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-10-83-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 43042.56933299985,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/c18a7dc8-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 276.01599999979953,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/a4996e51-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 830.1641670004756,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-28-current-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 115.87487499946292,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-13-84-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 165.26170799988904,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f4f1d8a4_abs-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 105.06491600062873,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e3038f8c-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 154.5780830001604,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-22-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 108.74125000009371,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/ac031881-current-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 319.9277499998061,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-12-7-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 21705.806666999706,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/2311e44b_abs-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 34.59616600048321,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-14-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 108.37520799941558,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-7-59-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 34.46791700025642,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/54026fce-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 30.279790999884426,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e3038f8c-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 146.287833000315,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/853b0a1d-baseline-judge-attempt-3.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 106.33116600001813,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/d7c942c3-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 199.41770900004485,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-24-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 141.87362499978917,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/15745da0_abs-current-judge-attempt-3.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 163.05600000032427,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-20-2-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 19627.28008399972,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-13-53-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 125.42266699983884,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/853b0a1d-current-judge-attempt-3.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 287.8612089998569,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6a27ffc2-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 167.61637499985227,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-24-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 314.05966700003773,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-28-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 148.49425000011252,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f4f1d8a4_abs-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 15111.37916700045,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/22d2cb42-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 105.48833299981197,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/2311e44b_abs-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 224.87391699996806,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_85da3956-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 243.87320799996814,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-26-baseline-judge-attempt-3.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 143.08875000006083,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/58470ed2-baseline-judge-attempt-3.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 229.23241599983157,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/8a2466db-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 118.98541699974885,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/29f2956b-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 181.0248749998209,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f8c5f88b-baseline-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 110.95012500027224,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f8c5f88b-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 190.95008299973415,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/29f2956b-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 122.83858399950986,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-19-8-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 102.47625000010885,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6b7dfb22-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 106.40679199968872,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/7527f7e2-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 117.19758399976854,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-28-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 98.94133299985697,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-20-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 173.71174999971117,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-7-25-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 143.7220410007285,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-7-25-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 104.2801249996046,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-20-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 139.55470899963984,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/7527f7e2-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 180.19866699978593,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-28-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 192.29079100023228,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6b7dfb22-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 105.34416699920257,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/29f2956b-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 170.8508339997934,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f8c5f88b-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 98.70724999927916,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-19-8-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 104.2703339999207,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/8a2466db-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 102.70545799994579,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f8c5f88b-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 186.3989590001438,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/29f2956b-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 124.20625000049768,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/58470ed2-baseline-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 170.36920899954566,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_85da3956-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 116.2352909996116,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-16-26-baseline-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 130.01029199949699,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/22d2cb42-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 104.07220799970673,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/2311e44b_abs-baseline-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 128.95733400000609,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6222b6eb-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 39416.685041000164,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-24-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 101.0275830003593,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/f4f1d8a4_abs-baseline-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 181.22854200009897,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/6a27ffc2-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 202.57233299980726,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/853b0a1d-current-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 134.72512499993172,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/15745da0_abs-current-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 119.68487499962066,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-13-53-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 102.73358299946267,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_a1b77f9c-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 12133.513458999914,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/gpt4_2487a7cb-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 20887.10945800085,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-24-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 143.91791599973658,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e3038f8c-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 88.43229099966265,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/853b0a1d-baseline-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 101.38349999942875,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/d7c942c3-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 118.81495800025732,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/54026fce-baseline-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 103.3653750000667,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/2311e44b_abs-current-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 477.5327910001579,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-14-current-reader-attempt-2.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 173.0362079997576,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/mab-18-22-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 192.39787500009697,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/ac031881-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 167.84258400002727,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3/e3038f8c-current-reader-attempt-3.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 113.58737499995186,
+      "status": 429,
+      "error": "ValueError"
+    }
+  ],
+  "reportedUsageAllRetainedAttempts": {
+    "prompt_tokens": 648806,
+    "completion_tokens": 765030,
+    "total_tokens": 1413836,
+    "prompt_tokens_details.cached_tokens": 0,
+    "completion_tokens_details.reasoning_tokens": 703438
+  },
+  "transportRecovery": {
+    "profiles": [
+      {
+        "run": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8",
+        "at": "2026-10-14T13:11:30.109747+00:00",
+        "wrapperSha256": "4bd610ee688eb420675809203bfaa763776de1862ca46fcfa98f855c29b7423a",
+        "driverSha256": "4c5708248cc9f7a1ff30c481efd02e19764e69965ed7520fd87431f201907f73",
+        "maximumRPM": 3,
+        "maximumConcurrentHTTP": 1,
+        "driverPacingCeilingRPM": 10,
+        "cooldown": "60 seconds doubling for consecutive429, capped300s; honor a longer supplied Retry-After.",
+        "checkpointSha256": "a71560df381b8fbeeecc2f509626207568ea3807547dfbb66c5a88b259159d6e",
+        "checkpoint": "Create-only atomic link after JSON/file fsync, followed by directory fsync. Progress is best-effort; completed result files are authoritative. Not a hardware power-loss guarantee.",
+        "semantics": "Only benchmark checkpoint publication and HTTP admission/cooldown change. Model, prompt, reasoning, output cap, keys and frozen driver are unchanged. Existing valid answers are reused regardless of correctness."
+      },
+      {
+        "run": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7",
+        "at": "2026-10-14T12:04:17.746253+00:00",
+        "wrapperSha256": "b72ee4b478c91fc5a1648cf0033a89b9a324198a545311bf9ebf5364c134dd96",
+        "driverSha256": "4c5708248cc9f7a1ff30c481efd02e19764e69965ed7520fd87431f201907f73",
+        "maximumRPM": 3,
+        "maximumConcurrentHTTP": 1,
+        "driverPacingCeilingRPM": 10,
+        "cooldown": "60 seconds doubling for consecutive429, capped300s; honor a longer supplied Retry-After.",
+        "semantics": "Only HTTP admission/cooldown changes. Model, prompt, reasoning, output cap, keys and frozen driver are unchanged. Existing valid answers are reused regardless of correctness."
+      },
+      {
+        "run": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-6",
+        "at": "2026-10-14T12:00:19.262627+00:00",
+        "wrapperSha256": "f71a9cc6e734ccdb818ce45d3f80987b6a59ded4c9bf8a8e7d1ccd8ba50d1fe9",
+        "driverSha256": "4c5708248cc9f7a1ff30c481efd02e19764e69965ed7520fd87431f201907f73",
+        "maximumRPM": 10,
+        "maximumConcurrentHTTP": 2,
+        "cooldown": "60 seconds doubling for consecutive429, capped300s; honor a longer supplied Retry-After.",
+        "semantics": "Only HTTP admission/cooldown changes. Model, prompt, reasoning, output cap, keys and frozen driver are unchanged. Existing valid answers are reused regardless of correctness."
+      },
+      {
+        "run": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5",
+        "at": "2026-10-14T09:20:28.213382+00:00",
+        "wrapperSha256": "f71a9cc6e734ccdb818ce45d3f80987b6a59ded4c9bf8a8e7d1ccd8ba50d1fe9",
+        "driverSha256": "4c5708248cc9f7a1ff30c481efd02e19764e69965ed7520fd87431f201907f73",
+        "maximumRPM": 10,
+        "maximumConcurrentHTTP": 2,
+        "cooldown": "60 seconds doubling for consecutive429, capped300s; honor a longer supplied Retry-After.",
+        "semantics": "Only HTTP admission/cooldown changes. Model, prompt, reasoning, output cap, keys and frozen driver are unchanged. Existing valid answers are reused regardless of correctness."
+      }
+    ],
+    "recordedHTTPAttempts": 343,
+    "slotAndGateWaitMs": {
+      "count": 343,
+      "median": 75435.8155,
+      "p95": 132525.51875000063,
+      "min": 0.020834000679315068,
+      "max": 202597.90166699985
+    },
+    "httpWallMs": {
+      "count": 343,
+      "median": 11343.239750000066,
+      "p95": 27337.42470800007,
+      "min": 27.173625000614265,
+      "max": 83253.79595800041
+    },
+    "latencyDefinition": "Attempt wall time includes admission/cooldown in wrapper runs and transport-receipt publication overhead in durable runs. Separate wrapper HTTP and slot/gate times are recorded; earlier runs used HTTP/decode wall time without this wrapper. Failed HTTP calls without a response have no separate transport observation. These are service observations, not paired speed claims."
+  },
+  "attemptRuns": [
+    "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8",
+    "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-7",
+    "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-6",
+    "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5",
+    "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-4",
+    "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+    "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-2",
+    "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-1"
+  ],
+  "newJudgeControlRequests": 0,
+  "reusedPassingJudgeControls": 22,
+  "cost": "Currency cost not available; usage not converted to assumed prices.",
+  "started": "2026-10-14T08:33:11.421447+00:00",
+  "ended": "2026-10-14T14:39:46.423558+00:00",
+  "limitations": [
+    "Balanced new query-heldout subset, shared corpora/questions across source families; not independent population samples or official leaderboard.",
+    "Same-model self-judging and hosted serving version not independently pinned; controls do not establish human agreement.",
+    "Candidate changes both excerpt selection and default excerpt allowance 1800 to6000; measured gain cannot be attributed to only one.",
+    "Old40/100 and39/100 belong to a different subset; compare only these paired baseline/current denominators.",
+    "Embedding truncation is explicit; no reranker. Public timings are shared-machine/service observations, not qualified speed ratios.",
+    "Interrupted in-flight calls without a returned record have unknown usage; every recorded attempt and all valid answers are retained.",
+    "Accepted-attempt latency excludes earlier failed attempts/backoff. Wrapper admission/cooldown is separated where instrumented; no end-to-end speedup or energy claim."
+  ],
+  "adoption": {
+    "bothDatasetsNetAccuracyGain": false,
+    "rule": "Require positive paired net accuracy in both datasets plus zero provenance/scope/budget/required-contract failures. Report losses and declining strata; no release qualification."
+  }
+}

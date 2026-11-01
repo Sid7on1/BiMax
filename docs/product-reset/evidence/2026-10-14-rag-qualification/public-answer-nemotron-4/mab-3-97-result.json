@@ -1,0 +1,273 @@
+{
+  "row": 3,
+  "query": 97,
+  "id": "mab-3-97",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n94. Humphrey Waylon arranged Drew's garments on his bed.\n95. Lennox expressed disbelief about Humphrey Waylon's identity.\n96. Drew contemplated herself in a long mirror and exclaimed about her happiness.\n97. Lennox reflected on his feelings of estrangement towards Humphrey Waylon.\n98. Drew did not ask Humphrey Waylon any questions during his subsequent visits.\n\n\nBelow is a list of possible subsequent events:\n\n[\"The portress voiced her worries regarding Humphrey Waylon's financial stability.\", \"The portress shared her fears about Humphrey Waylon's upcoming performance.\", \"The portress expressed concern for Humphrey Waylon's health.\", \"The portress cautioned against the risks surrounding Humphrey Waylon's new project.\", \"The portress lamented over Humphrey Waylon's declining social life.\", \"The portress revealed her apprehension about Humphrey Waylon's recent behavior.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "The portress expressed concern for Humphrey Waylon's health."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 672.21875,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1106,
+        "maxInputChars": 1106,
+        "requiredProviderTruncation": false,
+        "promptTokens": 239,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-754",
+        "context-749",
+        "context-478"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) of the false object of life, happiness, one forgets the true object, duty!\n\nLet us say, however, that the reader would do wrong were he to blame Lennox.\n\nLennox, as we have explained, before his marriage, had put no questions to M.\n\nHubert, and, since that time, he had feared to put any to Humphrey Waylon.\n\nHe had regretted the promise into which he had allowed himself to be drawn.\n\nHe had often said to himself that he had done wrong in making that concession to despair.\n\nHe had confined himself to gradually estranging Humphrey Waylon from his house and to effacing him, as much as possible, from Drew\u2019s mind.\n\nHe had, in a manner, always placed himself between Drew and Humphrey Waylon, sure that, in this way, she would not perceive nor think of the latter.\n\nIt was more than effacement, it was an eclipse.\n\nLennox did what he considered necessary and just.\n\nHe thought that he had serious reasons which the reader has already seen, and others which will be seen later on, for getting rid of Humphrey Waylon without harshness, but without weakness.\n  (part 4 of 5, excerpt) Without her knowing why herself, and without his having any cause to accuse her of it, her soul had become so wholly her husband\u2019s that that which was shrouded in gloom in Lennox\u2019 mind became overcast in hers.\n\nLet us not go too far, however; in what concerns Humphrey Waylon, this forgetfulness and obliteration were merely superficial.\n\nShe was rather heedless than forgetful.\n- (part 3 of 4, excerpt) Drew asked him no questions, was no longer astonished, no longer exclaimed that she was cold, no longer spoke of the drawing-room, she avoided s\n- (part 4 of 4, excerpt) Humphrey Waylon had not discontinued his trips to the Luxembourg, as he did not wish to do anything out of the way, and as, a",
+      "evidence": [
+        {
+          "sourceId": "memory:context-754",
+          "sourceVersion": "sha256:4119225cbbfd5838822967981cd29b8b98ba44fb7d15790c857b0dd93463b752",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-754",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "of the false object of life, happiness, one forgets the true object, duty!\n\nLet us say, however, that the reader would do wrong were he to blame Lennox.\n\nLennox, as we have explained, before his marriage, had put no questions to M.\n\nHubert, and, since that time, he had feared to put any to Humphrey Waylon.\n\nHe had regretted the promise into which he had allowed himself to be drawn.\n\nHe had often said to himself that he had done wrong in making that concession to despair.\n\nHe had confined himself to gradually estranging Humphrey Waylon from his house and to effacing him, as much as possible, from Drew\u2019s mind.\n\nHe had, in a manner, always placed himself between Drew and Humphrey Waylon, sure that, in this way, she would not perceive nor think of the latter.\n\nIt was more than effacement, it was an eclipse.\n\nLennox did what he considered necessary and just.\n\nHe thought that he had serious reasons which the reader has already seen, and others which will be seen later on, for getting rid of Humphrey Waylon without harshness, but without weakness.",
+          "id": "ev_edc9a6f9b942117938d664cc",
+          "observedAt": "2026-10-14T05:14:41.421Z"
+        },
+        {
+          "sourceId": "memory:context-754",
+          "sourceVersion": "sha256:4119225cbbfd5838822967981cd29b8b98ba44fb7d15790c857b0dd93463b752",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-754",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Without her knowing why herself, and without his having any cause to accuse her of it, her soul had become so wholly her husband\u2019s that that which was shrouded in gloom in Lennox\u2019 mind became overcast in hers.\n\nLet us not go too far, however; in what concerns Humphrey Waylon, this forgetfulness and obliteration were merely superficial.\n\nShe was rather heedless than forgetful.",
+          "id": "ev_dc0e1169aa0d5d800122ea0d",
+          "observedAt": "2026-10-14T05:14:41.421Z"
+        },
+        {
+          "sourceId": "memory:context-749",
+          "sourceVersion": "sha256:73dbb64323b02a6ded94b21dfe7ca6a13b1e4c2ecb2fc7e428918d71aa059e85",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-749",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Drew asked him no questions, was no longer astonished, no longer exclaimed that she was cold, no longer spoke of the drawing-room, she avoided s",
+          "id": "ev_e2c68441c2b030f065f959eb",
+          "observedAt": "2026-10-14T05:14:41.422Z"
+        },
+        {
+          "sourceId": "memory:context-478",
+          "sourceVersion": "sha256:3529d409d3599147625aaa85348ba26a0e41dbbea4ca22b031125531d2f09c96",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-478",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Humphrey Waylon had not discontinued his trips to the Luxembourg, as he did not wish to do anything out of the way, and as, a",
+          "id": "ev_049884779f7eb5db030364c6",
+          "observedAt": "2026-10-14T05:14:41.422Z"
+        }
+      ],
+      "sourceIds": [
+        "context-754",
+        "context-749",
+        "context-478"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 26.98262500000419,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-754",
+        "context-749",
+        "context-478"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) of the false object of life, happiness, one forgets the true object, duty!\n\nLet us say, however, that the reader would do wrong were he to blame Lennox.\n\nLennox, as we have explained, before his marriage, had put no questions to M.\n\nHubert, and, since that time, he had feared to put any to Humphrey Waylon.\n\nHe had regretted the promise into which he had allowed himself to be drawn.\n\nHe had often said to himself that he had done wrong in making that concession to despair.\n\nHe had confined himself to gradually estranging Humphrey Waylon from his house and to effacing him, as much as possible, from Drew\u2019s mind.\n\nHe had, in a manner, always placed himself between Drew and Humphrey Waylon, sure that, in this way, she would not perceive nor think of the latter.\n\nIt was more than effacement, it was an eclipse.\n\nLennox did what he considered necessary and just.\n\nHe thought that he had serious reasons which the reader has already seen, and others which will be seen later on, for getting rid of Humphrey Waylon without harshness, but without weakness.\n  (part 4 of 5, excerpt) Without her knowing why herself, and without his having any cause to accuse her of it, her soul had become so wholly her husband\u2019s that that which was shrouded in gloom in Lennox\u2019 mind became overcast in hers.\n\nLet us not go too far, however; in what concerns Humphrey Waylon, this forgetfulness and obliteration were merely superficial.\n\nShe was rather heedless than forgetful.\n- (part 3 of 4, excerpt) Drew asked him no questions, was no longer astonished, no longer exclaimed that she was cold, no longer spoke of the drawing-room, she avoided s\n- (part 4 of 4, excerpt) Humphrey Waylon had not discontinued his trips to the Luxembourg, as he did not wish to do anything out of the way, and as, a",
+      "evidence": [
+        {
+          "sourceId": "memory:context-754",
+          "sourceVersion": "sha256:4119225cbbfd5838822967981cd29b8b98ba44fb7d15790c857b0dd93463b752",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-754",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "of the false object of life, happiness, one forgets the true object, duty!\n\nLet us say, however, that the reader would do wrong were he to blame Lennox.\n\nLennox, as we have explained, before his marriage, had put no questions to M.\n\nHubert, and, since that time, he had feared to put any to Humphrey Waylon.\n\nHe had regretted the promise into which he had allowed himself to be drawn.\n\nHe had often said to himself that he had done wrong in making that concession to despair.\n\nHe had confined himself to gradually estranging Humphrey Waylon from his house and to effacing him, as much as possible, from Drew\u2019s mind.\n\nHe had, in a manner, always placed himself between Drew and Humphrey Waylon, sure that, in this way, she would not perceive nor think of the latter.\n\nIt was more than effacement, it was an eclipse.\n\nLennox did what he considered necessary and just.\n\nHe thought that he had serious reasons which the reader has already seen, and others which will be seen later on, for getting rid of Humphrey Waylon without harshness, but without weakness.",
+          "id": "ev_edc9a6f9b942117938d664cc",
+          "observedAt": "2026-10-14T05:14:41.444Z"
+        },
+        {
+          "sourceId": "memory:context-754",
+          "sourceVersion": "sha256:4119225cbbfd5838822967981cd29b8b98ba44fb7d15790c857b0dd93463b752",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-754",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Without her knowing why herself, and without his having any cause to accuse her of it, her soul had become so wholly her husband\u2019s that that which was shrouded in gloom in Lennox\u2019 mind became overcast in hers.\n\nLet us not go too far, however; in what concerns Humphrey Waylon, this forgetfulness and obliteration were merely superficial.\n\nShe was rather heedless than forgetful.",
+          "id": "ev_dc0e1169aa0d5d800122ea0d",
+          "observedAt": "2026-10-14T05:14:41.444Z"
+        },
+        {
+          "sourceId": "memory:context-749",
+          "sourceVersion": "sha256:73dbb64323b02a6ded94b21dfe7ca6a13b1e4c2ecb2fc7e428918d71aa059e85",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-749",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Drew asked him no questions, was no longer astonished, no longer exclaimed that she was cold, no longer spoke of the drawing-room, she avoided s",
+          "id": "ev_e2c68441c2b030f065f959eb",
+          "observedAt": "2026-10-14T05:14:41.445Z"
+        },
+        {
+          "sourceId": "memory:context-478",
+          "sourceVersion": "sha256:3529d409d3599147625aaa85348ba26a0e41dbbea4ca22b031125531d2f09c96",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-478",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Humphrey Waylon had not discontinued his trips to the Luxembourg, as he did not wish to do anything out of the way, and as, a",
+          "id": "ev_049884779f7eb5db030364c6",
+          "observedAt": "2026-10-14T05:14:41.446Z"
+        }
+      ],
+      "sourceIds": [
+        "context-754",
+        "context-749",
+        "context-478"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 22.774499999999534,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:46:12.084864+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "The portress voiced her worries regarding Humphrey Waylon's financial stability.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 732,
+    "completion_tokens": 1039,
+    "total_tokens": 1771,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 474,
+    "completion_tokens": 563,
+    "total_tokens": 1037,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 560,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10136.045457999899,
+  "judgeWallMs": 6224.294582999846,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.375
+  },
+  "ended": "2026-10-14T07:46:29.412034+00:00"
+}

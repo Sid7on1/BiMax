@@ -1,0 +1,63 @@
+{
+  "sourceRestored": true,
+  "sourceSha256": {
+    "app/src/main/computer.use.ts": "c46823a3f5f63fd62a3634255fb08409b61ffa595667470289d3a326758dda26",
+    "app/src/main/computer/message.ts": "b0f08796a1f0b48dab1ed40cda480ac07513ce3f81ad027de1a927fd108b6274"
+  },
+  "faults": [
+    {
+      "fault": "keep-consumed-draft",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "with 0 identical"
+    },
+    {
+      "fault": "accept-duplicate-send",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "duplicate cannot"
+    },
+    {
+      "fault": "omit-recipient-proof",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "wrong or absent recipient"
+    },
+    {
+      "fault": "skip-after-approval-check",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "change during Send approval"
+    },
+    {
+      "fault": "ignore-existing-messages",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "with 1 identical"
+    },
+    {
+      "fault": "allow-direct-send",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "direct Send and Return"
+    },
+    {
+      "fault": "accept-stale-after-approval",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "stale-snapshot after Send"
+    },
+    {
+      "fault": "accept-ambiguous-recipient",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "duplicate recipient evidence"
+    },
+    {
+      "fault": "unobserved-outgoing-role",
+      "assertionCaught": true,
+      "exitCode": 1,
+      "test": "invented outgoing role"
+    }
+  ]
+}

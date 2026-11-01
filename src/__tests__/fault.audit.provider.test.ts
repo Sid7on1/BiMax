@@ -26,7 +26,7 @@ it('denies the actual adapter request before sending when prompt plus output exc
   const { adapter, create } = fixture();
   const buffer = createRunBudget({ BIMAX_RUN_MAX_TOKENS: '100', BIMAX_RUN_MAX_USD: '5' });
   await expect(inRunBudget(buffer, async () => {
-    for await (const _ of adapter.chat([{ role: 'user', content: 'x'.repeat(1000) }], { maxTokens: 50 })) {}
+    for await (const _ of adapter.chat([{ role: 'user', content: 'x'.repeat(1000) }], { maxTokens: 50 })) { /* Fixture body intentionally performs no work. */ }
   })).rejects.toThrow(/token ceiling/);
   expect(create).not.toHaveBeenCalled();
 });

@@ -1,0 +1,87 @@
+{
+  "scope": "New query-heldout balanced 100 classic LongMemEval_S +100 MemoryAgentBench Accurate_Retrieval; no prior selected IDs or normalized questions. Shared public corpora, not corpus-heldout or official leaderboard.",
+  "expectedQuestions": 200,
+  "attemptedQuestions": 200,
+  "validQuestions": 200,
+  "invalid": [],
+  "datasets": {
+    "longmemeval": {
+      "questions": 100,
+      "baselineCurrentPromptEqual": 0,
+      "baselineCurrentSourcesEqual": 100,
+      "validProvenance": 100,
+      "answerSourceQuestions": 85,
+      "meanAnswerSourceRecallAt3": 0.9152941176470588,
+      "completeAnswerSources": 74,
+      "referenceTextPresent": 40,
+      "strata": {
+        "abstention": {
+          "questions": 15,
+          "referenceTextPresent": 0
+        },
+        "knowledge-update": {
+          "questions": 15,
+          "referenceTextPresent": 12
+        },
+        "multi-session": {
+          "questions": 14,
+          "referenceTextPresent": 7
+        },
+        "single-session-assistant": {
+          "questions": 14,
+          "referenceTextPresent": 8
+        },
+        "single-session-preference": {
+          "questions": 14,
+          "referenceTextPresent": 0
+        },
+        "single-session-user": {
+          "questions": 14,
+          "referenceTextPresent": 11
+        },
+        "temporal-reasoning": {
+          "questions": 14,
+          "referenceTextPresent": 2
+        }
+      }
+    },
+    "memoryagentbench": {
+      "questions": 100,
+      "baselineCurrentPromptEqual": 0,
+      "baselineCurrentSourcesEqual": 100,
+      "validProvenance": 100,
+      "answerSourceQuestions": 0,
+      "meanAnswerSourceRecallAt3": null,
+      "completeAnswerSources": 0,
+      "referenceTextPresent": 27,
+      "strata": {
+        "eventqa_131072": {
+          "questions": 17,
+          "referenceTextPresent": 0
+        },
+        "eventqa_65536": {
+          "questions": 17,
+          "referenceTextPresent": 0
+        },
+        "eventqa_full": {
+          "questions": 17,
+          "referenceTextPresent": 0
+        },
+        "longmemeval_s*": {
+          "questions": 17,
+          "referenceTextPresent": 7
+        },
+        "ruler_qa1_197K": {
+          "questions": 16,
+          "referenceTextPresent": 12
+        },
+        "ruler_qa2_421K": {
+          "questions": 16,
+          "referenceTextPresent": 8
+        }
+      }
+    }
+  },
+  "ended": "2026-10-14T09:03:47.515445+00:00",
+  "modelAnswerAccuracy": "unmeasured; no reader/judge invoked"
+}

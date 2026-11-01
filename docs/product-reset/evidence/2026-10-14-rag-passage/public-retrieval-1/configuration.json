@@ -1,0 +1,25 @@
+{
+  "scope": "Owner-authorized fresh balanced25classicLongMemEval_S+25MemoryAgentBench,paired100answer arms; excludes all record96+97 IDs and normalized questions. Small pilot,shared public corpora,not independent population/official leaderboard.",
+  "selectionSha256": "cd798d224c21ac4ea69acd1761099de1c47a2067031e1a9df9a5a36a0210a0b2",
+  "started": "2026-10-14T15:17:30.817202+00:00",
+  "reader": null,
+  "judge": null,
+  "workers": 1,
+  "protocol": "Frozen fresh50 questions; no quality tuning; paired frozen record-96/current inputs, real all-minilm vectors with content-addressed persistent cache, explicit recorded truncation; limit3, baseline1800/current6000 default excerpt budget. No model-answer score.",
+  "sourceHashes": {
+    "scripts/bench-rag-passage-retrieval.py": "e4975bfde2a44cb9f4bb2663da349d8727e9c12484cffc9e44ab07916e0430f7",
+    "scripts/bench-rag-public.py": "3fa4341c1a2b5c389dc4912a2065a15db0ffaa2fb0925445347522645f050e40",
+    "scripts/rag-passage-worker.cjs": "c79b8f8c2eef826b7c9b8556038ecfe65ddb589056ce9057a898b39378268cbb",
+    "scripts/lib/rag_vector_cache.cjs": "3437841699d53f41d98ddc02f79643e55620f6a5970cd08532e4065b690e5a44",
+    "scripts/lib/rag_benchmark_checkpoint.py": "a71560df381b8fbeeecc2f509626207568ea3807547dfbb66c5a88b259159d6e",
+    "scripts/lib/rag_public_grader.py": "5516e9f71cfac91c1b6e718b549c14d9a0920d6640a4cfef6fa39a5a9bc57a37",
+    "src/memory/vector.store.ts": "0e660a1650d44e3745d08ad1df3e22425f584c8066a28ef449a8036e02587e9a",
+    "docs/product-reset/evidence/2026-10-14-rag-passage/baseline/src/memory/recall.ts": "a849be001290b83ef3cc59945232634dd628001780120121d7d9759d9a6ff7ef",
+    "docs/product-reset/evidence/2026-10-14-rag-passage/candidate/recall.ts": "43d8227abb92015d0d121cf10f0ed93e1f556627573671b0dd6a10523a49f66f",
+    "docs/product-reset/evidence/2026-10-14-rag-passage/compiled/baseline.js": "9965c3edcc2db26f2845482ffccfecc0fad453656db7118de6291b20166fc749",
+    "docs/product-reset/evidence/2026-10-14-rag-passage/compiled/current.js": "9965c3edcc2db26f2845482ffccfecc0fad453656db7118de6291b20166fc749",
+    "docs/product-reset/evidence/2026-10-14-rag-passage/compiled/recall-baseline.js": "771fd0492c0d04971d12a34e6a814a89cb60a2e04a23bb8b138b5ade602b6671",
+    "docs/product-reset/evidence/2026-10-14-rag-passage/compiled/recall-current.js": "83bc3ed16c72c06590b0e22e80fd156701fc8dcb586479661c25469db4d8be4b",
+    "dist/memory/chunking.js": "af64858f5c00fb2591d5f3fd2e51ad5cde9dad67ed5140e6db97135a89e174f5"
+  }
+}

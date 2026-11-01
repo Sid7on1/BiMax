@@ -1,0 +1,275 @@
+{
+  "row": 0,
+  "query": 47,
+  "id": "mab-0-47",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:38:01.704206+00:00",
+  "valid": true,
+  "question": "What country did the Normans invade in 1169?",
+  "references": [
+    "Ireland",
+    "Ireland",
+    "Ireland"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 650.6597920000058,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 44,
+        "maxInputChars": 44,
+        "requiredProviderTruncation": false,
+        "promptTokens": 13,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-177",
+        "context-238",
+        "context-106"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 5) and encouraging preliminary data in studies on bacterial gastroenteritis, inflammatory bowel diseases, urinary tract infection and post-surgical infections.\n\nDocument 886:\nSoon after the Normans began to enter Italy, they entered the Byzantine Empire and then Armenia, fighting against the Pechenegs, the Bulgars, and especially the Seljuk Turks. Norman mercenaries were first encouraged to come to the south by the Lombards to act against the Byzantines, but they soon fought in Byzantine service in Sicily. They were prominent alongside Varangian and Lombard contingents in the Sicilian campaign of George Maniaces in 1038\u201340. There is debate whether the Normans in Greek service actually were from Norman Italy, and it now seems likely only a few came from there. It is also unknown how many of the \"Franks\", as the Byzantines called them, were Normans and not other Frenchmen.\n  (part 5 of 5, excerpt) now seems likely only a few came from there. It is also unknown how many of the \"Franks\", as the Byzantines called them, were Normans and not other Frenchmen.\n\nDocument 887:\n- (part 2 of 5, excerpt) In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"ren\n- (part 2 of 5, excerpt) The city's garrison resisted until February 1082, when Dyrrachium was betrayed to the Normans by the Venetian and Amalfitan m",
+      "evidence": [
+        {
+          "sourceId": "memory:context-177",
+          "sourceVersion": "sha256:f98243fdbd7b3f31e4a58af548eef99659140311adb6f19e3854d1f8496ed21f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-177",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "and encouraging preliminary data in studies on bacterial gastroenteritis, inflammatory bowel diseases, urinary tract infection and post-surgical infections.\n\nDocument 886:\nSoon after the Normans began to enter Italy, they entered the Byzantine Empire and then Armenia, fighting against the Pechenegs, the Bulgars, and especially the Seljuk Turks. Norman mercenaries were first encouraged to come to the south by the Lombards to act against the Byzantines, but they soon fought in Byzantine service in Sicily. They were prominent alongside Varangian and Lombard contingents in the Sicilian campaign of George Maniaces in 1038\u201340. There is debate whether the Normans in Greek service actually were from Norman Italy, and it now seems likely only a few came from there. It is also unknown how many of the \"Franks\", as the Byzantines called them, were Normans and not other Frenchmen.",
+          "id": "ev_0d4aa979565f1ac1e91009c5",
+          "observedAt": "2026-10-14T08:38:02.357Z"
+        },
+        {
+          "sourceId": "memory:context-177",
+          "sourceVersion": "sha256:f98243fdbd7b3f31e4a58af548eef99659140311adb6f19e3854d1f8496ed21f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-177",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "now seems likely only a few came from there. It is also unknown how many of the \"Franks\", as the Byzantines called them, were Normans and not other Frenchmen.\n\nDocument 887:",
+          "id": "ev_646c542905c2fdcebe53f2e8",
+          "observedAt": "2026-10-14T08:38:02.357Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"ren",
+          "id": "ev_595a87d2ae2422595f4b6f05",
+          "observedAt": "2026-10-14T08:38:02.357Z"
+        },
+        {
+          "sourceId": "memory:context-106",
+          "sourceVersion": "sha256:e1b7c4e4eb9f82a8cf7b567ef663b193630a453c6653ebd26944d868483650b0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-106",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The city's garrison resisted until February 1082, when Dyrrachium was betrayed to the Normans by the Venetian and Amalfitan m",
+          "id": "ev_9fea7c4a594df5091233c2a2",
+          "observedAt": "2026-10-14T08:38:02.357Z"
+        }
+      ],
+      "sourceIds": [
+        "context-177",
+        "context-238",
+        "context-106"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.2819999999992433,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-177",
+        "context-238",
+        "context-106"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 5) and encouraging preliminary data in studies on bacterial gastroenteritis, inflammatory bowel diseases, urinary tract infection and post-surgical infections.\n\nDocument 886:\nSoon after the Normans began to enter Italy, they entered the Byzantine Empire and then Armenia, fighting against the Pechenegs, the Bulgars, and especially the Seljuk Turks. Norman mercenaries were first encouraged to come to the south by the Lombards to act against the Byzantines, but they soon fought in Byzantine service in Sicily. They were prominent alongside Varangian and Lombard contingents in the Sicilian campaign of George Maniaces in 1038\u201340. There is debate whether the Normans in Greek service actually were from Norman Italy, and it now seems likely only a few came from there. It is also unknown how many of the \"Franks\", as the Byzantines called them, were Normans and not other Frenchmen.\n  (part 5 of 5) now seems likely only a few came from there. It is also unknown how many of the \"Franks\", as the Byzantines called them, were Normans and not other Frenchmen.\n\nDocument 887:\nThere are 13 natural reserves in Warsaw \u2013 among others, Bielany Forest, Kabaty Woods, Czerniak\u00f3w Lake. About 15 kilometres (9 miles) from Warsaw, the Vistula river's environment changes strikingly and features a perfectly preserved ecosystem, with a habitat of animals that includes the otter, beaver and hundreds of bird species. There are also several lakes in Warsaw \u2013 mainly the oxbow lakes, like Czerniak\u00f3w Lake, the lakes in the \u0141azienki or Wilan\u00f3w Parks, Kamionek Lake. There are lot of small lakes in the parks, but only a few are permanent \u2013 the majority are emptied before winter to clean them of plants and sediments.\n\nDocument 888:\n- (part 1 of 5) ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture and musical traditions, and for their significant military accomplishments and innovations. Norman adventurers founded the Kingdom of Sicily under Roger II after conquering southern Italy on the Saracens and Byzantines, and an expedition on behalf of their duke, William the Conqueror, led to the Norman conquest of England at the Battle of Hastings in 1066. Norman cultural and military influence spread from these new European centres to the Crusader states of the Near East, where their prince Bohemond I founded the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n  (part 2 of 5, excerpt) In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"renaissance\" of Norman art and scholarship were Mont-Saint-Michel, F\u00e9camp, Jumi\u00e8ges, Bec, Saint-Ouen, Saint-Evroul, and Saint-Wandrille. These centres were in contact with the so-called \"Winchester school\", which channeled a pure Carolingian artistic tradition to Normandy. In the final decade of the 11th and first of the 12th century, Normandy experienced a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.\n- (part 1 of 5) nd acting as his vassal, Robert continued his campaign conquering the Balkan peninsula as a foothold for western feudal lords and the Catholic Church.\n\nAfter allying himself with Croatia and the Catholic cities of Dalmatia, in 1081 he led an army of 30,000 men in 300 ships landing on the southern shores of Albania, capturing Valona, Kanina, Jericho (Orikumi), and reaching Butrint after numerous pillages.\n\nThey joined the fleet that had previously conquered Corfu and attacked Dyrrachium from land and sea, devastating everything along the way.\n\nUnder these harsh circumstances, the locals accepted the call of emperor Alexius I Comnenus to join forces with the Byzantines against the Normans.\n\nThe Albanian forces could not take part in the ensuing battle because it had started before their arrival.\n\nImmediately before the battle, the Venetian fleet had secured a victory in the coast surrounding the city.\n\nForced to retreat, Alexius ceded the command to a high Albanian official named Comiscortes in the service of Byzantium.\n\nThe city's garrison resisted until February 1082, when Dyrrachium was betrayed to the Normans by the Venetian and Amalfitan merchants who had settled there.\n  (part 2 of 5) The city's garrison resisted until February 1082, when Dyrrachium was betrayed to the Normans by the Venetian and Amalfitan merchants who had settled there.\n\nThe Normans were now free to penetrate into the hinterland; they took Ioannina and some minor cities in southwestern Macedonia and Thessaly before appearing at the gates of Thessalonica.\n\nDissension among the high ranks coerced the Normans to retreat to Italy.\n\nThey lost Dyrrachium, Valona, and Butrint in 1085, after the death of Robert.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-177",
+          "sourceVersion": "sha256:f98243fdbd7b3f31e4a58af548eef99659140311adb6f19e3854d1f8496ed21f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-177",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "and encouraging preliminary data in studies on bacterial gastroenteritis, inflammatory bowel diseases, urinary tract infection and post-surgical infections.\n\nDocument 886:\nSoon after the Normans began to enter Italy, they entered the Byzantine Empire and then Armenia, fighting against the Pechenegs, the Bulgars, and especially the Seljuk Turks. Norman mercenaries were first encouraged to come to the south by the Lombards to act against the Byzantines, but they soon fought in Byzantine service in Sicily. They were prominent alongside Varangian and Lombard contingents in the Sicilian campaign of George Maniaces in 1038\u201340. There is debate whether the Normans in Greek service actually were from Norman Italy, and it now seems likely only a few came from there. It is also unknown how many of the \"Franks\", as the Byzantines called them, were Normans and not other Frenchmen.",
+          "id": "ev_0d4aa979565f1ac1e91009c5",
+          "observedAt": "2026-10-14T08:38:02.360Z"
+        },
+        {
+          "sourceId": "memory:context-177",
+          "sourceVersion": "sha256:f98243fdbd7b3f31e4a58af548eef99659140311adb6f19e3854d1f8496ed21f",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-177",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "now seems likely only a few came from there. It is also unknown how many of the \"Franks\", as the Byzantines called them, were Normans and not other Frenchmen.\n\nDocument 887:\nThere are 13 natural reserves in Warsaw \u2013 among others, Bielany Forest, Kabaty Woods, Czerniak\u00f3w Lake. About 15 kilometres (9 miles) from Warsaw, the Vistula river's environment changes strikingly and features a perfectly preserved ecosystem, with a habitat of animals that includes the otter, beaver and hundreds of bird species. There are also several lakes in Warsaw \u2013 mainly the oxbow lakes, like Czerniak\u00f3w Lake, the lakes in the \u0141azienki or Wilan\u00f3w Parks, Kamionek Lake. There are lot of small lakes in the parks, but only a few are permanent \u2013 the majority are emptied before winter to clean them of plants and sediments.\n\nDocument 888:",
+          "id": "ev_a940adc3c54402406aa3deed",
+          "observedAt": "2026-10-14T08:38:02.360Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture and musical traditions, and for their significant military accomplishments and innovations. Norman adventurers founded the Kingdom of Sicily under Roger II after conquering southern Italy on the Saracens and Byzantines, and an expedition on behalf of their duke, William the Conqueror, led to the Norman conquest of England at the Battle of Hastings in 1066. Norman cultural and military influence spread from these new European centres to the Crusader states of the Near East, where their prince Bohemond I founded the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.",
+          "id": "ev_1664e9ae72dd2ec51b485949",
+          "observedAt": "2026-10-14T08:38:02.360Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"renaissance\" of Norman art and scholarship were Mont-Saint-Michel, F\u00e9camp, Jumi\u00e8ges, Bec, Saint-Ouen, Saint-Evroul, and Saint-Wandrille. These centres were in contact with the so-called \"Winchester school\", which channeled a pure Carolingian artistic tradition to Normandy. In the final decade of the 11th and first of the 12th century, Normandy experienced a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.",
+          "id": "ev_fa5511b260cc160fe6b1004a",
+          "observedAt": "2026-10-14T08:38:02.360Z"
+        },
+        {
+          "sourceId": "memory:context-106",
+          "sourceVersion": "sha256:e1b7c4e4eb9f82a8cf7b567ef663b193630a453c6653ebd26944d868483650b0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-106",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "nd acting as his vassal, Robert continued his campaign conquering the Balkan peninsula as a foothold for western feudal lords and the Catholic Church.\n\nAfter allying himself with Croatia and the Catholic cities of Dalmatia, in 1081 he led an army of 30,000 men in 300 ships landing on the southern shores of Albania, capturing Valona, Kanina, Jericho (Orikumi), and reaching Butrint after numerous pillages.\n\nThey joined the fleet that had previously conquered Corfu and attacked Dyrrachium from land and sea, devastating everything along the way.\n\nUnder these harsh circumstances, the locals accepted the call of emperor Alexius I Comnenus to join forces with the Byzantines against the Normans.\n\nThe Albanian forces could not take part in the ensuing battle because it had started before their arrival.\n\nImmediately before the battle, the Venetian fleet had secured a victory in the coast surrounding the city.\n\nForced to retreat, Alexius ceded the command to a high Albanian official named Comiscortes in the service of Byzantium.\n\nThe city's garrison resisted until February 1082, when Dyrrachium was betrayed to the Normans by the Venetian and Amalfitan merchants who had settled there.",
+          "id": "ev_56dfd4a255189db5138beb30",
+          "observedAt": "2026-10-14T08:38:02.360Z"
+        },
+        {
+          "sourceId": "memory:context-106",
+          "sourceVersion": "sha256:e1b7c4e4eb9f82a8cf7b567ef663b193630a453c6653ebd26944d868483650b0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-106",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "The city's garrison resisted until February 1082, when Dyrrachium was betrayed to the Normans by the Venetian and Amalfitan merchants who had settled there.\n\nThe Normans were now free to penetrate into the hinterland; they took Ioannina and some minor cities in southwestern Macedonia and Thessaly before appearing at the gates of Thessalonica.\n\nDissension among the high ranks coerced the Normans to retreat to Italy.\n\nThey lost Dyrrachium, Valona, and Butrint in 1085, after the death of Robert.",
+          "id": "ev_421481bca99a6e7317b249c4",
+          "observedAt": "2026-10-14T08:38:02.360Z"
+        }
+      ],
+      "sourceIds": [
+        "context-177",
+        "context-238",
+        "context-106"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.0397499999962747,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-177",
+    "context-238",
+    "context-106"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:38:02.362737+00:00"
+}

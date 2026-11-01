@@ -1,0 +1,162 @@
+{
+  "commands": [
+    {
+      "name": "focused",
+      "command": [
+        "npx",
+        "jest",
+        "--coverage=false",
+        "--runInBand",
+        "src/__tests__/memory.integrity.test.ts",
+        "src/__tests__/memory.retrieval.factory.test.ts",
+        "src/__tests__/bots.foundation.test.ts",
+        "src/__tests__/memory.wiring.test.ts",
+        "src/__tests__/memory.vector.store.test.ts",
+        "src/__tests__/memory.store.features.test.ts",
+        "src/__tests__/rag.sprint.test.ts",
+        "src/__tests__/rag.resources.test.ts",
+        "src/__tests__/fault.audit.regression.test.ts",
+        "src/__tests__/subagent.manager.test.ts",
+        "src/__tests__/subagent.capacity.test.ts",
+        "src/__tests__/context.orchestration.sprint.test.ts",
+        "src/__tests__/context.work.sprint.test.ts"
+      ],
+      "startedAt": "2026-10-18T17:40:17.530466+00:00",
+      "seconds": 10.096,
+      "exitCode": 0,
+      "log": "focused.log"
+    },
+    {
+      "name": "bun",
+      "command": [
+        "npm",
+        "run",
+        "test:bun"
+      ],
+      "startedAt": "2026-10-18T17:40:27.627397+00:00",
+      "seconds": 56.999,
+      "exitCode": 0,
+      "log": "bun.log"
+    },
+    {
+      "name": "context",
+      "command": [
+        "npm",
+        "run",
+        "test:context"
+      ],
+      "startedAt": "2026-10-18T17:41:24.627125+00:00",
+      "seconds": 0.779,
+      "exitCode": 0,
+      "log": "context.log"
+    },
+    {
+      "name": "context-benchmark",
+      "command": [
+        "npm",
+        "run",
+        "bench:context"
+      ],
+      "startedAt": "2026-10-18T17:41:25.406345+00:00",
+      "seconds": 1.315,
+      "exitCode": 0,
+      "log": "context-benchmark.log"
+    },
+    {
+      "name": "scripts",
+      "command": [
+        "npm",
+        "run",
+        "test:scripts"
+      ],
+      "startedAt": "2026-10-18T17:41:26.721636+00:00",
+      "seconds": 0.346,
+      "exitCode": 0,
+      "log": "scripts.log"
+    },
+    {
+      "name": "root-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-10-18T17:41:27.068436+00:00",
+      "seconds": 3.32,
+      "exitCode": 0,
+      "log": "root-build.log"
+    },
+    {
+      "name": "app-typecheck",
+      "command": [
+        "npm",
+        "--prefix",
+        "app",
+        "run",
+        "typecheck"
+      ],
+      "startedAt": "2026-10-18T17:41:30.388391+00:00",
+      "seconds": 3.498,
+      "exitCode": 0,
+      "log": "app-typecheck.log"
+    },
+    {
+      "name": "app-build",
+      "command": [
+        "npm",
+        "--prefix",
+        "app",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-10-18T17:41:33.887137+00:00",
+      "seconds": 2.908,
+      "exitCode": 0,
+      "log": "app-build.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "startedAt": "2026-10-18T17:41:36.795769+00:00",
+      "seconds": 4.534,
+      "exitCode": 0,
+      "log": "lint.log"
+    },
+    {
+      "name": "isolated-engine-build",
+      "command": [
+        "bun",
+        "build",
+        "src/index.ts",
+        "--target=node",
+        "--outfile=/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-18-memory-integrity-bots/qualification/staged-engine/index.js"
+      ],
+      "startedAt": "2026-10-18T17:41:41.329809+00:00",
+      "seconds": 0.244,
+      "exitCode": 1,
+      "log": "isolated-engine-build.log"
+    },
+    {
+      "name": "engine-protocol",
+      "command": [
+        "npm",
+        "--prefix",
+        "app",
+        "run",
+        "verify:engine",
+        "--",
+        "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-18-memory-integrity-bots/qualification/staged-engine/index.js"
+      ],
+      "startedAt": "2026-10-18T17:41:41.574503+00:00",
+      "seconds": 1.064,
+      "exitCode": 1,
+      "log": "engine-protocol.log"
+    }
+  ],
+  "sourceUnchangedDuringQualification": true,
+  "bundleSha256": null
+}

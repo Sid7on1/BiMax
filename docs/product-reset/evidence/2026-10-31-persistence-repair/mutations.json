@@ -1,0 +1,52 @@
+[
+  {
+    "mutant": "async-commit",
+    "assertion_caught": true,
+    "failed_tests": [
+      "an old asynchronous publication cannot replace a newer acknowledged snapshot"
+    ],
+    "exit_code": 1
+  },
+  {
+    "mutant": "accept-without-save",
+    "assertion_caught": true,
+    "failed_tests": [
+      "queued-state write failure dispatches nothing, retains the input and permits an explicit retry"
+    ],
+    "exit_code": 1
+  },
+  {
+    "mutant": "dispatch-after-failed-save",
+    "assertion_caught": true,
+    "failed_tests": [
+      "sent-state write failure dispatches nothing, retains the input and permits an explicit retry",
+      "an actual process exit after a failed sent-state write cannot duplicate a disk side effect on restart"
+    ],
+    "exit_code": 1
+  },
+  {
+    "mutant": "steer-after-failed-save",
+    "assertion_caught": true,
+    "failed_tests": [
+      "a failed steering save cannot send unrecorded steering or forget the running request"
+    ],
+    "exit_code": 1
+  },
+  {
+    "mutant": "automatic-retry-without-user",
+    "assertion_caught": true,
+    "failed_tests": [
+      "queued-state write failure dispatches nothing, retains the input and permits an explicit retry",
+      "sent-state write failure dispatches nothing, retains the input and permits an explicit retry"
+    ],
+    "exit_code": 1
+  },
+  {
+    "mutant": "double-remote-submit",
+    "assertion_caught": true,
+    "failed_tests": [
+      "one remote instruction creates one queued input and one dispatch through the real manager"
+    ],
+    "exit_code": 1
+  }
+]

@@ -90,6 +90,16 @@ export function normalizeUiSnapshot(raw: unknown): UiSnapshot | null {
         mcp: num(raw.tools.mcp), graphReady: raw.tools.graphReady === true,
       },
     } : {}),
+    ...(isRecord(raw.approvals)
+      && typeof raw.approvals.askBeforeEdits === 'boolean'
+      && typeof raw.approvals.readOnly === 'boolean'
+      && typeof raw.approvals.unattended === 'boolean' ? {
+      approvals: {
+        askBeforeEdits: raw.approvals.askBeforeEdits,
+        readOnly: raw.approvals.readOnly,
+        unattended: raw.approvals.unattended,
+      },
+    } : {}),
   };
 }
 

@@ -1,0 +1,425 @@
+{
+  "row": 254,
+  "id": "gpt4_468eb063",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T08:51:00.169427+00:00",
+  "valid": true,
+  "question": "How many days ago did I meet Emma?",
+  "references": [
+    "9 days ago. 10 days (including the last day) is also acceptable."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/04/20 (Thu) 10:12",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 215.552166999998,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 34,
+        "maxInputChars": 34,
+        "requiredProviderTruncation": false,
+        "promptTokens": 11,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "e60a93ff_2",
+        "sharegpt_Sf51OjE_8",
+        "sharegpt_gfhUw40_17"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 14, excerpt) user: I'm planning to volunteer at another charity event this weekend and I was wondering if you could help me come up with some conversation starters to break the ice with the other volunteers. I recall that a few months ago, I volunteered at a chari\n  (part 10 of 14) an invitation without putting pressure on her to commit. If she's interested, she'll let you know, and if not, you can still enjoy your coffee and catch-up.\n\nRemember to respect her decision either way, and don't be discouraged if she declines. The goal is to spend time together and introduce her to the charity, not to obligate her to volunteer.\nuser: I'll ask her to meet up for a quick coffee before my shift and introduce her to the charity event. If she's interested, I can ask her if she'd like to volunteer with me, but I'll make sure to keep it casual and non-committal. By the way, I've been meaning to follow up with Sophia, a woman I met at a networking event a couple of weeks ago, to discuss a potential collaboration. Do you think it's a good idea to send her a follow-up email this week?\nassistant: It's great that you're thinking of following up with Sophia about the potential collaboration.\n\nIn general, it's a good idea to follow up with people you've met at networking events, especially if you discussed a specific opportunity or collaboration. A follow-up email can help keep the conversation going and show that you're interested in exploring the opportunity further.\n- (part 1 of 6, excerpt) Source: https://www.goodreads.com/book/show/1069510.I\\_Know\\_What\\_You\\_Did\\_Last\\_Wednesday\n- (part 3 of 13, excerpt) This will return the number of distinct `user_id`s that have a `state` of `'paid'` and were created within the last 7 days (including today) as `subscribers_last_7_da",
+      "evidence": [
+        {
+          "sourceId": "memory:e60a93ff_2",
+          "sourceVersion": "sha256:648ec2c4ac48e9cb558d41a9549a51191227f9ed6da7acf7de1b96251657c460",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "e60a93ff_2",
+            "part": 1,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "user: I'm planning to volunteer at another charity event this weekend and I was wondering if you could help me come up with some conversation starters to break the ice with the other volunteers. I recall that a few months ago, I volunteered at a chari",
+          "id": "ev_46927761f8b60bd6c6a22bff",
+          "observedAt": "2026-10-14T08:51:00.405Z"
+        },
+        {
+          "sourceId": "memory:e60a93ff_2",
+          "sourceVersion": "sha256:648ec2c4ac48e9cb558d41a9549a51191227f9ed6da7acf7de1b96251657c460",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "e60a93ff_2",
+            "part": 10,
+            "parts": 14
+          },
+          "text": "an invitation without putting pressure on her to commit. If she's interested, she'll let you know, and if not, you can still enjoy your coffee and catch-up.\n\nRemember to respect her decision either way, and don't be discouraged if she declines. The goal is to spend time together and introduce her to the charity, not to obligate her to volunteer.\nuser: I'll ask her to meet up for a quick coffee before my shift and introduce her to the charity event. If she's interested, I can ask her if she'd like to volunteer with me, but I'll make sure to keep it casual and non-committal. By the way, I've been meaning to follow up with Sophia, a woman I met at a networking event a couple of weeks ago, to discuss a potential collaboration. Do you think it's a good idea to send her a follow-up email this week?\nassistant: It's great that you're thinking of following up with Sophia about the potential collaboration.\n\nIn general, it's a good idea to follow up with people you've met at networking events, especially if you discussed a specific opportunity or collaboration. A follow-up email can help keep the conversation going and show that you're interested in exploring the opportunity further.",
+          "id": "ev_33f49b5cade78446fdaa901b",
+          "observedAt": "2026-10-14T08:51:00.406Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_Sf51OjE_8",
+          "sourceVersion": "sha256:4b8e1f1649d403e9d29d0dbd9e0329b5d287674207235f2b1a678053c3e9da1c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_Sf51OjE_8",
+            "part": 1,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Source: https://www.goodreads.com/book/show/1069510.I\\_Know\\_What\\_You\\_Did\\_Last\\_Wednesday",
+          "id": "ev_3395f32110a47244d550f7bb",
+          "observedAt": "2026-10-14T08:51:00.406Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_gfhUw40_17",
+          "sourceVersion": "sha256:5c7e45524bdc57926fe326fd92d4feaf371f1925cd37edee60e7054dddd97b36",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_gfhUw40_17",
+            "part": 3,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "This will return the number of distinct `user_id`s that have a `state` of `'paid'` and were created within the last 7 days (including today) as `subscribers_last_7_da",
+          "id": "ev_da28edb6c6f62978b933d463",
+          "observedAt": "2026-10-14T08:51:00.407Z"
+        }
+      ],
+      "sourceIds": [
+        "e60a93ff_2",
+        "sharegpt_Sf51OjE_8",
+        "sharegpt_gfhUw40_17"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 22.768332999999984,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "e60a93ff_2",
+        "sharegpt_Sf51OjE_8",
+        "sharegpt_gfhUw40_17"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 14, excerpt) Session date: 2023/04/11 (Tue) 19:27\nuser: I'm planning to volunteer at another charity event this weekend and I was wondering if you could help me come up with some conversation starters to break the ice with the other volunteers. I recall that a few months ago, I volunteered at a charity event and met a lot of like-minded people, including a guy named Tom who's involved with the organization.\n  (part 7 of 14, excerpt) do decide to meet up, suggest a brief coffee break, like 30 minutes to an hour, to ensure you both have time for a quick catch-up before you need to head out.\n\nIf you've thought through these factors and feel it's a good fit, go ahead and invite her to meet up! It's a great way to nurture a new connection and grab a coffee before your volunteer shift.\n\nRemember to prioritize your volunteer commitment and make sure you're not compromising your responsibilities. But if you can make it work, it'll be a lovely way to start your day.\n  (part 10 of 14, excerpt) user: I'll ask her to meet up for a quick coffee before my shift and introduce her to the charity event. If she's interested, I can ask her if she'd like to volunteer with me, but I'll make sure to keep it casual and non-committal. By the way, I've been meaning to follow up with Sophia, a woman I met at a networking event a couple of weeks ago, to discuss a potential collaboration. Do you think it's a good idea to send her a follow-up email this week?\n  (part 12 of 14, excerpt) ago. I'm still very interested in exploring the collaboration opportunity we discussed, and I was wondering if you've had a chance to think about it further.\n\nIf you're available, I'd love to schedule a call to discuss the details and answer any questions you may have. Please let me know a convenient time, and I'll make sure to schedule it.\n\nLooking forward to hearing back from you and potentially working together.\n\nBest regards,\n[Your Name]\"\n- Session date: 2023/04/11 (Tue) 07:14\n  (part 1 of 6, excerpt) [1] \"When the Diamond Brothers receive an invitation to a school reunion on a remote Scottish island, things seem to be looking up. But Nicks got a bad feeling, and its not indigestion. And when he meets their fellow guests, the feeling only gets worse - especially when they start dying in ever more bizarre ways! Genres Mystery Fiction Crime Young ...\"\nSource: https://www.goodreads.com/book/show/1069510.I\\_Know\\_What\\_You\\_Did\\_Last\\_Wednesday\n  (part 2 of 6, excerpt) [3] \"Ray Bronson. There are four main characters. The story revolves around Julie James, Barry Cox, Helen Rivers, and Ray Bronson. Julie is a quiet girl who is very smart. She used to be more outgoing, social, and participated in many school activities, such as cheerleading, before the death of David Gregg. We like her. Barry Cox is the football star.\"\nSource: https://iknowwhatyoudid.weebly.com/\n  (part 4 of 6, excerpt) He is one of the first characters that automatically understands ...\"\nSource: https://screenrant.com/i-know-what-you-did-last-summer-tv-smartest-characters/\n\n[7] \"Laker Stalk. Lance Jones. Larena Smith. Larry Bronson. LaShawne Marks. Category:Last Summer Characters. Lennon Grant. List of Deaths (tv series) List of I Know What You Did Last Summer characters.\"\nSource: https://iknowwhatyoudidlastsummer.fandom.com/wiki/Category:Characters\n  (part 6 of 6, excerpt) Instructions: Using the provided web search results, write a comprehensive reply to the given prompt.\n\nMake sure to cite results using [[number](URL)] notation after the reference.\n\nIf the provided search results refer to multiple subjects with the same name, write separate answers for each subject.\n\nPrompt: Do you know the characters in the book I know what you did last wednesday\n\nassistant: The web search results you provided are about the book \"I Know What You Did Last Summer\" and its adaptations.\n\nThe book is a mystery fiction, crime and young adult novel, written by Lois Duncan.\n- Session date: 2023/04/11 (Tue) 17:33\n  (part 3 of 13, excerpt) This will return the number of distinct `user_id`s that have a `state` of `'paid'` and were created within the last 7 days (including today) as `subscribers_last_7_days`, and the number of distinct `user_id`s that have a `state` of `'paid'` and were created between 7 and 14 days ago (not including today) as `subscribers_previous_period`. The `growth_percentage` column will show the growth in the number of subscribers from the previous period to the current period as a\n  (part 4 of 13, excerpt) ```\nSELECT COUNT(DISTINCT user_id) AS subscribers_last_7_days,\n       (SELECT COALESCE(COUNT(DISTINCT user_id), 0)\n        FROM payment_service.catalog_payments\n        WHERE status = 'paid' AND created_at BETWEEN current_date - interval '14 days' AND current_date - interval '7 days') AS subscribers_previous_period,\n       (100 - (SELECT COALESCE(COUNT(DISTINCT user_id), 0)::float\n               FROM payment_service.catalog_payments\n               WHERE status = 'paid' AND created_at BETWEEN current_date - interval '14 days' AND current_date - interval '7 days') / COUNT(DISTINCT user_id)::float * 100) AS growth_percentage\n  (part 5 of 13, excerpt) This will return the number of distinct `user_id`s that have a `status` of `'paid'` and were created within the last 7 days (including today) as `subscribers_last_7_days`, and the number of distinct `user_id`s that have a\nuser: Great. Now, coming back to this one:\n\nSELECT COUNT(DISTINCT user\\_id) AS payers\\_last\\_7\\_days,\n\n(SELECT COALESCE(COUNT(DISTINCT user\\_id), 0)\n\nFROM allpayments\n\nWHERE state = 'paid' AND created\\_at BETWEEN current\\_date - interval '14 days' AND current\\_date - interval '7 days') AS payers\\_previous\\_period,\n  (part 8 of 13) This will return the number of distinct `user_id`s (via the `contributions` table) that have a `state` of `'paid'` and were created within the last 7 days (including today) as `backers\nuser: Great. Now coming back to this one:",
+      "evidence": [
+        {
+          "sourceId": "memory:e60a93ff_2",
+          "sourceVersion": "sha256:648ec2c4ac48e9cb558d41a9549a51191227f9ed6da7acf7de1b96251657c460",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "e60a93ff_2",
+            "part": 1,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "Session date: 2023/04/11 (Tue) 19:27\nuser: I'm planning to volunteer at another charity event this weekend and I was wondering if you could help me come up with some conversation starters to break the ice with the other volunteers. I recall that a few months ago, I volunteered at a charity event and met a lot of like-minded people, including a guy named Tom who's involved with the organization.",
+          "id": "ev_a0c7b06f2130687211067f08",
+          "observedAt": "2026-10-14T08:51:00.411Z"
+        },
+        {
+          "sourceId": "memory:e60a93ff_2",
+          "sourceVersion": "sha256:648ec2c4ac48e9cb558d41a9549a51191227f9ed6da7acf7de1b96251657c460",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "e60a93ff_2",
+            "part": 7,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "do decide to meet up, suggest a brief coffee break, like 30 minutes to an hour, to ensure you both have time for a quick catch-up before you need to head out.\n\nIf you've thought through these factors and feel it's a good fit, go ahead and invite her to meet up! It's a great way to nurture a new connection and grab a coffee before your volunteer shift.\n\nRemember to prioritize your volunteer commitment and make sure you're not compromising your responsibilities. But if you can make it work, it'll be a lovely way to start your day.",
+          "id": "ev_76d22ccbcb445726301917b0",
+          "observedAt": "2026-10-14T08:51:00.411Z"
+        },
+        {
+          "sourceId": "memory:e60a93ff_2",
+          "sourceVersion": "sha256:648ec2c4ac48e9cb558d41a9549a51191227f9ed6da7acf7de1b96251657c460",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "e60a93ff_2",
+            "part": 10,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "user: I'll ask her to meet up for a quick coffee before my shift and introduce her to the charity event. If she's interested, I can ask her if she'd like to volunteer with me, but I'll make sure to keep it casual and non-committal. By the way, I've been meaning to follow up with Sophia, a woman I met at a networking event a couple of weeks ago, to discuss a potential collaboration. Do you think it's a good idea to send her a follow-up email this week?",
+          "id": "ev_dbc66ef793201265e970a457",
+          "observedAt": "2026-10-14T08:51:00.411Z"
+        },
+        {
+          "sourceId": "memory:e60a93ff_2",
+          "sourceVersion": "sha256:648ec2c4ac48e9cb558d41a9549a51191227f9ed6da7acf7de1b96251657c460",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "e60a93ff_2",
+            "part": 12,
+            "parts": 14,
+            "partial": true
+          },
+          "text": "ago. I'm still very interested in exploring the collaboration opportunity we discussed, and I was wondering if you've had a chance to think about it further.\n\nIf you're available, I'd love to schedule a call to discuss the details and answer any questions you may have. Please let me know a convenient time, and I'll make sure to schedule it.\n\nLooking forward to hearing back from you and potentially working together.\n\nBest regards,\n[Your Name]\"",
+          "id": "ev_e2c6a9464da90dcef271bbca",
+          "observedAt": "2026-10-14T08:51:00.411Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_Sf51OjE_8",
+          "sourceVersion": "sha256:4b8e1f1649d403e9d29d0dbd9e0329b5d287674207235f2b1a678053c3e9da1c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_Sf51OjE_8"
+          },
+          "text": "Session date: 2023/04/11 (Tue) 07:14",
+          "id": "ev_122971b0fcac11a63d33de2d",
+          "observedAt": "2026-10-14T08:51:00.412Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_Sf51OjE_8",
+          "sourceVersion": "sha256:4b8e1f1649d403e9d29d0dbd9e0329b5d287674207235f2b1a678053c3e9da1c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_Sf51OjE_8",
+            "part": 1,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "[1] \"When the Diamond Brothers receive an invitation to a school reunion on a remote Scottish island, things seem to be looking up. But Nicks got a bad feeling, and its not indigestion. And when he meets their fellow guests, the feeling only gets worse - especially when they start dying in ever more bizarre ways! Genres Mystery Fiction Crime Young ...\"\nSource: https://www.goodreads.com/book/show/1069510.I\\_Know\\_What\\_You\\_Did\\_Last\\_Wednesday",
+          "id": "ev_7345e911b4a0ae86f03285a5",
+          "observedAt": "2026-10-14T08:51:00.412Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_Sf51OjE_8",
+          "sourceVersion": "sha256:4b8e1f1649d403e9d29d0dbd9e0329b5d287674207235f2b1a678053c3e9da1c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_Sf51OjE_8",
+            "part": 2,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "[3] \"Ray Bronson. There are four main characters. The story revolves around Julie James, Barry Cox, Helen Rivers, and Ray Bronson. Julie is a quiet girl who is very smart. She used to be more outgoing, social, and participated in many school activities, such as cheerleading, before the death of David Gregg. We like her. Barry Cox is the football star.\"\nSource: https://iknowwhatyoudid.weebly.com/",
+          "id": "ev_114073bbaac2fe4559e6afe8",
+          "observedAt": "2026-10-14T08:51:00.412Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_Sf51OjE_8",
+          "sourceVersion": "sha256:4b8e1f1649d403e9d29d0dbd9e0329b5d287674207235f2b1a678053c3e9da1c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_Sf51OjE_8",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "He is one of the first characters that automatically understands ...\"\nSource: https://screenrant.com/i-know-what-you-did-last-summer-tv-smartest-characters/\n\n[7] \"Laker Stalk. Lance Jones. Larena Smith. Larry Bronson. LaShawne Marks. Category:Last Summer Characters. Lennon Grant. List of Deaths (tv series) List of I Know What You Did Last Summer characters.\"\nSource: https://iknowwhatyoudidlastsummer.fandom.com/wiki/Category:Characters",
+          "id": "ev_96f1c07410ec33898a55e620",
+          "observedAt": "2026-10-14T08:51:00.412Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_Sf51OjE_8",
+          "sourceVersion": "sha256:4b8e1f1649d403e9d29d0dbd9e0329b5d287674207235f2b1a678053c3e9da1c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_Sf51OjE_8",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Instructions: Using the provided web search results, write a comprehensive reply to the given prompt.\n\nMake sure to cite results using [[number](URL)] notation after the reference.\n\nIf the provided search results refer to multiple subjects with the same name, write separate answers for each subject.\n\nPrompt: Do you know the characters in the book I know what you did last wednesday\n\nassistant: The web search results you provided are about the book \"I Know What You Did Last Summer\" and its adaptations.\n\nThe book is a mystery fiction, crime and young adult novel, written by Lois Duncan.",
+          "id": "ev_f5131acdcd869018e82ee732",
+          "observedAt": "2026-10-14T08:51:00.412Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_gfhUw40_17",
+          "sourceVersion": "sha256:5c7e45524bdc57926fe326fd92d4feaf371f1925cd37edee60e7054dddd97b36",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_gfhUw40_17"
+          },
+          "text": "Session date: 2023/04/11 (Tue) 17:33",
+          "id": "ev_0467176c1b26051c3097f375",
+          "observedAt": "2026-10-14T08:51:00.414Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_gfhUw40_17",
+          "sourceVersion": "sha256:5c7e45524bdc57926fe326fd92d4feaf371f1925cd37edee60e7054dddd97b36",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_gfhUw40_17",
+            "part": 3,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "This will return the number of distinct `user_id`s that have a `state` of `'paid'` and were created within the last 7 days (including today) as `subscribers_last_7_days`, and the number of distinct `user_id`s that have a `state` of `'paid'` and were created between 7 and 14 days ago (not including today) as `subscribers_previous_period`. The `growth_percentage` column will show the growth in the number of subscribers from the previous period to the current period as a",
+          "id": "ev_aef1bb67275660fb000ce845",
+          "observedAt": "2026-10-14T08:51:00.414Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_gfhUw40_17",
+          "sourceVersion": "sha256:5c7e45524bdc57926fe326fd92d4feaf371f1925cd37edee60e7054dddd97b36",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_gfhUw40_17",
+            "part": 4,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "```\nSELECT COUNT(DISTINCT user_id) AS subscribers_last_7_days,\n       (SELECT COALESCE(COUNT(DISTINCT user_id), 0)\n        FROM payment_service.catalog_payments\n        WHERE status = 'paid' AND created_at BETWEEN current_date - interval '14 days' AND current_date - interval '7 days') AS subscribers_previous_period,\n       (100 - (SELECT COALESCE(COUNT(DISTINCT user_id), 0)::float\n               FROM payment_service.catalog_payments\n               WHERE status = 'paid' AND created_at BETWEEN current_date - interval '14 days' AND current_date - interval '7 days') / COUNT(DISTINCT user_id)::float * 100) AS growth_percentage",
+          "id": "ev_ae0d5cb8121ec29f05d36ae2",
+          "observedAt": "2026-10-14T08:51:00.414Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_gfhUw40_17",
+          "sourceVersion": "sha256:5c7e45524bdc57926fe326fd92d4feaf371f1925cd37edee60e7054dddd97b36",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_gfhUw40_17",
+            "part": 5,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "This will return the number of distinct `user_id`s that have a `status` of `'paid'` and were created within the last 7 days (including today) as `subscribers_last_7_days`, and the number of distinct `user_id`s that have a\nuser: Great. Now, coming back to this one:\n\nSELECT COUNT(DISTINCT user\\_id) AS payers\\_last\\_7\\_days,\n\n(SELECT COALESCE(COUNT(DISTINCT user\\_id), 0)\n\nFROM allpayments\n\nWHERE state = 'paid' AND created\\_at BETWEEN current\\_date - interval '14 days' AND current\\_date - interval '7 days') AS payers\\_previous\\_period,",
+          "id": "ev_2a9cd67e081b65b5f6a8f03b",
+          "observedAt": "2026-10-14T08:51:00.414Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_gfhUw40_17",
+          "sourceVersion": "sha256:5c7e45524bdc57926fe326fd92d4feaf371f1925cd37edee60e7054dddd97b36",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_gfhUw40_17",
+            "part": 8,
+            "parts": 13
+          },
+          "text": "This will return the number of distinct `user_id`s (via the `contributions` table) that have a `state` of `'paid'` and were created within the last 7 days (including today) as `backers\nuser: Great. Now coming back to this one:",
+          "id": "ev_b78f554143e085b618085568",
+          "observedAt": "2026-10-14T08:51:00.414Z"
+        }
+      ],
+      "sourceIds": [
+        "e60a93ff_2",
+        "sharegpt_Sf51OjE_8",
+        "sharegpt_gfhUw40_17"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 7.792417000000569,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "e60a93ff_2",
+    "sharegpt_Sf51OjE_8",
+    "sharegpt_gfhUw40_17"
+  ],
+  "sources": {
+    "recallAt3": 0.0,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:51:00.417562+00:00"
+}

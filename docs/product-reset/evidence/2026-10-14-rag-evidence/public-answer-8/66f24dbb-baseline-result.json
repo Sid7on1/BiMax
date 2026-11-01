@@ -1,0 +1,164 @@
+{
+  "row": 16,
+  "id": "66f24dbb",
+  "stratum": "single-session-user",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T09:22:46.911337+00:00",
+  "valid": true,
+  "question": "What did I buy for my sister's birthday gift?",
+  "references": [
+    "a yellow dress"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 17:09",
+  "benchmarkSessionIds": [
+    "answer_fea2e4d3",
+    "89452526_2",
+    "21c6c41d"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T09:26:53.272211+00:00",
+  "rag": {
+    "ids": [
+      "answer_fea2e4d3",
+      "89452526_2",
+      "21c6c41d"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 6) Once we get started, you can add or edit the list as needed. This will help you keep track of your gifts and make it easier to plan for future occasions.\n\nLet's get organized!\nuser: Here's a start - I've bought gifts for my sister's birthday, my mom, my neighbor Mrs. Johnson, coworkers, my best friend's baby shower, and my brother's new apartment.\nassistant: Let's break down each occasion and gift. Please feel free to add more details as we go along.\n\n**Sister's Birthday**\n\n* Occasion: Sister's birthday\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mom**\n\n* Occasion: Just because/No specific occasion\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mrs. Johnson**\n\n* Occasion: _______________________________________ (was it a holiday, just because, or another reason?)\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Coworkers**\n\n* Occasion: _______________________________________ (was it a holiday, team-building, or another reason?)\n* Gift(s): _______________________________________ (what did you get them? e.g., individual gifts or a group gift?)\n  (part 4 of 6, excerpt) Next up!\n\n**Gift for Mrs. Johnson**\n\n* Occasion: _______________________________________ (was it a holiday, just because, or another reason?)\n* Gift(s): _______________________________________ (what did you get her?)\n\nWhat's the occasion and gift for Mrs. Johnson?\n- (part 12 of 13, excerpt) user: Now that I have a good idea for the gift, do you think I should include a personal message or a birthday card with the gift, or is the gift\n- (part 18 of 19, excerpt) including your story, inspiration, and what drives your creativity. This helps attendees connect with you on a personal lev",
+    "evidence": [
+      {
+        "sourceId": "memory:answer_fea2e4d3",
+        "sourceVersion": "sha256:313a08f47221c23f7dfb3d9287a0b7f40686009c5146d1601e7ce4e94c7460cd",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_fea2e4d3",
+          "part": 2,
+          "parts": 6
+        },
+        "text": "Once we get started, you can add or edit the list as needed. This will help you keep track of your gifts and make it easier to plan for future occasions.\n\nLet's get organized!\nuser: Here's a start - I've bought gifts for my sister's birthday, my mom, my neighbor Mrs. Johnson, coworkers, my best friend's baby shower, and my brother's new apartment.\nassistant: Let's break down each occasion and gift. Please feel free to add more details as we go along.\n\n**Sister's Birthday**\n\n* Occasion: Sister's birthday\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mom**\n\n* Occasion: Just because/No specific occasion\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mrs. Johnson**\n\n* Occasion: _______________________________________ (was it a holiday, just because, or another reason?)\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Coworkers**\n\n* Occasion: _______________________________________ (was it a holiday, team-building, or another reason?)\n* Gift(s): _______________________________________ (what did you get them? e.g., individual gifts or a group gift?)",
+        "id": "ev_07fb38ab0eb610dca4de96f3",
+        "observedAt": "2026-10-14T09:01:51.195Z"
+      },
+      {
+        "sourceId": "memory:answer_fea2e4d3",
+        "sourceVersion": "sha256:313a08f47221c23f7dfb3d9287a0b7f40686009c5146d1601e7ce4e94c7460cd",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_fea2e4d3",
+          "part": 4,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "Next up!\n\n**Gift for Mrs. Johnson**\n\n* Occasion: _______________________________________ (was it a holiday, just because, or another reason?)\n* Gift(s): _______________________________________ (what did you get her?)\n\nWhat's the occasion and gift for Mrs. Johnson?",
+        "id": "ev_0b3627aeabd6ff0eef7c4607",
+        "observedAt": "2026-10-14T09:01:51.195Z"
+      },
+      {
+        "sourceId": "memory:89452526_2",
+        "sourceVersion": "sha256:69e8cf88f071857ac2dcfed805eebdbecabdf0afc1f5c23dd37205d4e0888d63",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "89452526_2",
+          "part": 12,
+          "parts": 13,
+          "partial": true
+        },
+        "text": "user: Now that I have a good idea for the gift, do you think I should include a personal message or a birthday card with the gift, or is the gift",
+        "id": "ev_8e20e5a1da8a125accee6aa5",
+        "observedAt": "2026-10-14T09:01:51.196Z"
+      },
+      {
+        "sourceId": "memory:21c6c41d",
+        "sourceVersion": "sha256:334f6900408920edf7a132fdd9939e953cd0fa2feecdb23d9a674b6ac6204e6c",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "21c6c41d",
+          "part": 18,
+          "parts": 19,
+          "partial": true
+        },
+        "text": "including your story, inspiration, and what drives your creativity. This helps attendees connect with you on a personal lev",
+        "id": "ev_5ee2a33658b88e198eb4c449",
+        "observedAt": "2026-10-14T09:01:51.196Z"
+      }
+    ],
+    "sourceIds": [
+      "answer_fea2e4d3",
+      "89452526_2",
+      "21c6c41d"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 20.172124999997322,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-5",
+  "prediction": "I don't know based on the retrieved history. The provided text only contains a partial list of occasions you mentioned buying gifts for, with placeholder prompts for what was purchased, but it does not record the actual gift you bought for your sister's birthday.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 568,
+    "completion_tokens": 504,
+    "total_tokens": 1072,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 452,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 291,
+    "completion_tokens": 452,
+    "total_tokens": 743,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 449,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 80715.97483400001,
+  "judgeWallMs": 68211.6025840005
+}

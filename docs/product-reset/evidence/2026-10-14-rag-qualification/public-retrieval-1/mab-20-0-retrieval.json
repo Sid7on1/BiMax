@@ -1,0 +1,195 @@
+{
+  "row": 20,
+  "query": 0,
+  "id": "mab-20-0",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:43:48.001988+00:00",
+  "valid": true,
+  "question": "Current Date: 2022/04/04 (Mon) 01:38,\n\n Now Answer the Question: How many days ago did I attend a networking event?",
+  "references": [
+    "26 days. 27 days (including the last day) is also acceptable."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2022/04/04 (Mon) 01:38",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 7.760667000002286,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 115,
+        "maxInputChars": 115,
+        "requiredProviderTruncation": false,
+        "promptTokens": 34,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-14",
+        "context-120",
+        "context-174"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) earch.\\n\\nBy exploring these resources, you\\'ll gain a deeper understanding of AI applications in radiology and oncology.\n\nYou can also consider pursuing a graduate degree in this field or working on projects that combine your machine learning and deep learning skills with radiology and oncology.\n\nGood luck!'}], 'Chat Time: 2022/03/09 (Wed) 04:12', [{'role': 'user', 'content': \"I'm looking to plan out my schedule for the upcoming week.\n\nI have a few commitments already, but I want to make sure I don't overbook myself.\n\nBy the way, I just got back from a networking event that ran from 6 PM to 8 PM today, and I'm feeling a bit drained.\n\nCan you help me organize my tasks and appointments for the next few days?\"}, {'role': 'assistant', 'content': \"I'd be happy to help you plan out your schedule for the week.\\n\\nFirst, let's take into account your current state - you're feeling drained after the networking event, so it's essential to prioritize self-care and make sure you're not overcommitting yourself.\\n\\nTo get started, can you tell me about your existing commitments for the week?\n- (part 1 of 5, excerpt) This will help me create a personalized schedule for you.\n\nPlease answer the following questions:\\n\\n1.\n\nWhat are your fitness goals for the next few months?\n\nAre you training for a specific event, or do you want to maintain a certain level of fitness?\\n2.\n\nHow many days a week can you dedicate to training?\\n3.\n\nWhat are your preferred days and times for running, yoga, and swimming?\\n4.\n\nHow many runs, yoga classes, and swimming sessions do you want to do per week?\\n5.\n- (part 1 of 4, excerpt) to send a meeting invite or check in)\\n\\nNow, let\\'s add Rachel to your spreadsheet:\\n\\n| Name | Email | Phone | Event | Date | Company | Notes | Follow-up Date |",
+      "evidence": [
+        {
+          "sourceId": "memory:context-14",
+          "sourceVersion": "sha256:c6fc57e77d9d784de8b1567aab46a3fd3b6645dbbff7f9a0a9bd200235ff99ec",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-14",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "earch.\\n\\nBy exploring these resources, you\\'ll gain a deeper understanding of AI applications in radiology and oncology.\n\nYou can also consider pursuing a graduate degree in this field or working on projects that combine your machine learning and deep learning skills with radiology and oncology.\n\nGood luck!'}], 'Chat Time: 2022/03/09 (Wed) 04:12', [{'role': 'user', 'content': \"I'm looking to plan out my schedule for the upcoming week.\n\nI have a few commitments already, but I want to make sure I don't overbook myself.\n\nBy the way, I just got back from a networking event that ran from 6 PM to 8 PM today, and I'm feeling a bit drained.\n\nCan you help me organize my tasks and appointments for the next few days?\"}, {'role': 'assistant', 'content': \"I'd be happy to help you plan out your schedule for the week.\\n\\nFirst, let's take into account your current state - you're feeling drained after the networking event, so it's essential to prioritize self-care and make sure you're not overcommitting yourself.\\n\\nTo get started, can you tell me about your existing commitments for the week?",
+          "id": "ev_7375d1b91a29f0951a68cab0",
+          "observedAt": "2026-10-14T04:43:48.012Z"
+        },
+        {
+          "sourceId": "memory:context-120",
+          "sourceVersion": "sha256:cd3bfe07557c249b10b723901d36a47531c082e7fc1ee3d809733a91189bcc68",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-120",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "This will help me create a personalized schedule for you.\n\nPlease answer the following questions:\\n\\n1.\n\nWhat are your fitness goals for the next few months?\n\nAre you training for a specific event, or do you want to maintain a certain level of fitness?\\n2.\n\nHow many days a week can you dedicate to training?\\n3.\n\nWhat are your preferred days and times for running, yoga, and swimming?\\n4.\n\nHow many runs, yoga classes, and swimming sessions do you want to do per week?\\n5.",
+          "id": "ev_990f7ef210bec95cd1904694",
+          "observedAt": "2026-10-14T04:43:48.012Z"
+        },
+        {
+          "sourceId": "memory:context-174",
+          "sourceVersion": "sha256:4cb89d54b5d8a145d176b4f456e1b2ff938fbf7e1f9c907144087310118d8d15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-174",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "to send a meeting invite or check in)\\n\\nNow, let\\'s add Rachel to your spreadsheet:\\n\\n| Name | Email | Phone | Event | Date | Company | Notes | Follow-up Date |",
+          "id": "ev_352ba634ff7341c76bd55b78",
+          "observedAt": "2026-10-14T04:43:48.012Z"
+        }
+      ],
+      "sourceIds": [
+        "context-14",
+        "context-120",
+        "context-174"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.035707999995793,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-14",
+        "context-120",
+        "context-174"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) earch.\\n\\nBy exploring these resources, you\\'ll gain a deeper understanding of AI applications in radiology and oncology.\n\nYou can also consider pursuing a graduate degree in this field or working on projects that combine your machine learning and deep learning skills with radiology and oncology.\n\nGood luck!'}], 'Chat Time: 2022/03/09 (Wed) 04:12', [{'role': 'user', 'content': \"I'm looking to plan out my schedule for the upcoming week.\n\nI have a few commitments already, but I want to make sure I don't overbook myself.\n\nBy the way, I just got back from a networking event that ran from 6 PM to 8 PM today, and I'm feeling a bit drained.\n\nCan you help me organize my tasks and appointments for the next few days?\"}, {'role': 'assistant', 'content': \"I'd be happy to help you plan out your schedule for the week.\\n\\nFirst, let's take into account your current state - you're feeling drained after the networking event, so it's essential to prioritize self-care and make sure you're not overcommitting yourself.\\n\\nTo get started, can you tell me about your existing commitments for the week?\n- (part 1 of 5, excerpt) This will help me create a personalized schedule for you.\n\nPlease answer the following questions:\\n\\n1.\n\nWhat are your fitness goals for the next few months?\n\nAre you training for a specific event, or do you want to maintain a certain level of fitness?\\n2.\n\nHow many days a week can you dedicate to training?\\n3.\n\nWhat are your preferred days and times for running, yoga, and swimming?\\n4.\n\nHow many runs, yoga classes, and swimming sessions do you want to do per week?\\n5.\n- (part 1 of 4, excerpt) to send a meeting invite or check in)\\n\\nNow, let\\'s add Rachel to your spreadsheet:\\n\\n| Name | Email | Phone | Event | Date | Company | Notes | Follow-up Date |",
+      "evidence": [
+        {
+          "sourceId": "memory:context-14",
+          "sourceVersion": "sha256:c6fc57e77d9d784de8b1567aab46a3fd3b6645dbbff7f9a0a9bd200235ff99ec",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-14",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "earch.\\n\\nBy exploring these resources, you\\'ll gain a deeper understanding of AI applications in radiology and oncology.\n\nYou can also consider pursuing a graduate degree in this field or working on projects that combine your machine learning and deep learning skills with radiology and oncology.\n\nGood luck!'}], 'Chat Time: 2022/03/09 (Wed) 04:12', [{'role': 'user', 'content': \"I'm looking to plan out my schedule for the upcoming week.\n\nI have a few commitments already, but I want to make sure I don't overbook myself.\n\nBy the way, I just got back from a networking event that ran from 6 PM to 8 PM today, and I'm feeling a bit drained.\n\nCan you help me organize my tasks and appointments for the next few days?\"}, {'role': 'assistant', 'content': \"I'd be happy to help you plan out your schedule for the week.\\n\\nFirst, let's take into account your current state - you're feeling drained after the networking event, so it's essential to prioritize self-care and make sure you're not overcommitting yourself.\\n\\nTo get started, can you tell me about your existing commitments for the week?",
+          "id": "ev_7375d1b91a29f0951a68cab0",
+          "observedAt": "2026-10-14T04:43:48.015Z"
+        },
+        {
+          "sourceId": "memory:context-120",
+          "sourceVersion": "sha256:cd3bfe07557c249b10b723901d36a47531c082e7fc1ee3d809733a91189bcc68",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-120",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "This will help me create a personalized schedule for you.\n\nPlease answer the following questions:\\n\\n1.\n\nWhat are your fitness goals for the next few months?\n\nAre you training for a specific event, or do you want to maintain a certain level of fitness?\\n2.\n\nHow many days a week can you dedicate to training?\\n3.\n\nWhat are your preferred days and times for running, yoga, and swimming?\\n4.\n\nHow many runs, yoga classes, and swimming sessions do you want to do per week?\\n5.",
+          "id": "ev_990f7ef210bec95cd1904694",
+          "observedAt": "2026-10-14T04:43:48.015Z"
+        },
+        {
+          "sourceId": "memory:context-174",
+          "sourceVersion": "sha256:4cb89d54b5d8a145d176b4f456e1b2ff938fbf7e1f9c907144087310118d8d15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-174",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "to send a meeting invite or check in)\\n\\nNow, let\\'s add Rachel to your spreadsheet:\\n\\n| Name | Email | Phone | Event | Date | Company | Notes | Follow-up Date |",
+          "id": "ev_352ba634ff7341c76bd55b78",
+          "observedAt": "2026-10-14T04:43:48.015Z"
+        }
+      ],
+      "sourceIds": [
+        "context-14",
+        "context-120",
+        "context-174"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.817291999999725,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:43:48.016058+00:00"
+}

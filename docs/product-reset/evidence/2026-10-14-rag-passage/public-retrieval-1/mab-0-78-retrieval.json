@@ -1,0 +1,219 @@
+{
+  "row": 0,
+  "query": 78,
+  "id": "mab-0-78",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:18:05.292665+00:00",
+  "valid": true,
+  "question": "What is the Norman architecture idiom?",
+  "references": [
+    "Romanesque",
+    "Romanesque",
+    "Romanesque"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 14.136583999999857,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 38,
+        "maxInputChars": 38,
+        "requiredProviderTruncation": false,
+        "promptTokens": 10,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-87",
+        "context-227",
+        "context-85"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 6) it is determined that laboratory measurements of forces are fully consistent with the conceptual definition of force offered by Newtonian mechanics.\n\nDocument 444:\nBritain's imperialist ambitions can be seen as early as the sixteenth century. In 1599 the British East India Company was established and was chartered by Queen Elizabeth in the following year. With the establishment of trading posts in India, the British were able to maintain strength relative to others empires such as the Portuguese who already had set up trading posts in India. In 1767 political activity caused exploitation of the East India Company causing the plundering of the local economy, almost bringing the company into bankruptcy.\n\nDocument 445:\nNorman architecture typically stands out as a new stage in the architectural history of the regions they subdued. They spread a unique Romanesque idiom to England and Italy, and the encastellation of these regions with keeps in their north French style fundamentally altered the military landscape. Their style was characterised by rounded arches, particularly over windows and doorways, and massive proportions.\n- (part 4 of 5, excerpt) Document 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n- (part 3 of 5, excerpt) Gothic architecture is represented in the majestic churches but also at the burgher houses and fortifications. The most significant buildings are St. John's Cathedral (14th century), the temple is a typical example of the so-called Masovian",
+      "evidence": [
+        {
+          "sourceId": "memory:context-87",
+          "sourceVersion": "sha256:4f6a8e1a64f779135d8a6162cd03f38c1a9018607e8ba531dc786f57fadfdf02",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-87",
+            "part": 5,
+            "parts": 6
+          },
+          "text": "it is determined that laboratory measurements of forces are fully consistent with the conceptual definition of force offered by Newtonian mechanics.\n\nDocument 444:\nBritain's imperialist ambitions can be seen as early as the sixteenth century. In 1599 the British East India Company was established and was chartered by Queen Elizabeth in the following year. With the establishment of trading posts in India, the British were able to maintain strength relative to others empires such as the Portuguese who already had set up trading posts in India. In 1767 political activity caused exploitation of the East India Company causing the plundering of the local economy, almost bringing the company into bankruptcy.\n\nDocument 445:\nNorman architecture typically stands out as a new stage in the architectural history of the regions they subdued. They spread a unique Romanesque idiom to England and Italy, and the encastellation of these regions with keeps in their north French style fundamentally altered the military landscape. Their style was characterised by rounded arches, particularly over windows and doorways, and massive proportions.",
+          "id": "ev_00d5e354188ddc3dd77e07a6",
+          "observedAt": "2026-10-14T15:18:05.310Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.",
+          "id": "ev_1ea25ce133d41c4c76a3066d",
+          "observedAt": "2026-10-14T15:18:05.310Z"
+        },
+        {
+          "sourceId": "memory:context-85",
+          "sourceVersion": "sha256:8521671c01df7422599160a500011031c60f3bdf7730f92631292cce2891eb2a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-85",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Gothic architecture is represented in the majestic churches but also at the burgher houses and fortifications. The most significant buildings are St. John's Cathedral (14th century), the temple is a typical example of the so-called Masovian",
+          "id": "ev_2369179296848af711ca26a7",
+          "observedAt": "2026-10-14T15:18:05.310Z"
+        }
+      ],
+      "sourceIds": [
+        "context-87",
+        "context-227",
+        "context-85"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.073374999999942,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-87",
+        "context-227",
+        "context-85"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 6) it is determined that laboratory measurements of forces are fully consistent with the conceptual definition of force offered by Newtonian mechanics.\n\nDocument 444:\nBritain's imperialist ambitions can be seen as early as the sixteenth century. In 1599 the British East India Company was established and was chartered by Queen Elizabeth in the following year. With the establishment of trading posts in India, the British were able to maintain strength relative to others empires such as the Portuguese who already had set up trading posts in India. In 1767 political activity caused exploitation of the East India Company causing the plundering of the local economy, almost bringing the company into bankruptcy.\n\nDocument 445:\nNorman architecture typically stands out as a new stage in the architectural history of the regions they subdued. They spread a unique Romanesque idiom to England and Italy, and the encastellation of these regions with keeps in their north French style fundamentally altered the military landscape. Their style was characterised by rounded arches, particularly over windows and doorways, and massive proportions.\n- (part 4 of 5) light. This insight united the nascent fields of electromagnetic theory with optics and led directly to a complete description of the electromagnetic spectrum.\n\nDocument 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n  (part 5 of 5) Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n\nDocument 1141:\nIn 2014, economists with the Standard & Poor's rating agency concluded that the widening disparity between the U.S.'s wealthiest citizens and the rest of the nation had slowed its recovery from the 2008-2009 recession and made it more prone to boom-and-bust cycles. To partially remedy the wealth gap and the resulting slow growth, S&P recommended increasing access to education. It estimated that if the average United States worker had completed just\n- (part 3 of 5) every four years. Prior to the 2006 election, the Legislative Council consisted of 44 members elected to eight-year terms from 22 two-member electorates.\n\nDocument 433:\nGothic architecture is represented in the majestic churches but also at the burgher houses and fortifications. The most significant buildings are St. John's Cathedral (14th century), the temple is a typical example of the so-called Masovian gothic style, St. Mary's Church (1411), a town house of Burbach family (14th century), Gunpowder Tower (after 1379) and the Royal Castle Curia Maior (1407\u20131410). The most notable examples of Renaissance architecture in the city are the house of Baryczko merchant family (1562), building called \"The Negro\" (early 17th century) and Salwator tenement (1632). The most interesting examples of mannerist architecture are the Royal Castle (1596\u20131619) and the Jesuit Church (1609\u20131626) at Old Town. Among the first structures of the early baroque the most important are St. Hyacinth's Church (1603\u20131639) and Sigismund's Column (1644).",
+      "evidence": [
+        {
+          "sourceId": "memory:context-87",
+          "sourceVersion": "sha256:4f6a8e1a64f779135d8a6162cd03f38c1a9018607e8ba531dc786f57fadfdf02",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-87",
+            "part": 5,
+            "parts": 6
+          },
+          "text": "it is determined that laboratory measurements of forces are fully consistent with the conceptual definition of force offered by Newtonian mechanics.\n\nDocument 444:\nBritain's imperialist ambitions can be seen as early as the sixteenth century. In 1599 the British East India Company was established and was chartered by Queen Elizabeth in the following year. With the establishment of trading posts in India, the British were able to maintain strength relative to others empires such as the Portuguese who already had set up trading posts in India. In 1767 political activity caused exploitation of the East India Company causing the plundering of the local economy, almost bringing the company into bankruptcy.\n\nDocument 445:\nNorman architecture typically stands out as a new stage in the architectural history of the regions they subdued. They spread a unique Romanesque idiom to England and Italy, and the encastellation of these regions with keeps in their north French style fundamentally altered the military landscape. Their style was characterised by rounded arches, particularly over windows and doorways, and massive proportions.",
+          "id": "ev_00d5e354188ddc3dd77e07a6",
+          "observedAt": "2026-10-14T15:18:05.313Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "light. This insight united the nascent fields of electromagnetic theory with optics and led directly to a complete description of the electromagnetic spectrum.\n\nDocument 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.",
+          "id": "ev_4575747702d68363dfe23992",
+          "observedAt": "2026-10-14T15:18:05.313Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n\nDocument 1141:\nIn 2014, economists with the Standard & Poor's rating agency concluded that the widening disparity between the U.S.'s wealthiest citizens and the rest of the nation had slowed its recovery from the 2008-2009 recession and made it more prone to boom-and-bust cycles. To partially remedy the wealth gap and the resulting slow growth, S&P recommended increasing access to education. It estimated that if the average United States worker had completed just",
+          "id": "ev_f562a36d99d0f12f9304dc3a",
+          "observedAt": "2026-10-14T15:18:05.313Z"
+        },
+        {
+          "sourceId": "memory:context-85",
+          "sourceVersion": "sha256:8521671c01df7422599160a500011031c60f3bdf7730f92631292cce2891eb2a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-85",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "every four years. Prior to the 2006 election, the Legislative Council consisted of 44 members elected to eight-year terms from 22 two-member electorates.\n\nDocument 433:\nGothic architecture is represented in the majestic churches but also at the burgher houses and fortifications. The most significant buildings are St. John's Cathedral (14th century), the temple is a typical example of the so-called Masovian gothic style, St. Mary's Church (1411), a town house of Burbach family (14th century), Gunpowder Tower (after 1379) and the Royal Castle Curia Maior (1407\u20131410). The most notable examples of Renaissance architecture in the city are the house of Baryczko merchant family (1562), building called \"The Negro\" (early 17th century) and Salwator tenement (1632). The most interesting examples of mannerist architecture are the Royal Castle (1596\u20131619) and the Jesuit Church (1609\u20131626) at Old Town. Among the first structures of the early baroque the most important are St. Hyacinth's Church (1603\u20131639) and Sigismund's Column (1644).",
+          "id": "ev_e2dcc45d3520ee4f4f99641f",
+          "observedAt": "2026-10-14T15:18:05.313Z"
+        }
+      ],
+      "sourceIds": [
+        "context-87",
+        "context-227",
+        "context-85"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.7350420000000213,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-87",
+    "context-227",
+    "context-85"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T15:18:05.314934+00:00"
+}

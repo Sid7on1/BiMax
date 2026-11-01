@@ -105,6 +105,7 @@ describe('renderer is constructed with the sandbox contract', () => {
       webSecurity: true,
       allowRunningInsecureContent: false,
       experimentalFeatures: false,
+      navigateOnDragDrop: false,
     });
   });
 
@@ -142,7 +143,7 @@ describe('renderer is constructed with the sandbox contract', () => {
 });
 
 describe('sender identity gates every privileged channel', () => {
-  const trusted = { webContentsId: 7, devServerUrl: undefined };
+  const trusted = { webContentsId: 7, devServerUrl: undefined, packagedRendererUrls: ['file:///Applications/Bimax.app/renderer/index.html'] };
   const ownFrame = { senderId: 7, frameUrl: 'file:///Applications/Bimax.app/renderer/index.html', isMainFrame: true };
 
   test('the app\'s own top frame is accepted', () => {
@@ -210,7 +211,7 @@ describe('sender identity gates every privileged channel', () => {
 });
 
 describe('navigation cannot leave the app document', () => {
-  const trusted = { webContentsId: 1, devServerUrl: undefined };
+  const trusted = { webContentsId: 1, devServerUrl: undefined, packagedRendererUrls: ['file:///Applications/Bimax.app/renderer/index.html'] };
 
   test('the packaged renderer document is allowed', () => {
     expect(isAllowedNavigation('file:///Applications/Bimax.app/renderer/index.html', trusted)).toBe(true);

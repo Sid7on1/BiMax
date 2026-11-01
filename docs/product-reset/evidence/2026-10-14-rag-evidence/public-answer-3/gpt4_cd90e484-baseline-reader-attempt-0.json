@@ -1,0 +1,65 @@
+{
+  "started": "2026-10-14T08:57:21.414776+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 0,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/20 (Sat) 09:28\nQuestion: How long did I use my new binoculars before I saw the American goldfinches returning to the area?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 14) Session date: 2023/05/20 (Sat) 22:12\nuser: I'm looking for some tips on improving my bird identification skills. I've been listening to bird calls online for about a month now, and it's been helping, but I'm still not confident in my abilities. By the way, I did manage to sneak in some birding time a week ago when I took a walk around my neighborhood after dinner. I saw a few common birds like robins and sparrows, but nothing too exciting. Except, I did notice that the American goldfinches seem to be returning to the area, which is always a nice sign of spring.\nassistant: That's great to hear that you're actively working on improving your bird identification skills! Listening to bird calls online is an excellent way to start, and it's awesome that you're already noticing improvements.\n\nHere are some additional tips to help you boost your bird ID skills:\n\n1.\n\n**Observe bird shapes and silhouettes**: Pay attention to the overall shape, size, and proportions of birds.\n\nNotice the beak shape, tail length, and wing shape.\n\nThese characteristics can help you narrow down the possibilities.\n\n2.\n  (part 3 of 14, excerpt) This will help you stay motivated and encouraged to continue improving.\n\nIt's great that you're already noticing the return of American goldfinches to your area. That's a wonderful sign of spring, indeed! Keep up the good work, and happy birding!\n- (part 8 of 19, excerpt) user: I've been trying to focus on bird shapes and silhouettes, as you suggested. I noticed that my new binoculars have really helped me get a better look at the birds, especially when they're far away. Speaking of my new binoc\n- (part 14 of 18, excerpt) 3. **Use the correct grip:** Hold the pole with your hands in a relaxed position, with your elbows slightly bent."
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 200,
+  "response": {
+    "id": "chatcmpl-beb2584f-a552-4049-a39e-f88308b7577c",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "content": null,
+          "role": "assistant",
+          "reasoning_content": null
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "created": 1791968241,
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "service_tier": null,
+    "system_fingerprint": null,
+    "object": "chat.completion",
+    "usage": {
+      "prompt_tokens": 562,
+      "completion_tokens": 1,
+      "total_tokens": 563,
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1,
+        "rejected_prediction_tokens": null
+      }
+    }
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 439.45691700082534
+}

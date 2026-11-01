@@ -1,5 +1,311 @@
 # Acceptance gates
 
+## History admission and recovery local gate — record 119, 2026-10-31
+
+- Every snapshot writer respects the reader's encoded byte bound before replacing last-good bytes.
+  Exact-limit Unicode data reloads, one byte over refuses and a refused final save cannot tombstone
+  later valid updates. Background failure is persistently visible in the app.
+- Existing oversized/unreadable saved/archive/Bin records remain retained and discoverable without
+  loading oversized bodies. Failed/unsafe/growing/invalid-UTF-8 reads never silently repair bytes.
+- Export resolves only catalogued ids, preserves source/location identity, stages outside storage,
+  streams bounded buffers, verifies copied bytes and refuses changed/unsafe sources before commit.
+  Cancellation/failure leaves prior exports and originals unchanged; only owned temp files are removed.
+- Exact-limit Bin envelopes reopen/undo correctly; unreadable backups are not deleted on inspection.
+- Grade production storage/actions and actual recovery controls, including source-colliding ids,
+  pending/error/cancel behavior, bounded initial list and save-failure recovery. Fixture native ports
+  remain distinct from installed/native accessibility and full C04/R01 qualification.
+- Require assertion-caught source faults and preserve the starting dirty tree/prior raw evidence.
+
+[Record 119](119_HISTORY_LIMIT_AND_RECOVERY.md) scopes local closure of A03. Above-limit in-app
+paging, aggregate resources, installed recovery and release remain Target; no Product-ready claim.
+
+## Persistence and dispatch local gate — record 118, 2026-10-31
+
+- Old coalesced publication cannot replace a newer independently reloaded accepted input, including
+  when its async commit would have been in flight after the generation check.
+- Failed queued/sent/steering persistence dispatches zero new input. Retain unsent text, expose the
+  failure and prevent idle events or background saving from executing a held queue.
+- Explicit retry after storage repair sends retained inputs once, in order. Previously recorded
+  sent inputs cannot automatically replay after process restart.
+- Use real process exit/storage and independently read effects; distinguish its synthetic engine
+  port from a packaged engine/model and complete installed C04/R01.
+- Test optional first remote instructions through the real adapter/manager, submitting once.
+- Keep regressions in normal CI; require assertion-caught faults in disposable copies and preserve
+  the starting dirty tree plus invalid qualification attempts.
+
+[Record 118](118_PERSISTENCE_AND_DISPATCH_REPAIR.md) scopes local implementation. A03/A04, power-loss
+durability, installed responsiveness/recovery and release remain Target; no Product-ready claim.
+
+## Classic renderer and phone streaming continuity — record 116
+
+[Record 116](116_CLASSIC_RENDERER_AND_STREAM_RECOVERY.md) requires the original responsive Desktop geometry, one classic renderer source for both hosts, host-specific accessible phone scale, exact Copy/Outputs bytes and literal HTML/unsafe link/network barriers. Grade completed block identity, appended reference definitions, bounded mounted history with retained canonical data, same-peer metadata without reread/reset, real disconnect visibility and generation-fenced bounded WebView-only recovery without model resend. The actual Mac-chat hook must make zero phone HTTP/model calls; account changes while awaiting storage must invalidate the send. Source faults must break these end states. Native process-crash causality, sustained physical iPhone resource/gesture/accessibility/cellular/background and release stay Target despite green component/package checks.
+
+
+## Folder/new-chat and shared-canvas gate — record 114
+
+[Record 114](114_WORKSPACE_CHATS_RETRIEVAL_AND_CANVAS.md): require Home-with-known-folder creation, no-folder guidance, exact saved root, no engine/selection before first send, one idempotent create, foreign-folder/peer/Stop/input-mutation refusal and no old active-chat fallback. Grade actual route/renderer/draft replacement, saved text size, native copy/Outputs security and identical live/completed Desktop layout. Valid local vectors are distinct from semantic quality; package/physical/roaming/resource/release status stays explicit.
+
+## Phone preference and connection gate — record 112
+
+[Record 112](112_PHONE_PREFERENCES_AND_CONNECTION_SETTINGS.md): require persisted switch end states, exact latest streaming delivery, true preference-only patches, logout/unmount cancellation, exclusive drawer histories and Your Mac connection routing. Source mutations and rendered checks qualify these locally. Native iPhone/VoiceOver/large-text/keyboard, cellular/background/sleep and sustained resource gates remain Target after two unavailable Mirroring attempts; a served bundle is not physical acceptance.
+
+## Phone drawer and message-presentation gate — record 111
+
+[Record 111](111_SHARED_MESSAGES_AND_PHONE_DRAWER.md): compare actual shared user-bubble structure/styles and expanded reasoning alongside Markdown parity; grade source-colliding chat IDs, selected state, drawer search/switching and Refresh. Assert the Mac list has no instruction dashboard, the Phone/Mac toggle never mixes sources and Settings stays reachable. Grade actual Desktop generation-word rotation, reasoning show/hide/loop suppression, streamed-answer transition and Reduce Motion on the phone. Keep native gestures/VoiceOver/resources and broader roaming separate from rendered fixtures and the owner-confirmed physical reply.
+
+## Trusted phone and live-state gate — record 110, 2026-10-25
+
+[Record 110](110_TRUSTED_PHONE_LIVE_CONNECTION.md) replaces the ordinary native-consent expectation: after initial human verification, twenty ordinary actions must need no Mac modal/overlay. Grade exact peer, revoked/Stop grants, phone-signed tool decisions and OS-auth failure. Require Mac-origin pushed revisions, exact baseline/gap recovery, no history polling, paced large transfers, old-session/view-exit cancellation and tiny bridge deltas. Grade account-owned key-derived rooms, relay-only signed renewal/revocation and real cloud delivery after removing LAN. Keep synthetic public-cloud transport separate from the owner’s physical account/mobile-data journey, native performance, sleep/wake and release.
+
+## Selected phone conversations and renderer parity — 2026-10-24, record 109
+
+- A row tap must open the exact selected Mac conversation; reading starts/selects no engine, and replies never fall back to the active conversation.
+- Grade native consent refusal, late approval after Stop, foreign/old secure-session cursors, malformed/duplicate chunks, UTF-8 pagination, size limits and account/disconnect cancellation.
+- Compile the actual Desktop Markdown/styles/plugins for both phone chat paths and reject stale artifacts. Grade rich content, native Copy bytes, streaming identity, literal HTML and refused network/script/navigation.
+- Actual component/browser fixtures and physical iPhone opening/replying are different evidence. Owner pairing/listing do not qualify new history, native rendering, performance or public release.
+
+[Record 109](109_PHONE_CONVERSATIONS_AND_SHARED_RENDERER.md) records the bounded implementation and remaining Targets.
+
+## Native LAN socket parity — 2026-10-24, record 108
+
+- Native iOS/Android socket defaults must be exercised, not inferred from Node `ws` success. Grade default native Origin rejection and native adaptation against the actual LAN listener; browser origins, wrong room and wrong token must still fail.
+- Native-only constructor options must never alter browser constructors or cloud TLS behavior. Keep exact scanned URL/admission and human verification; a transport fix creates no trust.
+- Connecting or awaiting a handshake is not evidence of a pending desktop approval. Preserve bounded timeout/recovery, then verify the actual two-sided code/trust transition on a phone.
+- Component/packaged fixtures do not close an outer App navigation gate. Record the current `hasProject` Settings guard as unresolved until independently repaired/graded.
+
+[Record 108](108_NATIVE_PHONE_PAIRING_ADMISSION.md) scopes local qualification and the pending physical retry.
+
+
+## Phone stream/default-theme gate — 2026-10-24, record 107
+
+- Exercise the actual native default fetch binding, not only injected browser/Node streams. Expo Go chat uses Expo streaming fetch; account admission and the fixed gateway route remain intact.
+- Bound session lookup, dispatch and reads; grade Stop before dispatch and during a stuck read, partial output, trailing completion before EOF, truncation/provider errors and empty reasoning-only replies. Retry must not create another user prompt or send a failed placeholder as context.
+- Check real rendered controls, runtime text-node errors, dark backgrounds, no UI emoji and phone-width overflow. RN Web fixtures are not physical native UI or live account tests.
+- Keep deployment state separate from checked-in source. A current provider answer or local hardened gateway test does not qualify an older live Worker; do not invent billing admission/prices or silently substitute models.
+- Rebuild/verify before replacing the installed app, preserve its profile and stable local signature, and inspect the installed window. Retain earlier failed checks and source-fault evidence.
+
+[Record 107](107_PHONE_CHAT_RECOVERY_AND_DARK_UI.md) records the owner's successful iPhone reply, scoped local checks and reinstallation. Full physical pairing/recovery, sustained providers and release remain Target.
+
+
+## Phone connection and supported Desktop runner — 2026-10-24, record 105
+
+- Merely opening Settings must not enable network access. Main validates the selected current private interface and fails before listening when OS encryption is unavailable/insecure. Persist only encrypted LAN admission/configuration and retained private identity through existing OS-backed storage.
+- An app-owned relay must preserve shared signed-hello, sender binding, replay and bounded outbox rules; reject wrong/missing admission, foreign room/browser Origin and excess resources. Retire partial listeners on startup failure/disable/Stop.
+- Grade real phone-protocol traffic and actual renderer controls: QR decoding from rendered data and screenshot, production clipboard/preload, candidate code binding, exact confirmation, trusted-online vs paired-offline, restart, revocation and Stop before enable completes. A test client is not a physical handset.
+- Stop is always reachable and latches remote access off until restart. Neither UI re-mount nor queued startup can silently re-enable it. Existing Mac native request consent remains mandatory.
+- Include local-network usage purpose in Mac/iOS native manifests and verify the packaged Mac value. Do not programmatically reset or bypass OS network permissions; Expo Go uses its own native manifest. Native permission behavior remains a physical-device gate.
+- Run real renderer dependency code in tests; keep one React runtime and existing CSS/DOM checks. Node 24 runs actual FTS5 retrieval and bounded old/young worker heaps. Do not widen heap assertions or hide failing suites.
+- Test packaged controller/responder/production preload and actual source UI; exclude fixtures and QR-decoder binaries from distribution. Preserve source-mutation failures and all early failed attempts.
+
+[Record 105](105_PHONE_PAIRING_AND_DESKTOP_TESTS.md) scopes local results. Expo Go Face ID decisions, physical-iPhone execution/permissions, cloud account UI, public release, sustained resources and full C04/R01/I01/X01 remain Target.
+
+## Seven security boundaries and mobile link gate — 2026-10-24, record 104
+
+- Privileged IPC/navigation admit only exact app renderer documents and top frames; a foreign file with the same WebContents/preload receives no authority. Check actual Electron behavior as well as pure policy.
+- Project file content I/O uses a directory descriptor held at selection and no-follow opens for every component. Symlinks, replaced root paths, special files and observed hardlinks cannot redirect reads/writes to an outside sentinel. Retire only after active work drains; enforce byte/time/process budgets. Ship and verify the helper for each target architecture; no lexical/realpath fallback.
+- Bind fallback remembered grants to concrete tools. Legacy category-wide allows cannot authorize a different tool. Deny takes precedence. Current Thread policy remains separately scoped.
+- Bind every mobile decision to a unique immutable Thread/request capability and signed payload. Grade two engines issuing request 1, cross-session tampering, replay, duplicate overwrite, expiry and Stop before dispatch. Use actual phone signing code and real ThreadManager reply validation.
+- WebFetch checks normalized addresses, every DNS answer and each redirect; connect only the validated address with original TLS hostname. Denied destination/consent, Stop, excessive redirects, compression and oversized streamed bodies produce no forbidden connection or unbounded decode.
+- NETWORK_ACCESS cannot inherit the non-destructive shortcut. First-host grants require interactive authority; unattended cannot create them. Existing bypass/sovereign/session rules remain explicit.
+- Resolve Desktop protocol/responder from the same installed mobile checkout; build both before app use, run all fourteen responder cases and validate a structured result. Keep Node/native-ABI requirements explicit.
+- Run one assertion-caught source fault per finding in disposable copies. Preserve unrelated dirty bytes and historical receipts. Local fixtures cannot close physical-phone, installed/package/crash, clean-machine, coordinated deployment, sustained resources or release gates.
+
+[Record 104](104_SECURITY_BOUNDARIES_AND_MOBILE_LINK.md) preserves final scoped results and the non-green broad-suite attempt. Full C01/C04/R01/X01/I01 and Product-ready/release remain Target.
+
+## Memory integrity and bot foundation gate — 2026-10-18, records 101–102
+
+- Every cooperating memory writer, including deletion, recency and embedding publication, must share reload/mutation/publication authority across instances, workers and processes. Preserve acknowledged notes and fail closed on unavailable coordination. Kill fixtures before/after acknowledgement; keep hardware power-loss and uncooperative/older writers outside the claim.
+- Bind delayed embeddings to selected document generation, chunk/document identity and bytes, and observed active space. Replacement, ABA, deletion and legacy source changes must reject stale publication without erasing current state.
+- Parent and real worker requests must honor the same configured embedding endpoint, keyless local behavior, model/dimensions and separately resolved reranking policy. No implicit local-model enablement or provider-default mutation.
+- A bot definition creates no worker, schedule, connector or permission. Validate versioned profiles and revision conflicts; freeze each run's identity, task, constraints and granted tools before dispatch.
+- Narrow actual executable tools, not only advertised schemas. Private bot memory, supplied evidence provenance, bounded context, shared CPU/spend budgets and cancellation must survive assertion-based fixtures. Definition text and web/retrieved data cannot widen authority.
+- Do not expose nested/writable teams, shared knowledge, scheduling, payments/sends or Mac actions until their inherited authority, independent end states, recovery and existing product-owner gates are qualified. Bot kernel tests do not close installed B01/R01/R02 or release.
+
+[Design 101](101_MEMORY_INTEGRITY_AND_PERSONAL_BOTS_PLAN.md), [record 102](102_MEMORY_REPAIRS_AND_BOT_KERNEL.md) and [B01](competitive/examples/B01_PERSONAL_BOT_RUN.md) define exact scope.
+
+## Bounded messaging gate — 2026-10-11, record 84
+
+- Require a distinct exact recipient, literal draft and previously observed outgoing row
+  name/role. Select the conversation before the message workflow; clarify ambiguous contacts.
+- A message workflow contains only its optional exact draft edit and one SEND_MESSAGE.
+  Plain semantic Send clicks and raw input in recognized messaging apps refuse.
+- Show recipient/text on each input approval. Independently reobserve after approval,
+  verify recipient/draft/baseline, and rebind the exact input control to that new snapshot.
+- Verify unchanged intended recipient, empty draft and exactly one added matching outgoing
+  row; retire only the consumed draft. Existing identical text cannot count as a new send.
+- Permit only read-only verification after submission. Unknown/no-op/duplicate/wrong-target
+  evidence stops; no input replay or generic human status correction can establish success.
+- Pause before dispatch revokes approval; Resume rereads/asks. After submitted Send,
+  Pause/Resume can only continue verification. Preserve existing Stop/window/build guards.
+- Independently grade all stored messages and bystanders, fresh AX, build/route identity;
+  reject deliberate wrong/stale/duplicate/empty/provider-error records and source faults.
+- Scope claims to actual evidence. Observed-outgoing is not delivered/read. No stable
+  outgoing-row evidence, incomplete/virtualized conversations, first-message conversations,
+  arbitrary-app bypasses, cross-turn/network idempotency and real contact identity are
+  unqualified. Twenty deterministic host cases do not satisfy twenty clean native runs.
+
+[Record 84](84_MESSAGING_RELIABILITY.md) and
+[M01](competitive/examples/M01_SAFE_MESSAGING.md) define current scope.
+
+
+## Direct @CU gate — 2026-10-11, record 83
+
+This supersedes records 81–82’s required manual target selection. They remain
+historical receipts; all other native authority/interruption gates remain.
+
+- `@CU <task>` must send without an app/window picker in project and floating
+  composers. Typing/completing the token starts no native discovery or read.
+- Main issues a single-use admission scoped to the Bimax Thread at accepted Send;
+  expire after ten minutes, reject foreign/reused/restored/renderer-forged tickets.
+- Automatic runs choose only actual discovered app IDs and windows. Ask before
+  app reads; recheck bundle/executable identity. Input requires a fresh exact-window
+  snapshot, observed action and separate approval. Refuse foreign native results.
+- Do is the default. Guide/Teach/saved instructions are optional and survive held
+  message review without silently carrying into ordinary turns. Saved reuse
+  rediscovers current targets and needs fresh consent.
+- Keep Pause/Stop reachable, raw action details in a disclosure, honest host status,
+  failed-send drafts and conversation ownership. Grade installed effects separately
+  from component bridges. No single fixture qualifies broad app/model reliability.
+
+[Record 83](83_DIRECT_AT_CU_EXPERIENCE.md) records current scope and evidence.
+
+## CU modes and interruption gate — 2026-10-11, record 82
+
+- Preserve the explicit per-message mode through host-owned target routing and queues.
+- Guide must dispatch zero native inputs, including guessed direct operations.
+- Pause/takeover must cancel pending approval and invalidate all observation/grant
+  authority; resume refreshes and asks again. Never replay an in-flight/unknown input.
+- Approvals remain reachable beside pause controls and bind the current conversation
+  and revision. Reject stale Allow, Resume, Check and correction requests.
+- Exact postconditions remain strict. Human correction checks only a changed unique
+  status against fresh app state; no input is repeated. Label assisted verification.
+- Save Teach instructions only after verified completion; no saved snapshot, process
+  authority or automatic replay. Reuse needs a fresh selected window and approvals.
+- Grade partial/no-op/stale/duplicate effects, cancellation, concurrent tool bypass,
+  actual component end states and source mutations. Keep native/provider/release
+  evidence separate; deterministic repetitions are not live model-tier measurements.
+
+[Record 82](82_CU_MODES_AND_VERIFICATION_RECOVERY.md) records the implementation and scope.
+
+## @CU per-message route gate — 2026-10-10, record 81
+
+- Activate only an exact leading @CU token. Expose the same chip, target selection
+  and failed-send preservation in the project composer and floating bar.
+- Opening/completing the token performs no native read. Separate picker window
+  consent, task read consent and every input approval.
+- Bind main-owned receipts to sender/selection and exact process/executable/window;
+  consume once at queue dispatch. Expired, foreign and restarted receipts refuse
+  without provider calls or silent coding fallback. CU follow-ups queue as turns.
+- Enforce the tool allowlist at execution, including guessed registered tools.
+  Ordinary turns hide and refuse scope-only CU; absent required host fails early.
+- Native selected-window enforcement must independently reject wrong PID/window,
+  changed executables and app-wide commands before read/input. Honor actual
+  read-only/unattended snapshot settings. Stop/end revoke authority.
+- Check actual component end states and assertion-caught faults, then separately
+  qualify the installed native/provider path against independent fixture state.
+  Fixture bridges and one live pass do not qualify full M02/X01 or release.
+
+[Record 81](81_AT_CU_MESSAGE_ROUTING.md) records the implementation and receipts.
+
+## Full Arc source and built-in feature gate — 2026-10-07, record 80
+
+- Own all 100 pinned upstream files under Bimax CU; verify exact file set, bytes and
+  executable modes in source and the packaged app. Preserve MIT attribution.
+- Freeze all 34 package modules, including the upstream CLI/MCP adapter as retained
+  code. Execute `--components` and compare against the complete source inventory.
+- The actual app helper refuses `mcp`, `run` and unknown arguments. JSON-RPC initialize
+  fails through its private protocol; no upstream MCP server/discovery is started.
+- Computer Use opens from File into the app's normal task flow. App grants and each
+  input remain contextual; no install/connect/disconnect path supplies this authority.
+- Main and floating transcript rows use product activity names. Raw arguments belong
+  in an explicit diagnostic disclosure; no output label claims unverified completion.
+- Retain record 79's channel, cancellation, input, workflow, native and release gates.
+- Advertised flat native arguments must reach the exact validated target. Mixed flat/
+  nested targets refuse. Pure read-argument errors may be corrected with zero native
+  effect; consent, input and partial-workflow failures retain the terminal barrier.
+- Test the standalone native entry's exact-window import, not just its status path.
+  Grade a live model workflow against independently persisted text and exactly one
+  save, plus fresh AX status and two verified native effects. Mutants must reject
+  duplicate saves, wrong text, unfinished tasks and missing workflow/status evidence.
+  Record 80's one fixture pass does not qualify the full M02/X01 journey or release.
+
+[Record 80](80_FULL_ARC_SOURCE_AND_BUILT_IN_CU_FEATURE.md) scopes the receipts.
+
+
+## Internal Bimax CU Mac integration gate — 2026-10-07, record 79
+
+- Execute the packaged standalone arc driver, validate its pinned identity, run its
+  real status and match its tool schemas. Do not accept identity output alone as native proof.
+- Preserve all 100 upstream source identities and MIT provenance; include dependency notices.
+  Frozen Python/PyObjC are app resources; no system Python, JEV account or legacy driver is required.
+- Connect interactive project and quick Bimax Threads through the birth-transferred internal MessagePort.
+  No environment descriptor, MCP proxy, socket CU route or user-managed connector may supply this authority.
+  The main process serializes native work. Discovery must not boot native helpers or prompt TCC.
+- Report the Mac host and helper permission separately; require both. Status must never prompt TCC.
+- Scope app grants to one turn; ask before reading an app and before each input. Refuse protected
+  apps/forms, unobserved elements/commands, foreign/expired snapshots and mismatched PID/window.
+  Raw input requires an observation. Stop, cancellation, engine end and completed turns revoke
+  native sessions. An input committed before Stop cannot be undone by cancellation.
+- Never reconnect and replay a native input. Post-action settling supplies fresh observations;
+  independently grade persistent fixture state and rejected input, not driver acknowledgements.
+- Bound private screenshot files, connect them to the existing vision pipeline and delete them
+  with the turn. A text-only model still cannot see pixels; no visual capability is inferred.
+- Qualify local signing, installed bytes and launch. Keep legacy retirement checks. Developer ID,
+  notarization, clean-Mac permissions, Intel, broad apps, M02 bystander typing/reopen and X01 remain
+  separate release gates. Private SkyLight/virtual-display use is not distribution qualification.
+
+The old code-only gate below is historical; its **legacy** refusal, IPC and coding checks remain.
+[Record 79](79_INTERNAL_BIMAX_CU_AND_WORKFLOW_RELIABILITY.md) records current qualification.
+Record 78 retains the preceding MCP installation's historical receipts.
+
+Additional workflow gate: validate every step before permissions; require a unique
+observed control, fixed PID/window and unchanged observed executable; approve each
+input; prove exact SET_VALUE read-back before later CLICK. CLICK requires a changed
+explicit postcondition and fresh independent observation. False done, ambiguous
+selectors, denied approval, Stop, executable replacement, repeated submitted plans
+and stale engine cleanup must fail actual end-state assertions. Clarification
+answers live in one user run only; they grant no action permission. Native terminal
+failure removes further tool schemas rather than letting the model replay inputs.
+Known direct native driver invocations through the coding shell must be refused
+before approval/execution; this narrow guard does not qualify arbitrary-script isolation.
+
+
+## CU source-import qualification — 2026-10-07, record 77
+
+- The full tracked arc-cua tree matches its pinned Git revision byte-for-byte, with
+  original license, modes and fixtures; no nested Git database or local artifacts.
+- All 55 archived Bimax manifest source files match their recorded hashes; source
+  snapshots do not overwrite active integration files or prior sprint edits.
+- Saved chats/settings/runtime state and compiled native artifacts stay external.
+- Imported source is trackable but outside active compilation, test discovery and
+  packaging; active CU refusal and registry checks retain the current boundary.
+
+[Record 77](77_CU_SOURCE_IMPORT_RECORD.md) and its receipt qualify the copy only.
+Native M02/X01, installed behavior, permission/distribution and performance are
+unmeasured. Record 78 above now governs runtime activation; this receipt still qualifies only the copy.
+
+## Chat lifecycle and rendering local gate — 2026-10-06, record 75
+
+- Config/catalogue/attachment results settle once and release resolver/deadline resources.
+  A synchronous bridge answer/failure uses the same armed deadline. Original timeout behavior
+  remains; project/Thread change, terminal engine state and renderer close settle all pending reads.
+- Attachments add no per-file engine-message listener. Owner identity is checked before resolving
+  responses; an old conversation cannot answer a request made after selection changes.
+- A late approval acknowledgement closes only the same Bimax Thread, request ID and token.
+  Failed inventory reads preserve the current card for retry.
+- Floating-bar initial context/history reads cannot overwrite a newer corresponding broadcast,
+  including New/null; valid initial history still loads. Disposal unsubscribes and retires reads/errors.
+- A real production-browser fixture independently checks DOM text/HTML, exact Copy bridge bytes,
+  changed content/language, live link context, selected chat/card and bounded listener/request behavior.
+  Identical saved content does not reparse/rehighlight on unrelated parent or Copy state updates.
+- Executable mutants must fail end-state assertions, then exact restored-source baselines pass.
+  Compiler/runtime failures and timeouts do not count. Record 75 retains invalid exploratory receipts.
+
+Evidence: [record 75](75_CHAT_EXPERIENCE_AND_RENDERING_SPRINT.md). Fixture operation counts qualify
+only redundant work removed. Cold-start/installed latency, energy, native clipboard, same-Thread
+startup stream/history revision ordering and full C01/R01 remain unmeasured/Target. Missing P01 and
+capability-matrix references cannot qualify a journey. No Product-ready/Win or new Computer Use path.
+
 ## PDF local gate — 2026-10-06, record 74
 
 - Actual completed files retain intended page count and sequential page numbers, with no footer-only
@@ -108,7 +414,7 @@ remains the product boundary.
   unmeasured. Evidence: [record 69](69_FRESH_CHAT_AND_REPLAY_ISOLATION.md).
 
 
-## Current code-only gate — 2026-10-04, record 66
+## Historical code-only gate — 2026-10-04, record 66
 
 - No look, press, type, scroll, native app automation service, Computer Use preview menu or Accessibility/Screen
   Recording request path ships. The retired driver (`@trycua`/`@ubjs`) is absent inside and outside ASAR.
@@ -398,3 +704,16 @@ Sources:
 - [Electron: Updating applications](https://www.electronjs.org/docs/latest/tutorial/updates)
 - [Electron: Code signing](https://www.electronjs.org/docs/latest/tutorial/code-signing)
 - [Apple: Notarizing macOS software](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution)
+
+## Mobile account recovery gate — 2026-10-24, record 106
+
+- Grade the actual configured Auth endpoint with the existing public key, rather than Expo CLI
+  login, gateway DNS or a generated provider URL. Record inactive/restoring/ready independently.
+- Restore only the identified existing project; do not replace projects, create users, weaken
+  auth/RLS/biometrics or change keys to bypass an unavailable account service.
+- Unsupported Expo Go social OAuth must not generate a PKCE request or open Safari. Installed
+  OAuth needs the configured verified callback, first-party authorization origin/path, one valid
+  code, successful exchange and a real SDK session. Cancellation performs no exchange.
+- Bound service health requests and show honest outage/retry state. Real endpoint readiness does
+  not prove email-code delivery; provider/template and physical account/pairing remain separate.
+- Preserve actual unavailable-startup receipts, assertion-caught guard faults and dirty bytes.

@@ -1,0 +1,151 @@
+{
+  "at": "2026-10-14T15:12:07.065954+00:00",
+  "workerSha256": "c79b8f8c2eef826b7c9b8556038ecfe65ddb589056ce9057a898b39378268cbb",
+  "load": {
+    "corpusSerial": 1,
+    "documents": 1,
+    "chunks": 1,
+    "ingestionMs": 1003.395792,
+    "embedding": "ollama:all-minilm:1b226e2802dbb772b5fc32a58f103ca1804ef7501331012de126ab22f67475ef:384",
+    "embeddingObservations": [
+      {
+        "role": "passage",
+        "inputs": 1,
+        "inputChars": 96,
+        "maxInputChars": 96,
+        "requiredProviderTruncation": false,
+        "promptTokens": 22,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "stats": {
+      "documents": 1,
+      "chunks": 1,
+      "embedded": 1,
+      "pending": 0,
+      "maxVectors": 500,
+      "lastMode": {
+        "lexical": true,
+        "dense": false,
+        "reranked": false
+      }
+    },
+    "execution": {
+      "embeddingWorkerConcurrency": 1,
+      "batchSize": 16,
+      "num_gpu": 0,
+      "num_thread": 1,
+      "keep_alive": "30s",
+      "cacheTransaction": "one per fresh embedding batch",
+      "seedReadOnly": true
+    },
+    "inputSha256": "61a917a19b2b288d0bf26ac6941a1e9d5a70bb98eef45c10149290008a95e371",
+    "rss": 57737216,
+    "embeddingCache": {
+      "hits": 0,
+      "misses": 1,
+      "format": "exact normalized JSON vectors, model-digest/role/text-SHA keyed, batch truncation conservative flag"
+    }
+  },
+  "query": {
+    "same": true,
+    "sameSources": true,
+    "queryEmbeddingMs": 9.701249999999845,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 47,
+        "maxInputChars": 47,
+        "requiredProviderTruncation": false,
+        "promptTokens": 12,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "independent-cobalt"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- The cobalt orchard service retry limit is17seconds. Independent complete-passage worker control.",
+      "evidence": [
+        {
+          "sourceId": "memory:independent-cobalt",
+          "sourceVersion": "sha256:7cf202b8b2d1911a2a214c06d591f488d901e31b50f9489d1f68116a6bd4ca30",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "independent-cobalt",
+            "part": 1,
+            "parts": 1
+          },
+          "text": "The cobalt orchard service retry limit is17seconds. Independent complete-passage worker control.",
+          "id": "ev_e70116f227b9062d51ed0e8a",
+          "observedAt": "2026-10-14T15:12:07.044Z"
+        }
+      ],
+      "sourceIds": [
+        "independent-cobalt"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.261999999999944,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "independent-cobalt"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- The cobalt orchard service retry limit is17seconds. Independent complete-passage worker control.",
+      "evidence": [
+        {
+          "sourceId": "memory:independent-cobalt",
+          "sourceVersion": "sha256:7cf202b8b2d1911a2a214c06d591f488d901e31b50f9489d1f68116a6bd4ca30",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "independent-cobalt",
+            "part": 1,
+            "parts": 1
+          },
+          "text": "The cobalt orchard service retry limit is17seconds. Independent complete-passage worker control.",
+          "id": "ev_e70116f227b9062d51ed0e8a",
+          "observedAt": "2026-10-14T15:12:07.048Z"
+        }
+      ],
+      "sourceIds": [
+        "independent-cobalt"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 0.8499160000001211,
+      "provenance": true
+    }
+  },
+  "closed": {
+    "closed": true
+  },
+  "apiReaderJudgeCalls": 0,
+  "source": "Independent synthetic control only; real local embeddings, never qualification answers."
+}

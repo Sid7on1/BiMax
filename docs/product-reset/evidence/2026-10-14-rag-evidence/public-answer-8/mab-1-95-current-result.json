@@ -1,0 +1,178 @@
+{
+  "row": 1,
+  "query": 95,
+  "id": "mab-1-95",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:45:45.846665+00:00",
+  "valid": true,
+  "question": "Tysons Galleria is located in what county?",
+  "references": [
+    "Fairfax County"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-215",
+    "context-224",
+    "context-34"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:46:07.539454+00:00",
+  "rag": {
+    "ids": [
+      "context-215",
+      "context-224",
+      "context-34"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) Document 1523:\nTysons Galleria\nTysons Galleria is a three-level super-regional mall owned by General Growth Properties located at 2001 International Drive, McLean, Virginia, in Tysons Corner. It is the second-largest mall in McLean/Tysons Corner, and one of the largest in the Washington metropolitan area.\n  (part 2 of 5) Drive, McLean, Virginia, in Tysons Corner. It is the second-largest mall in McLean/Tysons Corner, and one of the largest in the Washington metropolitan area.\n\nDocument 1524:\nPatsy Swayze\nYvonne Helen \"Patsy\" Swayze (nee Karnes; February 7, 1927 \u2013 September 16, 2013) was an American film choreographer, dancer, and dance instructor. Her credits included the choreography for \"Urban Cowboy\", \"Liar's Moon\" and \"Hope Floats\". Her five children included the actors Patrick Swayze and Don Swayze. She has been credited with having trained Patrick in dance, leading to his starring role in \"Dirty Dancing\" in 1987.\n- (part 1 of 5) ction-thriller film directed by Steven C. Miller and written by Umair Aleem. The film stars Kellan Lutz, Bruce Willis, Gina Carano, D. B. Sweeney, Dan Bilzerian and Steve Coulter. The film was released on December 18, 2015, in a limited release, and through video on demand by Lionsgate Premiere.\n\nDocument 1593:\nTysons, Virginia\nTysons, or formerly \u201cTysons Corner\u201d is a census-designated place (CDP) and unincorporated community in Fairfax County, Virginia, United States. Located in Northern Virginia between the community of McLean and the town of Vienna along the Capital Beltway (I-495), it lies within the Washington Metropolitan Area. Tysons is home to two super-regional shopping malls\u2014Tysons Corner Center and Tysons Galleria\u2014and the corporate headquarters of numerous companies such as Intelsat, Gannett, Hilton Worldwide, Freddie Mac, Capital One and Booz Allen Hamilton. Tysons is Fairfax County's central business district and a regional commercial center. It has been characterized as a quintessential example of an edge city. The population was 19,627 as of the 2010 census.\n- (part 2 of 5) drug ingredients.\n\nHe currently works at the Department of Molecular Biology and Genetics, Faculty of Science, Mugla Sitki Kocman University, Turkey.\n\nHe also contributes some academic journals as an editorial board member such as Biomedical Research, Journal of Applied Pharmacy etc.\n\nDocument 249:\nPoughkeepsie Galleria\nThe Poughkeepsie Galleria (locally known as \"The Galleria\") is an upscale shopping center on U.S. 9 in the Town of Poughkeepsie, New York, located just north of Wappingers Falls, and is the largest shopping center in Dutchess County. The Galleria has an area of 1100000 sqft with two floors containing 140 shops and 14 restaurants as well as a 16-screen, stadium-seating Regal Cinemas theater.\n  (part 3 of 5) The Galleria has an area of 1100000 sqft with two floors containing 140 shops and 14 restaurants as well as a 16-screen, stadium-seating Regal Cinemas theater.\n\nDocument 250:\nU Know What's Up\n\"U Know What's Up\" is a 1999 hit song by singer-songwriter-producer Donell Jones' second studio album, \"Where I Wanna Be\". The song features Lisa Lopes of TLC. It reached number one on the Billboard Hot R&B/Hip-Hop Singles & Tracks chart on November 13, 1999, and stayed at number one for eight consecutive weeks. It peaked at number seven on the Billboard Hot 100, remaining there for two consecutive weeks. Outside the United States, the song peaked within the top ten of the charts in the United Kingdom. The song was produced by Edward \"Eddie F\" Ferrell and Darren Lighty for Untouchables Entertainment. It is Jones's biggest hit to date. The song was co-written by Anthony Hamilton. The songs serves as the opening track on LaFace Records.",
+    "evidence": [
+      {
+        "sourceId": "memory:context-215",
+        "sourceVersion": "sha256:0458235d4f0968bed91215b7adb4f232cd5b13685ba64973f79992929b2c0f86",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-215",
+          "part": 1,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Document 1523:\nTysons Galleria\nTysons Galleria is a three-level super-regional mall owned by General Growth Properties located at 2001 International Drive, McLean, Virginia, in Tysons Corner. It is the second-largest mall in McLean/Tysons Corner, and one of the largest in the Washington metropolitan area.",
+        "id": "ev_517ee63c355c99d7a20d322d",
+        "observedAt": "2026-10-14T08:41:06.984Z"
+      },
+      {
+        "sourceId": "memory:context-215",
+        "sourceVersion": "sha256:0458235d4f0968bed91215b7adb4f232cd5b13685ba64973f79992929b2c0f86",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-215",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "Drive, McLean, Virginia, in Tysons Corner. It is the second-largest mall in McLean/Tysons Corner, and one of the largest in the Washington metropolitan area.\n\nDocument 1524:\nPatsy Swayze\nYvonne Helen \"Patsy\" Swayze (nee Karnes; February 7, 1927 \u2013 September 16, 2013) was an American film choreographer, dancer, and dance instructor. Her credits included the choreography for \"Urban Cowboy\", \"Liar's Moon\" and \"Hope Floats\". Her five children included the actors Patrick Swayze and Don Swayze. She has been credited with having trained Patrick in dance, leading to his starring role in \"Dirty Dancing\" in 1987.",
+        "id": "ev_cc6e199cd62270298dcbb350",
+        "observedAt": "2026-10-14T08:41:06.984Z"
+      },
+      {
+        "sourceId": "memory:context-224",
+        "sourceVersion": "sha256:23978f6d1c3dd2fadd57b914c5030e0d4067f080356f5fa380ea31f8e077b032",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-224",
+          "part": 1,
+          "parts": 5
+        },
+        "text": "ction-thriller film directed by Steven C. Miller and written by Umair Aleem. The film stars Kellan Lutz, Bruce Willis, Gina Carano, D. B. Sweeney, Dan Bilzerian and Steve Coulter. The film was released on December 18, 2015, in a limited release, and through video on demand by Lionsgate Premiere.\n\nDocument 1593:\nTysons, Virginia\nTysons, or formerly \u201cTysons Corner\u201d is a census-designated place (CDP) and unincorporated community in Fairfax County, Virginia, United States. Located in Northern Virginia between the community of McLean and the town of Vienna along the Capital Beltway (I-495), it lies within the Washington Metropolitan Area. Tysons is home to two super-regional shopping malls\u2014Tysons Corner Center and Tysons Galleria\u2014and the corporate headquarters of numerous companies such as Intelsat, Gannett, Hilton Worldwide, Freddie Mac, Capital One and Booz Allen Hamilton. Tysons is Fairfax County's central business district and a regional commercial center. It has been characterized as a quintessential example of an edge city. The population was 19,627 as of the 2010 census.",
+        "id": "ev_e290b64866ff58cca92100bf",
+        "observedAt": "2026-10-14T08:41:06.984Z"
+      },
+      {
+        "sourceId": "memory:context-34",
+        "sourceVersion": "sha256:b0f789c5c52f16d424e6c92b7c353ecb7696bad74e602297f87ee39f04861b2f",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-34",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "drug ingredients.\n\nHe currently works at the Department of Molecular Biology and Genetics, Faculty of Science, Mugla Sitki Kocman University, Turkey.\n\nHe also contributes some academic journals as an editorial board member such as Biomedical Research, Journal of Applied Pharmacy etc.\n\nDocument 249:\nPoughkeepsie Galleria\nThe Poughkeepsie Galleria (locally known as \"The Galleria\") is an upscale shopping center on U.S. 9 in the Town of Poughkeepsie, New York, located just north of Wappingers Falls, and is the largest shopping center in Dutchess County. The Galleria has an area of 1100000 sqft with two floors containing 140 shops and 14 restaurants as well as a 16-screen, stadium-seating Regal Cinemas theater.",
+        "id": "ev_2ced1a94d2a4ac569fd78631",
+        "observedAt": "2026-10-14T08:41:06.984Z"
+      },
+      {
+        "sourceId": "memory:context-34",
+        "sourceVersion": "sha256:b0f789c5c52f16d424e6c92b7c353ecb7696bad74e602297f87ee39f04861b2f",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-34",
+          "part": 3,
+          "parts": 5
+        },
+        "text": "The Galleria has an area of 1100000 sqft with two floors containing 140 shops and 14 restaurants as well as a 16-screen, stadium-seating Regal Cinemas theater.\n\nDocument 250:\nU Know What's Up\n\"U Know What's Up\" is a 1999 hit song by singer-songwriter-producer Donell Jones' second studio album, \"Where I Wanna Be\". The song features Lisa Lopes of TLC. It reached number one on the Billboard Hot R&B/Hip-Hop Singles & Tracks chart on November 13, 1999, and stayed at number one for eight consecutive weeks. It peaked at number seven on the Billboard Hot 100, remaining there for two consecutive weeks. Outside the United States, the song peaked within the top ten of the charts in the United Kingdom. The song was produced by Edward \"Eddie F\" Ferrell and Darren Lighty for Untouchables Entertainment. It is Jones's biggest hit to date. The song was co-written by Anthony Hamilton. The songs serves as the opening track on LaFace Records.",
+        "id": "ev_73b8ef9cefb7f65b9ba91eb0",
+        "observedAt": "2026-10-14T08:41:06.984Z"
+      }
+    ],
+    "sourceIds": [
+      "context-215",
+      "context-224",
+      "context-34"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 4.123250000004191,
+    "provenance": true
+  },
+  "arm": "current",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Tysons Galleria is located in Fairfax County, Virginia.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.4
+  },
+  "readerUsage": {
+    "prompt_tokens": 1090,
+    "completion_tokens": 454,
+    "total_tokens": 1544,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 438,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 255,
+    "completion_tokens": 636,
+    "total_tokens": 891,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 633,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 6065.450416999738,
+  "judgeWallMs": 15625.45470799978
+}

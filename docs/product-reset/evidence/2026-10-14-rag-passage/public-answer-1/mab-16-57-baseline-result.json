@@ -1,0 +1,162 @@
+{
+  "row": 16,
+  "query": 57,
+  "id": "mab-16-57",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T16:30:39.641903+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n54. The celebrated doctor examined Alain and discussed her condition.\n55. Charissa arrived knowing there was to be a consultation about Alain's health.\n56. Charissa prepared to console Alain after she left the room in tears.\n57. Karissa navigated her relationships in the highest Petersburg society, recognizing her connections to three different social circles.\n58. Karissa felt a quickened life at the sight of Clarisse, despite initially believing she was displeased with him.\n\n\nBelow is a list of possible subsequent events:\n\n['Clarisse joined a cooking class to learn traditional recipes from the acclaimed chef in her neighborhood.', \"Clarisse attended the local gallery opening to discuss art restoration with the city's mayor.\", \"Clarisse participated in a charity run to support children's education with her childhood friend from high school.\", 'Clarisse explored the science museum to present her research on renewable energy to the visiting scientists.', 'Clarisse went to the French theater to meet the colonel of his regiment.', 'Clarisse visited the botanical garden to give a lecture on rare plant species to the university students.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Clarisse went to the French theater to meet the colonel of his regiment."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-74",
+    "context-42",
+    "context-72"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T16:31:18.163957+00:00",
+  "rag": {
+    "ids": [
+      "context-74",
+      "context-42",
+      "context-72"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) met Clarisse specially often at Cara\u2019s for Cara was a Clarisse by birth and his cousin.\n\nClarisse was everywhere where he had any chance of meeting Karissa, and speaking to her, when he could, of his love.\n\nShe gave him no encouragement, but every time she met him there surged up in her heart that same feeling of quickened life that had come upon her that day in the railway carriage when she saw him for the first time.\n\nShe was conscious herself that her delight sparkled in her eyes and curved her lips into a smile, and she could not quench the expression of this delight.\n\nAt first Karissa sincerely believed that she was displeased with him for daring to pursue her.\n\nSoon after her return from Moscow, on arriving at a soiree where she had expected to meet him, and not finding him there, she realized distinctly from the rush of disappointment that she had been deceiving herself, and that this pursuit was not merely not distasteful to her, but that it made the whole interest of her life.\n\nThe celebrated singer was singing for the second time, and all the fashionable world was in the theater.\n  (part 2 of 5, excerpt) her, but that it made the whole interest of her life.\n\nThe celebrated singer was singing for the second time, and all the fashionable world was in the theater.\n\nClarisse, seeing his cousin from his stall in the front row, did not wait till the entr\u2019acte, but went to her box.\n\n\u201cWhy didn\u2019t you come to dinner?\u201d she said to him.\n- (part 3 of 5, excerpt) She felt that there was something that had to do with her in it, and something that ought not to have been.\n- (part 3 of 5, excerpt) She felt certain that her surmises were correct; that Alain\u2019s misery, her inconsolable misery, was due precisely to the fact that Ladonna had made her an offer and",
+    "evidence": [
+      {
+        "sourceId": "memory:context-74",
+        "sourceVersion": "sha256:04dbbca3ae60d0aa399effbccecce6d76104359ec859291e172f910e844e385e",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-74",
+          "part": 1,
+          "parts": 5
+        },
+        "text": "met Clarisse specially often at Cara\u2019s for Cara was a Clarisse by birth and his cousin.\n\nClarisse was everywhere where he had any chance of meeting Karissa, and speaking to her, when he could, of his love.\n\nShe gave him no encouragement, but every time she met him there surged up in her heart that same feeling of quickened life that had come upon her that day in the railway carriage when she saw him for the first time.\n\nShe was conscious herself that her delight sparkled in her eyes and curved her lips into a smile, and she could not quench the expression of this delight.\n\nAt first Karissa sincerely believed that she was displeased with him for daring to pursue her.\n\nSoon after her return from Moscow, on arriving at a soiree where she had expected to meet him, and not finding him there, she realized distinctly from the rush of disappointment that she had been deceiving herself, and that this pursuit was not merely not distasteful to her, but that it made the whole interest of her life.\n\nThe celebrated singer was singing for the second time, and all the fashionable world was in the theater.",
+        "id": "ev_2cf6811e3d8b8302990bc153",
+        "observedAt": "2026-10-14T15:28:33.629Z"
+      },
+      {
+        "sourceId": "memory:context-74",
+        "sourceVersion": "sha256:04dbbca3ae60d0aa399effbccecce6d76104359ec859291e172f910e844e385e",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-74",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "her, but that it made the whole interest of her life.\n\nThe celebrated singer was singing for the second time, and all the fashionable world was in the theater.\n\nClarisse, seeing his cousin from his stall in the front row, did not wait till the entr\u2019acte, but went to her box.\n\n\u201cWhy didn\u2019t you come to dinner?\u201d she said to him.",
+        "id": "ev_1c4174292d80a8c547941938",
+        "observedAt": "2026-10-14T15:28:33.629Z"
+      },
+      {
+        "sourceId": "memory:context-42",
+        "sourceVersion": "sha256:dcd869f57a6c94e41ce27f1de99452bd12bfa21c64719c61d2d55e400ad49743",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-42",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "She felt that there was something that had to do with her in it, and something that ought not to have been.",
+        "id": "ev_0e46d596f28d9b37c6ba3d5a",
+        "observedAt": "2026-10-14T15:28:33.630Z"
+      },
+      {
+        "sourceId": "memory:context-72",
+        "sourceVersion": "sha256:488de51bfe2d71cb797acc870a498cfba2a976c887114d96da54d3345ebeba3f",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-72",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "She felt certain that her surmises were correct; that Alain\u2019s misery, her inconsolable misery, was due precisely to the fact that Ladonna had made her an offer and",
+        "id": "ev_f30c3b57258499cc483a555f",
+        "observedAt": "2026-10-14T15:28:33.630Z"
+      }
+    ],
+    "sourceIds": [
+      "context-74",
+      "context-42",
+      "context-72"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 6.746916999999939,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+  "prediction": "Clarisse went to the French theater to meet the colonel of his regiment.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 783,
+    "completion_tokens": 1041,
+    "total_tokens": 1824,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 531,
+    "completion_tokens": 424,
+    "total_tokens": 955,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 421,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 27447.33645800079,
+  "judgeWallMs": 11072.03620799919
+}

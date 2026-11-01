@@ -1,0 +1,367 @@
+{
+  "row": 21,
+  "query": 18,
+  "id": "mab-21-18",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T15:18:40.784243+00:00",
+  "valid": true,
+  "question": "Current Date: 2023/05/26 (Fri) 18:19,\n\n Now Answer the Question: Can you remind me what was the average improvement in framerate when using the Hardware-Aware Modular Training (HAMT) agent in the 'To Adapt or Not to Adapt? Real-Time Adaptation for Semantic Segmentation' submission?",
+  "references": [
+    "The average improvement in framerate was approximately 20% when using the Hardware-Aware Modular Training (HAMT) agent."
+  ],
+  "kind": "single-session-assistant",
+  "abstention": false,
+  "date": "2023/05/26 (Fri) 18:19",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 41.42979100000002,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 282,
+        "maxInputChars": 282,
+        "requiredProviderTruncation": false,
+        "promptTokens": 70,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-179",
+        "context-180",
+        "context-181"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 5) modern design!'}], 'Chat Time: 2023/05/25 (Thu) 11:46', [{'role': 'assistant', 'content': 'The \"Experimental Results\" section of the \"To Adapt or Not to Adapt?\n\nReal-Time Adaptation for Semantic Segmentation\" submission presents the results of experiments conducted on the OnDA benchmarks and the SHIFT dataset to evaluate the performance of the proposed HAMLET framework for real-time domain adaptation.\n\nThe experiments showed that the proposed framework was able to significantly improve the trade-off between accuracy and efficiency in online domain adaptation, with an average improvement in framerate of approximately 20% when using the Hardware-Aware Modular Training (HAMT) agent and a further improvement of approximately 4x with the addition of the Active Training Modulation system.\n\nThe framework was also able to significantly reduce the gap between the performance of models trained on synthetic data and those trained on real data, with a reduction of up to 4 points on the 200mm domain in the Increasing Storm scenario.\n  (part 5 of 5) of models trained on synthetic data and those trained on real data, with a reduction of up to 4 points on the 200mm domain in the Increasing Storm scenario.\n\nOverall, the results demonstrated the effectiveness of the proposed framework for real-time domain adaptation.'}, {'role': 'user', 'content': \"Based on all sections I've provided already (Abstract, Introd\n- (part 4 of 4, excerpt) The framework is designed to improve the trade-off between accuracy and efficiency in online domain adaptation by using a Hardware-Aware Modular Training (HAMT) agent and an Active Training\n- (part 1 of 5, excerpt) t scenarios.\\n* The use of the Hardware-Aware Modular Training (HAMT) agent and the Active Training Modulation system does not",
+      "evidence": [
+        {
+          "sourceId": "memory:context-179",
+          "sourceVersion": "sha256:ebe3638ed4b00a808b4f00379f2c483fc667fe547a7ffdaa58d5e61b815a1727",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-179",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "modern design!'}], 'Chat Time: 2023/05/25 (Thu) 11:46', [{'role': 'assistant', 'content': 'The \"Experimental Results\" section of the \"To Adapt or Not to Adapt?\n\nReal-Time Adaptation for Semantic Segmentation\" submission presents the results of experiments conducted on the OnDA benchmarks and the SHIFT dataset to evaluate the performance of the proposed HAMLET framework for real-time domain adaptation.\n\nThe experiments showed that the proposed framework was able to significantly improve the trade-off between accuracy and efficiency in online domain adaptation, with an average improvement in framerate of approximately 20% when using the Hardware-Aware Modular Training (HAMT) agent and a further improvement of approximately 4x with the addition of the Active Training Modulation system.\n\nThe framework was also able to significantly reduce the gap between the performance of models trained on synthetic data and those trained on real data, with a reduction of up to 4 points on the 200mm domain in the Increasing Storm scenario.",
+          "id": "ev_ad5d1bba7f1775eeaf0b7052",
+          "observedAt": "2026-10-14T15:18:40.846Z"
+        },
+        {
+          "sourceId": "memory:context-179",
+          "sourceVersion": "sha256:ebe3638ed4b00a808b4f00379f2c483fc667fe547a7ffdaa58d5e61b815a1727",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-179",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "of models trained on synthetic data and those trained on real data, with a reduction of up to 4 points on the 200mm domain in the Increasing Storm scenario.\n\nOverall, the results demonstrated the effectiveness of the proposed framework for real-time domain adaptation.'}, {'role': 'user', 'content': \"Based on all sections I've provided already (Abstract, Introd",
+          "id": "ev_a33a7e4d0a1fbfc68fdd009e",
+          "observedAt": "2026-10-14T15:18:40.847Z"
+        },
+        {
+          "sourceId": "memory:context-180",
+          "sourceVersion": "sha256:f3aa277d456ea5ba81c43ce6e1e19fc9b4109f6e6fa185f7698e8f1821d51a36",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-180",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "The framework is designed to improve the trade-off between accuracy and efficiency in online domain adaptation by using a Hardware-Aware Modular Training (HAMT) agent and an Active Training",
+          "id": "ev_b4cc5e76cf8febe32144386d",
+          "observedAt": "2026-10-14T15:18:40.847Z"
+        },
+        {
+          "sourceId": "memory:context-181",
+          "sourceVersion": "sha256:07aae5c41502d51c831c31b11bff10170e4821b4bc042026d49ff7231d70424b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-181",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "t scenarios.\\n* The use of the Hardware-Aware Modular Training (HAMT) agent and the Active Training Modulation system does not",
+          "id": "ev_547a6205509d8d5190cde9f6",
+          "observedAt": "2026-10-14T15:18:40.848Z"
+        }
+      ],
+      "sourceIds": [
+        "context-179",
+        "context-180",
+        "context-181"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 22.44491600000015,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-179",
+        "context-180",
+        "context-181"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) Remember to take notes, bookmark your favorite designs, and have fun exploring the world of mid-century modern design!'}], 'Chat Time: 2023/05/25 (Thu) 11:46', [{'role': 'assistant', 'content': 'The \"Experimental Results\" section of the \"To Adapt or Not to Adapt?\n  (part 4 of 5) modern design!'}], 'Chat Time: 2023/05/25 (Thu) 11:46', [{'role': 'assistant', 'content': 'The \"Experimental Results\" section of the \"To Adapt or Not to Adapt?\n\nReal-Time Adaptation for Semantic Segmentation\" submission presents the results of experiments conducted on the OnDA benchmarks and the SHIFT dataset to evaluate the performance of the proposed HAMLET framework for real-time domain adaptation.\n\nThe experiments showed that the proposed framework was able to significantly improve the trade-off between accuracy and efficiency in online domain adaptation, with an average improvement in framerate of approximately 20% when using the Hardware-Aware Modular Training (HAMT) agent and a further improvement of approximately 4x with the addition of the Active Training Modulation system.\n\nThe framework was also able to significantly reduce the gap between the performance of models trained on synthetic data and those trained on real data, with a reduction of up to 4 points on the 200mm domain in the Increasing Storm scenario.\n  (part 5 of 5) of models trained on synthetic data and those trained on real data, with a reduction of up to 4 points on the 200mm domain in the Increasing Storm scenario.\n\nOverall, the results demonstrated the effectiveness of the proposed framework for real-time domain adaptation.'}, {'role': 'user', 'content': \"Based on all sections I've provided already (Abstract, Introd\n- (part 1 of 4, excerpt) Real-Time Adaptation for Semantic Segmentation\" submission presents a framework called HAMLET for real-time domain adaptation in the context of semantic segmentation.\n\nThe framework is designed to improve the trade-off between accuracy and efficiency in online domain adaptation by using a Hardware-Aware Modular Training (HAMT) agent and an Active Training Modulation system.\n  (part 2 of 4, excerpt) important and relevant problem in the field of semantic segmentation, namely the challenge of real-time domain adaptation in the context of online deployment.\\n* The use of the Hardware-Aware Modular Training (HAMT) agent and the Active Training Modulation system allows for significant improvements in the\n  (part 3 of 4, excerpt) identified.\\n\\nScore\\n-----\\n\\nI would give the \"To Adapt or Not to Adapt?\n\nReal-Time Adaptation for Semantic Segmentation\" submission a score of 8.\n  (part 4 of 4) {'role': 'user', 'content': 'Write again the review, but much harsher'}, {'role': 'assistant', 'content': 'Summary\\n-------\\n\\nThe \"To Adapt or Not to Adapt?\n\nReal-Time Adaptation for Semantic Segmentation\" submission presents a framework called HAMLET for real-time domain adaptation in the context of semantic segmentation.\n\nThe framework is designed to improve the trade-off between accuracy and efficiency in online domain adaptation by using a Hardware-Aware Modular Training (HAMT) agent and an Active Training Modulation system.\n\nHowever, the experimental evaluation is limited to two datasets, which may not fully capture the complexity and variability of real-world deployment scenarios.\n\nMoreover, the use of synthetic data for training may limit the generalizability of the results to real-world scenarios.\\n\\nStrengths\\n---------\\n\\nThere are no notable strengths in this submission.\\n\\nWeaknesses\\n----------\\n\\n* The proposed framework does not address a truly relevant problem in the field of semantic segmentation, as real-time domain adaptation is not a practical concern in most deploymen\n- (part 1 of 5) t scenarios.\\n* The use of the Hardware-Aware Modular Training (HAMT) agent and the Active Training Modulation system does not lead to any meaningful improvements in the trade-off between accuracy and efficiency in online domain adaptation.\\n* The experimental results do not demonstrate the effectiveness of the proposed framework, with no significant improvements in accuracy or efficiency compared to existing approaches on the OnDA benchmarks and the SHIFT dataset.\\n\\nTypos\\n-----\\n\\nNone identified.\\n\\nScore\\n-----\\n\\nI would give the \"To Adapt or Not to Adapt?\n\nReal-Time Adaptation for Semantic Segmentation\" submission a score of 2.\n\nThe proposed framework does not address a truly relevant problem in the field of semantic segmentation, and the experimental results do not demonstrate the effectiveness of the'}, {'role': 'user', 'content': 'continue'}, {'role': 'assistant', 'content': 'proposed approach.\n  (part 2 of 5, excerpt) Real-Time Adaptation for Semantic Segmentation\" submission presents a framework called HAMLET for real-time domain adaptation in the context of semantic segmentation.\n\nThe framework is designed to improve the trade-off between accuracy and efficiency in online domain adaptation by using a Hardware-Aware Modular Training (HAMT) agent and an Active Training Modulation system.\n  (part 3 of 5) between accuracy and efficiency in online domain adaptation by using a Hardware-Aware Modular Training (HAMT) agent and an Active Training Modulation system.\n\nThe experimental evaluation is limited to two datasets, which may not fully capture the complexity and variability of real-world deployment scenarios.\n  (part 5 of 5, excerpt) Additionally, the relevance of the problem addressed in the submission is questionable, as real-time domain adaptation is not a practical concern in most deployment scenarios.\\n\\nReviewer Confidence\\n-------------------\\n\\nI have a low to medium confidence in my review, as I am not an expert in the field of online domain adaptation for semantic segmentation.\n\nHowever, based on the provided information, the proposed framework presents s",
+      "evidence": [
+        {
+          "sourceId": "memory:context-179",
+          "sourceVersion": "sha256:ebe3638ed4b00a808b4f00379f2c483fc667fe547a7ffdaa58d5e61b815a1727",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-179",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Remember to take notes, bookmark your favorite designs, and have fun exploring the world of mid-century modern design!'}], 'Chat Time: 2023/05/25 (Thu) 11:46', [{'role': 'assistant', 'content': 'The \"Experimental Results\" section of the \"To Adapt or Not to Adapt?",
+          "id": "ev_f2646f67d8e02d7049eb9ae0",
+          "observedAt": "2026-10-14T15:18:40.856Z"
+        },
+        {
+          "sourceId": "memory:context-179",
+          "sourceVersion": "sha256:ebe3638ed4b00a808b4f00379f2c483fc667fe547a7ffdaa58d5e61b815a1727",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-179",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "modern design!'}], 'Chat Time: 2023/05/25 (Thu) 11:46', [{'role': 'assistant', 'content': 'The \"Experimental Results\" section of the \"To Adapt or Not to Adapt?\n\nReal-Time Adaptation for Semantic Segmentation\" submission presents the results of experiments conducted on the OnDA benchmarks and the SHIFT dataset to evaluate the performance of the proposed HAMLET framework for real-time domain adaptation.\n\nThe experiments showed that the proposed framework was able to significantly improve the trade-off between accuracy and efficiency in online domain adaptation, with an average improvement in framerate of approximately 20% when using the Hardware-Aware Modular Training (HAMT) agent and a further improvement of approximately 4x with the addition of the Active Training Modulation system.\n\nThe framework was also able to significantly reduce the gap between the performance of models trained on synthetic data and those trained on real data, with a reduction of up to 4 points on the 200mm domain in the Increasing Storm scenario.",
+          "id": "ev_ad5d1bba7f1775eeaf0b7052",
+          "observedAt": "2026-10-14T15:18:40.856Z"
+        },
+        {
+          "sourceId": "memory:context-179",
+          "sourceVersion": "sha256:ebe3638ed4b00a808b4f00379f2c483fc667fe547a7ffdaa58d5e61b815a1727",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-179",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "of models trained on synthetic data and those trained on real data, with a reduction of up to 4 points on the 200mm domain in the Increasing Storm scenario.\n\nOverall, the results demonstrated the effectiveness of the proposed framework for real-time domain adaptation.'}, {'role': 'user', 'content': \"Based on all sections I've provided already (Abstract, Introd",
+          "id": "ev_a33a7e4d0a1fbfc68fdd009e",
+          "observedAt": "2026-10-14T15:18:40.856Z"
+        },
+        {
+          "sourceId": "memory:context-180",
+          "sourceVersion": "sha256:f3aa277d456ea5ba81c43ce6e1e19fc9b4109f6e6fa185f7698e8f1821d51a36",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-180",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Real-Time Adaptation for Semantic Segmentation\" submission presents a framework called HAMLET for real-time domain adaptation in the context of semantic segmentation.\n\nThe framework is designed to improve the trade-off between accuracy and efficiency in online domain adaptation by using a Hardware-Aware Modular Training (HAMT) agent and an Active Training Modulation system.",
+          "id": "ev_31b965418bcabc1eac1eacd1",
+          "observedAt": "2026-10-14T15:18:40.857Z"
+        },
+        {
+          "sourceId": "memory:context-180",
+          "sourceVersion": "sha256:f3aa277d456ea5ba81c43ce6e1e19fc9b4109f6e6fa185f7698e8f1821d51a36",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-180",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "important and relevant problem in the field of semantic segmentation, namely the challenge of real-time domain adaptation in the context of online deployment.\\n* The use of the Hardware-Aware Modular Training (HAMT) agent and the Active Training Modulation system allows for significant improvements in the",
+          "id": "ev_1ed87861fe7a2aafe835d2e2",
+          "observedAt": "2026-10-14T15:18:40.857Z"
+        },
+        {
+          "sourceId": "memory:context-180",
+          "sourceVersion": "sha256:f3aa277d456ea5ba81c43ce6e1e19fc9b4109f6e6fa185f7698e8f1821d51a36",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-180",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "identified.\\n\\nScore\\n-----\\n\\nI would give the \"To Adapt or Not to Adapt?\n\nReal-Time Adaptation for Semantic Segmentation\" submission a score of 8.",
+          "id": "ev_82e031ce209a0209ece639c4",
+          "observedAt": "2026-10-14T15:18:40.858Z"
+        },
+        {
+          "sourceId": "memory:context-180",
+          "sourceVersion": "sha256:f3aa277d456ea5ba81c43ce6e1e19fc9b4109f6e6fa185f7698e8f1821d51a36",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-180",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "{'role': 'user', 'content': 'Write again the review, but much harsher'}, {'role': 'assistant', 'content': 'Summary\\n-------\\n\\nThe \"To Adapt or Not to Adapt?\n\nReal-Time Adaptation for Semantic Segmentation\" submission presents a framework called HAMLET for real-time domain adaptation in the context of semantic segmentation.\n\nThe framework is designed to improve the trade-off between accuracy and efficiency in online domain adaptation by using a Hardware-Aware Modular Training (HAMT) agent and an Active Training Modulation system.\n\nHowever, the experimental evaluation is limited to two datasets, which may not fully capture the complexity and variability of real-world deployment scenarios.\n\nMoreover, the use of synthetic data for training may limit the generalizability of the results to real-world scenarios.\\n\\nStrengths\\n---------\\n\\nThere are no notable strengths in this submission.\\n\\nWeaknesses\\n----------\\n\\n* The proposed framework does not address a truly relevant problem in the field of semantic segmentation, as real-time domain adaptation is not a practical concern in most deploymen",
+          "id": "ev_a17da73d9f4bcd692a0bf55c",
+          "observedAt": "2026-10-14T15:18:40.858Z"
+        },
+        {
+          "sourceId": "memory:context-181",
+          "sourceVersion": "sha256:07aae5c41502d51c831c31b11bff10170e4821b4bc042026d49ff7231d70424b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-181",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "t scenarios.\\n* The use of the Hardware-Aware Modular Training (HAMT) agent and the Active Training Modulation system does not lead to any meaningful improvements in the trade-off between accuracy and efficiency in online domain adaptation.\\n* The experimental results do not demonstrate the effectiveness of the proposed framework, with no significant improvements in accuracy or efficiency compared to existing approaches on the OnDA benchmarks and the SHIFT dataset.\\n\\nTypos\\n-----\\n\\nNone identified.\\n\\nScore\\n-----\\n\\nI would give the \"To Adapt or Not to Adapt?\n\nReal-Time Adaptation for Semantic Segmentation\" submission a score of 2.\n\nThe proposed framework does not address a truly relevant problem in the field of semantic segmentation, and the experimental results do not demonstrate the effectiveness of the'}, {'role': 'user', 'content': 'continue'}, {'role': 'assistant', 'content': 'proposed approach.",
+          "id": "ev_e6c3d7a9212e673cc411d10f",
+          "observedAt": "2026-10-14T15:18:40.858Z"
+        },
+        {
+          "sourceId": "memory:context-181",
+          "sourceVersion": "sha256:07aae5c41502d51c831c31b11bff10170e4821b4bc042026d49ff7231d70424b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-181",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Real-Time Adaptation for Semantic Segmentation\" submission presents a framework called HAMLET for real-time domain adaptation in the context of semantic segmentation.\n\nThe framework is designed to improve the trade-off between accuracy and efficiency in online domain adaptation by using a Hardware-Aware Modular Training (HAMT) agent and an Active Training Modulation system.",
+          "id": "ev_9ae63df5dd5a7bf5b937a507",
+          "observedAt": "2026-10-14T15:18:40.858Z"
+        },
+        {
+          "sourceId": "memory:context-181",
+          "sourceVersion": "sha256:07aae5c41502d51c831c31b11bff10170e4821b4bc042026d49ff7231d70424b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-181",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "between accuracy and efficiency in online domain adaptation by using a Hardware-Aware Modular Training (HAMT) agent and an Active Training Modulation system.\n\nThe experimental evaluation is limited to two datasets, which may not fully capture the complexity and variability of real-world deployment scenarios.",
+          "id": "ev_b0ecd5e6936c5097e3f055cd",
+          "observedAt": "2026-10-14T15:18:40.858Z"
+        },
+        {
+          "sourceId": "memory:context-181",
+          "sourceVersion": "sha256:07aae5c41502d51c831c31b11bff10170e4821b4bc042026d49ff7231d70424b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-181",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Additionally, the relevance of the problem addressed in the submission is questionable, as real-time domain adaptation is not a practical concern in most deployment scenarios.\\n\\nReviewer Confidence\\n-------------------\\n\\nI have a low to medium confidence in my review, as I am not an expert in the field of online domain adaptation for semantic segmentation.\n\nHowever, based on the provided information, the proposed framework presents s",
+          "id": "ev_e2e26bd6f970bb19961bd8ea",
+          "observedAt": "2026-10-14T15:18:40.858Z"
+        }
+      ],
+      "sourceIds": [
+        "context-179",
+        "context-180",
+        "context-181"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 10.770332999999937,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-179",
+    "context-180",
+    "context-181"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T15:18:40.860672+00:00"
+}

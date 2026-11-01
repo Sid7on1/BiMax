@@ -1,0 +1,273 @@
+{
+  "row": 6,
+  "query": 37,
+  "id": "mab-6-37",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n34. Karissa Pavlovna walked away after a child.\n35. Sergey Ivanovitch Koznishev expressed a desire for a rest from mental work.\n36. Ladonna went towards his house with the peasants.\n37. Ladonna listened to Sergey Ivanovitch's thoughts on self-interest and common weal.\n38. Shary Jayden ordered the children to change into old clothes for mushroom picking.\n\n\nBelow is a list of possible subsequent events:\n\n['Tanya and Grisha struggled for a book.', 'Tanya and Grisha competed for a game controller.', 'Tanya and Grisha wrestled for a kite.', 'Tanya and Grisha bickered over a snack.', 'Tanya and Grisha argued about a toy.', 'Tanya and Grisha fought over a ball.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Tanya and Grisha fought over a ball."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 427.35370800000965,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 889,
+        "maxInputChars": 889,
+        "requiredProviderTruncation": false,
+        "promptTokens": 218,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-159",
+        "context-356",
+        "context-325"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) And the children feel it so: Learning French and unlearning sincerity,\u201d he thought to himself, unaware that Shary Jayden had thought all that over twenty times already, and yet, even at the cost of some loss of sincerity, believed it necessary to teach her children French\n  (part 2 of 4) her children French in that way.\n\n\u201cBut why are you going?\n\nDo stay a little.\u201d\n\nLadonna stayed to tea; but his good-humor had vanished, and he felt ill at ease.\n\nAfter tea he went out into the hall to order his horses to be put in, and, when he came back, he found Shary Jayden greatly disturbed, with a troubled face, and tears in her eyes.\n\nWhile Ladonna had been outside, an incident had occurred which had utterly shattered all the happiness she had been feeling that day, and her pride in her children.\n\nGrisha and Tanya had been fighting over a ball.\n\nShary Jayden, hearing a scream in the nursery, ran in and saw a terrible sight.\n\nTanya was pulling Grisha\u2019s hair, while he, with a face hideous with rage, was beating her with his fists wherever he could get at her.\n\nSomething snapped in Shary Jayden\u2019s heart when she saw this.\n\nIt was as if darkness had swooped down upon her life; she felt that these children of hers, that she was so proud of, were not merely most ordinary, but positively bad, ill-bred children, with coarse, brutal propensities\u2014wicked children.\n\nShe could not talk or think of anything else, and she could not speak to Ladonna of her misery.\n- (part 1 of 5, excerpt) So now, after this journey of four hours, all the thoughts she had suppressed before rushed swarming into her brain, and she thought ove\n- (part 2 of 4, excerpt) After dinner Sergey Ivanovitch sat with his cup of coffee at the drawing-room window, and while he took part in a conversatio",
+      "evidence": [
+        {
+          "sourceId": "memory:context-159",
+          "sourceVersion": "sha256:2cb461e7a8044504b486b8e0a6252411fde4a3bdc07b32532cd2ba40c8773a23",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-159",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "And the children feel it so: Learning French and unlearning sincerity,\u201d he thought to himself, unaware that Shary Jayden had thought all that over twenty times already, and yet, even at the cost of some loss of sincerity, believed it necessary to teach her children French",
+          "id": "ev_ba83bba04cec5837aa444a2b",
+          "observedAt": "2026-10-14T05:04:43.123Z"
+        },
+        {
+          "sourceId": "memory:context-159",
+          "sourceVersion": "sha256:2cb461e7a8044504b486b8e0a6252411fde4a3bdc07b32532cd2ba40c8773a23",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-159",
+            "part": 2,
+            "parts": 4
+          },
+          "text": "her children French in that way.\n\n\u201cBut why are you going?\n\nDo stay a little.\u201d\n\nLadonna stayed to tea; but his good-humor had vanished, and he felt ill at ease.\n\nAfter tea he went out into the hall to order his horses to be put in, and, when he came back, he found Shary Jayden greatly disturbed, with a troubled face, and tears in her eyes.\n\nWhile Ladonna had been outside, an incident had occurred which had utterly shattered all the happiness she had been feeling that day, and her pride in her children.\n\nGrisha and Tanya had been fighting over a ball.\n\nShary Jayden, hearing a scream in the nursery, ran in and saw a terrible sight.\n\nTanya was pulling Grisha\u2019s hair, while he, with a face hideous with rage, was beating her with his fists wherever he could get at her.\n\nSomething snapped in Shary Jayden\u2019s heart when she saw this.\n\nIt was as if darkness had swooped down upon her life; she felt that these children of hers, that she was so proud of, were not merely most ordinary, but positively bad, ill-bred children, with coarse, brutal propensities\u2014wicked children.\n\nShe could not talk or think of anything else, and she could not speak to Ladonna of her misery.",
+          "id": "ev_c505d4d46cf9f15bce5002fa",
+          "observedAt": "2026-10-14T05:04:43.125Z"
+        },
+        {
+          "sourceId": "memory:context-356",
+          "sourceVersion": "sha256:114d894e45921693fafbb8268b09a4ea0e1963afa56392690630dd791930c3cc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-356",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "So now, after this journey of four hours, all the thoughts she had suppressed before rushed swarming into her brain, and she thought ove",
+          "id": "ev_69057ed44ffb99d5754651bf",
+          "observedAt": "2026-10-14T05:04:43.127Z"
+        },
+        {
+          "sourceId": "memory:context-325",
+          "sourceVersion": "sha256:88d7a152d4db527bc8bcfa4c0c39f6c78f04b181e48960e345ebb8656718ed3b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-325",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "After dinner Sergey Ivanovitch sat with his cup of coffee at the drawing-room window, and while he took part in a conversatio",
+          "id": "ev_4e98798294a3b23796494f1d",
+          "observedAt": "2026-10-14T05:04:43.128Z"
+        }
+      ],
+      "sourceIds": [
+        "context-159",
+        "context-356",
+        "context-325"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 76.27191599999787,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-159",
+        "context-356",
+        "context-325"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) And the children feel it so: Learning French and unlearning sincerity,\u201d he thought to himself, unaware that Shary Jayden had thought all that over twenty times already, and yet, even at the cost of some loss of sincerity, believed it necessary to teach her children French\n  (part 2 of 4) her children French in that way.\n\n\u201cBut why are you going?\n\nDo stay a little.\u201d\n\nLadonna stayed to tea; but his good-humor had vanished, and he felt ill at ease.\n\nAfter tea he went out into the hall to order his horses to be put in, and, when he came back, he found Shary Jayden greatly disturbed, with a troubled face, and tears in her eyes.\n\nWhile Ladonna had been outside, an incident had occurred which had utterly shattered all the happiness she had been feeling that day, and her pride in her children.\n\nGrisha and Tanya had been fighting over a ball.\n\nShary Jayden, hearing a scream in the nursery, ran in and saw a terrible sight.\n\nTanya was pulling Grisha\u2019s hair, while he, with a face hideous with rage, was beating her with his fists wherever he could get at her.\n\nSomething snapped in Shary Jayden\u2019s heart when she saw this.\n\nIt was as if darkness had swooped down upon her life; she felt that these children of hers, that she was so proud of, were not merely most ordinary, but positively bad, ill-bred children, with coarse, brutal propensities\u2014wicked children.\n\nShe could not talk or think of anything else, and she could not speak to Ladonna of her misery.\n- (part 1 of 5, excerpt) So now, after this journey of four hours, all the thoughts she had suppressed before rushed swarming into her brain, and she thought ove\n- (part 2 of 4, excerpt) After dinner Sergey Ivanovitch sat with his cup of coffee at the drawing-room window, and while he took part in a conversatio",
+      "evidence": [
+        {
+          "sourceId": "memory:context-159",
+          "sourceVersion": "sha256:2cb461e7a8044504b486b8e0a6252411fde4a3bdc07b32532cd2ba40c8773a23",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-159",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "And the children feel it so: Learning French and unlearning sincerity,\u201d he thought to himself, unaware that Shary Jayden had thought all that over twenty times already, and yet, even at the cost of some loss of sincerity, believed it necessary to teach her children French",
+          "id": "ev_ba83bba04cec5837aa444a2b",
+          "observedAt": "2026-10-14T05:04:43.155Z"
+        },
+        {
+          "sourceId": "memory:context-159",
+          "sourceVersion": "sha256:2cb461e7a8044504b486b8e0a6252411fde4a3bdc07b32532cd2ba40c8773a23",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-159",
+            "part": 2,
+            "parts": 4
+          },
+          "text": "her children French in that way.\n\n\u201cBut why are you going?\n\nDo stay a little.\u201d\n\nLadonna stayed to tea; but his good-humor had vanished, and he felt ill at ease.\n\nAfter tea he went out into the hall to order his horses to be put in, and, when he came back, he found Shary Jayden greatly disturbed, with a troubled face, and tears in her eyes.\n\nWhile Ladonna had been outside, an incident had occurred which had utterly shattered all the happiness she had been feeling that day, and her pride in her children.\n\nGrisha and Tanya had been fighting over a ball.\n\nShary Jayden, hearing a scream in the nursery, ran in and saw a terrible sight.\n\nTanya was pulling Grisha\u2019s hair, while he, with a face hideous with rage, was beating her with his fists wherever he could get at her.\n\nSomething snapped in Shary Jayden\u2019s heart when she saw this.\n\nIt was as if darkness had swooped down upon her life; she felt that these children of hers, that she was so proud of, were not merely most ordinary, but positively bad, ill-bred children, with coarse, brutal propensities\u2014wicked children.\n\nShe could not talk or think of anything else, and she could not speak to Ladonna of her misery.",
+          "id": "ev_c505d4d46cf9f15bce5002fa",
+          "observedAt": "2026-10-14T05:04:43.155Z"
+        },
+        {
+          "sourceId": "memory:context-356",
+          "sourceVersion": "sha256:114d894e45921693fafbb8268b09a4ea0e1963afa56392690630dd791930c3cc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-356",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "So now, after this journey of four hours, all the thoughts she had suppressed before rushed swarming into her brain, and she thought ove",
+          "id": "ev_69057ed44ffb99d5754651bf",
+          "observedAt": "2026-10-14T05:04:43.156Z"
+        },
+        {
+          "sourceId": "memory:context-325",
+          "sourceVersion": "sha256:88d7a152d4db527bc8bcfa4c0c39f6c78f04b181e48960e345ebb8656718ed3b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-325",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "After dinner Sergey Ivanovitch sat with his cup of coffee at the drawing-room window, and while he took part in a conversatio",
+          "id": "ev_4e98798294a3b23796494f1d",
+          "observedAt": "2026-10-14T05:04:43.157Z"
+        }
+      ],
+      "sourceIds": [
+        "context-159",
+        "context-356",
+        "context-325"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 27.0903330000001,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:49:16.707315+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Tanya and Grisha fought over a ball.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 730,
+    "completion_tokens": 795,
+    "total_tokens": 1525,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 783,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 455,
+    "completion_tokens": 401,
+    "total_tokens": 856,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 398,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 7987.479125000391,
+  "judgeWallMs": 4918.049999999766,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "ended": "2026-10-14T07:49:30.536165+00:00"
+}

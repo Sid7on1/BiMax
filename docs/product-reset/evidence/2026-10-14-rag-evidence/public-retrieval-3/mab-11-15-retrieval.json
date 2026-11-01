@@ -1,0 +1,391 @@
+{
+  "row": 11,
+  "query": 15,
+  "id": "mab-11-15",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:41:29.017115+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n12. Edie Arkadyevitch listened to the staff captain's widow's request.\n13. Edie Arkadyevitch expressed internal conflict about his relationship with Charissa.\n14. Shary Jayden expressed a desire to leave Edie Arkadyevitch.\n15. Edie Arkadyevitch pleaded with Charissa for forgiveness.\n16. Edie Arkadyevitch felt sorrow upon seeing Charissa's suffering face.\n\n\nBelow is a list of possible subsequent events:\n\n[\"Edie Arkadyevitch remarked on the smile that faded from Shary's lips as the phone rang unexpectedly.\", \"Edie Arkadyevitch sensed a warmth in Shary's smile as she gazed at the familiar sunset.\", \"Edie Arkadyevitch noted a shift in Shary's posture as the thunder rumbled outside.\", 'Edie Arkadyevitch felt a chill in the air when Shary mentioned a forgotten secret.', \"Edie Arkadyevitch observed a change in Charissa's demeanor upon hearing a child's cry.\", \"Edie Arkadyevitch detected a flicker of anxiety in Shary's voice when the lights began to dim.\"]\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Edie Arkadyevitch observed a change in Charissa's demeanor upon hearing a child's cry."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 298.4433330000011,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1187,
+        "maxInputChars": 1187,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-2",
+        "context-6",
+        "context-1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5, excerpt) \u201cAlone, or with her husband?\u201d inquired Matvey.\n\nEdie Arkadyevitch could not answer, as the barber was at work on his upper lip, and he raised one finger.\n\nMatvey nodded at the looking-glass.\n\n\u201cAlone.\n\nIs the room to be got ready upstairs?\u201d\n  (part 3 of 5) orders.\u201d\n\n\u201cShary Jayden?\u201d Matvey repeated, as though in doubt.\n\n\u201cYes, inform her.\n\nHere, take the telegram; give it to her, and then do what she tells you.\u201d\n\n\u201cYou want to try it on,\u201d Matvey understood, but he only said, \u201cYes, sir.\u201d\n\nEdie Arkadyevitch was already washed and combed and ready to be dressed, when Matvey, stepping deliberately in his creaky boots, came back into the room with the telegram in his hand.\n\nThe barber had gone.\n\n\u201cShary Jayden told me to inform you that she is going away.\n\nLet him do\u2014that is you\u2014as he likes,\u201d he said, laughing only with his eyes, and putting his hands in his pockets, he watched his master with his head on one side.\n\nEdie Arkadyevitch was silent a minute.\n\nThen a good-humored and rather pitiful smile showed itself on his handsome face.\n\n\u201cEh, Matvey?\u201d he said, shaking his head.\n\n\u201cIt\u2019s all right, sir; she will come round,\u201d said Matvey.\n\n\u201cCome round?\u201d\n\n\u201cYes, sir.\u201d\n\n\u201cDo you think so?\n\nWho\u2019s there?\u201d asked Edie Arkadyevitch, hearing the rustle of a woman\u2019s dress at the door.\n\n\u201cIt\u2019s I,\u201d said a firm, pleasant, woman\u2019s voice, and the stern, pockmarked face of Matrona Philimonovna, the nurse, was thrust in at the doorway.\n- (part 1 of 5, excerpt) Edie Arkadyevitch could be calm when he thought of his wife, he could hope that she would come round, as Matvey expressed it, and could quietly go on reading his paper and\n- (part 1 of 5, excerpt) Instead of being hurt, denying, defending himself, begging forgiveness, instead of remaining indifferent even\u2014anything would",
+      "evidence": [
+        {
+          "sourceId": "memory:context-2",
+          "sourceVersion": "sha256:34d45c33fb4df56f18814b3e80dc83f566d62399810aec564c06bea2b19ad6e8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-2",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cAlone, or with her husband?\u201d inquired Matvey.\n\nEdie Arkadyevitch could not answer, as the barber was at work on his upper lip, and he raised one finger.\n\nMatvey nodded at the looking-glass.\n\n\u201cAlone.\n\nIs the room to be got ready upstairs?\u201d",
+          "id": "ev_3534cb96154882e12c00db43",
+          "observedAt": "2026-10-14T08:41:29.318Z"
+        },
+        {
+          "sourceId": "memory:context-2",
+          "sourceVersion": "sha256:34d45c33fb4df56f18814b3e80dc83f566d62399810aec564c06bea2b19ad6e8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-2",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "orders.\u201d\n\n\u201cShary Jayden?\u201d Matvey repeated, as though in doubt.\n\n\u201cYes, inform her.\n\nHere, take the telegram; give it to her, and then do what she tells you.\u201d\n\n\u201cYou want to try it on,\u201d Matvey understood, but he only said, \u201cYes, sir.\u201d\n\nEdie Arkadyevitch was already washed and combed and ready to be dressed, when Matvey, stepping deliberately in his creaky boots, came back into the room with the telegram in his hand.\n\nThe barber had gone.\n\n\u201cShary Jayden told me to inform you that she is going away.\n\nLet him do\u2014that is you\u2014as he likes,\u201d he said, laughing only with his eyes, and putting his hands in his pockets, he watched his master with his head on one side.\n\nEdie Arkadyevitch was silent a minute.\n\nThen a good-humored and rather pitiful smile showed itself on his handsome face.\n\n\u201cEh, Matvey?\u201d he said, shaking his head.\n\n\u201cIt\u2019s all right, sir; she will come round,\u201d said Matvey.\n\n\u201cCome round?\u201d\n\n\u201cYes, sir.\u201d\n\n\u201cDo you think so?\n\nWho\u2019s there?\u201d asked Edie Arkadyevitch, hearing the rustle of a woman\u2019s dress at the door.\n\n\u201cIt\u2019s I,\u201d said a firm, pleasant, woman\u2019s voice, and the stern, pockmarked face of Matrona Philimonovna, the nurse, was thrust in at the doorway.",
+          "id": "ev_1c6594ac8ac7e2245f6a4abd",
+          "observedAt": "2026-10-14T08:41:29.318Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:5565050eb0348f75996f44a2f2a2f03005e5bcf4f661f2f48b20d78f15b25b9b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Edie Arkadyevitch could be calm when he thought of his wife, he could hope that she would come round, as Matvey expressed it, and could quietly go on reading his paper and",
+          "id": "ev_698a108300428a69f6efbceb",
+          "observedAt": "2026-10-14T08:41:29.318Z"
+        },
+        {
+          "sourceId": "memory:context-1",
+          "sourceVersion": "sha256:f80f8b4d5d54e30909694ed8d82dc860dc5bfb98ff4248bb3403b183dc84a35e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-1",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Instead of being hurt, denying, defending himself, begging forgiveness, instead of remaining indifferent even\u2014anything would",
+          "id": "ev_2b1294dd2bd513debb629ac1",
+          "observedAt": "2026-10-14T08:41:29.319Z"
+        }
+      ],
+      "sourceIds": [
+        "context-2",
+        "context-6",
+        "context-1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.192250000000058,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-2",
+        "context-6",
+        "context-1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) In the glance, in which their eyes met in the looking-glass, it was clear that they understood one another.\n\nEdie Arkadyevitch\u2019s eyes asked: \u201cWhy do you tell me that?\n\ndon\u2019t you know?\u201d\n\nMatvey put his hands in his jacket pockets, thrust out one leg, and gazed silently, good-humoredly, with a faint smile, at his master.\n\n\u201cI told them to come on Sunday, and till then not to trouble you or themselves for nothing,\u201d he said.\n\nHe had obviously prepared the sentence beforehand.\n\nEdie Arkadyevitch saw Matvey wanted to make a joke and attract attention to himself.\n  (part 2 of 5, excerpt) \u201cThank God!\u201d said Matvey, showing by this response that he, like his master, realized the significance of this arrival\u2014that is, that Karissa Roosevelt, the sister he was so fond of, might bring about a reconciliation between husband and wife.\n\n\u201cAlone, or with her husband?\u201d inquired Matvey.\n\nEdie Arkadyevitch could not answer, as the barber was at work on his upper lip, and he raised one finger.\n\nMatvey nodded at the looking-glass.\n\n\u201cAlone.\n\nIs the room to be got ready upstairs?\u201d\n  (part 3 of 5, excerpt) \u201cYes, inform her.\n\nHere, take the telegram; give it to her, and then do what she tells you.\u201d\n\n\u201cYou want to try it on,\u201d Matvey understood, but he only said, \u201cYes, sir.\u201d\n\nEdie Arkadyevitch was already washed and combed and ready to be dressed, when Matvey, stepping deliberately in his creaky boots, came back into the room with the telegram in his hand.\n\nThe barber had gone.\n\n\u201cShary Jayden told me to inform you that she is going away.\n  (part 4 of 5, excerpt) \u201cWell, what is it, Matrona?\u201d queried Edie Arkadyevitch, going up to her at the door.\n\nAlthough Edie Arkadyevitch was completely in the wrong as regards his wife, and was conscious of this himself, almost everyone in the house (even the nurse, Shary Jayden\u2019s chief ally) was on his side.\n\n\u201cWell, what now?\u201d he asked disconsolately.\n\n\u201cGo to her, sir; own your fault again.\n\nMaybe God will aid you.\n- (part 1 of 5, excerpt) Edie Arkadyevitch could be calm when he thought of his wife, he could hope that she would come round, as Matvey expressed it, and could quietly go on reading his paper and drinking his coffee; but when he saw her tortured, suffering face, heard the tone of her voice, submissive to fate and full of despair, there was a catch in his breath and a lump in his throat, and his eyes began to shine with tears.\n\n\u201cMy God!\n\nwhat have I done?\n\nCharissa!\n\nFor God\u2019s sake!...\n  (part 2 of 5, excerpt) \u201cGo away, go out of the room!\u201d she shrieked still more shrilly, \u201cand don\u2019t talk to me of your passion and your loathsomeness.\u201d\n\nShe tried to go out, but tottered, and clung to the back of a chair to support herself.\n\nHis face relaxed, his lips swelled, his eyes were swimming with tears.\n\n\u201cCharissa!\u201d he said, sobbing now; \u201cfor mercy\u2019s sake, think of the children; they are not to blame!\n\nI am to blame, and punish me, make me expiate my fault.\n\nAnything I can do, I am ready to do anything!\n\nI am to blame, no words can express how much I am to blame!\n\nBut, Charissa, forgive me!\u201d\n\nShe sat down.\n  (part 4 of 5, excerpt) She saw in him sympathy for her, but not love.\n\n\u201cNo, she hates me.\n\nShe will not forgive me,\u201d he thought.\n\n\u201cIt is awful!\n\nawful!\u201d he said.\n\nAt that moment in the next room a child began to cry; probably it had fallen down.\n\nShary Jayden listened, and her face suddenly softened.\n\nShe seemed to be pulling herself together for a few seconds, as though she did not know where she was, and what she was doing, and getting up rapidly, she moved towards the door.\n  (part 5 of 5) herself together for a few seconds, as though she did not know where she was, and what she was doing, and getting up rapidly, she moved towards the door.\n\n\u201cWell, she loves my child,\u201d he thought, noticing the change of her face at the child\u2019s cry, \u201cmy child: how can she hate me?\u201d\n\n\u201cCharissa, one word more,\u201d he said, following her.\n\n\u201cIf you come near me, I will\n- (part 1 of 5, excerpt) Instead of being hurt, denying, defending himself, begging forgiveness, instead of remaining indifferent even\u2014anything would have been better than what he did do\u2014his face utterly involuntarily (reflex spinal action, reflected Edie Arkadyevitch, who was fond of physiology)\u2014utterly involuntarily assumed its habitual, good-humored, and therefore idiotic smile.\n\nThis idiotic smile he could not forgive himself.\n  (part 2 of 5, excerpt) physical pain, broke out with her characteristic heat into a flood of cruel words, and rushed out of the room.\n\nSince then she had refused to see her husband.\n\n\u201cIt\u2019s that idiotic smile that\u2019s to blame for it all,\u201d thought Edie Arkadyevitch.\n\n\u201cBut what\u2019s to be done?\n\nWhat\u2019s to be done?\u201d he said to himself in despair, and found no answer.\n\nChapter 2\n\nEdie Arkadyevitch was a truthful man in his relations with himself.\n  (part 3 of 5, excerpt) He had even supposed that she, a worn-out woman no longer young or good-looking, and in no way remarkable or interesting, merely a good mother, ought from a sense of fairness to take an indulgent view.\n\nIt had turned out quite the other way.\n\n\u201cOh, it\u2019s awful!\n\noh dear, oh dear!\n\nawful!\u201d Edie Arkadyevitch kept repeating to himself, and he could think of nothing to be done.\n\n\u201cAnd how well things were going up till now!\n\nhow well we got on!\n\nShe was contented and happy in her children; I never interfered with her in anything; I let her manage the children and the house just as she liked.\n\nIt\u2019s true it\u2019s bad her having been a governess in our house.\n\nThat\u2019s bad!\n  (part 4 of 5, excerpt) \u201cThen we shall see,\u201d Edie Arkadyevitch said to himself, and getting up he put on a gray dressing-gown lined with blue silk, tied the tassels in a knot, and, drawing a deep breath of air into his broad, bare chest, he walked to the window with his usual confident step, turning out his feet that carried his full frame so easily.\n\nHe pulled up the blind and rang the bell loudly.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-2",
+          "sourceVersion": "sha256:34d45c33fb4df56f18814b3e80dc83f566d62399810aec564c06bea2b19ad6e8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-2",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In the glance, in which their eyes met in the looking-glass, it was clear that they understood one another.\n\nEdie Arkadyevitch\u2019s eyes asked: \u201cWhy do you tell me that?\n\ndon\u2019t you know?\u201d\n\nMatvey put his hands in his jacket pockets, thrust out one leg, and gazed silently, good-humoredly, with a faint smile, at his master.\n\n\u201cI told them to come on Sunday, and till then not to trouble you or themselves for nothing,\u201d he said.\n\nHe had obviously prepared the sentence beforehand.\n\nEdie Arkadyevitch saw Matvey wanted to make a joke and attract attention to himself.",
+          "id": "ev_bace8d93f60622f39fa23c8d",
+          "observedAt": "2026-10-14T08:41:29.323Z"
+        },
+        {
+          "sourceId": "memory:context-2",
+          "sourceVersion": "sha256:34d45c33fb4df56f18814b3e80dc83f566d62399810aec564c06bea2b19ad6e8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-2",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cThank God!\u201d said Matvey, showing by this response that he, like his master, realized the significance of this arrival\u2014that is, that Karissa Roosevelt, the sister he was so fond of, might bring about a reconciliation between husband and wife.\n\n\u201cAlone, or with her husband?\u201d inquired Matvey.\n\nEdie Arkadyevitch could not answer, as the barber was at work on his upper lip, and he raised one finger.\n\nMatvey nodded at the looking-glass.\n\n\u201cAlone.\n\nIs the room to be got ready upstairs?\u201d",
+          "id": "ev_f8d210b10728e0c1c1f2acdd",
+          "observedAt": "2026-10-14T08:41:29.323Z"
+        },
+        {
+          "sourceId": "memory:context-2",
+          "sourceVersion": "sha256:34d45c33fb4df56f18814b3e80dc83f566d62399810aec564c06bea2b19ad6e8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-2",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cYes, inform her.\n\nHere, take the telegram; give it to her, and then do what she tells you.\u201d\n\n\u201cYou want to try it on,\u201d Matvey understood, but he only said, \u201cYes, sir.\u201d\n\nEdie Arkadyevitch was already washed and combed and ready to be dressed, when Matvey, stepping deliberately in his creaky boots, came back into the room with the telegram in his hand.\n\nThe barber had gone.\n\n\u201cShary Jayden told me to inform you that she is going away.",
+          "id": "ev_df692aa9ac18b0f5cd402877",
+          "observedAt": "2026-10-14T08:41:29.323Z"
+        },
+        {
+          "sourceId": "memory:context-2",
+          "sourceVersion": "sha256:34d45c33fb4df56f18814b3e80dc83f566d62399810aec564c06bea2b19ad6e8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-2",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cWell, what is it, Matrona?\u201d queried Edie Arkadyevitch, going up to her at the door.\n\nAlthough Edie Arkadyevitch was completely in the wrong as regards his wife, and was conscious of this himself, almost everyone in the house (even the nurse, Shary Jayden\u2019s chief ally) was on his side.\n\n\u201cWell, what now?\u201d he asked disconsolately.\n\n\u201cGo to her, sir; own your fault again.\n\nMaybe God will aid you.",
+          "id": "ev_003d2475af3b42c563aff4ce",
+          "observedAt": "2026-10-14T08:41:29.323Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:5565050eb0348f75996f44a2f2a2f03005e5bcf4f661f2f48b20d78f15b25b9b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Edie Arkadyevitch could be calm when he thought of his wife, he could hope that she would come round, as Matvey expressed it, and could quietly go on reading his paper and drinking his coffee; but when he saw her tortured, suffering face, heard the tone of her voice, submissive to fate and full of despair, there was a catch in his breath and a lump in his throat, and his eyes began to shine with tears.\n\n\u201cMy God!\n\nwhat have I done?\n\nCharissa!\n\nFor God\u2019s sake!...",
+          "id": "ev_6c7027f6c279ab708bbb942b",
+          "observedAt": "2026-10-14T08:41:29.325Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:5565050eb0348f75996f44a2f2a2f03005e5bcf4f661f2f48b20d78f15b25b9b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cGo away, go out of the room!\u201d she shrieked still more shrilly, \u201cand don\u2019t talk to me of your passion and your loathsomeness.\u201d\n\nShe tried to go out, but tottered, and clung to the back of a chair to support herself.\n\nHis face relaxed, his lips swelled, his eyes were swimming with tears.\n\n\u201cCharissa!\u201d he said, sobbing now; \u201cfor mercy\u2019s sake, think of the children; they are not to blame!\n\nI am to blame, and punish me, make me expiate my fault.\n\nAnything I can do, I am ready to do anything!\n\nI am to blame, no words can express how much I am to blame!\n\nBut, Charissa, forgive me!\u201d\n\nShe sat down.",
+          "id": "ev_66dbf759a0f1a6b9242b3f17",
+          "observedAt": "2026-10-14T08:41:29.325Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:5565050eb0348f75996f44a2f2a2f03005e5bcf4f661f2f48b20d78f15b25b9b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "She saw in him sympathy for her, but not love.\n\n\u201cNo, she hates me.\n\nShe will not forgive me,\u201d he thought.\n\n\u201cIt is awful!\n\nawful!\u201d he said.\n\nAt that moment in the next room a child began to cry; probably it had fallen down.\n\nShary Jayden listened, and her face suddenly softened.\n\nShe seemed to be pulling herself together for a few seconds, as though she did not know where she was, and what she was doing, and getting up rapidly, she moved towards the door.",
+          "id": "ev_c23067cbc2aef54773cbbb00",
+          "observedAt": "2026-10-14T08:41:29.325Z"
+        },
+        {
+          "sourceId": "memory:context-6",
+          "sourceVersion": "sha256:5565050eb0348f75996f44a2f2a2f03005e5bcf4f661f2f48b20d78f15b25b9b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-6",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "herself together for a few seconds, as though she did not know where she was, and what she was doing, and getting up rapidly, she moved towards the door.\n\n\u201cWell, she loves my child,\u201d he thought, noticing the change of her face at the child\u2019s cry, \u201cmy child: how can she hate me?\u201d\n\n\u201cCharissa, one word more,\u201d he said, following her.\n\n\u201cIf you come near me, I will",
+          "id": "ev_9d1bd17291bd3399fcbef35d",
+          "observedAt": "2026-10-14T08:41:29.325Z"
+        },
+        {
+          "sourceId": "memory:context-1",
+          "sourceVersion": "sha256:f80f8b4d5d54e30909694ed8d82dc860dc5bfb98ff4248bb3403b183dc84a35e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-1",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Instead of being hurt, denying, defending himself, begging forgiveness, instead of remaining indifferent even\u2014anything would have been better than what he did do\u2014his face utterly involuntarily (reflex spinal action, reflected Edie Arkadyevitch, who was fond of physiology)\u2014utterly involuntarily assumed its habitual, good-humored, and therefore idiotic smile.\n\nThis idiotic smile he could not forgive himself.",
+          "id": "ev_812c0843da0304df5904ed1e",
+          "observedAt": "2026-10-14T08:41:29.327Z"
+        },
+        {
+          "sourceId": "memory:context-1",
+          "sourceVersion": "sha256:f80f8b4d5d54e30909694ed8d82dc860dc5bfb98ff4248bb3403b183dc84a35e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-1",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "physical pain, broke out with her characteristic heat into a flood of cruel words, and rushed out of the room.\n\nSince then she had refused to see her husband.\n\n\u201cIt\u2019s that idiotic smile that\u2019s to blame for it all,\u201d thought Edie Arkadyevitch.\n\n\u201cBut what\u2019s to be done?\n\nWhat\u2019s to be done?\u201d he said to himself in despair, and found no answer.\n\nChapter 2\n\nEdie Arkadyevitch was a truthful man in his relations with himself.",
+          "id": "ev_9e851b37dd8892bc4e4ecbd0",
+          "observedAt": "2026-10-14T08:41:29.327Z"
+        },
+        {
+          "sourceId": "memory:context-1",
+          "sourceVersion": "sha256:f80f8b4d5d54e30909694ed8d82dc860dc5bfb98ff4248bb3403b183dc84a35e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-1",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "He had even supposed that she, a worn-out woman no longer young or good-looking, and in no way remarkable or interesting, merely a good mother, ought from a sense of fairness to take an indulgent view.\n\nIt had turned out quite the other way.\n\n\u201cOh, it\u2019s awful!\n\noh dear, oh dear!\n\nawful!\u201d Edie Arkadyevitch kept repeating to himself, and he could think of nothing to be done.\n\n\u201cAnd how well things were going up till now!\n\nhow well we got on!\n\nShe was contented and happy in her children; I never interfered with her in anything; I let her manage the children and the house just as she liked.\n\nIt\u2019s true it\u2019s bad her having been a governess in our house.\n\nThat\u2019s bad!",
+          "id": "ev_35e15d3e502c7132e3508c11",
+          "observedAt": "2026-10-14T08:41:29.327Z"
+        },
+        {
+          "sourceId": "memory:context-1",
+          "sourceVersion": "sha256:f80f8b4d5d54e30909694ed8d82dc860dc5bfb98ff4248bb3403b183dc84a35e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-1",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cThen we shall see,\u201d Edie Arkadyevitch said to himself, and getting up he put on a gray dressing-gown lined with blue silk, tied the tassels in a knot, and, drawing a deep breath of air into his broad, bare chest, he walked to the window with his usual confident step, turning out his feet that carried his full frame so easily.\n\nHe pulled up the blind and rang the bell loudly.",
+          "id": "ev_bf373db547e4e91f5ce83d39",
+          "observedAt": "2026-10-14T08:41:29.327Z"
+        }
+      ],
+      "sourceIds": [
+        "context-2",
+        "context-6",
+        "context-1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.37945800000125,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-2",
+    "context-6",
+    "context-1"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:41:29.330798+00:00"
+}

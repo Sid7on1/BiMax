@@ -1,0 +1,143 @@
+{
+  "method": "median of all 36 batch-normalized per-call samples per version from two qualified ABBA runs, no discarded samples",
+  "sourceHashes": {
+    "baseline:src/memory/context.manager.ts": "197f8250b3f5b44c8897c65cd94856767a1c17c10b9e01d3034bae575ad3716a",
+    "baseline:src/context/continuation.ts": "323ff592d831419c4d753781876add0cbff54fde99b12a82a07e2495ae504178",
+    "current:src/memory/context.manager.ts": "f07456dfc755e820e260faa671c03c44c7381693b01108a09f97a2879cf7975e",
+    "current:src/context/continuation.ts": "c302f015ddc36c67252a6800294d2ebaffbea25fa6813e0e863ff27dfe0d4408"
+  },
+  "results": [
+    {
+      "name": "summary-small-five",
+      "baselineMs": 0.0007162916666666585,
+      "currentMs": 0.0008283471666666647,
+      "speedup": 0.8647239895188794,
+      "reductionPercent": -15.643836891397722,
+      "baselineP95Ms": 0.0009285553333333306,
+      "currentP95Ms": 0.0009934166666666707,
+      "samplesPerVersion": 36,
+      "discarded": 0
+    },
+    {
+      "name": "summary-uniform-400",
+      "baselineMs": 0.5350453062500002,
+      "currentMs": 0.5380088625000006,
+      "speedup": 0.9944916218736075,
+      "reductionPercent": -0.5538888418199939,
+      "baselineP95Ms": 0.6416588499999989,
+      "currentP95Ms": 0.6152520874999994,
+      "samplesPerVersion": 36,
+      "discarded": 0
+    },
+    {
+      "name": "summary-100-KiB-read",
+      "baselineMs": 0.21473917000000256,
+      "currentMs": 0.0064170800000010785,
+      "speedup": 33.46368909222987,
+      "reductionPercent": 97.01168631693929,
+      "baselineP95Ms": 0.2332050000000072,
+      "currentP95Ms": 0.010202500000004874,
+      "samplesPerVersion": 36,
+      "discarded": 0
+    },
+    {
+      "name": "summary-one-MiB-read",
+      "baselineMs": 2.195195849999982,
+      "currentMs": 0.0066687499999943615,
+      "speedup": 329.1765098409504,
+      "reductionPercent": 99.6962116159251,
+      "baselineP95Ms": 2.288520800000015,
+      "currentP95Ms": 0.008683300000029703,
+      "samplesPerVersion": 36,
+      "discarded": 0
+    },
+    {
+      "name": "summary-eight-MiB-read",
+      "baselineMs": 17.369146000000114,
+      "currentMs": 0.01019775000008849,
+      "speedup": 1703.2331641636042,
+      "reductionPercent": 99.94128813241544,
+      "baselineP95Ms": 18.251666500000056,
+      "currentP95Ms": 0.014520999999831474,
+      "samplesPerVersion": 36,
+      "discarded": 0
+    },
+    {
+      "name": "continuation-render-5-Infinity",
+      "baselineMs": 0.0030721869999997577,
+      "currentMs": 0.0030764585000001717,
+      "speedup": 0.9986115528617032,
+      "reductionPercent": -0.1390377604102433,
+      "baselineP95Ms": 0.0035912499999999456,
+      "currentP95Ms": 0.0038731250000000727,
+      "samplesPerVersion": 36,
+      "discarded": 0
+    },
+    {
+      "name": "continuation-render-500-Infinity",
+      "baselineMs": 0.022837915000000066,
+      "currentMs": 0.013028540000000248,
+      "speedup": 1.7529143710653405,
+      "reductionPercent": 42.95214777706191,
+      "baselineP95Ms": 0.0243941599999971,
+      "currentP95Ms": 0.01588666000000103,
+      "samplesPerVersion": 36,
+      "discarded": 0
+    },
+    {
+      "name": "continuation-render-500-1200",
+      "baselineMs": 0.19334333000000015,
+      "currentMs": 0.0371100000000024,
+      "speedup": 5.210006197790021,
+      "reductionPercent": 80.8061648674395,
+      "baselineP95Ms": 0.20168959000000086,
+      "currentP95Ms": 0.04556457999999566,
+      "samplesPerVersion": 36,
+      "discarded": 0
+    },
+    {
+      "name": "continuation-absorb-10",
+      "baselineMs": 0.06054680666666627,
+      "currentMs": 0.06070958333333389,
+      "speedup": 0.9973187648847156,
+      "reductionPercent": -0.26884434643064115,
+      "baselineP95Ms": 0.06947097333333356,
+      "currentP95Ms": 0.07024374999999963,
+      "samplesPerVersion": 36,
+      "discarded": 0
+    },
+    {
+      "name": "continuation-absorb-1000",
+      "baselineMs": 1.506420849999995,
+      "currentMs": 1.3595645999999761,
+      "speedup": 1.1080171181273926,
+      "reductionPercent": 9.748686763066194,
+      "baselineP95Ms": 1.5361917000000176,
+      "currentP95Ms": 1.3934541999999965,
+      "samplesPerVersion": 36,
+      "discarded": 0
+    },
+    {
+      "name": "continuation-absorb-10000",
+      "baselineMs": 15.803229249999731,
+      "currentMs": 14.301593749999938,
+      "speedup": 1.1049977734124772,
+      "reductionPercent": 9.502080089104691,
+      "baselineP95Ms": 17.39191699999992,
+      "currentP95Ms": 16.44208350000008,
+      "samplesPerVersion": 36,
+      "discarded": 0
+    },
+    {
+      "name": "full-compaction-one-MiB-fixture-summarizer",
+      "baselineMs": 2.4143000000000026,
+      "currentMs": 0.09914990000006582,
+      "speedup": 24.349999344410836,
+      "reductionPercent": 95.89322370873273,
+      "baselineP95Ms": 3.2897918000000574,
+      "currentP95Ms": 0.21969159999989643,
+      "samplesPerVersion": 36,
+      "discarded": 0
+    }
+  ]
+}

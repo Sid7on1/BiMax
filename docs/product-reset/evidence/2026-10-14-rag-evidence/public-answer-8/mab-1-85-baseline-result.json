@@ -1,0 +1,143 @@
+{
+  "row": 1,
+  "query": 85,
+  "id": "mab-1-85",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:47:54.484045+00:00",
+  "valid": true,
+  "question": "When was the American lawyer, lobbyist and political consultant who was a senior member of the presidential campaign of Donald Trump born?",
+  "references": [
+    "April 1, 1949"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-276",
+    "context-194",
+    "context-440"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:48:08.951810+00:00",
+  "rag": {
+    "ids": [
+      "context-276",
+      "context-194",
+      "context-440"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 6) which would form the largest generic drug sourcing operation in the United States. The venture was named Red Oak Sourcing and began operations in July 2014.\n\nDocument 1984:\nTrump campaign\u2013Russian meeting\nOn June 9, 2016, a meeting was held in Trump Tower in New York City between three senior members of the presidential campaign of Donald TrumpDonald Trump Jr., Jared Kushner, and Paul Manafortand at least five other people, including Russian lawyer Natalia Veselnitskaya. The meeting was arranged by publicist and long-time Trump acquantiance, Rob Goldstone on behalf of his client, singer-songwriter Emin Agalarov. It was disclosed to U.S. government officials when Kushner filed a revised version of his security clearance form.\n\nDocument 1985:\nChristopher de Haro\nChristopher de Haro (in Portuguese, Crist\u00f3v\u00e3o de Haro) was a Lisbon-based merchant of Flemish origin. As a financier and representative of the Fuggers he provided the financial backing to Ferdinand Magellan's 1519 voyage, the first circumnavigation around the world.\n- (part 5 of 6, excerpt) Paul John Manafort Jr. (born April 1, 1949) is an American lawyer, lobbyist and political consultant. He joined Donald Trump's presidential campaign team in March 2016 and served as campaign manager from June to August 2016. He was previously an adviser to the U.S. presidential campaigns of Republicans Gerald Ford, Ronald Reagan, George H. W. Bush, and Bob Dole. In 1980 Manafort co-founded the Washington, D.C.-based lobbying firm Black, Manafort & Stone, along with principals Charles R. Black Jr., and Roger J. Stone. In 1984 it was renamed Black, Manafort, Stone\n- (part 4 of 6, excerpt) Donald Trump's presidential campaign of 2000 for the nomination of the Reform Party began when real estate magnate Donald Tru",
+    "evidence": [
+      {
+        "sourceId": "memory:context-276",
+        "sourceVersion": "sha256:a10591a0e3418d0d314e88521e0069a502a825e4b0b0c1836e124f366063ae17",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-276",
+          "part": 2,
+          "parts": 6
+        },
+        "text": "which would form the largest generic drug sourcing operation in the United States. The venture was named Red Oak Sourcing and began operations in July 2014.\n\nDocument 1984:\nTrump campaign\u2013Russian meeting\nOn June 9, 2016, a meeting was held in Trump Tower in New York City between three senior members of the presidential campaign of Donald TrumpDonald Trump Jr., Jared Kushner, and Paul Manafortand at least five other people, including Russian lawyer Natalia Veselnitskaya. The meeting was arranged by publicist and long-time Trump acquantiance, Rob Goldstone on behalf of his client, singer-songwriter Emin Agalarov. It was disclosed to U.S. government officials when Kushner filed a revised version of his security clearance form.\n\nDocument 1985:\nChristopher de Haro\nChristopher de Haro (in Portuguese, Crist\u00f3v\u00e3o de Haro) was a Lisbon-based merchant of Flemish origin. As a financier and representative of the Fuggers he provided the financial backing to Ferdinand Magellan's 1519 voyage, the first circumnavigation around the world.",
+        "id": "ev_44c3ed165c4e165b489a4b3f",
+        "observedAt": "2026-10-14T08:41:10.714Z"
+      },
+      {
+        "sourceId": "memory:context-194",
+        "sourceVersion": "sha256:2474a58a6f5bfd4e8b5ca8b0f36abb8ae30a48d3596520bd133fff5ac25a4506",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-194",
+          "part": 5,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "Paul John Manafort Jr. (born April 1, 1949) is an American lawyer, lobbyist and political consultant. He joined Donald Trump's presidential campaign team in March 2016 and served as campaign manager from June to August 2016. He was previously an adviser to the U.S. presidential campaigns of Republicans Gerald Ford, Ronald Reagan, George H. W. Bush, and Bob Dole. In 1980 Manafort co-founded the Washington, D.C.-based lobbying firm Black, Manafort & Stone, along with principals Charles R. Black Jr., and Roger J. Stone. In 1984 it was renamed Black, Manafort, Stone",
+        "id": "ev_ee297927412ef3e920be324f",
+        "observedAt": "2026-10-14T08:41:10.714Z"
+      },
+      {
+        "sourceId": "memory:context-440",
+        "sourceVersion": "sha256:24a3ea0d276c7f88d5c682de63df02a300ab8aca4fb24f65572382575900e944",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-440",
+          "part": 4,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "Donald Trump's presidential campaign of 2000 for the nomination of the Reform Party began when real estate magnate Donald Tru",
+        "id": "ev_42849de08973cacd28b23bbd",
+        "observedAt": "2026-10-14T08:41:10.714Z"
+      }
+    ],
+    "sourceIds": [
+      "context-276",
+      "context-194",
+      "context-440"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 2.854583000007551,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Paul John Manafort Jr. was born on April 1, 1949.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.46153846153846156
+  },
+  "readerUsage": {
+    "prompt_tokens": 558,
+    "completion_tokens": 485,
+    "total_tokens": 1043,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 464,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 280,
+    "completion_tokens": 580,
+    "total_tokens": 860,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 577,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 6352.10966700015,
+  "judgeWallMs": 7964.026749999903
+}

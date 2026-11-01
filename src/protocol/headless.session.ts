@@ -13,6 +13,7 @@ import { getSessionRecorder } from '../engine/session.recorder';
 import { clearSteer, drainSteer, pushSteer } from '../core/steering';
 import { attachedPictures, MAX_PICTURE_BYTES, MAX_TURN_PICTURES } from '../core/multimodal';
 import * as path from 'path';
+import type { TurnToolScope } from './protocol';
 
 /**
  * Confidence-in-margin (turn-end form): from the epistemic-ledger delta across a turn, decide what
@@ -99,9 +100,14 @@ export class HeadlessSession {
   }
 
   /** A submitted line: a slash command or a user turn. */
-  async dispatch(text: string): Promise<void> {
+  async dispatch(text: string, toolScope?: TurnToolScope, displayText?: string): Promise<void> {
     const query = (text || '').trim();
     if (!query) return;
+    if (toolScope) {
+      // A scoped task is never interpreted as an app command, a greeting or persona-switch syntax.
+      await this.runTurn(query, { toolScope, displayText });
+      return;
+    }
     if (/^\/clear\s+force(?:\s|$)/i.test(query)) {
       if (!this.clearing) {
         this.interrupt();
@@ -112,7 +118,7 @@ export class HeadlessSession {
     }
     if (this.clearing) await this.clearing;
     if (query.startsWith('/')) { await this.runCommand(query); return; }
-    await this.runTurn(query);
+    await this.runTurn(query, { displayText });
   }
 
   /**
@@ -147,7 +153,7 @@ export class HeadlessSession {
     engineEvents.emit('status', 'Interrupting…');
   }
 
-  private async runTurn(query: string, opts: { autonomous?: boolean } = {}): Promise<'completed' | 'busy' | 'failed' | 'interrupted'> {
+  private async runTurn(query: string, opts: { autonomous?: boolean; toolScope?: TurnToolScope; displayText?: string } = {}): Promise<'completed' | 'busy' | 'failed' | 'interrupted'> {
     if (this.busy) {
       if (!opts.autonomous) engineEvents.emit('status', 'Busy — finish the current turn before sending another.');
       return 'busy';
@@ -163,19 +169,19 @@ export class HeadlessSession {
     // Lightweight conversation lane (P0-3): greetings/acks/simple meta questions bypass the full
     // harness entirely. A manual heavy pin or an engine wake keeps the full path. The decision is
     // local (no model call), so a "hi" never pays for routing, graph, memory, or verification.
-    const conversational = !opts.autonomous && this.pinnedTier !== 'heavy'
+    const conversational = !opts.toolScope && !opts.autonomous && this.pinnedTier !== 'heavy'
       && isConversational(query);
     const model = this.deps.options.llmAdapter?.userModel || this.deps.options.llmAdapter?.defaultModel;
     beginTurnTimeline(conversational ? 'lite' : 'full', model);
     // Snapshot the epistemic ledger so we can report THIS turn's verification posture at the end:
     // claims open on edits and resolve when a build/test run names the touched files.
     const beforeLedger = (() => { try { return getEpistemicLedger().stats(); } catch { return null; } })();
-    if (!opts.autonomous) engineEvents.emit('message', this.msg('user', query));
+    if (!opts.autonomous) engineEvents.emit('message', this.msg('user', opts.displayText ?? query));
     // Show activity IMMEDIATELY — @-mention expansion below can take a moment, during which the
     // front-end would otherwise sit silent after the user's message. (Routing itself is local now.)
     engineEvents.emit('spinner_state', 'thinking', 'Thinking…');
 
-    const active = (conversational || opts.autonomous)
+    const active = (conversational || opts.autonomous || opts.toolScope)
       ? this.deps.personas.bimax
       : (this.deps.personas[routeQuery(query)] || this.deps.personas.bimax);
     const before = active.messages.length;
@@ -205,7 +211,7 @@ export class HeadlessSession {
           await this.runFullHarness(active, query, !!opts.autonomous, onToken, true);
         }
       } else {
-        await this.runFullHarness(active, query, !!opts.autonomous, onToken);
+        await this.runFullHarness(active, query, !!opts.autonomous, onToken, false, opts.toolScope);
       }
 
       // Prefer the streamed text; fall back to the message-slice only if nothing streamed.
@@ -310,7 +316,7 @@ export class HeadlessSession {
     } catch { /* self-repair is best-effort */ }
   }
 
-  private async runFullHarness(active: AgentPersona, query: string, autonomous: boolean, onToken: (t: string) => void, forceHeavy = false): Promise<void> {
+  private async runFullHarness(active: AgentPersona, query: string, autonomous: boolean, onToken: (t: string) => void, forceHeavy = false, toolScope?: TurnToolScope): Promise<void> {
     // Routing is local and deterministic (no model call) — it resolves in ~0ms. Kicked off before
     // @-mention expansion purely so the decision is ready the moment expansion completes.
     const tierPromise = decideTier(this.deps.options.llmAdapter, query, this.pinnedTier)
@@ -339,6 +345,8 @@ export class HeadlessSession {
     engineEvents.emit('spinner_state', 'thinking', 'Thinking…');
     markAssembled();
     await active.execute(agentQuery, onToken, {
+      toolNames: toolScope?.names,
+      requireTool: toolScope?.required,
       images: pictures.paths,
       maxIterations: this.deps.options.maxToolIterations,
       planMode: this.deps.options.governor?.mode === 'plan',

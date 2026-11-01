@@ -1,0 +1,249 @@
+--- record-95/src/memory/vector.store.ts
++++ current/src/memory/vector.store.ts
+@@ -223,7 +223,9 @@
+   /** Indexed over CHUNKS, not documents — the unit retrieval scores. */
+   private index = new Bm25Index();
+   private indexDirty = true;
+-  private chunkOwner = new Map<string, { doc: VectorDocument; chunk: StoredChunk }>();
++  /** Mixed-radix positions reuse the stored arrays without allocating an object per chunk. */
++  private chunkOwner = new Map<string, number | readonly [number, number]>();
++  private duplicateChunkOwners = false;
+   private mode: SearchMode = { lexical: true, dense: false, reranked: false };
+   /** Recency changed on the read path and is waiting for the coalesced flush (see semanticSearch). */
+   private recencyDirty = false;
+@@ -382,15 +384,32 @@
+     if (!this.indexDirty) return;
+     const documents: { id: string; text: string }[] = [];
+     this.chunkOwner = new Map();
+-    for (const doc of this.store) {
+-      for (const chunk of doc.chunks ?? []) {
++    this.duplicateChunkOwners = false;
++    const width = this.store.length;
++    for (const [docAt, doc] of this.store.entries()) {
++      for (const [chunkAt, chunk] of (doc.chunks ?? []).entries()) {
+         documents.push({ id: chunk.id, text: chunk.text });
+         // Preserve the original lookup's first chunk within the last owning document.
+-        if (this.chunkOwner.get(chunk.id)?.doc !== doc) this.chunkOwner.set(chunk.id, { doc, chunk });
++        const previous = this.chunkOwner.get(chunk.id);
++        const ownerAt = typeof previous === 'number' ? previous % width : previous?.[0];
++        if (ownerAt === docAt) continue;
++        if (previous !== undefined) this.duplicateChunkOwners = true;
++        const address = chunkAt * width + docAt;
++        // The tuple is only a correctness fallback for positions beyond safe integer arithmetic.
++        this.chunkOwner.set(chunk.id, Number.isSafeInteger(address) ? address : [docAt, chunkAt]);
+       }
+     }
+     this.index.build(documents);
+     this.indexDirty = false;
++  }
++
++  private ownerOf(chunkId: string): VectorDocument | undefined {
++    const address = this.chunkOwner.get(chunkId);
++    return address === undefined ? undefined : this.store[typeof address === 'number' ? address % this.store.length : address[0]];
++  }
++
++  private chunkAt(address: number | readonly [number, number], doc: VectorDocument): StoredChunk | undefined {
++    return doc.chunks?.[typeof address === 'number' ? Math.floor(address / this.store.length) : address[1]];
+   }
+ 
+   async storeDocument(id: string, text: string, tags: string[]): Promise<void> {
+@@ -549,7 +568,7 @@
+         if (options.where && !options.where(tags)) return false;
+         return true;
+       };
+-      const allowed = (chunkId: string): boolean => docAllowed(this.chunkOwner.get(chunkId)?.doc);
++      const allowed = (chunkId: string): boolean => docAllowed(this.ownerOf(chunkId));
+ 
+       // Deeper than `limit` on purpose: fusion can only promote a candidate that appears in a list,
+       // and the reranker can only reorder what it is given. Truncating early throws away the
+@@ -559,50 +578,80 @@
+       const depth = Math.max(limit * 8, 64);
+       const lexicalHits = mode === 'dense' ? [] : this.index.search(query).filter(h => allowed(h.id));
+       const lexical = lexicalHits.slice(0, depth).map(h => h.id);
+-      // Keep the original chunk pool/ranks. A bounded document pool fills only otherwise empty
+-      // result places, so a long note cannot monopolize all candidate slots.
++      let dense: string[] = [];
++      type DenseCandidate = { id: string; score: number; recency: number };
++      let denseScored: DenseCandidate[] = [];
++      const compare = (a: DenseCandidate, b: DenseCandidate): number =>
++        b.score - a.score
++        || b.recency - a.recency
++        || a.id.localeCompare(b.id);
++      if (queryVector) {
++        const scored = new BoundedTopK<DenseCandidate>(depth, compare);
++        for (const doc of this.store) {
++          if (!docAllowed(doc)) continue;
++          for (const chunk of doc.chunks ?? []) {
++            if (!chunk.embedding || chunk.space !== this.embeddings?.id) continue;
++            scored.add({ id: chunk.id, score: dot(queryVector, chunk.embedding),
++              recency: (this.duplicateChunkOwners ? this.ownerOf(chunk.id)?.lastUsedAt : doc.lastUsedAt) ?? 0 });
++          }
++        }
++        denseScored = scored.sorted();
++        dense = denseScored.map(s => s.id);
++      }
++
++      const fused = reciprocalRankFusion({ lexical: { ids: lexical }, dense: { ids: dense } });
++      const candidates = (hits: typeof fused) => hits.map(hit => {
++        const address = this.chunkOwner.get(hit.id);
++        const doc = address === undefined ? undefined : this.store[typeof address === 'number' ? address % this.store.length : address[0]];
++        const chunk = address === undefined || !doc ? undefined : this.chunkAt(address, doc);
++        return doc && chunk ? { id: hit.id, text: chunk.text, doc, chunk, fromDense: hit.ranks.dense !== undefined } : null;
++      }).filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== null);
++      const primary = candidates(fused);
++      const eligible = new Set<string>();
++      for (const candidate of primary) {
++        if (!candidate.fromDense && minScore > 0 && lexicalRelevance(query, candidate.text) < minScore) continue;
++        eligible.add(candidate.doc.id);
++        // Reranking reorders this pool; it never removes a candidate. No backfill is needed.
++        if (eligible.size >= limit) return { dense: dense.length > 0, candidates: primary, backfill: [] };
++      }
++
++      // Only an underfull primary pool needs document diversity. Keep its original ranks/prefix.
+       const lexicalDocuments: string[] = [];
+       const seenDocuments = new Set<string>();
+       for (const hit of lexicalHits) {
+-        const entry = this.chunkOwner.get(hit.id)!;
+-        if (seenDocuments.has(entry.doc.id)) continue;
+-        if (minScore > 0 && lexicalRelevance(query, entry.chunk.text) < minScore) continue;
+-        seenDocuments.add(entry.doc.id);
++        const doc = this.ownerOf(hit.id)!;
++        if (seenDocuments.has(doc.id)) continue;
++        const chunk = this.chunkAt(this.chunkOwner.get(hit.id)!, doc)!;
++        if (minScore > 0 && lexicalRelevance(query, chunk.text) < minScore) continue;
++        seenDocuments.add(doc.id);
+         lexicalDocuments.push(hit.id);
+         if (lexicalDocuments.length >= limit) break;
+       }
+-
+-      let dense: string[] = [];
+       let denseDocuments: string[] = [];
+       if (queryVector) {
+-        const compare = (a: { id: string; score: number }, b: { id: string; score: number }): number =>
+-          b.score - a.score
+-          || (this.chunkOwner.get(b.id)?.doc.lastUsedAt ?? 0) - (this.chunkOwner.get(a.id)?.doc.lastUsedAt ?? 0)
+-          || a.id.localeCompare(b.id);
+-        const scored = new BoundedTopK<{ id: string; score: number }>(depth, compare);
+-        const documents = new BoundedTopK<{ id: string; score: number }>(limit, compare);
++        const known = new Map<VectorDocument, DenseCandidate>();
++        if (!this.duplicateChunkOwners) for (const candidate of denseScored) {
++          const doc = this.ownerOf(candidate.id)!;
++          if (!known.has(doc)) known.set(doc, candidate);
++        }
++        const documents = new BoundedTopK<DenseCandidate>(limit, compare);
+         for (const doc of this.store) {
+           if (!docAllowed(doc)) continue;
+-          let best: { id: string; score: number } | undefined;
+-          for (const chunk of doc.chunks ?? []) {
++          // A document represented in the global top-k already has its best chunk there.
++          // Reuse it rather than rescoring the long document that crowded out the other sources.
++          let best = known.get(doc);
++          if (!best) for (const chunk of doc.chunks ?? []) {
+             if (!chunk.embedding || chunk.space !== this.embeddings?.id) continue;
+-            const candidate = { id: chunk.id, score: dot(queryVector, chunk.embedding) };
+-            scored.add(candidate);
++            const candidate = { id: chunk.id, score: dot(queryVector, chunk.embedding),
++              recency: (this.duplicateChunkOwners ? this.ownerOf(chunk.id)?.lastUsedAt : doc.lastUsedAt) ?? 0 };
+             if (!best || compare(candidate, best) < 0) best = candidate;
+           }
+           if (best) documents.add(best);
+         }
+         denseDocuments = documents.sorted().map(s => s.id);
+-        dense = scored.sorted().map((s) => s.id);
+-      }
+-
+-      const fused = reciprocalRankFusion({ lexical: { ids: lexical }, dense: { ids: dense } });
++      }
+       const backfill = reciprocalRankFusion({ lexical: { ids: lexicalDocuments }, dense: { ids: denseDocuments } });
+-      const candidates = (hits: typeof fused) => hits.map(hit => {
+-        const entry = this.chunkOwner.get(hit.id);
+-        return entry ? { id: hit.id, text: entry.chunk.text, doc: entry.doc, chunk: entry.chunk, fromDense: hit.ranks.dense !== undefined } : null;
+-      }).filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== null);
+-      return { dense: dense.length > 0, candidates: candidates(fused), backfill: candidates(backfill) };
++      return { dense: dense.length > 0, candidates: primary, backfill: candidates(backfill) };
+     });
+ 
+     if (!fusedCandidates) {
+--- record-95/docs/product-reset/README.md
++++ current/docs/product-reset/README.md
+@@ -1,4 +1,8 @@
+ # Bimax product reset
++
++## RAG resources and public qualification — 2026-10-14, record 96
++
++[Record 96](96_RAG_RESOURCE_AND_PUBLIC_QUALIFICATION.md) removes unused document-ranking work and retained per-chunk wrappers. Paired warm fixtures measure 19.36% less dense-control time and 0.3896 MiB / 10.47% less retained heap growth for 10,000 chunks; all remaining microsecond regressions are retained. A fixed public subset completes 200/200 retrieval and model-answer cases with identical record-95/current prompts and valid provenance. Owner-authorized configured Nemotron 3.5 Lightning replaces timed-out gpt-oss-20b for answering/judging: classic LongMemEval is 40/100 judged correct, MemoryAgentBench 39/100 under a custom judge metric. Answerable classic source Recall@3 is 94.06%; answerable accuracy is only 26/85. These are first subset measurements, not quality gains or official leaderboard scores. Earlier evidence survived a power shutdown. Full benchmark/independent judging/installed/release/Win remain Target, and three unrelated offline failures remain open. CU/UI are untouched.
+ 
+ ## RAG source coverage and retrieval work — 2026-10-14, record 95
+ 
+--- record-95/docs/product-reset/competitive/05_GAP_REGISTER.md
++++ current/docs/product-reset/competitive/05_GAP_REGISTER.md
+@@ -1,4 +1,8 @@
+ # Bimax gap register
++
++## RAG resource costs and public subset — 2026-10-14, record 96
++
++[Record 96](../96_RAG_RESOURCE_AND_PUBLIC_QUALIFICATION.md): **Implemented and Measured locally**: skip unnecessary document backfill, reuse dense champions, cache comparison recency, and retain positional chunk addresses. The former dense/heap costs are removed on qualified fixtures: 19.36% less dense-control time versus record 95, 18.68% less versus pre-95, and 0.3896 MiB / 10.47% less retained heap growth. Small timing regressions remain explicit. **Measured bounded public retrieval and answers**: fixed 100 classic LongMemEval_S + 100 MemoryAgentBench Accurate_Retrieval questions, real configured all-minilm vectors, 200/200 equal baseline/current prompts/provenance and valid completions. Owner-authorized configured Nemotron 3.5 Lightning replaces timed-out gpt-oss-20b: 40/100 classic judged answers, 39/100 MemoryAgentBench custom judged answers. Classic answerable source Recall@3 is 94.06%, but answerable accuracy is only 26/85; temporal, multi-session, preferences and updates remain substantial quality gaps. No accuracy gain or official leaderboard result follows. The small embedding window requires declared truncation; full context text remains lexical/prompt evidence. Raw pilots, controls, usage, latency and failures are preserved. Installed full R02, full suites, independent judging, Product-ready/release/Win remain **Target**. Three unchanged offline failures keep the complete gate open. This supersedes record 95's resource-cost and wholly-unmeasured public-quality status only within the stated fixtures/subset.
+ 
+ ## Memory RAG source coverage and warm work — 2026-10-14, record 95
+ 
+--- record-95/docs/product-reset/competitive/07_BUILD_SEQUENCE.md
++++ current/docs/product-reset/competitive/07_BUILD_SEQUENCE.md
+@@ -1,4 +1,8 @@
+ # Competitive build sequence
++
++## RAG qualification and recovery — 2026-10-14, record 96
++
++[Record 96](../96_RAG_RESOURCE_AND_PUBLIC_QUALIFICATION.md) removes measured dense/heap costs while preserving public retrieval output. The fixed 200-question retrieval and owner-authorized Nemotron answer qualification is complete after power-loss recovery: classic LongMemEval 40/100, MemoryAgentBench custom judge 39/100. Classic answerable source Recall@3 94.06% contrasts with answerable accuracy 26/85. Next: independent judge/human audit and separate heldout evidence-span, multi-source, preference, update and temporal cases; compare oracle/raw-history controls and embedding windows before changing prompt budgets/ranking or enabling a reranker. Do not tune on this qualification set. Keep source recall, model accuracy, latency, usage/cost, explicit embedding truncation and resources separate; do not infer a full/reference leaderboard score. Full R02, reranker quality, installed/RSS/energy and release remain Target. Keep the raw-pairing-IPC guard, external responder authentication and native OCR confidence failures visible; do not weaken their checks. CU/UI remain outside this pass.
+ 
+ ## Memory RAG qualification — 2026-10-14, record 95
+ 
+--- record-95/docs/product-reset/competitive/08_SOURCE_LEDGER.md
++++ current/docs/product-reset/competitive/08_SOURCE_LEDGER.md
+@@ -989,3 +989,36 @@
+ 
+ General OCR, clean-Mac tooling/distribution, installed/provider journeys and resource/performance
+ qualification remain Target. Details and exploratory fixture exclusions are retained with record 74.
++
++## 2026-10-14 — RAG resources and public qualification, record 96
++
++[Record 96](../96_RAG_RESOURCE_AND_PUBLIC_QUALIFICATION.md) uses inspected current memory retrieval, frozen record-95 and pre-95 source, exact-output contracts and retained measurements. Current first-party benchmark sources were checked before inference; their status does not imply a completed or reference-comparable Bimax benchmark.
++
++- [Classic LongMemEval repository](https://github.com/xiaowu0162/LongMemEval), pinned code revision `9e0b455f4ef0e2ab8f2e582289761153549043fc`; [official task-specific judge](https://github.com/xiaowu0162/LongMemEval/blob/9e0b455f4ef0e2ab8f2e582289761153549043fc/src/evaluation/evaluate_qa.py) and [MIT license](https://github.com/xiaowu0162/LongMemEval/blob/9e0b455f4ef0e2ab8f2e582289761153549043fc/LICENSE). Only `get_anscheck_prompt` is executed through AST extraction in the evaluator; its exact source and Di Wu copyright/license are preserved in record-96 `research/`. No upstream evaluator imports/driver run. Configured NVIDIA gpt-oss-20b differs from the listed reference judges. An initial model control rejected the published temporal off-by-one tolerance; the system instruction now spells out that same rule, with negative controls, before public answers are generated.
++- [LongMemEval cleaned dataset](https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/tree/98d7416c24c778c2fee6e6f3006e7a073259d48f): pinned revision, 500-question `longmemeval_s_cleaned.json`, MIT metadata, 277,383,467 bytes, downloaded SHA-256 `d6f21ea9d60a0d56f34a05b609c79c88a451d2ae03597821ea3d5a9678c3a442`. Exact content-range resumptions and schema/size checks preserve failed downloads; full data is outside the repository. The selected 100 histories exclude answer annotations from retrieval input.
++- [MemoryAgentBench](https://github.com/HUST-AI-HYZ/MemoryAgentBench), pinned code revision `538026089d1a8a8eff05121d0db89b388f360eba`; [evaluation utilities](https://github.com/HUST-AI-HYZ/MemoryAgentBench/blob/538026089d1a8a8eff05121d0db89b388f360eba/utils/eval_other_utils.py) and [MIT license](https://github.com/HUST-AI-HYZ/MemoryAgentBench/blob/538026089d1a8a8eff05121d0db89b388f360eba/LICENSE) inspected and retained as references, with their source attribution. EventQA's published recall requires every answer element; RULER QA reference answers are alternatives. The qualification judge follows these distinctions; normalized EM/F1 are supplementary, and its model-judge score is not an official MemoryAgentBench leaderboard metric. No upstream utility module or network/chunking helpers are imported into production.
++- [MemoryAgentBench dataset](https://huggingface.co/datasets/ai-hyz/MemoryAgentBench/tree/7ea066982b140a19337e17e60d45d4076e042faf): pinned revision, `Accurate_Retrieval` has 22 contexts/2,000 questions, MIT metadata, 20,024,386-byte parquet, SHA-256 `56c3cd80fb6731a3e53cd1a6be3148f54df60ff2d290ee50e28f8acebf9655c1`. Fixed balanced selection takes 100 questions across six families and 21 contexts. The whole context is ingested; oracle evidence-session metadata stays outside the index. Other competencies are unmeasured.
++- [LongMemEval-V2](https://github.com/xiaowu0162/LongMemEval-V2) is a distinct newer benchmark inspected during scope research. Classic LongMemEval_S results must never be labelled V2 results. V2 remains Target.
++
++`research/source-provenance.json` records exact source URLs, revisions and SHA-256 hashes; the previously downloaded judge bytes match the pinned revision. The owner's selected 200-question balanced qualification uses real preinstalled all-minilm embeddings and configured NVIDIA gpt-oss-20b for answering/judging, with provider/model differences disclosed. Baseline/current prompt equality shares one reader observation per question, so it cannot establish independent accuracy improvement. Source licenses allow this benchmark-reference reuse; no competitor product implementation is copied. Installed/full-suite/reference-model/independent-judge/rival/release gates remain Target.
++
++The retained MemoryAgentBench reference utilities attribute DensePhrases. Its pinned Apache-2.0 license is preserved alongside the MIT benchmark license (`research/DensePhrases-LICENSE` and license-provenance JSON); no DensePhrases module is imported or executed. Adapter provenance allows only production chunker whitespace changes, retaining exact source hashes and shown spans. all-minilm context overflow is explicitly measured per batch and permits declared provider prefix truncation, rather than silent corpus loss or fabricated vectors.
++
++The pinned Hugging Face tree APIs independently confirm both downloaded file SHA-256 values against their LFS OIDs (`dataset-lfs-verification.json`). A selected-history shape audit confirms aligned session/date arrays and string messages, but finds three repeated session IDs with differing dated text. The qualification adapter assigns occurrence IDs while retaining original benchmark aliases outside the embedding text; all histories stay intact. None of those duplicated IDs is a gold answer-session label. This is a declared input-identity repair, not evidence of a production quality gain. Failed uniqueness assumptions and the first raw retrieval run are retained.
++
++## 2026-10-14 — Power-loss recovery and configured alternate model
++
++The Mac shut down after local retrieval qualification completed. All 200 corrected contexts and their source/prompt/provenance observations survived; the temporary raw dataset cache did not. `power-recovery.json` verifies the current production, worker, compiled and recall/chunking dependency hashes against the saved retrieval run. Answering from those saved contexts requires neither redownloading the public datasets nor re-embedding 90,648 chunks. The original Python 3.13 runtime remains installed; the post-reboot shell defaults to Python 3.14/Node 24, so historical resource timings retain their original Node 22 runtime attribution. No cross-runtime speed comparison is made.
++
++The owner explicitly authorized another configured model after checking availability. Readonly global configuration names `nvidia/nemotron-3.5-lightning-30b-a3b`; a real availability probe returned HTTP 200, complete `READY`, in 959 ms (`alternate-model-availability-1.json`). Presence/one response qualifies availability only. Its non-thinking judge pilot failed abbreviation and temporal-tolerance controls and produces no public score. A fresh bounded-reasoning profile keeps the question set, retrieval, rules and expected labels unchanged.
++
++- [NVIDIA model API example](https://build.nvidia.com/nvidia/nemotron-3.5-lightning-30b-a3b/build), checked 2026-10-14: exact served model ID, compatible endpoint and `chat_template_kwargs.enable_thinking` example.
++- [NVIDIA inference reference](https://docs.api.nvidia.com/nim/reference/nvidia-nemotron-3-5-lightning-30b-a3b-infer), checked 2026-10-14: maximum generation tokens, reasoning budget applying when thinking is enabled, JSON/SSE responses and distinction between completed 200 and pending 202. The completed judge qualification uses explicit 1,024-token reasoning with a 2,048-token completion cap; pending/error/truncated observations cannot become valid answers.
++
++These first-party API facts do not prove Bimax answer quality. Current model choices are per-invocation benchmark flags; user config and credentials remain unchanged. All gpt-oss timeout/control failures and alternate pilots are retained separately, never merged into an accuracy denominator.
++
++Before selected-question inference, bounded-reasoning pilots exposed wrapper ambiguities: a reused concrete example distracted the correct-target case, and “exact entity” was read as exact wording. The wrapper now explicitly accepts equivalent meanings/abbreviations while requiring the requested subject/relation, consistent with the published rubric. No expected labels or selected questions changed. The final Lightning profile passes all 17 controls; all failed pilots are preserved.
++
++The final `public-answer-nemotron-4` run completes 200/200 valid selected questions: classic LongMemEval judged accuracy 40/100 (26/85 answerable), MemoryAgentBench custom judged accuracy 39/100. `public-answer-qualified.json` verifies raw reader prompts/predictions, raw judge verdicts, counts and all frozen source/dependency hashes. Licensed upstream MemoryAgentBench helpers produce 22.00% EM, 35.25% token F1 and 37.00% substring EM under the published family postprocessing; ROUGE/full official evaluation is absent. These are balanced-subset observations with a different model/backend, not official scores, quality improvements, population estimates or competitive claims. The 94.06% answerable source-session recall does not establish sufficient shown evidence or correct answers.
++
++Five separately recorded preference/all-elements controls also pass under the frozen profile after main inference; their inputs were declared before completion, contain no benchmark cases, and cause no grading or production changes. All raw requests, wrong answers, invalid attempts and failed pilots remain intact. Final-run usage is 571,839 total tokens including its initial controls/failed attempts with usage; the five extra controls add 4,193 tokens. Endpoint currency cost is unavailable and not inferred. Reader/judge accepted-attempt latency, retries/pacing, embedding truncation, resource samples, test failures and nominal-interval limitations are separately attributed in record 96. Independent judging, heldout evidence-sufficiency experiments, full suites and installed/release gates remain Target.
+--- record-95/docs/product-reset/competitive/examples/R02_RETRIEVAL_TRUTH.md
++++ current/docs/product-reset/competitive/examples/R02_RETRIEVAL_TRUTH.md
+@@ -1,4 +1,8 @@
+ # R02 — Retrieval Truth Across Restart and Provider Boundaries
++
++## Resource and public-memory qualification — 2026-10-14, record 96
++
++[Record 96](../../96_RAG_RESOURCE_AND_PUBLIC_QUALIFICATION.md) requires enough primary documents to avoid a second ranking pool, cached dense champion reuse, primitive positional ownership with zero/rebuild/duplicate compatibility, and unchanged ordered IDs/prompts/provenance. Run the seven resource tests beside fourteen RAG tests; `scripts/prove-rag-resources.py` must catch all 19 source faults and restore exact bytes. Qualified ABBA/fresh-process heap fixtures remove record 95's small dense/heap costs, while all shapes/regressions remain evidence. The fixed public-memory subset completes 200/200 equal prompts, valid provenance and model answers with real local embeddings. Owner-authorized configured Nemotron 3.5 Lightning follows preserved gpt-oss-20b failures and a power shutdown: 40/100 classic judged answers and 39/100 MemoryAgentBench custom judged answers. Classic source Recall@3 94.06% is not answer accuracy; answerable accuracy is 26/85. Audit every raw prediction/verdict, frozen hash, per-family denominator, truncation and retry; retain wrong valid answers and retry only invalid observations. No accuracy-gain claim follows from shared identical prompts. This bounded memory component does not qualify the live-code embedding/reranker journey below, installed full R02, rival comparison or release.
+ 
+ ## Memory document coverage and prompt evidence — 2026-10-14
+ 

@@ -1,0 +1,143 @@
+{
+  "row": 1,
+  "query": 38,
+  "id": "mab-1-38",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:47:20.015675+00:00",
+  "valid": true,
+  "question": "Are both Elko Regional Airport and Gerald R. Ford International Airport located in Michigan?",
+  "references": [
+    "no"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-106",
+    "context-204",
+    "context-415"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:47:48.752442+00:00",
+  "rag": {
+    "ids": [
+      "context-106",
+      "context-204",
+      "context-415"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 5) fourth among all wooden roller coasters in the world. It was also the first wooden roller coaster to use a cable lift as opposed to the traditional chain lift.\n\nDocument 786:\nJane de Gay\nRev Dr \"Jane de Gay\" is a British academic and lecturer who has earned a reputation as an expert on the life and works of Virginia Woolf. Dr de Gay's works on Woolf include a series of articles and a 2006 book, \"Virginia Woolf's Novels and the Literary Past\", published by Edinburgh University Press. Her work has been recognised by the Virginia Woolf Society of Great Britain. She has co-edited four books on gender and theatre, including \"Languages of Theatre Shaped by Women\" (with Lizbeth Goodman).\n\nDocument 787:\nGerald R. Ford International Airport\nGerald R. Ford International Airport (IATA: GRR, ICAO: KGRR, FAA LID: GRR) is a commercial airport in Cascade Township approximately 13 mi southeast of Grand Rapids, Michigan. The facility is owned by the Kent County Board of Commissioners and managed by an independent authority. The Federal Aviation Administration (FAA) National Plan of Integrated Airport Systems for 2017\u20132021 categorized it as a small hub primary commercial service facility.\n- (part 3 of 5, excerpt) Document 1443:\n\nBishop International Airport\n\nBishop International Airport (IATA: FNT,\u00a0ICAO: KFNT,\u00a0FAA LID: FNT) is a commercial and general aviation airport located in Flint, Michigan.\n\nIt is named after banker and General Motors board member Arthur Giles Bishop (April 12, 1851 \u2013 January 22, 1944), who donated 220 acres of his farmland for the airport in 1928.\n- (part 4 of 6, excerpt) Elko Regional Airport\nElko Regional Airport (IATA: EKO, ICAO: KEKO, FAA LID: EKO) , formerly Elko Municipal Airport, is a mile west of downtown Elko, in Elko County, Nevada.",
+    "evidence": [
+      {
+        "sourceId": "memory:context-106",
+        "sourceVersion": "sha256:54205238235911d7201de51c0866d9c7ab80a9e0a44bcd58a8f21cb3135cacaa",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-106",
+          "part": 4,
+          "parts": 5
+        },
+        "text": "fourth among all wooden roller coasters in the world. It was also the first wooden roller coaster to use a cable lift as opposed to the traditional chain lift.\n\nDocument 786:\nJane de Gay\nRev Dr \"Jane de Gay\" is a British academic and lecturer who has earned a reputation as an expert on the life and works of Virginia Woolf. Dr de Gay's works on Woolf include a series of articles and a 2006 book, \"Virginia Woolf's Novels and the Literary Past\", published by Edinburgh University Press. Her work has been recognised by the Virginia Woolf Society of Great Britain. She has co-edited four books on gender and theatre, including \"Languages of Theatre Shaped by Women\" (with Lizbeth Goodman).\n\nDocument 787:\nGerald R. Ford International Airport\nGerald R. Ford International Airport (IATA: GRR, ICAO: KGRR, FAA LID: GRR) is a commercial airport in Cascade Township approximately 13 mi southeast of Grand Rapids, Michigan. The facility is owned by the Kent County Board of Commissioners and managed by an independent authority. The Federal Aviation Administration (FAA) National Plan of Integrated Airport Systems for 2017\u20132021 categorized it as a small hub primary commercial service facility.",
+        "id": "ev_511eb1ca3d78719d086fd3c9",
+        "observedAt": "2026-10-14T08:41:09.549Z"
+      },
+      {
+        "sourceId": "memory:context-204",
+        "sourceVersion": "sha256:d209e2f8e8d1d52a8668637ebe701d990c824a5b4792ddf456cf23fd8d92da8f",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-204",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Document 1443:\n\nBishop International Airport\n\nBishop International Airport (IATA: FNT,\u00a0ICAO: KFNT,\u00a0FAA LID: FNT) is a commercial and general aviation airport located in Flint, Michigan.\n\nIt is named after banker and General Motors board member Arthur Giles Bishop (April 12, 1851 \u2013 January 22, 1944), who donated 220 acres of his farmland for the airport in 1928.",
+        "id": "ev_31c454b602491ecff60d4820",
+        "observedAt": "2026-10-14T08:41:09.550Z"
+      },
+      {
+        "sourceId": "memory:context-415",
+        "sourceVersion": "sha256:2d3a83bfa563b4d09834ce8c916517e341af2285913a599985577ca17ec23999",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-415",
+          "part": 4,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "Elko Regional Airport\nElko Regional Airport (IATA: EKO, ICAO: KEKO, FAA LID: EKO) , formerly Elko Municipal Airport, is a mile west of downtown Elko, in Elko County, Nevada.",
+        "id": "ev_e255afe7abf495dcb75e9ac9",
+        "observedAt": "2026-10-14T08:41:09.550Z"
+      }
+    ],
+    "sourceIds": [
+      "context-106",
+      "context-204",
+      "context-415"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.0904580000060378,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "No. Gerald R. Ford International Airport is located in Cascade Township, Michigan. Elko Regional Airport is located in Elko County, Nevada, not Michigan. Therefore, they are not both in Michigan.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.06451612903225806
+  },
+  "readerUsage": {
+    "prompt_tokens": 579,
+    "completion_tokens": 451,
+    "total_tokens": 1030,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 408,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 286,
+    "completion_tokens": 1026,
+    "total_tokens": 1312,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 7026.532374999988,
+  "judgeWallMs": 16746.88895899999
+}

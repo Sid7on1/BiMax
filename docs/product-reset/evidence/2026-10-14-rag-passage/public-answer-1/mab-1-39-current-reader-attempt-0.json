@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T15:38:31.126537+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 0,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: not specified\nQuestion: Ralph Hefferline was a psychology professor at a university that is located in what city?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6) with several dance acts Todd Terry to name one. The label continued to thrive well into the mid-2000s with Atomic Kitten and Blue achieving Platinum sales.\n\nDocument 799:\nDavid C. Funder\nDavid C. Funder (Ph.D., Stanford University, 1979) is a psychology professor who has written a number of important textbooks and research articles pertaining to the field of personality psychology. Funder resides as the chair of the Psychology department at the University of California, Riverside. He used to be a past editor of the \"Journal of Research and Personality\", as well as being a former secondary editor of the \"Journal of Personality and Social Psychology\". Funder has been praised for his studies on personality judgment. He had also published research over the attribution theory and the \"delay of gratification\".\n  (part 5 of 6) Funder has been praised for his studies on personality judgment. He had also published research over the attribution theory and the \"delay of gratification\".\n\nDocument 800:\nKansas City jazz\nKansas City jazz is a style of jazz that developed in Kansas City, Kansas and Kansas City, Missouri and the surrounding Kansas City Metropolitan Area during the 1930s and marked the transition from the structured big band style to the musical improvisation style of Bebop. The hard-swinging, bluesy transition style is bracketed by Count Basie who in 1929 signed with the Bennie Moten's Kansas City Orchestra and Kansas City native Charlie Parker who was to usher in the Bebop style in the 1940s. According to a Kansas City website, \"While New Orleans was the birthplace of jazz, America's music grew up in Kansas City\". Kansas City is known as one of the most popular \"cradles of jazz\". Other cities include New Orleans, Chicago, St. Louis, Pittsburgh, Philadelphia, and New York City.\n- (part 3 of 5) its only release for Liberty Records. The song was a Top Ten country hit in 1995, winning a Grammy Award and a Country Music Association award for both acts.\n\nDocument 569:\nPrinceton Neuroscience Institute\nThe Princeton Neuroscience Institute (PNI) is a center for neuroscience research at Princeton University. PNI was created in 2006 as a partnership of Princeton University's departments of Psychology and Molecular Biology. This partnership was led by psychology professor Jonathan Cohen and molecular biology professor David Tank, who continue to serve as Co-Directors of the Institute. In 2014, PNI moved into a dedicated research complex that houses both PNI and the Department of Psychology. The building is 248,00 square feet, and was designed by Rafael Moneo to meet LEED Silver certification.\n- (part 2 of 6) the next few years and their self-titled debut album to critical acclaim. The album was certified gold in the UK but failed to chart on the US \"Billboard\" 200.\n\nDocument 2870:\nMoshe Bar (neuroscientist)\nMoshe Bar is a neuroscientist, director of the Gonda Multidisciplinary Brain Research Center at Bar-Ilan University, associate professor in psychiatry and radiology at Harvard Medical School, and associate professor in psychiatry and neuroscience at Massachusetts General Hospital. He directs the Cognitive Neuroscience Laboratory at the Athinoula A. Martinos Center for Biomedical Imaging. Bar had used methods from cognitive psychology, psychophysics, computational neuroscience, psychiatry and human brain imaging to explore issues concerning human vision, context and predictions."
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 8460.394624999026
+}

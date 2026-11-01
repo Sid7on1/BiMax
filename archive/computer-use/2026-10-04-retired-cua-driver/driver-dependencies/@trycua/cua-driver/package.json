@@ -1,0 +1,58 @@
+{
+  "name": "@trycua/cua-driver",
+  "version": "0.31.0",
+  "description": "Rust-backed Cua Driver SDK and embedded Node host",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trycua/cua.git"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./embedded": {
+      "types": "./dist/embedded.d.ts",
+      "import": "./dist/embedded.js"
+    },
+    "./electron": {
+      "types": "./dist/electron.d.ts",
+      "import": "./dist/electron.js"
+    },
+    "./fleet": {
+      "types": "./dist/fleet.d.ts",
+      "import": "./dist/fleet.js"
+    }
+  },
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "dist/embedded.js",
+    "dist/embedded.d.ts",
+    "dist/electron.js",
+    "dist/electron.d.ts",
+    "dist/fleet.js",
+    "dist/fleet.d.ts",
+    "dist/native",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@ubjs/core": "0.31.0-3",
+    "@ubjs/node": "0.31.0-3"
+  },
+  "optionalDependencies": {
+    "@trycua/cua-driver-darwin-arm64": "0.31.0",
+    "@trycua/cua-driver-darwin-x64": "0.31.0",
+    "@trycua/cua-driver-linux-arm64-gnu": "0.31.0",
+    "@trycua/cua-driver-linux-x64-gnu": "0.31.0",
+    "@trycua/cua-driver-win32-arm64-msvc": "0.31.0",
+    "@trycua/cua-driver-win32-x64-msvc": "0.31.0"
+  }
+}

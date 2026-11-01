@@ -1,0 +1,953 @@
+# arc-cua — Full Reference
+
+> Superfast action layer for computer-use agents, powered by decision models.
+
+This package ships two separate tools. arc-driver (arc_cua.Driver, or `arc-cua mcp` for MCP clients) is a standalone macOS driver: the caller's agent decides every action, and the driver reads apps' windows, runs their menu commands and acts on their controls in the background. It uses no decision model and needs no API key. Separately, arc-cua lets a planner or CUA agent hand off bounded desktop subtasks to a fast decision model (JEV) that executes the UI loop. The planner owns intent (what to do, what text to use, what counts as success). The executor owns observation, fast decision-making, freshness checks, native UI execution, and bounded termination.
+
+Source: https://github.com/shhivv/arc-cua
+
+---
+
+## Quick start
+
+### Install
+
+```bash
+pip install 'arc-cua[macos]'
+export TYPESAFE_API_KEY=...   # only for the decision-model action layer
+```
+
+macOS permissions required:
+- Accessibility: System Settings > Privacy & Security > Accessibility
+- Screen Recording: System Settings > Privacy & Security > Screen Recording
+
+### Minimal example
+
+```python
+from arc_cua import execute_payload, DesktopExecutor, RuntimeConfig
+from arc_cua.backends import MacOSApp, MacOSHybridBackend
+from arc_cua.policies import TypeSafeJevPolicy
+
+pid = MacOSApp.from_bundle_id("com.spotify.client").pid
+executor = DesktopExecutor(
+    MacOSHybridBackend(pid),
+    TypeSafeJevPolicy(),
+)
+
+result = execute_payload(executor, {
+    "goal": "Play Get Lucky by Daft Punk in Spotify",
+    "inputs": {"search_query": "Get Lucky Daft Punk"},
+    "verification": ["Spotify shows Get Lucky as the current track"],
+    "constraints": ["Do not modify the user's library"],
+    "max_actions": 15,
+})
+# result: {"status": "SUBTASK_COMPLETE", "actions_taken": 4, ...}
+```
+
+### Deterministic demo (no API key)
+
+```python
+from arc_cua import (
+    ActionKind, Decision, DesktopElement, DesktopExecutor,
+    DesktopSnapshot, Subtask, TerminalKind,
+)
+from arc_cua.backends import StateMachineBackend
+from arc_cua.policies import ScriptedPolicy
+
+def make_snapshot(state):
+    elements = [
+        DesktopElement(id="search", role="text_field", name="Search",
+                       value=state["q"], actions=(ActionKind.TYPE_TEXT,), source="demo"),
+    ]
+    return DesktopSnapshot(
+        application="App", window="Main",
+        revision=state["q"], elements=tuple(elements),
+    )
+
+def transition(state, action):
+    if action.kind == ActionKind.TYPE_TEXT:
+        state["q"] = action.value
+
+backend = StateMachineBackend({"q": ""}, make_snapshot, transition)
+policy = ScriptedPolicy([
+    Decision(kind=ActionKind.TYPE_TEXT, target_id="search", input_key="query"),
+    Decision(terminal=TerminalKind.SUBTASK_COMPLETE),
+])
+task = Subtask(
+    goal="Search for cats",
+    verification=("Search field contains cats",),
+    inputs={"query": "cats"},
+)
+
+result = DesktopExecutor(backend, policy).run(task)
+assert result.status == TerminalKind.SUBTASK_COMPLETE
+```
+
+---
+
+## Architecture
+
+```
+planner / LLM
+     |
+     | Subtask(goal, inputs, verification, constraints)
+     v
++------------------------+
+|       arc-cua          |
+|                        |
+| observe desktop        |
+| (AX + Vision OCR)     |
+|         v              |
+| build legal            |
+| action space           |
+|         v              |
+| JEV decision           |<------+
+|         v              |       |
+| freshness guard        |       |
+|         v              |       |
+| execute UI action      |       |
+|         v              |       |
+| wait for UI settle     |-------+
++------------+-----------+
+             |
+             v
+  SUBTASK_COMPLETE / BLOCKED / NEEDS_AGENT / NEEDS_INPUT
+             |
+             v
+          planner
+```
+
+Key design principles:
+- The planner owns intent. arc-cua never invents text, filenames, or verification criteria.
+- JEV can only pick targets and operations the current desktop actually exposes.
+- Literal values always come from the agent via Subtask.inputs.
+- One JEV call resolves operation + all operation-specific targets in parallel (speculative fan-out).
+- Post-action settling waits for the UI to react and go quiet (a cheap visual probe for MacOSHybridBackend, the app's accessibility notification count for MacOSAXBackend), then observes once.
+
+---
+
+## Subtask contract
+
+The upstream agent creates a Subtask that defines:
+
+| Field | Type | Description |
+|---|---|---|
+| goal | str | Natural-language description of what to accomplish |
+| verification | tuple[str, ...] | Observable criteria the policy checks for completion |
+| inputs | Mapping[str, str\|int\|float\|bool] | Literal values the executor may use (e.g. search text) |
+| constraints | tuple[str, ...] | Things the executor must not do |
+| max_actions | int | Action budget (default 30) |
+| metadata | Mapping[str, Any] | Opaque pass-through for the caller |
+| shortcuts | Mapping[str, str] | Extra keyboard chords and descriptions for this subtask (default empty) |
+| allowed_risks | tuple[str, ...] | Consequential-control categories allowed: delete, send, purchase, close (default none) |
+| secret_inputs | tuple[str, ...] | Input keys whose values the decision model never sees (default none) |
+
+Validation:
+- goal must be a non-empty string
+- verification must be a non-empty array of non-empty strings; constraints must be an array of non-empty strings
+- Python lists/tuples are copied into tuples; bare strings are rejected, never split into characters
+- inputs must map non-empty names to literal strings, finite numbers, or booleans; this mapping is copied and frozen
+- max_actions must be an integer >= 1, not a numeric string or boolean
+- metadata must be an object
+- shortcuts must map valid uppercase chords to non-empty descriptions
+- allowed_risks entries must be delete, send, purchase or close; secret_inputs entries must be keys of inputs
+
+Controls labelled like a consequential action (whole words such as delete, remove,
+send, post, share, buy, pay, checkout, close, quit, sign out) are not offered for
+CLICK or DOUBLE_CLICK unless their category is in allowed_risks, and the runtime
+refuses such clicks from any policy with NEEDS_AGENT. Secret input values appear as
+"[secret]" in the subtask, input choices, observed text and history sent to the
+model, and in result_to_dict, arc-cua run output and runtime error logs; the real
+value is still entered. Screenshots are not redacted.
+
+Example: `shortcuts={"MOD+S": "Save the current document"}`. These are added to the existing HOTKEY choices for this subtask only. Matching defaults can be given a contextual description. JEV receives chord IDs and descriptions and chooses one offered chord. Runtime validation rejects undeclared non-default hotkeys, including those emitted by custom policies.
+
+The JSON payload accepts the same map:
+
+```json
+{
+  "goal": "Save the current document",
+  "verification": ["The document has no unsaved changes"],
+  "shortcuts": {"MOD+S": "Save the current document in this editor"}
+}
+```
+
+Each chord has one or more MOD, CTRL, ALT, SHIFT modifiers and one key. MOD is Cmd on macOS. Keys include A-Z, 0-9, F1-F20, ENTER, ESCAPE, TAB, SPACE, BACKSPACE, DELETE, ARROW_UP/DOWN/LEFT/RIGHT, HOME, END, PAGE_UP, PAGE_DOWN, MINUS, EQUAL, LEFT_BRACKET, RIGHT_BRACKET, BACKSLASH, SEMICOLON, QUOTE, COMMA, PERIOD, SLASH, GRAVE. No macros or action sequences. The macOS backend uses US/ANSI physical key positions. Defaults remain unchanged.
+
+---
+
+## API reference
+
+### Top-level imports
+
+All public types are available from `arc_cua`:
+
+```python
+from arc_cua import (
+    ActResult, ActionKind, Bounds, Decision, DesktopElement, DesktopExecutor, Driver,
+    DesktopSnapshot, ExecutableAction, ExecutionResult, RuntimeConfig,
+    StepEvent, Subtask, TerminalKind, VerifyFn,
+    execute_payload, result_to_dict, subtask_from_dict,
+)
+```
+
+### ActionKind (StrEnum)
+
+UI operations the executor can perform:
+
+| Value | Requires target | Additional fields |
+|---|---|---|
+| CLICK | yes | — |
+| DOUBLE_CLICK | yes | — |
+| RIGHT_CLICK | yes | — |
+| TYPE_TEXT | yes | input_key (resolved to literal value from Subtask.inputs) |
+| SET_VALUE | yes | input_key (resolved to literal value from Subtask.inputs) |
+| PRESS_KEY | no | key (e.g. "ENTER", "ESCAPE", "TAB") |
+| HOTKEY | no | hotkey (e.g. "MOD+C", "MOD+V") |
+| SCROLL | no | scroll_direction ("UP", "DOWN", "LEFT", "RIGHT") |
+| DRAG_TO | yes | secondary_target_id (drop target) |
+| DRAG_BY | yes | drag_dx, drag_dy (pixel offsets) |
+| WAIT | no | — |
+
+### TerminalKind (StrEnum)
+
+| Value | Meaning |
+|---|---|
+| SUBTASK_COMPLETE | Verification criteria appear satisfied |
+| BLOCKED | Cannot make progress with available operations |
+| NEEDS_AGENT | Higher-level reasoning required or action budget reached |
+| NEEDS_INPUT | A field needs a value none of the inputs provides; ExecutionResult.needs_input names it |
+| DRY_RUN | RuntimeConfig.dry_run: next action chosen and validated, not performed; ExecutionResult.planned_action |
+
+TypeSafeJevPolicy asks a separate choice head for each verification criterion.
+A proposed SUBTASK_COMPLETE becomes NEEDS_AGENT, with an explanatory reason, if
+any criterion is NOT_SATISFIED or UNKNOWN. These are model judgements, not an
+independent proof; callers can inspect the result and supply RuntimeConfig.verify.
+With an image-capable transport, ChoicePolicy(transport, screenshot_checks=True)
+re-asks the verification heads with snapshot.screenshot(), the PNG the snapshot's
+elements were read from, before accepting completion.
+
+### Bounds
+
+```python
+@dataclass(frozen=True, slots=True)
+class Bounds:
+    x: float
+    y: float
+    width: float
+    height: float
+
+    @property
+    def center(self) -> tuple[float, float]: ...
+```
+
+### DesktopElement
+
+A normalized, currently observable UI element.
+
+```python
+@dataclass(frozen=True, slots=True)
+class DesktopElement:
+    id: str                    # Stable for session lifetime, never model-invented
+    role: str                  # Semantic role (e.g. "button", "text_field", "visible_text")
+    name: str = ""             # Human-readable label
+    value: str | int | float | bool | None = None
+    actions: tuple[ActionKind, ...] = ()  # Legal operations on this element
+    enabled: bool = True
+    visible: bool = True
+    focused: bool = False
+    selected: bool | None = None
+    expanded: bool | None = None
+    parent_id: str | None = None
+    bounds: Bounds | None = None
+    source: str = "unknown"    # e.g. "macos_ax", "macos_ocr"
+    accepts_drop: bool = False # Valid DRAG_TO destination
+    metadata: Mapping[str, Any] = field(default_factory=dict)
+    guard: str = ""            # Pre-computed guard (OCR uses spatial guard)
+```
+
+Methods:
+- `compact() -> dict` — Model-visible summary (visible elements only in snapshot)
+- `semantic_guard() -> str` — SHA-256 fingerprint of element state for freshness checks
+
+### DesktopSnapshot
+
+```python
+@dataclass(frozen=True, slots=True)
+class DesktopSnapshot:
+    application: str
+    window: str
+    revision: str              # Hash fingerprint of full element state
+    elements: tuple[DesktopElement, ...]
+    context: Mapping[str, Any] = {}   # Backend metadata (pid, window_id, etc.)
+    captured_at_ms: int | None = None
+    screenshot: Callable[[], bytes | None] | None = None  # PNG of the pixels observed, if captured
+```
+
+Methods:
+- `element(element_id: str) -> DesktopElement` — O(1) lookup by ID (lazy dict index). Raises KeyError.
+- `compact() -> dict` — Planner-friendly summary (visible elements only)
+
+### Subtask
+
+See "Subtask contract" section above.
+
+Methods:
+- `compact() -> dict` — Serializable summary for the decision policy
+
+### Decision
+
+One JEV decision. Either an action (`kind` set) or terminal (`terminal` set), never both.
+
+```python
+@dataclass(frozen=True, slots=True)
+class Decision:
+    kind: ActionKind | None = None
+    terminal: TerminalKind | None = None
+    target_id: str | None = None
+    secondary_target_id: str | None = None
+    input_key: str | None = None
+    key: str | None = None             # PRESS_KEY key, or ENTER/TAB pressed after TYPE_TEXT
+    hotkey: str | None = None
+    scroll_direction: str | None = None
+    drag_dx: float | None = None
+    drag_dy: float | None = None
+    click_modifier: str | None = None  # CLICK only: MOD (toggle in selection) or SHIFT (extend range)
+    confidence: float | None = None    # ChoicePolicy: weakest answer the decision uses
+    margin: float | None = None        # ChoicePolicy: smallest lead over the runner-up
+    latency_ms: int | None = None
+    raw: Mapping[str, Any] = {}  # Raw policy response for debugging
+    reason: str | None = None   # Preserved in terminal execution results
+```
+
+### ExecutableAction
+
+Validated, ready-to-execute action with freshness guards attached.
+
+```python
+@dataclass(frozen=True, slots=True)
+class ExecutableAction:
+    kind: ActionKind
+    target_id: str | None = None
+    target_guard: str | None = None
+    secondary_target_id: str | None = None
+    secondary_target_guard: str | None = None
+    value: str | int | float | bool | None = None
+    key: str | None = None
+    hotkey: str | None = None
+    scroll_direction: str | None = None
+    drag_dx: float | None = None
+    drag_dy: float | None = None
+```
+
+### ActionRecord
+
+One step in execution history.
+
+```python
+@dataclass(frozen=True, slots=True)
+class ActionRecord:
+    step: int
+    decision: Decision
+    action: ExecutableAction
+    before_revision: str
+    after_revision: str
+    state_changed: bool
+    elapsed_ms: int
+    target_name: str | None = None
+    target_source: str | None = None
+    target_bounds: Bounds | None = None
+```
+
+Methods:
+- `compact() -> dict` — Serializable summary with step, action, target, timing
+
+### ExecutionResult
+
+```python
+@dataclass(frozen=True, slots=True)
+class ExecutionResult:
+    status: TerminalKind
+    subtask: Subtask
+    final_snapshot: DesktopSnapshot
+    history: tuple[ActionRecord, ...]
+    observations: tuple[str, ...] = ()
+    reason: str | None = None
+    needs_input: Mapping[str, Any] | None = None  # NEEDS_INPUT: element_id, role, name, value, options
+    planned_action: Mapping[str, Any] | None = None  # DRY_RUN: action, target, target_name, value, key...
+
+    @property
+    def actions_taken(self) -> int: ...
+```
+
+### StepEvent
+
+Emitted by `run_iter()` after each decision cycle.
+
+```python
+class StepEvent:
+    step: int
+    snapshot: DesktopSnapshot
+    decision: Decision
+    action: ExecutableAction | None     # None for terminal decisions
+    record: ActionRecord | None         # None for terminal decisions
+    result: ExecutionResult | None      # Set only on the final event
+
+    @property
+    def terminal(self) -> bool: ...     # True when result is set
+```
+
+---
+
+## Runtime
+
+### DesktopExecutor
+
+The core executor. Takes a backend and policy, runs subtasks.
+
+```python
+class DesktopExecutor:
+    def __init__(
+        self,
+        backend: DesktopBackend,
+        policy: DecisionPolicy,
+        *,
+        config: RuntimeConfig | None = None,
+    ) -> None: ...
+
+    def run(self, subtask: Subtask) -> ExecutionResult: ...
+    def run_iter(self, subtask: Subtask) -> Generator[StepEvent, None, ExecutionResult]: ...
+    def cancel(self) -> None: ...
+```
+
+- `run()` — Execute subtask, return result. Delegates to run_iter internally.
+- `run_iter()` — Generator yielding StepEvent after each decision cycle. The final event has `event.terminal == True` and `event.result` set.
+- `cancel()` — Thread-safe. Signals the executor to stop after the current action.
+
+### RuntimeConfig
+
+```python
+@dataclass(slots=True)
+class RuntimeConfig:
+    stale_retries: int = 8           # Max freshness re-observations before giving up
+    no_change_limit: int = 3         # Consecutive no-change actions before BLOCKED
+    post_action_settle_s: float = 0.03
+    settle_reaction_s: float = 0.6   # Max wait for a visible reaction to an action
+    settle_quiet_s: float = 0.15     # Required unchanged time after a reaction
+    settle_timeout_s: float = 2.0    # Upper bound on probe-based settling
+    settle_poll_s: float = 0.02
+    late_reaction_s: float = 1.0     # Before accepting NEEDS_AGENT/BLOCKED right after an action, look again after this long; decide again if the desktop changed (0 disables)
+    timeout_s: float | None = None   # Wall-clock timeout (None = no limit)
+    verify: VerifyFn | None = None   # Verification callback for SUBTASK_COMPLETE
+    min_confidence: float | None = None  # Below this: NEEDS_AGENT instead of acting/completing
+    min_margin: float | None = None      # Lead over runner-up below this (near-tie): NEEDS_AGENT
+    dry_run: bool = False                # Decide and validate one action, then DRY_RUN without acting
+```
+
+min_confidence and min_margin gate action decisions and SUBTASK_COMPLETE.
+BLOCKED, NEEDS_AGENT and decisions that don't report the value are not gated. The reason names the confidence,
+the operation and the threshold.
+
+### VerifyFn
+
+```python
+VerifyFn = Callable[[DesktopSnapshot, Subtask], bool]
+```
+
+When set on RuntimeConfig, called before accepting SUBTASK_COMPLETE. If it returns False, the result becomes NEEDS_AGENT with reason "Verification callback rejected SUBTASK_COMPLETE."
+
+### Execution loop behavior
+
+1. Observe desktop
+2. Ask policy for a decision
+3. If the decision is an action or SUBTASK_COMPLETE below min_confidence or min_margin: NEEDS_AGENT, return
+   If terminal: verify (if callback set), yield final event, return
+4. Materialize action (validate target exists, is legal, resolve input_key)
+5. Check freshness (target guard matches current state)
+6. Execute via backend
+7. Wait for UI settling (reaction, then quiet; cheap probe when the backend provides one)
+8. Record action, yield step event
+9. Check no-change limit, budget, timeout, cancellation
+10. Loop
+
+Termination conditions:
+- Policy returns terminal decision (SUBTASK_COMPLETE, BLOCKED, NEEDS_AGENT, NEEDS_INPUT)
+- Verification callback rejects completion -> NEEDS_AGENT
+- Decision confidence below min_confidence, or margin below min_margin -> NEEDS_AGENT
+- Action budget exhausted -> NEEDS_AGENT
+- Wall-clock timeout -> NEEDS_AGENT
+- cancel() called -> NEEDS_AGENT
+- Stale retries exhausted -> NEEDS_AGENT
+- No-change limit hit -> BLOCKED
+- Backend execution error -> NEEDS_AGENT
+
+---
+
+## JSON boundary functions
+
+### subtask_from_dict
+
+```python
+def subtask_from_dict(payload: Mapping[str, Any]) -> Subtask
+```
+
+Parse a dict into a Subtask. Accepted keys: goal, verification, inputs, constraints, max_actions, metadata, shortcuts. Raises a field-specific ValueError on missing required fields, unknown fields, invalid types, or invalid shortcut declarations. No scalar-to-array or string-to-number coercion occurs. Even one criterion needs an array, for example {"goal": "Create Review", "inputs": {"folder_name": "Review"}, "verification": ["Review exists"], "constraints": ["Preserve existing files"], "max_actions": 12, "shortcuts": {"MOD+SHIFT+N": "Create a new folder"}}. Each text value to be typed must be supplied in inputs; goal text alone is insufficient. Return is the built-in PRESS_KEY value ENTER; it is not an unmodified hotkey.
+
+### result_to_dict
+
+```python
+def result_to_dict(result: ExecutionResult) -> dict[str, Any]
+```
+
+Returns: `{"status", "actions_taken", "reason", "observations", "history", "final_snapshot"}`
+
+### execute_payload
+
+```python
+def execute_payload(executor: DesktopExecutor, payload: Mapping[str, Any]) -> dict[str, Any]
+```
+
+Convenience: `result_to_dict(executor.run(subtask_from_dict(payload)))`.
+
+---
+
+## Driver
+
+`Driver` (from arc_cua; macOS) observes apps and acts on them in the background with
+no decision model. `arc-cua mcp` serves the same over MCP stdio, with tools status,
+apps, windows, observe, act, settle, wait, commands, run_command, release, screenshot,
+click_at, drag, scroll_at, press and type_text. Guide: docs/driver.md.
+
+| Method | Returns / does |
+|---|---|
+| apps() | running apps with a UI: pid, name, bundle_id, frontmost, hidden |
+| target(pid or WindowTarget) | WindowTarget(pid, window_id): a pid resolves once to the focused window (else main/first, else a minimized or hidden one) |
+| target_of(snapshot) | the WindowTarget a snapshot was read from (snapshot.context["window_id"]) |
+| windows(pid) | WindowInfo(window_id, title, bounds, on_screen, minimized) for every window of the app |
+| observe(pid or WindowTarget) | DesktopSnapshot of that exact window, minimized/hidden ones read in place; on-screen elements only |
+| act(snapshot, kind, target=None, *, value, key, hotkey, scroll_direction, click_modifier) | ActResult |
+| wait(snapshot, *, timeout_s=1.0, quiet_s=0.05) | fresh snapshot once the app's structure changes after snapshot, or at the timeout |
+| commands(pid, *, query=None) | MenuCommand(path, shortcut, enabled, checked) for the menu bar, Apple menu left out |
+| run_command(pid, path) | runs a menu command by path ("File > Export > PDF…" or a tuple); ActResult |
+| screenshot(pid or WindowTarget, *, snapshot=None, max_side=1568) | Screenshot(png, width, height, scale = pixels per point, window_id, title), with attached sheets |
+| click_at / drag / scroll_at / press / type_text(pid or WindowTarget, ...) | raw input at points relative to the window's top-left corner, to that window even when covered (an attached sheet takes it); snapshot= sends it to the snapshot's window and refuses on change |
+| settle(snapshot, *, reaction_s=0.6, quiet_s=0.15, timeout_s=2.0) | waits for the app to finish reacting since snapshot; returns (fresh snapshot, SettleReport) |
+| status() | version, Python and macOS versions, permissions (accessibility, screen_recording), background_input, virtual_display; needs no permission |
+| release(pid), release_all(), close() | stop working with an app / all apps; moved windows go back (minimized or hidden again), its snapshots expire |
+| parked(pid) | whether the app has windows on the invisible display; MCP act and input results report `parked` |
+| cancelled | a threading.Event; set it from another thread to stop the current call, which raises Cancelled |
+
+ActResult.status is "done", "changed" (the app's structure, its windows, sheets or
+menus, changed since the snapshot; nothing was done) or "stale" (the target
+changed); ActResult.snapshot is then a fresh snapshot of the same window.
+act, run_command and the input methods take settle=True: the driver waits for the
+app's accessibility notifications to go quiet (0.15 s after a change, 0.6 s with no
+change, 2 s at most; web pages are also re-read every 0.1 s) and returns a fresh
+snapshot with ActResult.settled = SettleReport(reacted, timed_out, elapsed_ms, cancelled).
+reacted False: the app posted nothing and the window is the same, so the action most
+likely did nothing; reacted None: notifications could not be watched. A window
+that was closed or replaced raises TargetUnavailable rather than being swapped for
+another. Structural changes come from
+a per-app journal of accessibility notifications; value changes do not count, so
+several actions on one snapshot work. Nothing waits after an action unless settle=True. Menu commands
+act on the app's key window, not necessarily the observed one. In web content and
+document text views, text is typed (so pages see input events and documents record an
+edit), toggles are clicked, sliders, steppers and date fields (YYYY-MM-DD) are stepped,
+and scrolling moves scroll bars through accessibility. HTML5 drag and drop is not
+supported (it needs a real on-screen pointer drag). Minimized
+windows and hidden apps stay out of sight for accessibility actions and menu
+commands; input that needs events moves the window onto an invisible display first.
+When an Electron or Chromium Embedded Framework app shows no web content to
+accessibility, snapshot.context["hint"] (MCP: observe's `hint`) is
+{"code": "relaunch_for_accessibility", "message", "args": ["--force-renderer-accessibility"]};
+the driver never relaunches apps itself.
+
+Over MCP, requests run one at a time; `notifications/cancelled` stops one (a wait or
+settle returns early, an action not yet started is not performed, a queued request is
+skipped; none gets a response), and `ping` is answered mid-request. Closing standard
+input, SIGTERM or SIGHUP put moved windows back before exit. Tool errors are results
+with isError and structuredContent {code, message}; codes: permission_denied,
+target_unavailable, snapshot_expired, element_not_found, action_not_offered,
+command_not_found, invalid_arguments, unsupported_action, capture_failed,
+background_unavailable, unknown_tool, internal_error.
+
+## Command line
+
+`arc-cua mcp` serves the driver over MCP stdio (see Driver).
+
+`arc-cua run` (also `python -m arc_cua run`) executes one subtask against one macOS
+app and exits. Standard input: one JSON object.
+
+| Field | Meaning |
+|---|---|
+| app | {"pid": int} or {"bundle_id": str} (required) |
+| subtask | Subtask JSON as for subtask_from_dict (required) |
+| provider | {"name": "jev", "api_key": str, "model": str (optional)} (required); api_key falls back to TYPESAFE_API_KEY |
+| backend | "hybrid" (default; OCR only when accessibility exposes no app controls) or "ax" |
+| timeout_s, min_confidence, min_margin | RuntimeConfig fields |
+| dry_run | true: stop with DRY_RUN and planned_action instead of acting |
+
+Standard output: one JSON line per executed action,
+`{"type": "action", ...ActionRecord.compact(), "confidence", "margin"}`, then
+`{"type": "result", "status", "reason", "needs_input", "planned_action", "actions_taken", "observations", "application", "window"}`,
+exit code 0. If no result can be produced, the last line is
+`{"type": "error", "error": str}`: exit code 2 for invalid input, 1 otherwise (app
+quit or has no usable window, missing permission, provider failure). Logs go to
+standard error only; `-v` adds debug detail. `--log FILE` appends one JSON line per
+decision: step, choice, target, target_name, input_key, confidence, margin, decide_ms, step_elapsed_ms, state_changed, candidate_counts (options per question), operation_probabilities and outcome. To stop a run, terminate the process;
+on SIGTERM/SIGINT it puts parked windows back and returns key focus before exiting.
+
+---
+
+## Protocols
+
+### DesktopBackend
+
+```python
+class DesktopBackend(Protocol):
+    def observe(self) -> DesktopSnapshot: ...
+    def is_fresh(self, snapshot: DesktopSnapshot, action: ExecutableAction) -> bool: ...
+    def execute(self, snapshot: DesktopSnapshot, action: ExecutableAction) -> None: ...
+```
+
+- `observe()` — Capture current desktop state
+- `is_fresh()` — Check if snapshot + action target still matches reality
+- `execute()` — Perform the action. Raise StaleDesktopState if target changed. Raise InvalidDecision if action is illegal. Other exceptions are caught by the runtime.
+
+### DecisionPolicy
+
+```python
+class DecisionPolicy(Protocol):
+    def decide(
+        self,
+        *,
+        subtask: Subtask,
+        snapshot: DesktopSnapshot,
+        history: Sequence[ActionRecord],
+    ) -> Decision: ...
+```
+
+---
+
+## Backends
+
+### MacOSHybridBackend
+
+```python
+from arc_cua.backends import MacOSApp, MacOSHybridBackend
+backend = MacOSHybridBackend(pid)   # pid of the app to control
+with MacOSHybridBackend(MacOSApp.from_bundle_id("com.apple.TextEdit").pid) as backend:
+    ...                             # also reaches minimized/hidden windows, out of sight
+```
+
+Combines MacOSAXBackend (semantic controls) and MacOSOCRProvider (Apple Vision OCR). Handles modal detection, OCR deduplication, and coordinate-based execution for OCR targets.
+
+Modal detection: a sheet, dialog or popover in the observed window (role AXSheet,
+AXDialog or AXPopover, subrole AXDialog/AXSystemDialog, or AXModal true), found
+during the accessibility walk, or an app window with such a role or subrole, blocks
+the window; only its elements are offered and OCR is limited to its bounds. Help-tag
+windows never count, and a sheet on another window of the app is ignored.
+
+`MacOSHybridBackend(pid, ocr="auto", capture_screenshots=False)`: with `ocr="auto"`
+(default) OCR runs only when the accessibility elements include no enabled,
+labelled application control (roles such as Button, CheckBox, PopUpButton, Link,
+MenuItem, Slider, text inputs; title-bar buttons excluded). Without OCR no
+screenshot is taken unless `capture_screenshots=True`, and settling uses the app's
+accessibility notification count. `"always"` / `"never"` force OCR on or off.
+`snapshot.context["perception_sources"]` is `["macos_ax"]` or `["macos_ax", "macos_ocr"]`.
+
+Both macOS backends act on one app, given by process ID, whether or not it is
+frontmost. Input is delivered in the background: events are addressed to the app's
+window, so the user's pointer does not move, the window is not raised and the front
+app does not change. Command chords run through the app's menu when an enabled
+item has them. As a context manager (or `open()`/`close()`), MacOSAXBackend reads a
+minimized window or hidden app in place and presses/sets its controls through
+accessibility; actions that need input events (keys, scrolling, pointer clicks)
+first move the window onto an invisible display, and close() puts it back.
+MacOSHybridBackend moves it on open(), since OCR needs pixels. When the app quits or has no usable window (closed, or on
+another desktop), observe/is_fresh/execute raise TargetUnavailable.
+
+`MacOSApp(pid)` / `MacOSApp.from_bundle_id(bundle_id)` resolve the target app;
+`backend.app` is the backend's MacOSApp and `backend.pid` its process ID.
+
+OCR text that an actionable AX element already represents (same text, centered
+inside it) is dropped, so one control has one id. Each snapshot's `screenshot()`
+returns the PNG of the window image OCR read, at most 1280 px on the longest side,
+for image completion checks.
+
+### ChromeBackend
+
+```python
+from arc_cua.backends import ChromeBackend  # pip install 'arc-cua[browser]'
+
+backend = ChromeBackend.launch(
+    "https://example.com",
+    headless=False,              # headless=True for CI
+    capture_screenshots=False,   # True: snapshot.screenshot() returns the viewport PNG
+)
+backend = ChromeBackend.connect("http://127.0.0.1:9222", url="https://example.com")
+backend.navigate(url)            # caller-side navigation
+backend.close()                  # also a context manager
+```
+
+One Chrome tab through the DevTools protocol, on macOS, Linux and Windows. Input
+does not move the real pointer or need window focus. Elements (source
+"chrome_dom") are visible controls and text in the viewport, including open shadow
+roots and same-origin iframes. Covered controls have no actions and
+metadata["covered"] = True. `<select>`, range and date inputs use SET_VALUE with an
+agent input matching an option label or value; a select's options are in
+metadata["options"]. JavaScript dialogs appear as dialog_message plus
+dialog_accept/dialog_dismiss buttons. A link that opens a new tab switches the
+backend to it. Live regions (role status/alert/log, aria-live) are included even
+when scrolled away, with metadata["offscreen"] = True. context has url, title, viewport, scroll, more_above, more_below.
+Not supported: cross-origin iframes, closed shadow roots, file uploads, drag and
+drop, browser UI.
+
+### MacOSAXBackend
+
+```python
+from arc_cua.backends import MacOSAXBackend
+backend = MacOSAXBackend(pid, max_elements=1200, max_depth=18, cache=False)
+```
+
+Pure Accessibility backend. Traverses the AX tree of the app with that process ID, from its window on the current desktop. Background input as for MacOSHybridBackend. Supports CLICK, DOUBLE_CLICK, RIGHT_CLICK, TYPE_TEXT, SET_VALUE, PRESS_KEY, HOTKEY, SCROLL.
+
+The walk reads only what is on screen: visible rows of lists and tables, and elements
+inside the window and enclosing scroll areas. Electron/Chromium apps are asked for
+their full tree on each observation.
+
+`cache=True` keeps elements between observations and re-reads only those the app
+reports as changed (AX notifications), plus each container's children list, the
+window itself, and everything after the window moves, resizes or changes. Repeat
+observations take a few milliseconds instead of tens. A value an app changes
+without notifying (for example a clock) can be stale until that element is read
+again; targets are still re-checked before every action. `close()` stops it.
+
+AX element IDs use Core Foundation equality and hashing, with collision handling,
+across normal and modal traversals. The observer uses the main window as a fallback
+and separately includes inline editors; it avoids traversing inactive menus when
+the focused window is temporarily absent. AXValue geometry is decoded for pointer
+actions. AXShowMenu is not treated as an ordinary left click.
+
+Writable item labels are distinguished from text editors using focus and editable
+selection capabilities. Only real text editors expose text-entry actions; committing
+an edit remains a separate policy-selected action. Accessible item URLs are included
+in metadata and freshness checks. Recent action history includes concrete keys,
+hotkeys, and scroll directions.
+
+Methods:
+- `register_ref(element_id, ref)` — Register an AX reference for an element (used by hybrid backend)
+
+### StateMachineBackend
+
+```python
+from arc_cua.backends import StateMachineBackend
+
+SnapshotFactory = Callable[[dict[str, Any]], DesktopSnapshot]
+Transition = Callable[[dict[str, Any], ExecutableAction], None]
+
+backend = StateMachineBackend(
+    initial_state={"key": "value"},
+    snapshot_factory=my_snapshot_fn,
+    transition=my_transition_fn,
+)
+```
+
+Deterministic backend for tests and demos. You define:
+- `snapshot_factory(state) -> DesktopSnapshot` — How state maps to UI
+- `transition(state, action) -> None` — How actions mutate state
+
+---
+
+## Policies
+
+### ChoicePolicy
+
+```python
+from arc_cua.policies import ChoicePolicy, TypeSafeTransport
+
+policy = ChoicePolicy(
+    TypeSafeTransport(),
+    max_candidates=240,       # per question; over it, focused/selected and goal-related controls are kept first
+    screenshot_checks=False,  # needs transport.supports_images and snapshot.screenshot
+    screenshot_steps=False,   # attach snapshot.screenshot() to every decision
+)
+```
+
+Provider-neutral decision policy. It builds the operation, target, input, key and
+verification choice questions from the current DesktopSnapshot, sends them through
+a ChoiceTransport, and validates the selected answers. TypeSafeJevPolicy is
+ChoicePolicy with a TypeSafeTransport.
+
+### TypeSafeJevPolicy
+
+Provider requests store compact element facts once as rows in state.desktop.elements,
+with field names in state.desktop.element_columns. Null/omitted trailing columns
+mean absent. Target choices reference those observed IDs and all heads share
+state.subtask. This removes repeated facts without dropping observed elements or
+altering candidate IDs. Public snapshots/traces keep the ordinary object format.
+Provider token-limit errors include max_tokens_exceeded and execute no UI action.
+
+```python
+from arc_cua.policies import TypeSafeJevPolicy
+
+policy = TypeSafeJevPolicy(
+    api_key="...",          # or TYPESAFE_API_KEY env var
+    model="jev-latest",     # or TYPESAFE_MODEL env var
+    base_url="...",         # or TYPESAFE_BASE_URL env var
+    timeout_s=12.0,
+    client=httpx.Client(),  # optional, reuse connection
+)
+```
+
+Builds a dynamic action space from the current DesktopSnapshot and sends it to the JEV API. One request resolves operation + all operation-specific targets in parallel (speculative fan-out).
+
+### ScriptedPolicy
+
+```python
+from arc_cua.policies import ScriptedPolicy
+
+policy = ScriptedPolicy([
+    Decision(kind=ActionKind.CLICK, target_id="btn"),
+    Decision(terminal=TerminalKind.SUBTASK_COMPLETE),
+])
+```
+
+Deterministic policy for tests. Consumes decisions in order. Raises RuntimeError when exhausted.
+
+---
+
+## Error types
+
+All inherit from `JevDesktopError(RuntimeError)`:
+
+| Error | Meaning |
+|---|---|
+| StaleDesktopState | Target changed between observation and execution |
+| InvalidDecision | Policy returned an illegal action for the current snapshot |
+| UnsupportedDesktopAction | Backend does not support the requested action kind |
+| ElementNotFound, ActionNotOffered, CommandNotFound, InvalidArguments, CaptureFailed | Subclasses of UnsupportedDesktopAction raised by the driver |
+| TargetUnavailable | The target app quit, or has no window that can be observed and controlled |
+| Cancelled | A driver call was stopped through Driver.cancelled |
+
+Each has a stable `code` attribute (stale, invalid_decision, unsupported_action,
+element_not_found, action_not_offered, command_not_found, invalid_arguments,
+capture_failed, target_unavailable, cancelled), the same codes `arc-cua mcp` reports.
+A missing permission raises PermissionError.
+
+StaleDesktopState is caught by the runtime and triggers re-observation. InvalidDecision and TargetUnavailable propagate to the caller. Other backend exceptions are caught and return NEEDS_AGENT.
+
+---
+
+## Constants
+
+```python
+DEFAULT_PRESS_KEYS = ("ENTER", "ESCAPE", "TAB", "SPACE", "BACKSPACE", "DELETE",
+                      "ARROW_UP", "ARROW_DOWN", "ARROW_LEFT", "ARROW_RIGHT")
+
+DEFAULT_HOTKEYS = ("MOD+A", "MOD+C", "MOD+V", "MOD+Z", "MOD+SHIFT+Z", "MOD+F")
+
+SCROLL_DIRECTIONS = ("UP", "DOWN", "LEFT", "RIGHT")
+```
+
+MOD means Cmd on macOS, Ctrl elsewhere.
+
+---
+
+## Extending arc-cua
+
+### Custom backend
+
+Implement the DesktopBackend protocol:
+
+```python
+class MyBackend:
+    def observe(self) -> DesktopSnapshot:
+        # Return current desktop state as DesktopElements
+        ...
+
+    def is_fresh(self, snapshot: DesktopSnapshot, action: ExecutableAction) -> bool:
+        # Check target_guard still matches
+        if action.target_id:
+            element = self.current_element(action.target_id)
+            return element.semantic_guard() == action.target_guard
+        return True
+
+    def execute(self, snapshot: DesktopSnapshot, action: ExecutableAction) -> None:
+        # Perform the UI action
+        # Raise StaleDesktopState if target changed
+        # Raise InvalidDecision if action is illegal
+        ...
+```
+
+### Custom policy
+
+Implement the DecisionPolicy protocol:
+
+```python
+class MyPolicy:
+    def decide(
+        self,
+        *,
+        subtask: Subtask,
+        snapshot: DesktopSnapshot,
+        history: Sequence[ActionRecord],
+    ) -> Decision:
+        # Return either:
+        #   Decision(kind=ActionKind.CLICK, target_id="element_id")
+        #   Decision(terminal=TerminalKind.SUBTASK_COMPLETE)
+        ...
+```
+
+### Custom decision provider
+
+Implement the ChoiceTransport protocol to use another decision model with the
+same questions, validation and runtime:
+
+```python
+class MyTransport:
+    name = "MyProvider"     # shown in invalid-response errors
+    supports_images = True  # optional; required for screenshot_checks/screenshot_steps
+    full_distribution = True  # False: answers may carry only choice + confidence (margin is then None)
+
+    def ask(self, state, questions, *, images=()):
+        # images: PNG bytes, only sent for screenshot completion checks
+        # state: shared subtask, desktop element table and recent actions
+        # questions: {name: {"type": "choice", "criteria": {id: description}, "instructions": {...}}}
+        # Return {"answers": {name: {"choice": id, "confidence": float,
+        #                            "probabilities": {id: float, ...}}}}.
+        # Raise on failure; no action is executed.
+        ...
+
+policy = ChoicePolicy(MyTransport())
+```
+
+### Logging
+
+arc-cua uses stdlib logging. Enable debug output:
+
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+```
+
+Loggers: `arc_cua.runtime`, `arc_cua.backends.chrome`, `arc_cua.backends.cdp`, `arc_cua.backends.macos_ax`, `arc_cua.backends.macos_hybrid`, `arc_cua.backends.macos_ocr`, `arc_cua.policies.typesafe`.
+
+---
+
+## Dependencies
+
+Runtime:
+- httpx[http2] >= 0.28, < 1
+
+macOS extras (pip install 'arc-cua[macos]'):
+- pyobjc-framework-ApplicationServices >= 11
+- pyobjc-framework-Cocoa >= 11
+- pyobjc-framework-Quartz >= 11
+- pyobjc-framework-Vision >= 11
+
+Dev:
+- pytest >= 8.4, < 9
+- ruff >= 0.14, < 1
+
+Python >= 3.12 required.

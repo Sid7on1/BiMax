@@ -1,0 +1,162 @@
+{
+  "row": 8,
+  "query": 8,
+  "id": "mab-8-8",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T16:59:53.077680+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n5. A man of wretched appearance entered the town of D\u2014\u2014.\n6. The man drank at the fountain under the trees of the boulevard Gassendi.\n7. The man stopped again for a drink at the fountain in the market-place.\n8. The man entered the town-hall and came out a quarter of an hour later.\n9. The man entered the inn at the sign of the Cross of Colbas.\n\n\nBelow is a list of possible subsequent events:\n\n['The traveler demanded a warm meal and a comfortable bed from the proprietor.', 'The wanderer required nourishment and accommodation from the caretaker.', 'The guest petitioned for dinner and a room from the manager.', 'The visitor asked for hospitality and provisions from the landlord.', 'The man requested food and lodging from the host.', 'The couple sought shelter and sustenance from the innkeeper.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "The man requested food and lodging from the host."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-33",
+    "context-34",
+    "context-10"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T17:01:58.898452+00:00",
+  "rag": {
+    "ids": [
+      "context-33",
+      "context-34",
+      "context-10"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) is situated below the city had seen him pause beneath the trees of the boulevard Gassendi, and drink at the fountain which stands at the end of the promenade.\n\nHe must have been very thirsty: for the children who followed him saw him stop again for a drink, two hundred paces further on, at the fountain in the market-place.\n\nOn arriving at the corner of the Rue Poichevert, he turned to the left, and directed his steps toward the town-hall.\n\nHe entered, then came out a quarter of an hour later.\n\nA gendarme was seated near the door, on the stone bench which General Drouot had mounted on the 4th of March to read to the frightened throng of the inhabitants of D\u2014\u2014 the proclamation of the Gulf Juan.\n\nThe man pulled off his cap and humbly saluted the gendarme.\n\nThe gendarme, without replying to his salute, stared attentively at him, followed him for a while with his eyes, and then entered the town-hall.\n\nThere then existed at D\u2014\u2014 a fine inn at the sign of the Cross of Colbas.\n  (part 3 of 5, excerpt) at him, followed him for a while with his eyes, and then entered the town-hall.\n\nThere then existed at D\u2014\u2014 a fine inn at the sign of the Cross of Colbas.\n\nThis inn had for a landlord a certain Jacquin Labarre, a man of consideration in the town on account of his relationship to another Labarre, who kept the inn of the Three Dauphins in Grenoble, and had served in the Guides.\n- (part 2 of 5, excerpt) The landlord whispered a word in the scullion\u2019s ear, and the child set off on a run in the direction of the town-hall.\n\nThe traveller saw nothing of all this.\n\nOnce more he inquired, \u201cWill dinner be ready soon?\u201d\n- (part 3 of 5, excerpt) There was no exit possible from this oratory, except by passing through the bedroom, nor from the bedroom, without passing through th",
+    "evidence": [
+      {
+        "sourceId": "memory:context-33",
+        "sourceVersion": "sha256:1bc7361c187f14550eb609752f17a53c6d08e68ca947c9c1e78552b6b09168d6",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-33",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "is situated below the city had seen him pause beneath the trees of the boulevard Gassendi, and drink at the fountain which stands at the end of the promenade.\n\nHe must have been very thirsty: for the children who followed him saw him stop again for a drink, two hundred paces further on, at the fountain in the market-place.\n\nOn arriving at the corner of the Rue Poichevert, he turned to the left, and directed his steps toward the town-hall.\n\nHe entered, then came out a quarter of an hour later.\n\nA gendarme was seated near the door, on the stone bench which General Drouot had mounted on the 4th of March to read to the frightened throng of the inhabitants of D\u2014\u2014 the proclamation of the Gulf Juan.\n\nThe man pulled off his cap and humbly saluted the gendarme.\n\nThe gendarme, without replying to his salute, stared attentively at him, followed him for a while with his eyes, and then entered the town-hall.\n\nThere then existed at D\u2014\u2014 a fine inn at the sign of the Cross of Colbas.",
+        "id": "ev_c99f02a52b561709caed89d7",
+        "observedAt": "2026-10-14T15:30:59.074Z"
+      },
+      {
+        "sourceId": "memory:context-33",
+        "sourceVersion": "sha256:1bc7361c187f14550eb609752f17a53c6d08e68ca947c9c1e78552b6b09168d6",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-33",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "at him, followed him for a while with his eyes, and then entered the town-hall.\n\nThere then existed at D\u2014\u2014 a fine inn at the sign of the Cross of Colbas.\n\nThis inn had for a landlord a certain Jacquin Labarre, a man of consideration in the town on account of his relationship to another Labarre, who kept the inn of the Three Dauphins in Grenoble, and had served in the Guides.",
+        "id": "ev_74db91ddda7a5fac7f2101e4",
+        "observedAt": "2026-10-14T15:30:59.074Z"
+      },
+      {
+        "sourceId": "memory:context-34",
+        "sourceVersion": "sha256:0827eb4703935b5cd1ae9f73e6344d425660e0da4ab227088dfdb233b8e2ced3",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-34",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "The landlord whispered a word in the scullion\u2019s ear, and the child set off on a run in the direction of the town-hall.\n\nThe traveller saw nothing of all this.\n\nOnce more he inquired, \u201cWill dinner be ready soon?\u201d",
+        "id": "ev_9db33f73c82c918513999c4c",
+        "observedAt": "2026-10-14T15:30:59.075Z"
+      },
+      {
+        "sourceId": "memory:context-10",
+        "sourceVersion": "sha256:e50a2c43730b416f096464b23365676c6cc42158a57d78038a93eea6e908c3d5",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-10",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "There was no exit possible from this oratory, except by passing through the bedroom, nor from the bedroom, without passing through th",
+        "id": "ev_2ce39f735aa180985559e5ea",
+        "observedAt": "2026-10-14T15:30:59.075Z"
+      }
+    ],
+    "sourceIds": [
+      "context-33",
+      "context-34",
+      "context-10"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 6.335583000000042,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+  "prediction": "The man requested food and lodging from the host",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 758,
+    "completion_tokens": 1035,
+    "total_tokens": 1793,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 473,
+    "completion_tokens": 483,
+    "total_tokens": 956,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 480,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 100363.92274999889,
+  "judgeWallMs": 10692.62108300245
+}

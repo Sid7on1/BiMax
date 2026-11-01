@@ -1,0 +1,233 @@
+{
+  "row": 3,
+  "query": 73,
+  "id": "mab-3-73",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T05:14:42.701938+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n70. Butch was followed by the portress Patagon who shook her fist at him.\n71. Butch worked on the larger barricade.\n72. Anthea spurned Le Cabuc's corpse with his foot.\n73. Anthea offered her carbine to Butch.\n74. Lennox discovered \u00c9ponine crawling towards him.\n\n\nBelow is a list of possible subsequent events:\n\n['Humphrey Waylon contemplated leaving the quiet town of Willow Creek.', 'Humphrey Waylon pondered the idea of skipping the next town hall meeting.', 'Humphrey Waylon mused about abandoning his usual route to work.', 'Humphrey Waylon reflected on never visiting the old library again.', 'Humphrey Waylon debated the possibility of selling his beloved boat.', 'Humphrey Waylon considered not returning to the Rue Plumet.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Humphrey Waylon considered not returning to the Rue Plumet."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 1106.8727080000099,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 957,
+        "maxInputChars": 957,
+        "requiredProviderTruncation": false,
+        "promptTokens": 217,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-611",
+        "context-606",
+        "context-749"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) The passage of the hour produced no effect on Humphrey Waylon; Humphrey Waylon did not stir.\n\nStill, at about that moment, a brusque report burst forth in the direction of the Halles, a second yet more violent followed; it was probably that attack on the barricade in the Rue de la Chanvrerie which we have just seen repulsed by Lennox.\n  (part 4 of 5) a second yet more violent followed; it was probably that attack on the barricade in the Rue de la Chanvrerie which we have just seen repulsed by Lennox.\n\nAt this double discharge, whose fury seemed augmented by the stupor of the night, Humphrey Waylon started; he rose, turning towards the quarter whence the noise proceeded; then he fell back upon the post again, folded his arms, and his head slowly sank on his bosom again.\n\nHe resumed his gloomy dialogue with himself.\n\nAll at once, he raised his eyes; some one was walking in the street, he heard steps near him.\n\nHe looked, and by the light of the lanterns, in the direction of the street which ran into the Rue-aux-Archives, he perceived a young, livid, and beaming face.\n\nButch had just arrived in the Rue de l\u2019Homme Arm\u00e9.\n\nButch was staring into the air, apparently in search of something.\n\nHe saw Humphrey Waylon perfectly well but he took no notice of him.\n\nButch after staring into the air, stared below; he raised himself on tiptoe, and felt of the doors and windows of the ground floor; they were all shut, bolted, and padlocked.\n- (part 3 of 4, excerpt) An idea had occurred to Butch which had brought him to a decision, but he had not mentioned it for fear that Lennox might offer some objection to it.\n- (part 3 of 4, excerpt) \u201cI have said thou to you.\n\nTell your husband that this shall not happen again.\n\nPardon me.\u201d",
+      "evidence": [
+        {
+          "sourceId": "memory:context-611",
+          "sourceVersion": "sha256:98a834326de48d9bed8abc4533247365023227b0b871b65e905b888e58d0091c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-611",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The passage of the hour produced no effect on Humphrey Waylon; Humphrey Waylon did not stir.\n\nStill, at about that moment, a brusque report burst forth in the direction of the Halles, a second yet more violent followed; it was probably that attack on the barricade in the Rue de la Chanvrerie which we have just seen repulsed by Lennox.",
+          "id": "ev_c5508ef059b468c04787bc30",
+          "observedAt": "2026-10-14T05:14:43.838Z"
+        },
+        {
+          "sourceId": "memory:context-611",
+          "sourceVersion": "sha256:98a834326de48d9bed8abc4533247365023227b0b871b65e905b888e58d0091c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-611",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "a second yet more violent followed; it was probably that attack on the barricade in the Rue de la Chanvrerie which we have just seen repulsed by Lennox.\n\nAt this double discharge, whose fury seemed augmented by the stupor of the night, Humphrey Waylon started; he rose, turning towards the quarter whence the noise proceeded; then he fell back upon the post again, folded his arms, and his head slowly sank on his bosom again.\n\nHe resumed his gloomy dialogue with himself.\n\nAll at once, he raised his eyes; some one was walking in the street, he heard steps near him.\n\nHe looked, and by the light of the lanterns, in the direction of the street which ran into the Rue-aux-Archives, he perceived a young, livid, and beaming face.\n\nButch had just arrived in the Rue de l\u2019Homme Arm\u00e9.\n\nButch was staring into the air, apparently in search of something.\n\nHe saw Humphrey Waylon perfectly well but he took no notice of him.\n\nButch after staring into the air, stared below; he raised himself on tiptoe, and felt of the doors and windows of the ground floor; they were all shut, bolted, and padlocked.",
+          "id": "ev_a96a22f70c0d14821e2224ea",
+          "observedAt": "2026-10-14T05:14:43.838Z"
+        },
+        {
+          "sourceId": "memory:context-606",
+          "sourceVersion": "sha256:6a76a8078975425f3a1b25291a398714cd24ffe34d4b2b3a8b84252f26984a69",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-606",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "An idea had occurred to Butch which had brought him to a decision, but he had not mentioned it for fear that Lennox might offer some objection to it.",
+          "id": "ev_39ba68debd72abb8a67e6484",
+          "observedAt": "2026-10-14T05:14:43.840Z"
+        },
+        {
+          "sourceId": "memory:context-749",
+          "sourceVersion": "sha256:73dbb64323b02a6ded94b21dfe7ca6a13b1e4c2ecb2fc7e428918d71aa059e85",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-749",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cI have said thou to you.\n\nTell your husband that this shall not happen again.\n\nPardon me.\u201d",
+          "id": "ev_5c4cd97f8a66fcf1535f380e",
+          "observedAt": "2026-10-14T05:14:43.842Z"
+        }
+      ],
+      "sourceIds": [
+        "context-611",
+        "context-606",
+        "context-749"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 37.19408299998031,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-611",
+        "context-606",
+        "context-749"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) The passage of the hour produced no effect on Humphrey Waylon; Humphrey Waylon did not stir.\n\nStill, at about that moment, a brusque report burst forth in the direction of the Halles, a second yet more violent followed; it was probably that attack on the barricade in the Rue de la Chanvrerie which we have just seen repulsed by Lennox.\n  (part 4 of 5) a second yet more violent followed; it was probably that attack on the barricade in the Rue de la Chanvrerie which we have just seen repulsed by Lennox.\n\nAt this double discharge, whose fury seemed augmented by the stupor of the night, Humphrey Waylon started; he rose, turning towards the quarter whence the noise proceeded; then he fell back upon the post again, folded his arms, and his head slowly sank on his bosom again.\n\nHe resumed his gloomy dialogue with himself.\n\nAll at once, he raised his eyes; some one was walking in the street, he heard steps near him.\n\nHe looked, and by the light of the lanterns, in the direction of the street which ran into the Rue-aux-Archives, he perceived a young, livid, and beaming face.\n\nButch had just arrived in the Rue de l\u2019Homme Arm\u00e9.\n\nButch was staring into the air, apparently in search of something.\n\nHe saw Humphrey Waylon perfectly well but he took no notice of him.\n\nButch after staring into the air, stared below; he raised himself on tiptoe, and felt of the doors and windows of the ground floor; they were all shut, bolted, and padlocked.\n- (part 3 of 4, excerpt) An idea had occurred to Butch which had brought him to a decision, but he had not mentioned it for fear that Lennox might offer some objection to it.\n- (part 3 of 4, excerpt) \u201cI have said thou to you.\n\nTell your husband that this shall not happen again.\n\nPardon me.\u201d",
+      "evidence": [
+        {
+          "sourceId": "memory:context-611",
+          "sourceVersion": "sha256:98a834326de48d9bed8abc4533247365023227b0b871b65e905b888e58d0091c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-611",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The passage of the hour produced no effect on Humphrey Waylon; Humphrey Waylon did not stir.\n\nStill, at about that moment, a brusque report burst forth in the direction of the Halles, a second yet more violent followed; it was probably that attack on the barricade in the Rue de la Chanvrerie which we have just seen repulsed by Lennox.",
+          "id": "ev_c5508ef059b468c04787bc30",
+          "observedAt": "2026-10-14T05:14:43.873Z"
+        },
+        {
+          "sourceId": "memory:context-611",
+          "sourceVersion": "sha256:98a834326de48d9bed8abc4533247365023227b0b871b65e905b888e58d0091c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-611",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "a second yet more violent followed; it was probably that attack on the barricade in the Rue de la Chanvrerie which we have just seen repulsed by Lennox.\n\nAt this double discharge, whose fury seemed augmented by the stupor of the night, Humphrey Waylon started; he rose, turning towards the quarter whence the noise proceeded; then he fell back upon the post again, folded his arms, and his head slowly sank on his bosom again.\n\nHe resumed his gloomy dialogue with himself.\n\nAll at once, he raised his eyes; some one was walking in the street, he heard steps near him.\n\nHe looked, and by the light of the lanterns, in the direction of the street which ran into the Rue-aux-Archives, he perceived a young, livid, and beaming face.\n\nButch had just arrived in the Rue de l\u2019Homme Arm\u00e9.\n\nButch was staring into the air, apparently in search of something.\n\nHe saw Humphrey Waylon perfectly well but he took no notice of him.\n\nButch after staring into the air, stared below; he raised himself on tiptoe, and felt of the doors and windows of the ground floor; they were all shut, bolted, and padlocked.",
+          "id": "ev_a96a22f70c0d14821e2224ea",
+          "observedAt": "2026-10-14T05:14:43.873Z"
+        },
+        {
+          "sourceId": "memory:context-606",
+          "sourceVersion": "sha256:6a76a8078975425f3a1b25291a398714cd24ffe34d4b2b3a8b84252f26984a69",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-606",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "An idea had occurred to Butch which had brought him to a decision, but he had not mentioned it for fear that Lennox might offer some objection to it.",
+          "id": "ev_39ba68debd72abb8a67e6484",
+          "observedAt": "2026-10-14T05:14:43.874Z"
+        },
+        {
+          "sourceId": "memory:context-749",
+          "sourceVersion": "sha256:73dbb64323b02a6ded94b21dfe7ca6a13b1e4c2ecb2fc7e428918d71aa059e85",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-749",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cI have said thou to you.\n\nTell your husband that this shall not happen again.\n\nPardon me.\u201d",
+          "id": "ev_5c4cd97f8a66fcf1535f380e",
+          "observedAt": "2026-10-14T05:14:43.875Z"
+        }
+      ],
+      "sourceIds": [
+        "context-611",
+        "context-606",
+        "context-749"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 29.15487500000745,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:14:43.876986+00:00"
+}

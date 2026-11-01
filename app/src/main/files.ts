@@ -1,6 +1,6 @@
-import { promises as fs, watch, FSWatcher } from 'node:fs';
+import { watch, FSWatcher } from 'node:fs';
 import path from 'node:path';
-import { resolveWithinRoot } from './security';
+import { ProjectFiles, withProjectFiles } from './project.files';
 
 /**
  * Electron-native file tree for the Files panel: lazy per-directory listing, capped read-only
@@ -9,57 +9,21 @@ import { resolveWithinRoot } from './security';
  */
 
 const IGNORE = new Set(['node_modules', '.git', '.DS_Store']);
-const MAX_READ = 512 * 1024; // viewer is read-only; past this we truncate with a notice
 
 export interface FileEntry {
   name: string;
   dir: boolean;
 }
 
-/**
- * Resolve a project-relative path, refusing anything that escapes the root — including the
- * no-project-open case, where an empty root used to make every absolute path look contained.
- * The containment rule itself lives in security.ts so the IPC layer and this module cannot drift.
- */
-function safeJoin(root: string, rel: unknown): string {
-  return resolveWithinRoot(root, rel, 'path');
+/** Live IPC passes a pinned project descriptor; string callers receive a scoped temporary one. */
+export async function listDir(root: string | ProjectFiles, rel: unknown): Promise<FileEntry[]> {
+  return withProjectFiles(root, files => files.listDir(rel));
 }
-
-export async function listDir(root: string, rel: unknown): Promise<FileEntry[]> {
-  const abs = safeJoin(root, rel);
-  const entries = await fs.readdir(abs, { withFileTypes: true });
-  return entries
-    .filter((e) => !IGNORE.has(e.name))
-    .map((e) => ({ name: e.name, dir: e.isDirectory() }))
-    .sort((a, b) => (a.dir === b.dir ? a.name.localeCompare(b.name) : a.dir ? -1 : 1));
+export async function readFilePreview(root: string | ProjectFiles, rel: unknown): Promise<{ content: string; truncated: boolean; size: number; binary: boolean }> {
+  return withProjectFiles(root, files => files.readFilePreview(rel));
 }
-
-export async function readFilePreview(
-  root: string, rel: unknown,
-): Promise<{ content: string; truncated: boolean; size: number; binary: boolean }> {
-  const abs = safeJoin(root, rel);
-  const stat = await fs.stat(abs);
-  const fh = await fs.open(abs, 'r');
-  try {
-    const len = Math.min(stat.size, MAX_READ);
-    const buf = Buffer.alloc(len);
-    await fh.read(buf, 0, len, 0);
-    const binary = buf.includes(0);
-    return {
-      content: binary ? '' : buf.toString('utf8'),
-      truncated: stat.size > MAX_READ,
-      size: stat.size,
-      binary,
-    };
-  } finally {
-    await fh.close();
-  }
-}
-
-/** Editor-pane save (⌘S). Same path guard as reads; refuses only what read refused. */
-export async function writeFileContent(root: string, rel: unknown, content: string): Promise<void> {
-  const abs = safeJoin(root, rel);
-  await fs.writeFile(abs, content, 'utf8');
+export async function writeFileContent(root: string | ProjectFiles, rel: unknown, content: string): Promise<void> {
+  return withProjectFiles(root, files => files.writeFileContent(rel, content));
 }
 
 /** One session-meta record from the engine's .breakglass/sessions/sessions-meta.jsonl. */
@@ -74,13 +38,13 @@ export interface SessionMetaRecord {
 }
 
 /**
- * Read the FULL session history for the Home dashboard + Sessions gallery. The engine's
- * ui_snapshot caps its list at 20 (it rides every snapshot frame); stats want everything, and
- * the meta file is plain JSONL in the project dir — so the shell reads it natively, like git.
+ * Read bounded recent session metadata through the selected project's file authority.
+ * The last 512 KiB is retained; an incomplete first JSONL record is skipped. This is
+ * recent-history metadata, not an unbounded all-time statistics source.
  */
-export async function readSessionMeta(root: string): Promise<SessionMetaRecord[]> {
+export async function readSessionMeta(root: string | ProjectFiles): Promise<SessionMetaRecord[]> {
   try {
-    const raw = await fs.readFile(path.join(root, '.breakglass', 'sessions', 'sessions-meta.jsonl'), 'utf8');
+    const { content: raw } = await withProjectFiles(root, files => files.readFilePreview('.breakglass/sessions/sessions-meta.jsonl', true));
     const out: SessionMetaRecord[] = [];
     for (const line of raw.split('\n')) {
       if (!line.trim()) continue;
@@ -172,7 +136,7 @@ export interface FileSearchResult {
 }
 
 export async function searchFiles(
-  root: string,
+  root: string | ProjectFiles,
   query: unknown,
   limit = 200,
 ): Promise<FileSearchResult> {
@@ -182,16 +146,18 @@ export async function searchFiles(
   // anything matches.
   const NODE_BUDGET = 20_000;
   const MAX_DEPTH = 12;
+  const deadline = Date.now() + 5000;
 
   const hits: FileSearchHit[] = [];
   let visited = 0;
   let truncated = false;
 
   const walk = async (rel: string, depth: number): Promise<void> => {
+    if (Date.now() > deadline) { truncated = true; return; }
     if (truncated || depth > MAX_DEPTH || hits.length >= limit) return;
-    let entries: import('node:fs').Dirent[];
+    let entries: FileEntry[];
     try {
-      entries = await fs.readdir(safeJoin(root, rel), { withFileTypes: true });
+      entries = await listDir(root, rel);
     } catch {
       return;
     }
@@ -200,15 +166,16 @@ export async function searchFiles(
       if (++visited > NODE_BUDGET) { truncated = true; return; }
       const childRel = rel ? `${rel}/${entry.name}` : entry.name;
       if (entry.name.toLowerCase().includes(needle)) {
-        hits.push({ rel: childRel, name: entry.name, dir: entry.isDirectory() });
+        hits.push({ rel: childRel, name: entry.name, dir: entry.dir });
         if (hits.length >= limit) { truncated = true; return; }
       }
-      if (entry.isDirectory()) await walk(childRel, depth + 1);
+      if (entry.dir) await walk(childRel, depth + 1);
       if (truncated) return;
     }
   };
 
-  await walk('', 0);
+  // One descriptor for the entire search, so every directory shares the same project authority.
+  await withProjectFiles(root, async files => { root = files; await walk('', 0); }).catch(() => {});
   // Files before directories, then shortest path first: a filter is usually looking for a file,
   // and a shallower match is more often the one meant.
   hits.sort((a, b) =>

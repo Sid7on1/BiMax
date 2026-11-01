@@ -1,0 +1,275 @@
+{
+  "row": 449,
+  "id": "6ae235be",
+  "stratum": "single-session-assistant",
+  "dataset": "longmemeval",
+  "question": "I remember you told me about the refining processes at CITGO's three refineries earlier. Can you remind me what kind of processes are used at the Lake Charles Refinery?",
+  "references": [
+    "Atmospheric distillation, fluid catalytic cracking (FCC), alkylation, and hydrotreating."
+  ],
+  "kind": "single-session-assistant",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 23:41",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 242.56437500000175,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 168,
+        "maxInputChars": 168,
+        "requiredProviderTruncation": false,
+        "promptTokens": 39,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_sharegpt_IUWQYGQ_0",
+        "43811b62",
+        "cc5a6057_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 9) Session date: 2023/05/28 (Sun) 18:50\nuser: give me the refining processes that go on at 3 CITGO Refineries\nassistant: CITGO operates three refineries in the United States, located in Lake Charles, Louisiana; Lemont, Illinois; and Corpus Christi, Texas. Each refinery has its own set of refining processes, but here are some of the main processes that go on at each facility:\n\n1.\n\nLake Charles Refinery:\n\n* Atmospheric distillation: This is the first step in the refining process, where crude oil is heated and separated into different fractions based on their boiling points.\n\n* Fluid catalytic cracking (FCC): This process breaks down heavier fractions of crude oil into lighter, more valuable products such as gasoline and diesel fuel.\n\n* Alkylation: This process combines smaller molecules to form larger ones, creating high-octane gasoline components.\n\n* Hydrotreating: This process removes impurities from the gasoline and diesel fractions to improve their quality.\n\n1.\n\nLemont Refinery:\n\n* Atmospheric distillation: As with the Lake Charles Refinery, this is the initial step in the refining process.\n  (part 2 of 9, excerpt) improve their quality.\n\n1.\n\nLemont Refinery:\n\n* Atmospheric distillation: As with the Lake Charles Refinery, this is the initial step in the refining process.\n\n* Delayed coking: This process breaks down heavy, residual oils into lighter products such as naphtha, diesel, and petroleum coke.\n- (part 7 of 19, excerpt) to help you research your vintage brooch and other items.\n\nTo get started, can you tell me more about the brooch? Please provide any details you have, such as:\n- (part 6 of 28, excerpt) 1. **Floor-to-Ceiling Windows**: Install floor-to-ceiling windows on the lake-facing side of the cabin to create an unobstructed view of the lake.",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_sharegpt_IUWQYGQ_0",
+          "sourceVersion": "sha256:13a86d2f71a333e2d5c29abc5716dea79d93b72dc17febbac14e022054683a15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_sharegpt_IUWQYGQ_0",
+            "part": 1,
+            "parts": 9
+          },
+          "text": "Session date: 2023/05/28 (Sun) 18:50\nuser: give me the refining processes that go on at 3 CITGO Refineries\nassistant: CITGO operates three refineries in the United States, located in Lake Charles, Louisiana; Lemont, Illinois; and Corpus Christi, Texas. Each refinery has its own set of refining processes, but here are some of the main processes that go on at each facility:\n\n1.\n\nLake Charles Refinery:\n\n* Atmospheric distillation: This is the first step in the refining process, where crude oil is heated and separated into different fractions based on their boiling points.\n\n* Fluid catalytic cracking (FCC): This process breaks down heavier fractions of crude oil into lighter, more valuable products such as gasoline and diesel fuel.\n\n* Alkylation: This process combines smaller molecules to form larger ones, creating high-octane gasoline components.\n\n* Hydrotreating: This process removes impurities from the gasoline and diesel fractions to improve their quality.\n\n1.\n\nLemont Refinery:\n\n* Atmospheric distillation: As with the Lake Charles Refinery, this is the initial step in the refining process.",
+          "id": "ev_7554218140d0fcbbb5fcdae9",
+          "observedAt": "2026-10-14T04:46:51.223Z"
+        },
+        {
+          "sourceId": "memory:answer_sharegpt_IUWQYGQ_0",
+          "sourceVersion": "sha256:13a86d2f71a333e2d5c29abc5716dea79d93b72dc17febbac14e022054683a15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_sharegpt_IUWQYGQ_0",
+            "part": 2,
+            "parts": 9,
+            "partial": true
+          },
+          "text": "improve their quality.\n\n1.\n\nLemont Refinery:\n\n* Atmospheric distillation: As with the Lake Charles Refinery, this is the initial step in the refining process.\n\n* Delayed coking: This process breaks down heavy, residual oils into lighter products such as naphtha, diesel, and petroleum coke.",
+          "id": "ev_889f411013cb4c59a1faf501",
+          "observedAt": "2026-10-14T04:46:51.223Z"
+        },
+        {
+          "sourceId": "memory:43811b62",
+          "sourceVersion": "sha256:9b4731356b9d3be38bfd5d99a5ed09911d794a1fda44a45fd56faaa92b7585bd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "43811b62",
+            "part": 7,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "to help you research your vintage brooch and other items.\n\nTo get started, can you tell me more about the brooch? Please provide any details you have, such as:",
+          "id": "ev_be102a6becf202a3564abb64",
+          "observedAt": "2026-10-14T04:46:51.224Z"
+        },
+        {
+          "sourceId": "memory:cc5a6057_1",
+          "sourceVersion": "sha256:7531a81ad282c7f7ddca727f8b492ce9cc7e28e6354e98e2e15a0137fbacf4de",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "cc5a6057_1",
+            "part": 6,
+            "parts": 28,
+            "partial": true
+          },
+          "text": "1. **Floor-to-Ceiling Windows**: Install floor-to-ceiling windows on the lake-facing side of the cabin to create an unobstructed view of the lake.",
+          "id": "ev_9a8b039c71c0650c223390f8",
+          "observedAt": "2026-10-14T04:46:51.224Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_sharegpt_IUWQYGQ_0",
+        "43811b62",
+        "cc5a6057_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 17.89587499999834,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_sharegpt_IUWQYGQ_0",
+        "43811b62",
+        "cc5a6057_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 9) Session date: 2023/05/28 (Sun) 18:50\nuser: give me the refining processes that go on at 3 CITGO Refineries\nassistant: CITGO operates three refineries in the United States, located in Lake Charles, Louisiana; Lemont, Illinois; and Corpus Christi, Texas. Each refinery has its own set of refining processes, but here are some of the main processes that go on at each facility:\n\n1.\n\nLake Charles Refinery:\n\n* Atmospheric distillation: This is the first step in the refining process, where crude oil is heated and separated into different fractions based on their boiling points.\n\n* Fluid catalytic cracking (FCC): This process breaks down heavier fractions of crude oil into lighter, more valuable products such as gasoline and diesel fuel.\n\n* Alkylation: This process combines smaller molecules to form larger ones, creating high-octane gasoline components.\n\n* Hydrotreating: This process removes impurities from the gasoline and diesel fractions to improve their quality.\n\n1.\n\nLemont Refinery:\n\n* Atmospheric distillation: As with the Lake Charles Refinery, this is the initial step in the refining process.\n  (part 2 of 9, excerpt) improve their quality.\n\n1.\n\nLemont Refinery:\n\n* Atmospheric distillation: As with the Lake Charles Refinery, this is the initial step in the refining process.\n\n* Delayed coking: This process breaks down heavy, residual oils into lighter products such as naphtha, diesel, and petroleum coke.\n- (part 7 of 19, excerpt) to help you research your vintage brooch and other items.\n\nTo get started, can you tell me more about the brooch? Please provide any details you have, such as:\n- (part 6 of 28, excerpt) 1. **Floor-to-Ceiling Windows**: Install floor-to-ceiling windows on the lake-facing side of the cabin to create an unobstructed view of the lake.",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_sharegpt_IUWQYGQ_0",
+          "sourceVersion": "sha256:13a86d2f71a333e2d5c29abc5716dea79d93b72dc17febbac14e022054683a15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_sharegpt_IUWQYGQ_0",
+            "part": 1,
+            "parts": 9
+          },
+          "text": "Session date: 2023/05/28 (Sun) 18:50\nuser: give me the refining processes that go on at 3 CITGO Refineries\nassistant: CITGO operates three refineries in the United States, located in Lake Charles, Louisiana; Lemont, Illinois; and Corpus Christi, Texas. Each refinery has its own set of refining processes, but here are some of the main processes that go on at each facility:\n\n1.\n\nLake Charles Refinery:\n\n* Atmospheric distillation: This is the first step in the refining process, where crude oil is heated and separated into different fractions based on their boiling points.\n\n* Fluid catalytic cracking (FCC): This process breaks down heavier fractions of crude oil into lighter, more valuable products such as gasoline and diesel fuel.\n\n* Alkylation: This process combines smaller molecules to form larger ones, creating high-octane gasoline components.\n\n* Hydrotreating: This process removes impurities from the gasoline and diesel fractions to improve their quality.\n\n1.\n\nLemont Refinery:\n\n* Atmospheric distillation: As with the Lake Charles Refinery, this is the initial step in the refining process.",
+          "id": "ev_7554218140d0fcbbb5fcdae9",
+          "observedAt": "2026-10-14T04:46:51.228Z"
+        },
+        {
+          "sourceId": "memory:answer_sharegpt_IUWQYGQ_0",
+          "sourceVersion": "sha256:13a86d2f71a333e2d5c29abc5716dea79d93b72dc17febbac14e022054683a15",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_sharegpt_IUWQYGQ_0",
+            "part": 2,
+            "parts": 9,
+            "partial": true
+          },
+          "text": "improve their quality.\n\n1.\n\nLemont Refinery:\n\n* Atmospheric distillation: As with the Lake Charles Refinery, this is the initial step in the refining process.\n\n* Delayed coking: This process breaks down heavy, residual oils into lighter products such as naphtha, diesel, and petroleum coke.",
+          "id": "ev_889f411013cb4c59a1faf501",
+          "observedAt": "2026-10-14T04:46:51.228Z"
+        },
+        {
+          "sourceId": "memory:43811b62",
+          "sourceVersion": "sha256:9b4731356b9d3be38bfd5d99a5ed09911d794a1fda44a45fd56faaa92b7585bd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "43811b62",
+            "part": 7,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "to help you research your vintage brooch and other items.\n\nTo get started, can you tell me more about the brooch? Please provide any details you have, such as:",
+          "id": "ev_be102a6becf202a3564abb64",
+          "observedAt": "2026-10-14T04:46:51.228Z"
+        },
+        {
+          "sourceId": "memory:cc5a6057_1",
+          "sourceVersion": "sha256:7531a81ad282c7f7ddca727f8b492ce9cc7e28e6354e98e2e15a0137fbacf4de",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "cc5a6057_1",
+            "part": 6,
+            "parts": 28,
+            "partial": true
+          },
+          "text": "1. **Floor-to-Ceiling Windows**: Install floor-to-ceiling windows on the lake-facing side of the cabin to create an unobstructed view of the lake.",
+          "id": "ev_9a8b039c71c0650c223390f8",
+          "observedAt": "2026-10-14T04:46:51.228Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_sharegpt_IUWQYGQ_0",
+        "43811b62",
+        "cc5a6057_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.8629169999985606,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:43:16.670307+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Based on the 2023/05/28 session, the refining processes at CITGO's Lake Charles Refinery are:\n\n- Atmospheric distillation  \n- Fluid catalytic cracking (FCC)  \n- Alkylation  \n- Hydrotreating  \n\nThese are the primary processes listed for that facility in the retrieved history.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 581,
+    "completion_tokens": 989,
+    "total_tokens": 1570,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 915,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 355,
+    "completion_tokens": 772,
+    "total_tokens": 1127,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 769,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10023.40508300017,
+  "judgeWallMs": 39497.501374999956,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.4
+  },
+  "ended": "2026-10-14T07:44:06.920364+00:00"
+}

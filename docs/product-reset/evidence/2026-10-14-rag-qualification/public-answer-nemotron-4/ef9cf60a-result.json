@@ -1,0 +1,275 @@
+{
+  "row": 206,
+  "id": "ef9cf60a",
+  "stratum": "multi-session",
+  "dataset": "longmemeval",
+  "question": "How much did I spend on gifts for my sister?",
+  "references": [
+    "$300"
+  ],
+  "kind": "multi-session",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 22:48",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 207.1194170000017,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 44,
+        "maxInputChars": 44,
+        "requiredProviderTruncation": false,
+        "promptTokens": 13,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_87e3a1cb_2",
+        "answer_87e3a1cb_1",
+        "71027306_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 12 of 16, excerpt) user: I think I'll go with a gift set that includes a few different oils, since my sister likes to try out new things and experiment with different scents. Do you think it's a good idea to include a personalized note or message with the gift, or would\n  (part 14 of 16) oils. I'm so grateful to have you in my life, and I hope this gift brings you peace, calmness, and happiness. Love, [Your Name]\"\n\nWhen to include the note:\n\n1. **Attach it to the gift**: You can attach the note to the gift box or bag with a small ribbon or a sticky note.\n2. **Include it in a card**: Write the note inside a beautiful card, and place the card with the gift.\n3. **Create a gift basket**: Put the gift set in a gift basket or a beautiful container, and include the note among the other items.\n\nRemember, the note is a personal touch that shows you care and are thinking of your sister. It's not too much; it's just the right amount of thoughtfulness and love.\nuser: I was thinking of mentioning that I got her a gift card to her favorite spa last time, which was $100, and she loved it. Do you think that would be relevant to mention in the note?\nYes, that's a great idea! Mentioning the gift card to her favorite spa can help connect the gift to a positive experience she's already had, and show that you're paying attention to her tastes and preferences. It can also help her appreciate the thought and effort you're putting into this new gift. You could say something like:\n- (part 3 of 18, excerpt) user: I like the idea of a personalized jewelry or a fun experience gift. Can you tell me more about the customization options for j\n- (part 8 of 15, excerpt) How do you like the graphic tees? Are they exactly what you expected? Did you get any specific designs or styles that you're",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_87e3a1cb_2",
+          "sourceVersion": "sha256:4cd71b6478a0cee3034b3f0b319148f07524391fc926921a0401866f0c70ea3e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_87e3a1cb_2",
+            "part": 12,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "user: I think I'll go with a gift set that includes a few different oils, since my sister likes to try out new things and experiment with different scents. Do you think it's a good idea to include a personalized note or message with the gift, or would",
+          "id": "ev_df5086b290cbaa6d0e099318",
+          "observedAt": "2026-10-14T04:51:35.471Z"
+        },
+        {
+          "sourceId": "memory:answer_87e3a1cb_2",
+          "sourceVersion": "sha256:4cd71b6478a0cee3034b3f0b319148f07524391fc926921a0401866f0c70ea3e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_87e3a1cb_2",
+            "part": 14,
+            "parts": 16
+          },
+          "text": "oils. I'm so grateful to have you in my life, and I hope this gift brings you peace, calmness, and happiness. Love, [Your Name]\"\n\nWhen to include the note:\n\n1. **Attach it to the gift**: You can attach the note to the gift box or bag with a small ribbon or a sticky note.\n2. **Include it in a card**: Write the note inside a beautiful card, and place the card with the gift.\n3. **Create a gift basket**: Put the gift set in a gift basket or a beautiful container, and include the note among the other items.\n\nRemember, the note is a personal touch that shows you care and are thinking of your sister. It's not too much; it's just the right amount of thoughtfulness and love.\nuser: I was thinking of mentioning that I got her a gift card to her favorite spa last time, which was $100, and she loved it. Do you think that would be relevant to mention in the note?\nYes, that's a great idea! Mentioning the gift card to her favorite spa can help connect the gift to a positive experience she's already had, and show that you're paying attention to her tastes and preferences. It can also help her appreciate the thought and effort you're putting into this new gift. You could say something like:",
+          "id": "ev_3e2d80b79b942025c2573127",
+          "observedAt": "2026-10-14T04:51:35.471Z"
+        },
+        {
+          "sourceId": "memory:answer_87e3a1cb_1",
+          "sourceVersion": "sha256:46724740e758d19cca2eac60eaf9fee91c6f95b3d72c8d2d90092eef21d8f2f7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_87e3a1cb_1",
+            "part": 3,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I like the idea of a personalized jewelry or a fun experience gift. Can you tell me more about the customization options for j",
+          "id": "ev_8a0b47a5011775ec7ff85d31",
+          "observedAt": "2026-10-14T04:51:35.472Z"
+        },
+        {
+          "sourceId": "memory:71027306_1",
+          "sourceVersion": "sha256:bab6518cc4e699c789f53eb92341bfb795045114e2c49b8a13d5f6aa3aab2c00",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "71027306_1",
+            "part": 8,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "How do you like the graphic tees? Are they exactly what you expected? Did you get any specific designs or styles that you're",
+          "id": "ev_c1e7ce5144983a62d7778d8c",
+          "observedAt": "2026-10-14T04:51:35.472Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_87e3a1cb_2",
+        "answer_87e3a1cb_1",
+        "71027306_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 20.176292000000103,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_87e3a1cb_2",
+        "answer_87e3a1cb_1",
+        "71027306_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 12 of 16, excerpt) user: I think I'll go with a gift set that includes a few different oils, since my sister likes to try out new things and experiment with different scents. Do you think it's a good idea to include a personalized note or message with the gift, or would\n  (part 14 of 16) oils. I'm so grateful to have you in my life, and I hope this gift brings you peace, calmness, and happiness. Love, [Your Name]\"\n\nWhen to include the note:\n\n1. **Attach it to the gift**: You can attach the note to the gift box or bag with a small ribbon or a sticky note.\n2. **Include it in a card**: Write the note inside a beautiful card, and place the card with the gift.\n3. **Create a gift basket**: Put the gift set in a gift basket or a beautiful container, and include the note among the other items.\n\nRemember, the note is a personal touch that shows you care and are thinking of your sister. It's not too much; it's just the right amount of thoughtfulness and love.\nuser: I was thinking of mentioning that I got her a gift card to her favorite spa last time, which was $100, and she loved it. Do you think that would be relevant to mention in the note?\nYes, that's a great idea! Mentioning the gift card to her favorite spa can help connect the gift to a positive experience she's already had, and show that you're paying attention to her tastes and preferences. It can also help her appreciate the thought and effort you're putting into this new gift. You could say something like:\n- (part 3 of 18, excerpt) user: I like the idea of a personalized jewelry or a fun experience gift. Can you tell me more about the customization options for j\n- (part 8 of 15, excerpt) How do you like the graphic tees? Are they exactly what you expected? Did you get any specific designs or styles that you're",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_87e3a1cb_2",
+          "sourceVersion": "sha256:4cd71b6478a0cee3034b3f0b319148f07524391fc926921a0401866f0c70ea3e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_87e3a1cb_2",
+            "part": 12,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "user: I think I'll go with a gift set that includes a few different oils, since my sister likes to try out new things and experiment with different scents. Do you think it's a good idea to include a personalized note or message with the gift, or would",
+          "id": "ev_df5086b290cbaa6d0e099318",
+          "observedAt": "2026-10-14T04:51:35.477Z"
+        },
+        {
+          "sourceId": "memory:answer_87e3a1cb_2",
+          "sourceVersion": "sha256:4cd71b6478a0cee3034b3f0b319148f07524391fc926921a0401866f0c70ea3e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_87e3a1cb_2",
+            "part": 14,
+            "parts": 16
+          },
+          "text": "oils. I'm so grateful to have you in my life, and I hope this gift brings you peace, calmness, and happiness. Love, [Your Name]\"\n\nWhen to include the note:\n\n1. **Attach it to the gift**: You can attach the note to the gift box or bag with a small ribbon or a sticky note.\n2. **Include it in a card**: Write the note inside a beautiful card, and place the card with the gift.\n3. **Create a gift basket**: Put the gift set in a gift basket or a beautiful container, and include the note among the other items.\n\nRemember, the note is a personal touch that shows you care and are thinking of your sister. It's not too much; it's just the right amount of thoughtfulness and love.\nuser: I was thinking of mentioning that I got her a gift card to her favorite spa last time, which was $100, and she loved it. Do you think that would be relevant to mention in the note?\nYes, that's a great idea! Mentioning the gift card to her favorite spa can help connect the gift to a positive experience she's already had, and show that you're paying attention to her tastes and preferences. It can also help her appreciate the thought and effort you're putting into this new gift. You could say something like:",
+          "id": "ev_3e2d80b79b942025c2573127",
+          "observedAt": "2026-10-14T04:51:35.477Z"
+        },
+        {
+          "sourceId": "memory:answer_87e3a1cb_1",
+          "sourceVersion": "sha256:46724740e758d19cca2eac60eaf9fee91c6f95b3d72c8d2d90092eef21d8f2f7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_87e3a1cb_1",
+            "part": 3,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "user: I like the idea of a personalized jewelry or a fun experience gift. Can you tell me more about the customization options for j",
+          "id": "ev_8a0b47a5011775ec7ff85d31",
+          "observedAt": "2026-10-14T04:51:35.477Z"
+        },
+        {
+          "sourceId": "memory:71027306_1",
+          "sourceVersion": "sha256:bab6518cc4e699c789f53eb92341bfb795045114e2c49b8a13d5f6aa3aab2c00",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "71027306_1",
+            "part": 8,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "How do you like the graphic tees? Are they exactly what you expected? Did you get any specific designs or styles that you're",
+          "id": "ev_c1e7ce5144983a62d7778d8c",
+          "observedAt": "2026-10-14T04:51:35.477Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_87e3a1cb_2",
+        "answer_87e3a1cb_1",
+        "71027306_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.640458999998373,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:53:29.227891+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "I do not know.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 559,
+    "completion_tokens": 1021,
+    "total_tokens": 1580,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1014,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 247,
+    "completion_tokens": 504,
+    "total_tokens": 751,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 501,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 11451.938624999912,
+  "judgeWallMs": 7807.630625000002,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:53:50.544092+00:00"
+}

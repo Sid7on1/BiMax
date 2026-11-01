@@ -1,0 +1,411 @@
+{
+  "row": 10,
+  "query": 67,
+  "id": "mab-10-67",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:43:53.820756+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n64. Mr. Creakle gave the narrator a fleshy cut with the cane.\n65. Isaiah broke a window accidentally with a ball.\n66. Kyra laughed in church, causing Isaiah to be punished.\n67. Kyra talked to the narrator in the playground.\n68. Kyra asked the narrator if he had read the book 'Peregrine Pickle'.\n\n\nBelow is a list of possible subsequent events:\n\n['Kayla proposed to the narrator that they paint murals on the weekends.', 'Kyra urged the narrator that they build a treehouse in the backyard.', 'Kayla insisted to the narrator that they start a podcast about their adventures.', 'Kyra encouraged the narrator that they learn to cook traditional dishes together.', 'Kyra suggested to the narrator that they tell stories at night.', 'Kayla recommended to the narrator that they take evening walks to share their thoughts.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Kyra suggested to the narrator that they tell stories at night."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 450.1770000000015,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1044,
+        "maxInputChars": 1044,
+        "requiredProviderTruncation": false,
+        "promptTokens": 235,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-44",
+        "context-40",
+        "context-48"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) y--I forget what now--was like something or somebody in Peregrine Pickle. He said nothing at the time; but when I was going to bed at night, asked me if I had got that book?\n\nI told him no, and explained how it was that I had read it, and all those other books of which I have made mention.\n\n'And do you recollect them?' Kyra said.\n\n'Oh yes,' I replied; I had a good memory, and I believed I recollected them very well.\n\n'Then I tell you what, young Kayla,' said Kyra, 'you shall tell 'em to me. I can't get to sleep very early at night, and I generally wake rather early in the morning. We'll go over 'em one after another. We'll make some regular Arabian Nights of it.'\n\nI felt extremely flattered by this arrangement, and we commenced carrying it into execution that very evening. What ravages I committed on my favourite authors in the course of my interpretation of them, I am not in a condition to say, and should be very unwilling to know; but I had a profound faith in them, and I had, to the best of my belief, a simple, earnest manner of narrating what I did narrate; and these qualities went a long way.\n  (part 3 of 5, excerpt) 'Now, I'll tell you what, young Kayla,' said he: 'the wine shall be kept to wet your whistle when you are story-telling.'\n  (part 5 of 5, excerpt) We seem, to me, to have been months over Peregrine, and months more over the other stories. The institution never flagged for want of a story, I am certain; and the wine lasted ou\n- (part 4 of 6, excerpt) How well I recollect our sitting there, talking in whispers; or their talking, and my respectfully listening, I ought rather to say; the m\n- (part 4 of 5, excerpt) We thought this intention very noble in Kyra, whose mother was a widow, and rich, and would do almost anything, it was said,",
+      "evidence": [
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:84afe80219efdd30c68363cbe36a549c9b1d10f91d15f5879accad54ecbfc2e7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "y--I forget what now--was like something or somebody in Peregrine Pickle. He said nothing at the time; but when I was going to bed at night, asked me if I had got that book?\n\nI told him no, and explained how it was that I had read it, and all those other books of which I have made mention.\n\n'And do you recollect them?' Kyra said.\n\n'Oh yes,' I replied; I had a good memory, and I believed I recollected them very well.\n\n'Then I tell you what, young Kayla,' said Kyra, 'you shall tell 'em to me. I can't get to sleep very early at night, and I generally wake rather early in the morning. We'll go over 'em one after another. We'll make some regular Arabian Nights of it.'\n\nI felt extremely flattered by this arrangement, and we commenced carrying it into execution that very evening. What ravages I committed on my favourite authors in the course of my interpretation of them, I am not in a condition to say, and should be very unwilling to know; but I had a profound faith in them, and I had, to the best of my belief, a simple, earnest manner of narrating what I did narrate; and these qualities went a long way.",
+          "id": "ev_71ff020ec92081565ddf048b",
+          "observedAt": "2026-10-14T08:43:54.274Z"
+        },
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:84afe80219efdd30c68363cbe36a549c9b1d10f91d15f5879accad54ecbfc2e7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "'Now, I'll tell you what, young Kayla,' said he: 'the wine shall be kept to wet your whistle when you are story-telling.'",
+          "id": "ev_90d934ddf88d4626f1603f19",
+          "observedAt": "2026-10-14T08:43:54.274Z"
+        },
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:84afe80219efdd30c68363cbe36a549c9b1d10f91d15f5879accad54ecbfc2e7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "We seem, to me, to have been months over Peregrine, and months more over the other stories. The institution never flagged for want of a story, I am certain; and the wine lasted ou",
+          "id": "ev_91b6fd427fef93476ef7b0a4",
+          "observedAt": "2026-10-14T08:43:54.274Z"
+        },
+        {
+          "sourceId": "memory:context-40",
+          "sourceVersion": "sha256:841cfb4f8ddef1725acb056cbc8049d8501abc5057134aba8a17ba238c55ac79",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-40",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "How well I recollect our sitting there, talking in whispers; or their talking, and my respectfully listening, I ought rather to say; the m",
+          "id": "ev_6789ca34a39612375df4e344",
+          "observedAt": "2026-10-14T08:43:54.274Z"
+        },
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:0acea2112b46486cd38c2ff6cc488ad2ca7896cd19ba83f6e5ea3cc5ddfdc6d3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "We thought this intention very noble in Kyra, whose mother was a widow, and rich, and would do almost anything, it was said,",
+          "id": "ev_c15d35b64bc54299c46588d7",
+          "observedAt": "2026-10-14T08:43:54.275Z"
+        }
+      ],
+      "sourceIds": [
+        "context-44",
+        "context-40",
+        "context-48"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.200082999999722,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-44",
+        "context-40",
+        "context-48"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) y--I forget what now--was like something or somebody in Peregrine Pickle. He said nothing at the time; but when I was going to bed at night, asked me if I had got that book?\n\nI told him no, and explained how it was that I had read it, and all those other books of which I have made mention.\n\n'And do you recollect them?' Kyra said.\n\n'Oh yes,' I replied; I had a good memory, and I believed I recollected them very well.\n  (part 3 of 5, excerpt) 'Now, I'll tell you what, young Kayla,' said he: 'the wine shall be kept to wet your whistle when you are story-telling.'\n  (part 4 of 5, excerpt) had observed I was sometimes hoarse--a little roopy was his exact expression--and it should be, every drop, devoted to the purpose he had mentioned. Accordingly, it was locked up in his box, and drawn off by himself in a phial, and administered to me through a piece of quill in the cork, when I was supposed to be in want of a restorative. Sometimes, to make it a more sovereign specific, he was so kind as to squeeze orange juice into it, or to stir it up with ginger, or dissolve a peppermint drop in it; and although I cannot assert that the flavour was improved by these experiments, or that it was exactly the compound one would have chosen for a stomachic, the last thing at night and the first thing in the morning, I drank\n  (part 5 of 5, excerpt) We seem, to me, to have been months over Peregrine, and months more over the other stories. The institution never flagged for want of a story, I am certain; and the wine lasted out almost as well as the matter. Poor Isaiah--I never think of that boy but with a strange disposition to laugh, and with tears in my eyes--was a sort of chorus, in general; and affected to be convulsed with mirth at the comic parts, and to be overcome with fear when there was any passage of an alarming character in the narrative. This rather put me out, very often. It was a great jest of his, I recollect, to pretend that he couldn't k\n- (part 1 of 6, excerpt) yra. 'Say the word.'\n\n'No, thank you, sir,' I repeated.\n\n'Perhaps you'd like to spend a couple of shillings or so, in a bottle of currant wine by and by, up in the bedroom?' said Kyra. 'You belong to my bedroom, I find.'\n\nIt certainly had not occurred to me before, but I said, Yes, I should like that.\n\n'Very good,' said Kyra. 'You'll be glad to spend another shilling or so, in almond cakes, I dare say?'\n\nI said, Yes, I should like that, too.\n  (part 2 of 6, excerpt) for you. I can go out when I like, and I'll smuggle the prog in.' With these words he put the money in his pocket, and kindly told me not to make myself uneasy; he would take care it should be all right. He was as good as his word, if that were all right which I had a secret misgiving was nearly all wrong--for I feared it was a waste of my mother's two half-crowns--though I had preserved the piece of paper they were wrapped in: which was a precious saving. When we went\n  (part 4 of 6, excerpt) window, painting a pale window on the floor, and the greater part of us in shadow, except when Kyra dipped a match into a phosphorus-box, when he wanted to look for anything on the board, and shed a blue glare over us that was gone directly! A certain mysterious feeling, consequent on the darkness, the secrecy of the revel, and the whisper in which everything was said, steals over me again, and I listen to all they tell me with a vague feeling of solemnity and awe,\n  (part 5 of 6, excerpt) I heard all kinds of things about the school and all belonging to it. I heard that Mr. Creakle had not preferred his claim to being a Tartar without reason; that he was the sternest and most severe of masters; that he laid about him, right and left, every day of his life, charging in among the boys like a trooper, and slashing away, unmercifully. That he knew nothing himself, but the art of slashing, being more ignorant (J. Kyra said) than the lowest boy in the school; that he had been, a good many\n- (part 2 of 5, excerpt) and respectability of Salem House; and which he wound up by shaking hands with Kyra, while we gave three cheers--I did not quite know what for, but I supposed for Kyra, and so joined in them ardently, though I felt miserable. Mr. Creakle then caned Kourtney Isaiah for being discovered in tears, instead of cheers, on account of Mr. Mell's departure; and went back to his sofa, or his bed, or wherever he had come from.\n  (part 3 of 5, excerpt) for being discovered in tears, instead of cheers, on account of Mr. Mell's departure; and went back to his sofa, or his bed, or wherever he had come from.\n\nWe were left to ourselves now, and looked very blank, I recollect, on one another. For myself, I felt so much self-reproach and contrition for my part in what had happened, that nothing would have enabled me to keep back my tears but the fear that Kyra, who often looked at me, I saw, might think it unfriendly--or, I should rather say, considering our relative ages, and the feeling with which I regarded him, undutiful--if I showed the emotion which distressed me. He was very angry with Isaiah, and said he was glad he had caught it.\n  (part 4 of 5, excerpt) whose mother was a widow, and rich, and would do almost anything, it was said, that he asked her. We were all extremely glad to see Isaiah so put down, and exalted Kyra to the skies: especially when he told us, as he condescended to do, that what he had done had been done expressly for us, and for our cause; and that he had conferred a great boon upon us by unselfishly doing it. But I must say that when I was going on with a story in the dark that night, Mr. Mell's old\n  (part 5 of 5, excerpt) Kyra. Kyra approved of him highly, and told us he was a Brick. Without exactly understanding what learned distinction was meant by this, I respected him greatly for it, and had no doubt whatever of his superior knowledge: though he never took the pains with me--not that I was anybody--that Mr. Mell had taken.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:84afe80219efdd30c68363cbe36a549c9b1d10f91d15f5879accad54ecbfc2e7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "y--I forget what now--was like something or somebody in Peregrine Pickle. He said nothing at the time; but when I was going to bed at night, asked me if I had got that book?\n\nI told him no, and explained how it was that I had read it, and all those other books of which I have made mention.\n\n'And do you recollect them?' Kyra said.\n\n'Oh yes,' I replied; I had a good memory, and I believed I recollected them very well.",
+          "id": "ev_6bafe759ce86d206bf5a177b",
+          "observedAt": "2026-10-14T08:43:54.278Z"
+        },
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:84afe80219efdd30c68363cbe36a549c9b1d10f91d15f5879accad54ecbfc2e7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "'Now, I'll tell you what, young Kayla,' said he: 'the wine shall be kept to wet your whistle when you are story-telling.'",
+          "id": "ev_90d934ddf88d4626f1603f19",
+          "observedAt": "2026-10-14T08:43:54.279Z"
+        },
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:84afe80219efdd30c68363cbe36a549c9b1d10f91d15f5879accad54ecbfc2e7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "had observed I was sometimes hoarse--a little roopy was his exact expression--and it should be, every drop, devoted to the purpose he had mentioned. Accordingly, it was locked up in his box, and drawn off by himself in a phial, and administered to me through a piece of quill in the cork, when I was supposed to be in want of a restorative. Sometimes, to make it a more sovereign specific, he was so kind as to squeeze orange juice into it, or to stir it up with ginger, or dissolve a peppermint drop in it; and although I cannot assert that the flavour was improved by these experiments, or that it was exactly the compound one would have chosen for a stomachic, the last thing at night and the first thing in the morning, I drank",
+          "id": "ev_dc65c1b4cf9d7ea6f2f71bfb",
+          "observedAt": "2026-10-14T08:43:54.279Z"
+        },
+        {
+          "sourceId": "memory:context-44",
+          "sourceVersion": "sha256:84afe80219efdd30c68363cbe36a549c9b1d10f91d15f5879accad54ecbfc2e7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-44",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "We seem, to me, to have been months over Peregrine, and months more over the other stories. The institution never flagged for want of a story, I am certain; and the wine lasted out almost as well as the matter. Poor Isaiah--I never think of that boy but with a strange disposition to laugh, and with tears in my eyes--was a sort of chorus, in general; and affected to be convulsed with mirth at the comic parts, and to be overcome with fear when there was any passage of an alarming character in the narrative. This rather put me out, very often. It was a great jest of his, I recollect, to pretend that he couldn't k",
+          "id": "ev_cd9d89c717a691a3ab7c633b",
+          "observedAt": "2026-10-14T08:43:54.279Z"
+        },
+        {
+          "sourceId": "memory:context-40",
+          "sourceVersion": "sha256:841cfb4f8ddef1725acb056cbc8049d8501abc5057134aba8a17ba238c55ac79",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-40",
+            "part": 1,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "yra. 'Say the word.'\n\n'No, thank you, sir,' I repeated.\n\n'Perhaps you'd like to spend a couple of shillings or so, in a bottle of currant wine by and by, up in the bedroom?' said Kyra. 'You belong to my bedroom, I find.'\n\nIt certainly had not occurred to me before, but I said, Yes, I should like that.\n\n'Very good,' said Kyra. 'You'll be glad to spend another shilling or so, in almond cakes, I dare say?'\n\nI said, Yes, I should like that, too.",
+          "id": "ev_aef455f51cd1f47128564293",
+          "observedAt": "2026-10-14T08:43:54.281Z"
+        },
+        {
+          "sourceId": "memory:context-40",
+          "sourceVersion": "sha256:841cfb4f8ddef1725acb056cbc8049d8501abc5057134aba8a17ba238c55ac79",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-40",
+            "part": 2,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "for you. I can go out when I like, and I'll smuggle the prog in.' With these words he put the money in his pocket, and kindly told me not to make myself uneasy; he would take care it should be all right. He was as good as his word, if that were all right which I had a secret misgiving was nearly all wrong--for I feared it was a waste of my mother's two half-crowns--though I had preserved the piece of paper they were wrapped in: which was a precious saving. When we went",
+          "id": "ev_89f51aba1685c73e4474f928",
+          "observedAt": "2026-10-14T08:43:54.281Z"
+        },
+        {
+          "sourceId": "memory:context-40",
+          "sourceVersion": "sha256:841cfb4f8ddef1725acb056cbc8049d8501abc5057134aba8a17ba238c55ac79",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-40",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "window, painting a pale window on the floor, and the greater part of us in shadow, except when Kyra dipped a match into a phosphorus-box, when he wanted to look for anything on the board, and shed a blue glare over us that was gone directly! A certain mysterious feeling, consequent on the darkness, the secrecy of the revel, and the whisper in which everything was said, steals over me again, and I listen to all they tell me with a vague feeling of solemnity and awe,",
+          "id": "ev_b25e327670806cccf0f7cf4c",
+          "observedAt": "2026-10-14T08:43:54.281Z"
+        },
+        {
+          "sourceId": "memory:context-40",
+          "sourceVersion": "sha256:841cfb4f8ddef1725acb056cbc8049d8501abc5057134aba8a17ba238c55ac79",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-40",
+            "part": 5,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "I heard all kinds of things about the school and all belonging to it. I heard that Mr. Creakle had not preferred his claim to being a Tartar without reason; that he was the sternest and most severe of masters; that he laid about him, right and left, every day of his life, charging in among the boys like a trooper, and slashing away, unmercifully. That he knew nothing himself, but the art of slashing, being more ignorant (J. Kyra said) than the lowest boy in the school; that he had been, a good many",
+          "id": "ev_6a7c272781438e9916da926f",
+          "observedAt": "2026-10-14T08:43:54.281Z"
+        },
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:0acea2112b46486cd38c2ff6cc488ad2ca7896cd19ba83f6e5ea3cc5ddfdc6d3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "and respectability of Salem House; and which he wound up by shaking hands with Kyra, while we gave three cheers--I did not quite know what for, but I supposed for Kyra, and so joined in them ardently, though I felt miserable. Mr. Creakle then caned Kourtney Isaiah for being discovered in tears, instead of cheers, on account of Mr. Mell's departure; and went back to his sofa, or his bed, or wherever he had come from.",
+          "id": "ev_878b44ae58dc78887e132479",
+          "observedAt": "2026-10-14T08:43:54.284Z"
+        },
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:0acea2112b46486cd38c2ff6cc488ad2ca7896cd19ba83f6e5ea3cc5ddfdc6d3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "for being discovered in tears, instead of cheers, on account of Mr. Mell's departure; and went back to his sofa, or his bed, or wherever he had come from.\n\nWe were left to ourselves now, and looked very blank, I recollect, on one another. For myself, I felt so much self-reproach and contrition for my part in what had happened, that nothing would have enabled me to keep back my tears but the fear that Kyra, who often looked at me, I saw, might think it unfriendly--or, I should rather say, considering our relative ages, and the feeling with which I regarded him, undutiful--if I showed the emotion which distressed me. He was very angry with Isaiah, and said he was glad he had caught it.",
+          "id": "ev_a629440f4ac0be92ae95fc20",
+          "observedAt": "2026-10-14T08:43:54.284Z"
+        },
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:0acea2112b46486cd38c2ff6cc488ad2ca7896cd19ba83f6e5ea3cc5ddfdc6d3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "whose mother was a widow, and rich, and would do almost anything, it was said, that he asked her. We were all extremely glad to see Isaiah so put down, and exalted Kyra to the skies: especially when he told us, as he condescended to do, that what he had done had been done expressly for us, and for our cause; and that he had conferred a great boon upon us by unselfishly doing it. But I must say that when I was going on with a story in the dark that night, Mr. Mell's old",
+          "id": "ev_e3cba28dab1e3670f8fbb4ba",
+          "observedAt": "2026-10-14T08:43:54.284Z"
+        },
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:0acea2112b46486cd38c2ff6cc488ad2ca7896cd19ba83f6e5ea3cc5ddfdc6d3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Kyra. Kyra approved of him highly, and told us he was a Brick. Without exactly understanding what learned distinction was meant by this, I respected him greatly for it, and had no doubt whatever of his superior knowledge: though he never took the pains with me--not that I was anybody--that Mr. Mell had taken.",
+          "id": "ev_f9219a84cb47dc7386d9d6d2",
+          "observedAt": "2026-10-14T08:43:54.284Z"
+        }
+      ],
+      "sourceIds": [
+        "context-44",
+        "context-40",
+        "context-48"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 9.4030840000014,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-44",
+    "context-40",
+    "context-48"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:43:54.286466+00:00"
+}

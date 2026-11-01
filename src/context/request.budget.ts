@@ -12,8 +12,6 @@ import { encode } from 'gpt-tokenizer';
  * sent at all (R2).
  */
 
-/** Share of the window held back for the reply, never more than the configured output budget. */
-const OUTPUT_RESERVE_SHARE = 0.15;
 /** Share of the window left unused for differences between this tokenizer and the provider's. */
 const MARGIN_SHARE = 0.03;
 /** Tokens a provider adds to each message for its role and framing. */
@@ -65,7 +63,7 @@ export function planRequest(input: { window: number; systemPrompt: string; tools
   const window = Math.max(1, Math.floor(input.window));
   const system = cachedTokens(input.systemPrompt ?? '');
   const tools = input.tools.length ? cachedTokens(JSON.stringify(input.tools)) : 0;
-  const outputReserve = Math.max(0, Math.min(Math.floor(input.outputBudget), Math.floor(window * OUTPUT_RESERVE_SHARE)));
+  const outputReserve = Math.max(0, Math.floor(input.outputBudget));
   const margin = Math.ceil(window * MARGIN_SHARE);
   return { window, system, tools, outputReserve, margin, messageBudget: window - system - tools - outputReserve - margin };
 }

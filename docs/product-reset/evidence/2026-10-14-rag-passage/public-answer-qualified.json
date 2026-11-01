@@ -1,0 +1,1725 @@
+{
+  "scope": "Owner-authorized fresh balanced25classicLongMemEval_S+25MemoryAgentBench,paired100answer arms; excludes all record96+97 IDs and normalized questions. Small pilot,shared public corpora,not independent population/official leaderboard.",
+  "selectionSha256": "cd798d224c21ac4ea69acd1761099de1c47a2067031e1a9df9a5a36a0210a0b2",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "settings": {
+    "readerMaxTokens": 2048,
+    "judgeMaxTokens": 2048,
+    "temperature": 0,
+    "reasoning": {
+      "enable_thinking": true,
+      "reasoning_budget": 1024
+    },
+    "rpm": 40
+  },
+  "candidateSourceSnapshot": null,
+  "all100AnswersValid": true,
+  "all50QuestionsPaired": true,
+  "rawReaderJudgeAudits": 100,
+  "provenanceAudits": 100,
+  "maximumCachedSourceCorpora": 1,
+  "oldQuestionIdsOverlap": 0,
+  "oldNormalizedQuestionsOverlap": 0,
+  "preInferenceFreezeVerified": true,
+  "rawCorpusHashesVerified": 41,
+  "datasets": {
+    "longmemeval": {
+      "questions": 25,
+      "baselineCorrect": 6,
+      "currentCorrect": 13,
+      "baselineAccuracy": 0.24,
+      "currentAccuracy": 0.52,
+      "gainPercentagePoints": 28.0,
+      "gained": 7,
+      "lost": 0,
+      "bothCorrect": 6,
+      "bothWrong": 12,
+      "strata": {
+        "knowledge-update": {
+          "questions": 5,
+          "baselineCorrect": 0,
+          "currentCorrect": 3,
+          "baselineAccuracy": 0.0,
+          "currentAccuracy": 0.6,
+          "gainPercentagePoints": 60.0,
+          "gained": 3,
+          "lost": 0,
+          "bothCorrect": 0,
+          "bothWrong": 2
+        },
+        "multi-session": {
+          "questions": 5,
+          "baselineCorrect": 1,
+          "currentCorrect": 1,
+          "baselineAccuracy": 0.2,
+          "currentAccuracy": 0.2,
+          "gainPercentagePoints": 0.0,
+          "gained": 0,
+          "lost": 0,
+          "bothCorrect": 1,
+          "bothWrong": 4
+        },
+        "single-session-assistant": {
+          "questions": 5,
+          "baselineCorrect": 4,
+          "currentCorrect": 4,
+          "baselineAccuracy": 0.8,
+          "currentAccuracy": 0.8,
+          "gainPercentagePoints": 0.0,
+          "gained": 0,
+          "lost": 0,
+          "bothCorrect": 4,
+          "bothWrong": 1
+        },
+        "single-session-preference": {
+          "questions": 2,
+          "baselineCorrect": 0,
+          "currentCorrect": 0,
+          "baselineAccuracy": 0.0,
+          "currentAccuracy": 0.0,
+          "gainPercentagePoints": 0.0,
+          "gained": 0,
+          "lost": 0,
+          "bothCorrect": 0,
+          "bothWrong": 2
+        },
+        "single-session-user": {
+          "questions": 4,
+          "baselineCorrect": 1,
+          "currentCorrect": 3,
+          "baselineAccuracy": 0.25,
+          "currentAccuracy": 0.75,
+          "gainPercentagePoints": 50.0,
+          "gained": 2,
+          "lost": 0,
+          "bothCorrect": 1,
+          "bothWrong": 1
+        },
+        "temporal-reasoning": {
+          "questions": 4,
+          "baselineCorrect": 0,
+          "currentCorrect": 2,
+          "baselineAccuracy": 0.0,
+          "currentAccuracy": 0.5,
+          "gainPercentagePoints": 50.0,
+          "gained": 2,
+          "lost": 0,
+          "bothCorrect": 0,
+          "bothWrong": 2
+        }
+      },
+      "answerable": {
+        "questions": 25,
+        "baselineCorrect": 6,
+        "currentCorrect": 13,
+        "baselineAccuracy": 0.24,
+        "currentAccuracy": 0.52,
+        "gainPercentagePoints": 28.0,
+        "gained": 7,
+        "lost": 0,
+        "bothCorrect": 6,
+        "bothWrong": 12
+      },
+      "sourceCoverage": {
+        "baseline": {
+          "questions": 25,
+          "recallAt3": 0.8466666666666667,
+          "complete": 19
+        },
+        "current": {
+          "questions": 25,
+          "recallAt3": 0.8466666666666667,
+          "complete": 19
+        }
+      },
+      "literalReferencePresence": {
+        "baseline": {
+          "eligible": 23,
+          "present": 15,
+          "definition": "Diagnostic containment only; excludes preferences and abstentions, not answer correctness."
+        },
+        "current": {
+          "eligible": 23,
+          "present": 17,
+          "definition": "Diagnostic containment only; excludes preferences and abstentions, not answer correctness."
+        }
+      },
+      "promptChars": {
+        "baseline": {
+          "count": 25,
+          "median": 1913,
+          "p95": 1914,
+          "min": 1814,
+          "max": 1914
+        },
+        "current": {
+          "count": 25,
+          "median": 6047,
+          "p95": 6090,
+          "min": 5736,
+          "max": 6105
+        }
+      },
+      "readerLatencyMs": {
+        "baseline": {
+          "count": 25,
+          "median": 23037.018208000518,
+          "p95": 74491.39612500039,
+          "min": 10513.100916999974,
+          "max": 81119.00379100189
+        },
+        "current": {
+          "count": 25,
+          "median": 23421.31520899966,
+          "p95": 68814.03237500126,
+          "min": 6327.245417000086,
+          "max": 72899.96995900037
+        }
+      },
+      "judgeLatencyMs": {
+        "baseline": {
+          "count": 25,
+          "median": 19376.966125000763,
+          "p95": 76321.82499999908,
+          "min": 11050.461958999222,
+          "max": 81703.50412500011
+        },
+        "current": {
+          "count": 25,
+          "median": 17374.604415999784,
+          "p95": 76187.63704199955,
+          "min": 5845.212125001126,
+          "max": 76744.12516700067
+        }
+      },
+      "acceptedCallLatency": {
+        "baseline": {
+          "reader": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 25,
+              "median": 23037.018208000518,
+              "p95": 74491.39612500039,
+              "min": 10513.100916999974,
+              "max": 81119.00379100189
+            },
+            "httpWallMs": {
+              "count": 25,
+              "median": 12686.26733400015,
+              "p95": 21109.84416700012,
+              "min": 6570.9164580002835,
+              "max": 25166.29766599908
+            },
+            "slotAndGateWaitMs": {
+              "count": 25,
+              "median": 9154.299208999873,
+              "p95": 60002.84283300061,
+              "min": 0.01487500048824586,
+              "max": 60004.046959000334
+            }
+          },
+          "judge": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 25,
+              "median": 19376.966125000763,
+              "p95": 76321.82499999908,
+              "min": 11050.461958999222,
+              "max": 81703.50412500011
+            },
+            "httpWallMs": {
+              "count": 25,
+              "median": 10555.056208999304,
+              "p95": 17786.20695800055,
+              "min": 6373.8868340005865,
+              "max": 27664.701333000266
+            },
+            "slotAndGateWaitMs": {
+              "count": 25,
+              "median": 9737.896999999066,
+              "p95": 59997.72924999888,
+              "min": 0.024167002266040072,
+              "max": 60003.2855419995
+            }
+          }
+        },
+        "current": {
+          "reader": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 25,
+              "median": 23421.31520899966,
+              "p95": 68814.03237500126,
+              "min": 6327.245417000086,
+              "max": 72899.96995900037
+            },
+            "httpWallMs": {
+              "count": 25,
+              "median": 13155.362042001798,
+              "p95": 26704.13725000253,
+              "min": 4099.317666998104,
+              "max": 38640.28658300049
+            },
+            "slotAndGateWaitMs": {
+              "count": 25,
+              "median": 9529.20712500054,
+              "p95": 60003.261167001256,
+              "min": 0.011166999684064649,
+              "max": 60004.63516599848
+            }
+          },
+          "judge": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 25,
+              "median": 17374.604415999784,
+              "p95": 76187.63704199955,
+              "min": 5845.212125001126,
+              "max": 76744.12516700067
+            },
+            "httpWallMs": {
+              "count": 25,
+              "median": 11500.755999999456,
+              "p95": 16737.41024999981,
+              "min": 3001.7167079986393,
+              "max": 17420.13858300197
+            },
+            "slotAndGateWaitMs": {
+              "count": 25,
+              "median": 6864.9729160024435,
+              "p95": 60001.400332999765,
+              "min": 0.016292000509565696,
+              "max": 60002.34137500047
+            }
+          }
+        }
+      },
+      "acceptedUsage": {
+        "baseline": {
+          "reader": {
+            "prompt_tokens": 13909,
+            "completion_tokens": 22996,
+            "total_tokens": 36905
+          },
+          "judge": {
+            "prompt_tokens": 9426,
+            "completion_tokens": 18698,
+            "total_tokens": 28124
+          }
+        },
+        "current": {
+          "reader": {
+            "prompt_tokens": 38828,
+            "completion_tokens": 26167,
+            "total_tokens": 64995
+          },
+          "judge": {
+            "prompt_tokens": 10497,
+            "completion_tokens": 19885,
+            "total_tokens": 30382
+          }
+        }
+      },
+      "acceptedUsageAvailability": {
+        "baseline": {
+          "reader": {
+            "calls": 25,
+            "callsWithUsage": 25
+          },
+          "judge": {
+            "calls": 25,
+            "callsWithUsage": 25
+          }
+        },
+        "current": {
+          "reader": {
+            "calls": 25,
+            "callsWithUsage": 25
+          },
+          "judge": {
+            "calls": 25,
+            "callsWithUsage": 25
+          }
+        }
+      }
+    },
+    "memoryagentbench": {
+      "questions": 25,
+      "baselineCorrect": 15,
+      "currentCorrect": 15,
+      "baselineAccuracy": 0.6,
+      "currentAccuracy": 0.6,
+      "gainPercentagePoints": 0.0,
+      "gained": 3,
+      "lost": 3,
+      "bothCorrect": 12,
+      "bothWrong": 7,
+      "strata": {
+        "eventqa_131072": {
+          "questions": 5,
+          "baselineCorrect": 4,
+          "currentCorrect": 2,
+          "baselineAccuracy": 0.8,
+          "currentAccuracy": 0.4,
+          "gainPercentagePoints": -40.0,
+          "gained": 0,
+          "lost": 2,
+          "bothCorrect": 2,
+          "bothWrong": 1
+        },
+        "eventqa_65536": {
+          "questions": 4,
+          "baselineCorrect": 2,
+          "currentCorrect": 4,
+          "baselineAccuracy": 0.5,
+          "currentAccuracy": 1.0,
+          "gainPercentagePoints": 50.0,
+          "gained": 2,
+          "lost": 0,
+          "bothCorrect": 2,
+          "bothWrong": 0
+        },
+        "eventqa_full": {
+          "questions": 4,
+          "baselineCorrect": 3,
+          "currentCorrect": 2,
+          "baselineAccuracy": 0.75,
+          "currentAccuracy": 0.5,
+          "gainPercentagePoints": -25.0,
+          "gained": 0,
+          "lost": 1,
+          "bothCorrect": 2,
+          "bothWrong": 1
+        },
+        "longmemeval_s*": {
+          "questions": 4,
+          "baselineCorrect": 3,
+          "currentCorrect": 3,
+          "baselineAccuracy": 0.75,
+          "currentAccuracy": 0.75,
+          "gainPercentagePoints": 0.0,
+          "gained": 0,
+          "lost": 0,
+          "bothCorrect": 3,
+          "bothWrong": 1
+        },
+        "ruler_qa1_197K": {
+          "questions": 4,
+          "baselineCorrect": 3,
+          "currentCorrect": 4,
+          "baselineAccuracy": 0.75,
+          "currentAccuracy": 1.0,
+          "gainPercentagePoints": 25.0,
+          "gained": 1,
+          "lost": 0,
+          "bothCorrect": 3,
+          "bothWrong": 0
+        },
+        "ruler_qa2_421K": {
+          "questions": 4,
+          "baselineCorrect": 0,
+          "currentCorrect": 0,
+          "baselineAccuracy": 0.0,
+          "currentAccuracy": 0.0,
+          "gainPercentagePoints": 0.0,
+          "gained": 0,
+          "lost": 0,
+          "bothCorrect": 0,
+          "bothWrong": 4
+        }
+      },
+      "literalReferencePresence": {
+        "baseline": {
+          "eligible": 24,
+          "present": 5,
+          "definition": "Diagnostic containment only; excludes preferences and abstentions, not answer correctness."
+        },
+        "current": {
+          "eligible": 24,
+          "present": 8,
+          "definition": "Diagnostic containment only; excludes preferences and abstentions, not answer correctness."
+        }
+      },
+      "promptChars": {
+        "baseline": {
+          "count": 25,
+          "median": 1912,
+          "p95": 1912,
+          "min": 1849,
+          "max": 1912
+        },
+        "current": {
+          "count": 25,
+          "median": 5992,
+          "p95": 6092,
+          "min": 3293,
+          "max": 6096
+        }
+      },
+      "readerLatencyMs": {
+        "baseline": {
+          "count": 25,
+          "median": 27447.33645800079,
+          "p95": 77665.58016599993,
+          "min": 7786.1150829994585,
+          "max": 100363.92274999889
+        },
+        "current": {
+          "count": 25,
+          "median": 26732.78887500055,
+          "p95": 79072.5782499976,
+          "min": 10959.549957999116,
+          "max": 86866.80316600177
+        }
+      },
+      "judgeLatencyMs": {
+        "baseline": {
+          "count": 25,
+          "median": 15613.48474999977,
+          "p95": 67338.94650000002,
+          "min": 6240.6324579987995,
+          "max": 79521.9697499997
+        },
+        "current": {
+          "count": 25,
+          "median": 15436.404583000694,
+          "p95": 72132.24458300101,
+          "min": 4710.038707999047,
+          "max": 79442.42504199792
+        }
+      },
+      "acceptedCallLatency": {
+        "baseline": {
+          "reader": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 25,
+              "median": 27447.33645800079,
+              "p95": 77665.58016599993,
+              "min": 7786.1150829994585,
+              "max": 100363.92274999889
+            },
+            "httpWallMs": {
+              "count": 25,
+              "median": 13702.729374999763,
+              "p95": 31058.522041999822,
+              "min": 6973.398583999369,
+              "max": 40348.96437499992
+            },
+            "slotAndGateWaitMs": {
+              "count": 25,
+              "median": 14081.274125001073,
+              "p95": 60001.68641699929,
+              "min": 0.02204100019298494,
+              "max": 60003.83099999999
+            }
+          },
+          "judge": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 25,
+              "median": 15613.48474999977,
+              "p95": 67338.94650000002,
+              "min": 6240.6324579987995,
+              "max": 79521.9697499997
+            },
+            "httpWallMs": {
+              "count": 25,
+              "median": 8285.208290999435,
+              "p95": 24167.70041699965,
+              "min": 4239.065416997619,
+              "max": 39725.08720800033
+            },
+            "slotAndGateWaitMs": {
+              "count": 25,
+              "median": 6646.744666999439,
+              "p95": 56284.445625000444,
+              "min": 0.0212500017369166,
+              "max": 59718.44091599996
+            }
+          }
+        },
+        "current": {
+          "reader": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 25,
+              "median": 26732.78887500055,
+              "p95": 79072.5782499976,
+              "min": 10959.549957999116,
+              "max": 86866.80316600177
+            },
+            "httpWallMs": {
+              "count": 25,
+              "median": 13136.904541999684,
+              "p95": 23964.820125002007,
+              "min": 9182.26204199891,
+              "max": 26854.843708999397
+            },
+            "slotAndGateWaitMs": {
+              "count": 25,
+              "median": 9762.530125000922,
+              "p95": 60004.62520899964,
+              "min": 0.010042000212706625,
+              "max": 60020.74104199892
+            }
+          },
+          "judge": {
+            "attemptWallMsIncludingAdmission": {
+              "count": 25,
+              "median": 15436.404583000694,
+              "p95": 72132.24458300101,
+              "min": 4710.038707999047,
+              "max": 79442.42504199792
+            },
+            "httpWallMs": {
+              "count": 25,
+              "median": 6252.018874998612,
+              "p95": 16244.906583000557,
+              "min": 3391.8063339988294,
+              "max": 19632.33283400041
+            },
+            "slotAndGateWaitMs": {
+              "count": 25,
+              "median": 9074.863707999612,
+              "p95": 60000.518374999956,
+              "min": 0.026915999114862643,
+              "max": 60003.75541699759
+            }
+          }
+        }
+      },
+      "acceptedUsage": {
+        "baseline": {
+          "reader": {
+            "prompt_tokens": 17270,
+            "completion_tokens": 24668,
+            "total_tokens": 41938
+          },
+          "judge": {
+            "prompt_tokens": 10906,
+            "completion_tokens": 16174,
+            "total_tokens": 27080
+          }
+        },
+        "current": {
+          "reader": {
+            "prompt_tokens": 39451,
+            "completion_tokens": 25599,
+            "total_tokens": 65050
+          },
+          "judge": {
+            "prompt_tokens": 11144,
+            "completion_tokens": 13889,
+            "total_tokens": 25033
+          }
+        }
+      },
+      "acceptedUsageAvailability": {
+        "baseline": {
+          "reader": {
+            "calls": 25,
+            "callsWithUsage": 25
+          },
+          "judge": {
+            "calls": 25,
+            "callsWithUsage": 25
+          }
+        },
+        "current": {
+          "reader": {
+            "calls": 25,
+            "callsWithUsage": 25
+          },
+          "judge": {
+            "calls": 25,
+            "callsWithUsage": 25
+          }
+        }
+      }
+    }
+  },
+  "mabUpstreamMetrics": {
+    "method": "Preserved upstream functions and family postprocessing; no ROUGE or complete official evaluator/leaderboard.",
+    "sourceSha256": "d77976be409298970614d477a9d8003850caddb0510e56a7e821a037d98493a2",
+    "arms": {
+      "baseline": {
+        "overall": {
+          "exactMatch": 0.36,
+          "tokenF1": 0.4577070782593967,
+          "substringExactMatch": 0.52
+        },
+        "families": {
+          "eventqa_131072": {
+            "count": 5,
+            "exactMatch": 0.8,
+            "tokenF1": 0.88,
+            "substringExactMatch": 0.8,
+            "eventqaRecall": 0.8
+          },
+          "eventqa_65536": {
+            "count": 4,
+            "exactMatch": 0.5,
+            "tokenF1": 0.5555555555555556,
+            "substringExactMatch": 0.5,
+            "eventqaRecall": 0.25
+          },
+          "eventqa_full": {
+            "count": 4,
+            "exactMatch": 0.75,
+            "tokenF1": 0.8026315789473685,
+            "substringExactMatch": 0.75,
+            "eventqaRecall": 0.75
+          },
+          "longmemeval_s*": {
+            "count": 4,
+            "exactMatch": 0.0,
+            "tokenF1": 0.2258996212121212,
+            "substringExactMatch": 0.25
+          },
+          "ruler_qa1_197K": {
+            "count": 4,
+            "exactMatch": 0.0,
+            "tokenF1": 0.17658248340618424,
+            "substringExactMatch": 0.75
+          },
+          "ruler_qa2_421K": {
+            "count": 4,
+            "exactMatch": 0.0,
+            "tokenF1": 0,
+            "substringExactMatch": 0.0
+          }
+        }
+      },
+      "current": {
+        "overall": {
+          "exactMatch": 0.4,
+          "tokenF1": 0.49477395864029894,
+          "substringExactMatch": 0.56
+        },
+        "families": {
+          "eventqa_131072": {
+            "count": 5,
+            "exactMatch": 0.4,
+            "tokenF1": 0.45730232558139533,
+            "substringExactMatch": 0.4,
+            "eventqaRecall": 0.6
+          },
+          "eventqa_65536": {
+            "count": 4,
+            "exactMatch": 1.0,
+            "tokenF1": 1.0,
+            "substringExactMatch": 1.0,
+            "eventqaRecall": 1.0
+          },
+          "eventqa_full": {
+            "count": 4,
+            "exactMatch": 0.5,
+            "tokenF1": 0.6295546558704453,
+            "substringExactMatch": 0.5,
+            "eventqaRecall": 0.5
+          },
+          "longmemeval_s*": {
+            "count": 4,
+            "exactMatch": 0.25,
+            "tokenF1": 0.4465034965034965,
+            "substringExactMatch": 0.25
+          },
+          "ruler_qa1_197K": {
+            "count": 4,
+            "exactMatch": 0.25,
+            "tokenF1": 0.3916208791208791,
+            "substringExactMatch": 1.0
+          },
+          "ruler_qa2_421K": {
+            "count": 4,
+            "exactMatch": 0.0,
+            "tokenF1": 0.05303030303030304,
+            "substringExactMatch": 0.25
+          }
+        }
+      }
+    },
+    "questions": [
+      {
+        "id": "mab-0-30",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.33333333333333337,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-30",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.25,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-4",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.3448275862068966,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-4",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.2857142857142857,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-66",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-66",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-78",
+        "arm": "baseline",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.028169014084507043,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-78",
+        "arm": "current",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.03076923076923077,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-1-39",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-39",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-42",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-42",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-5",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-5",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-54",
+        "arm": "baseline",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-54",
+        "arm": "current",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.21212121212121215,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-3-70",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-3-70",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-3-80",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-3-80",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.3076923076923077,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-6-25",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.2105263157894737,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-6-25",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.2105263157894737,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-6-76",
+        "arm": "baseline",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-6-76",
+        "arm": "current",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-8-5",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.2222222222222222,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-8-5",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-8-8",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-8-8",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-9-84",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-9-84",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-11-27",
+        "arm": "baseline",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-11-27",
+        "arm": "current",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-12-43",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.4000000000000001,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-12-43",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-13-40",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-13-40",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-14-77",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-14-77",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.046511627906976744,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-15-38",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-15-38",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-16-57",
+        "arm": "baseline",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-16-57",
+        "arm": "current",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.23999999999999996,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-18-49",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.21874999999999997,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-18-49",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.2769230769230769,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-19-55",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-19-55",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-20-7",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.018181818181818184,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-20-7",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-21-18",
+        "arm": "baseline",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.6666666666666666,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-21-18",
+        "arm": "current",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5090909090909091,
+        "substringExactMatch": 0.0
+      }
+    ]
+  },
+  "embeddingExecution": "Serial local batches16,requestedCPU-only num_gpu0/num_thread1; exact real model-digest/role/text-keyed original seed cache reused read-only; overlay commits once per fresh batch.",
+  "embedding": "ollama:all-minilm:1b226e2802dbb772b5fc32a58f103ca1804ef7501331012de126ab22f67475ef:384",
+  "corpora": 41,
+  "documents": 5657,
+  "chunks": 36099,
+  "embeddingCache": {
+    "freshPassageInputs": 15067,
+    "cachedPassageInputs": 21000,
+    "cachedPotentiallyTruncatedInputs": 20995
+  },
+  "embeddingTruncation": {
+    "freshAffectedPassageBatches": 895,
+    "freshAffectedInputBound": [
+      895,
+      14202
+    ],
+    "definition": "Batch bounds only. Cached vectors retain conservative original batch truncation flags; no per-chunk truncation rate."
+  },
+  "providerAttempts": 259,
+  "providerStatusCounts": {
+    "200": 217,
+    "429": 39,
+    "None": 3
+  },
+  "invalidProviderAttempts": [
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-1-42-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 15571.663417000309,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/6a1eabeb-current-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 73760.81479200002,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-3-70-current-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 56903.183791997435,
+      "status": null,
+      "error": "ConnectionError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/gpt4_2f91af09-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 2461.601666997012,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/61f8c8f8-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 7875.313291999191,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-3-80-current-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 5827.194374996907,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-15-38-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 43.069250001281034,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-3-80-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 21251.070207999874,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-15-38-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 43642.520708999655,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/0bc8ad92-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 7120.944624999538,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-3-70-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 2896.578916999715,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/6a1eabeb-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 7238.870916997257,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-1-54-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 8415.363250000155,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/1cea1afa-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 14493.517332999545,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-0-78-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 7760.157249998883,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/c2ac3c61-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 25813.136374999885,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/9a707b82-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 22561.702292001428,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-13-40-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 19661.461209001573,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-1-54-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 7906.0328749983455,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/618f13b2-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 39994.62545899951,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-9-84-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 40364.57558300026,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/c14c00dd-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 16022.645417000604,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/4c36ccef-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 17102.118582999537,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/577d4d32-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 8029.703416999837,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-0-66-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 8803.392709000036,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/gpt4_5438fa52-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 33860.502125000494,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/577d4d32-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 7870.8328749999055,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/a1eacc2a-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 6092.886125001314,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/a1eacc2a-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 12548.68041699956,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/c14c00dd-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 4554.347084002075,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-13-40-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 11762.162208000518,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/61f8c8f8-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 771.1569999992207,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-3-80-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 15865.545333002956,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/c2ac3c61-baseline-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 25101.812582999628,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/1cea1afa-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 12587.658709000607,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-1-42-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 5751.700250000795,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/0edc2aef-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 11365.640207999604,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-1-39-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 8460.394624999026,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/10e09553-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 5861.1198750004405,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-8-5-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 17128.021958000318,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/6d550036-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 13134.359499999846,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/6a1eabeb-current-reader-attempt-1.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 202.16079199963133,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-15-38-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 16291.47516699959,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-14-77-current-judge-attempt-1.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 8662.386916003015,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/618f13b2-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 61.87095799941744,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-20-7-baseline-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 2313.0832919996465,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-9-84-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 15441.66312500056,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-0-78-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 11811.905999998999,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-6-25-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 6574.470874998951,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-14-77-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 11576.156292001542,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/a1eacc2a-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 36611.30908299856,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-0-66-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 37221.24516599979,
+      "status": null,
+      "error": "ConnectionError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-8-8-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 14759.069125000678,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-11-27-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 13838.383791000524,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/6a1eabeb-baseline-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 11576.304416001221,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/6a1eabeb-current-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 28954.858959001285,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/8a137a7f-current-judge-attempt-0.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 7328.315917000509,
+      "status": 429,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/6a1eabeb-current-reader-attempt-0.json",
+      "valid": false,
+      "judge": false,
+      "wallMs": 43475.82287499972,
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1/mab-3-70-current-judge-attempt-2.json",
+      "valid": false,
+      "judge": true,
+      "wallMs": 20004.336917001638,
+      "status": null,
+      "error": "ConnectionError"
+    }
+  ],
+  "reportedUsageAllRetainedAttempts": {
+    "prompt_tokens": 166860,
+    "completion_tokens": 193285,
+    "total_tokens": 360145,
+    "prompt_tokens_details.cached_tokens": 0,
+    "completion_tokens_details.reasoning_tokens": 172837
+  },
+  "transportRecovery": {
+    "profiles": [
+      {
+        "run": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+        "at": "2026-10-14T15:18:02.536881+00:00",
+        "wrapperSha256": "491f8e3f3e77c4d52d09a046d65be2cc863a398276c3a5833c082d00427fbdbc",
+        "driverSha256": "50825a38c4d776e461deceec7caef564004a5f9b6d9bb7383ae45904787971e9",
+        "maximumRPM": 3,
+        "maximumConcurrentHTTP": 1,
+        "driverPacingCeilingRPM": 10,
+        "cooldown": "60 seconds doubling for consecutive429, capped300s; honor a longer supplied Retry-After.",
+        "checkpointSha256": "a71560df381b8fbeeecc2f509626207568ea3807547dfbb66c5a88b259159d6e",
+        "checkpoint": "Create-only atomic link after JSON/file fsync, followed by directory fsync. Progress is best-effort; completed result files are authoritative. Not a hardware power-loss guarantee.",
+        "semantics": "Only benchmark checkpoint publication and HTTP admission/cooldown change. Model, prompt, reasoning, output cap, keys and frozen driver are unchanged. Existing valid answers are reused regardless of correctness."
+      }
+    ],
+    "recordedHTTPAttempts": 256,
+    "slotAndGateWaitMs": {
+      "count": 256,
+      "median": 9048.388958500254,
+      "p95": 60001.400332999765,
+      "min": 0.010042000212706625,
+      "max": 60020.74104199892
+    },
+    "httpWallMs": {
+      "count": 256,
+      "median": 10979.662749499767,
+      "p95": 26608.78995799976,
+      "min": 41.232583000237355,
+      "max": 40348.96437499992
+    },
+    "latencyDefinition": "Attempt wall time includes admission/cooldown in wrapper runs and transport-receipt publication overhead in durable runs. Separate wrapper HTTP and slot/gate times are recorded; earlier runs used HTTP/decode wall time without this wrapper. Failed HTTP calls without a response have no separate transport observation. These are service observations, not paired speed claims."
+  },
+  "attemptRuns": [
+    "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1"
+  ],
+  "newJudgeControlRequests": 0,
+  "reusedPassingJudgeControls": 22,
+  "cost": "Currency cost not available; usage not converted to assumed prices.",
+  "started": "2026-10-14T15:17:32.450656+00:00",
+  "ended": "2026-10-14T17:14:08.512049+00:00",
+  "limitations": [
+    "Small25+25 balanced fresh query-heldout pilot, shared corpora/questions across source families; not independent population samples or official leaderboard.",
+    "Same-model self-judging and hosted serving version not independently pinned; controls do not establish human agreement.",
+    "Candidate changes both excerpt selection and default excerpt allowance 1800 to6000; measured gain cannot be attributed to only one.",
+    "Record96 and97 scores belong to different subsets and candidates; compare only the fresh paired25-question per-dataset denominators.",
+    "Embedding truncation is explicit; no reranker. Public timings are shared-machine/service observations, not qualified speed ratios.",
+    "Interrupted in-flight calls without a returned record have unknown usage; every recorded attempt and all valid answers are retained.",
+    "Accepted-attempt latency excludes earlier failed attempts/backoff. Wrapper admission/cooldown is separated where instrumented; no end-to-end speedup or energy claim."
+  ],
+  "adoption": {
+    "bothDatasetsNetAccuracyGain": false,
+    "rule": "Require positive paired net accuracy in both datasets plus zero provenance/scope/budget/required-contract failures. Report losses and declining strata; no release qualification."
+  }
+}

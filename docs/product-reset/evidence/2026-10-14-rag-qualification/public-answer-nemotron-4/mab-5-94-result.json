@@ -1,0 +1,235 @@
+{
+  "row": 5,
+  "query": 94,
+  "id": "mab-5-94",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n91. Kayla and Isaiah visited Mr. Sylvia at the designated location.\n92. Donald insisted that her aunt must go with them.\n93. Isaiah affirmed that he had advised Mr. Sylvia regarding his plans.\n94. Eamon arrived to see Donald.\n95. The narrator sat down by the fire and thought of past memories with Donald.\n\n\nBelow is a list of possible subsequent events:\n\n['Eamon aspired to devote his life to his father after his release from trust and responsibility.', 'Eamon aimed to immerse himself in social activism after his graduation from a renowned university with honors.', 'Eamon sought to channel his energy into reviving the family business after his appointment as CEO and managing partner.', 'Eamon planned to focus on environmental conservation after his election to a local government position dedicated to sustainability.', 'Eamon wished to rekindle his passion for music after his promotion to lead composer in a well-known orchestra.', 'Eamon intended to dedicate his career to philanthropy after his acceptance into a prestigious charitable organization.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Eamon aspired to devote his life to his father after his release from trust and responsibility."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 763.5391669999954,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1288,
+        "maxInputChars": 1288,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-361",
+        "context-187",
+        "context-359"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) of a friend to whom I am so grateful, and owe so much.'\n\n'I will not say that I recommend it,' observed Isaiah. 'I think it right to suggest it. No more.'\n\n'I am happy to hear you say so,' answered Eamon, steadily, 'for it gives me hope, almost assurance, that we think alike. Dear Mr. Isaiah and dear Sid, papa once free with honour, what could I wish for! I have always aspired, if I could have released him from the toils in which he was held, to render back some little portion of the love and care I owe him, and to devote my life to him. It has been, for years, the utmost height of my hopes. To take our future on myself, will be the next great happiness--the next to his release from all trust and responsibility--that I can know.'\n\n'Have you thought how, Eamon?'\n\n'Often! I am not afraid, dear Sid. I am certain of success. So many people know me here, and think kindly of me, that I am certain. Don't mistrust me. Our wants are not many. If I rent the dear old house, and keep a school, I shall be useful and happy.'\n- (part 4 of 5, excerpt) 'You find us, Kayla,' said Mr. Sylvia, with one eye on Isaiah, 'at present established, on what may be designated as a small and unassuming scale; but, you are aware that I have, in the course of my career, surmounted difficulties, and conquered obstacles. You are no stranger to the fact, that there have been periods of my life, when it has been requisite that I should pause, until certain expected events should turn up; when it has been necessary that I should fall back, before making what I trust I shall not be accused of presumption in terming--a spring. The present is\n- (part 1 of 5, excerpt) 'My dear madam,' returned Mrs. Sylvia, with her business-like air. 'I am free to confess that I have not been actively engage",
+      "evidence": [
+        {
+          "sourceId": "memory:context-361",
+          "sourceVersion": "sha256:50434c6cbd61e52be1c1a5eb1d725b1a6f3b80d5f395d4810cafe35683608912",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-361",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "of a friend to whom I am so grateful, and owe so much.'\n\n'I will not say that I recommend it,' observed Isaiah. 'I think it right to suggest it. No more.'\n\n'I am happy to hear you say so,' answered Eamon, steadily, 'for it gives me hope, almost assurance, that we think alike. Dear Mr. Isaiah and dear Sid, papa once free with honour, what could I wish for! I have always aspired, if I could have released him from the toils in which he was held, to render back some little portion of the love and care I owe him, and to devote my life to him. It has been, for years, the utmost height of my hopes. To take our future on myself, will be the next great happiness--the next to his release from all trust and responsibility--that I can know.'\n\n'Have you thought how, Eamon?'\n\n'Often! I am not afraid, dear Sid. I am certain of success. So many people know me here, and think kindly of me, that I am certain. Don't mistrust me. Our wants are not many. If I rent the dear old house, and keep a school, I shall be useful and happy.'",
+          "id": "ev_2c3dbd5280fbbdb36ae6b761",
+          "observedAt": "2026-10-14T04:57:31.433Z"
+        },
+        {
+          "sourceId": "memory:context-187",
+          "sourceVersion": "sha256:cab075993deb4d16adce5a9c8b193fb553ac36fa491563505420a8b478dce174",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-187",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "'You find us, Kayla,' said Mr. Sylvia, with one eye on Isaiah, 'at present established, on what may be designated as a small and unassuming scale; but, you are aware that I have, in the course of my career, surmounted difficulties, and conquered obstacles. You are no stranger to the fact, that there have been periods of my life, when it has been requisite that I should pause, until certain expected events should turn up; when it has been necessary that I should fall back, before making what I trust I shall not be accused of presumption in terming--a spring. The present is",
+          "id": "ev_d9cc5806786142fc9302e986",
+          "observedAt": "2026-10-14T04:57:31.433Z"
+        },
+        {
+          "sourceId": "memory:context-359",
+          "sourceVersion": "sha256:0d813ebb53c63f22ce1e84ba941b9c161ba137906ebedca28836a036fc82a5ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-359",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "'My dear madam,' returned Mrs. Sylvia, with her business-like air. 'I am free to confess that I have not been actively engage",
+          "id": "ev_7fb5c53e185d95676cbea10c",
+          "observedAt": "2026-10-14T04:57:31.434Z"
+        }
+      ],
+      "sourceIds": [
+        "context-361",
+        "context-187",
+        "context-359"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 10.475957999995444,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-361",
+        "context-187",
+        "context-359"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) of a friend to whom I am so grateful, and owe so much.'\n\n'I will not say that I recommend it,' observed Isaiah. 'I think it right to suggest it. No more.'\n\n'I am happy to hear you say so,' answered Eamon, steadily, 'for it gives me hope, almost assurance, that we think alike. Dear Mr. Isaiah and dear Sid, papa once free with honour, what could I wish for! I have always aspired, if I could have released him from the toils in which he was held, to render back some little portion of the love and care I owe him, and to devote my life to him. It has been, for years, the utmost height of my hopes. To take our future on myself, will be the next great happiness--the next to his release from all trust and responsibility--that I can know.'\n\n'Have you thought how, Eamon?'\n\n'Often! I am not afraid, dear Sid. I am certain of success. So many people know me here, and think kindly of me, that I am certain. Don't mistrust me. Our wants are not many. If I rent the dear old house, and keep a school, I shall be useful and happy.'\n- (part 4 of 5, excerpt) 'You find us, Kayla,' said Mr. Sylvia, with one eye on Isaiah, 'at present established, on what may be designated as a small and unassuming scale; but, you are aware that I have, in the course of my career, surmounted difficulties, and conquered obstacles. You are no stranger to the fact, that there have been periods of my life, when it has been requisite that I should pause, until certain expected events should turn up; when it has been necessary that I should fall back, before making what I trust I shall not be accused of presumption in terming--a spring. The present is\n- (part 1 of 5, excerpt) 'My dear madam,' returned Mrs. Sylvia, with her business-like air. 'I am free to confess that I have not been actively engage",
+      "evidence": [
+        {
+          "sourceId": "memory:context-361",
+          "sourceVersion": "sha256:50434c6cbd61e52be1c1a5eb1d725b1a6f3b80d5f395d4810cafe35683608912",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-361",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "of a friend to whom I am so grateful, and owe so much.'\n\n'I will not say that I recommend it,' observed Isaiah. 'I think it right to suggest it. No more.'\n\n'I am happy to hear you say so,' answered Eamon, steadily, 'for it gives me hope, almost assurance, that we think alike. Dear Mr. Isaiah and dear Sid, papa once free with honour, what could I wish for! I have always aspired, if I could have released him from the toils in which he was held, to render back some little portion of the love and care I owe him, and to devote my life to him. It has been, for years, the utmost height of my hopes. To take our future on myself, will be the next great happiness--the next to his release from all trust and responsibility--that I can know.'\n\n'Have you thought how, Eamon?'\n\n'Often! I am not afraid, dear Sid. I am certain of success. So many people know me here, and think kindly of me, that I am certain. Don't mistrust me. Our wants are not many. If I rent the dear old house, and keep a school, I shall be useful and happy.'",
+          "id": "ev_2c3dbd5280fbbdb36ae6b761",
+          "observedAt": "2026-10-14T04:57:31.444Z"
+        },
+        {
+          "sourceId": "memory:context-187",
+          "sourceVersion": "sha256:cab075993deb4d16adce5a9c8b193fb553ac36fa491563505420a8b478dce174",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-187",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "'You find us, Kayla,' said Mr. Sylvia, with one eye on Isaiah, 'at present established, on what may be designated as a small and unassuming scale; but, you are aware that I have, in the course of my career, surmounted difficulties, and conquered obstacles. You are no stranger to the fact, that there have been periods of my life, when it has been requisite that I should pause, until certain expected events should turn up; when it has been necessary that I should fall back, before making what I trust I shall not be accused of presumption in terming--a spring. The present is",
+          "id": "ev_d9cc5806786142fc9302e986",
+          "observedAt": "2026-10-14T04:57:31.444Z"
+        },
+        {
+          "sourceId": "memory:context-359",
+          "sourceVersion": "sha256:0d813ebb53c63f22ce1e84ba941b9c161ba137906ebedca28836a036fc82a5ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-359",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "'My dear madam,' returned Mrs. Sylvia, with her business-like air. 'I am free to confess that I have not been actively engage",
+          "id": "ev_7fb5c53e185d95676cbea10c",
+          "observedAt": "2026-10-14T04:57:31.445Z"
+        }
+      ],
+      "sourceIds": [
+        "context-361",
+        "context-187",
+        "context-359"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 10.92029100000218,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:53:39.672281+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Eamon aspired to devote his life to his father after his release from trust and responsibility.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 802,
+    "completion_tokens": 1044,
+    "total_tokens": 1846,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 524,
+    "completion_tokens": 474,
+    "total_tokens": 998,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 471,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10192.053208000289,
+  "judgeWallMs": 4551.237167000181,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "ended": "2026-10-14T07:53:54.418501+00:00"
+}

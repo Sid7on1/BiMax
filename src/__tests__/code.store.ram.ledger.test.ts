@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { setFlagsFromString } from 'node:v8';
+import { runInNewContext } from 'node:vm';
 import { VectorStore } from '../memory/vector.store';
 import { SqliteCodeVectorStore } from '../memory/sqlite.code.store';
 import { RemoteEmbeddingBackend, type EmbeddingTransport } from '../memory/embeddings';
@@ -45,8 +47,22 @@ function corpus(n: number): { id: string; text: string; tags: string[] }[] {
   return out;
 }
 
+// Retained heap cannot be inferred from a positive allocation delta: transient SQLite batches
+// may still be alive while the JSON baseline happened to collect. Require an actual full GC on
+// both runtimes, including normal Jest workers launched without --expose-gc. This test-only V8
+// flag exposes collection in a fresh VM context; production runtime flags are untouched.
+const collectHeap = (() => {
+  const bun = (globalThis as typeof globalThis & { Bun?: { gc(full: boolean): void } }).Bun;
+  if (bun) return () => bun.gc(true);
+  if (global.gc) return () => global.gc!();
+  setFlagsFromString('--expose_gc');
+  const collect: () => void = runInNewContext('gc');
+  if (typeof collect !== 'function') throw new Error('RAM ledger requires explicit garbage collection');
+  return collect;
+})();
+
 function heapUsed(): number {
-  global.gc?.();
+  collectHeap();
   return process.memoryUsage().heapUsed;
 }
 
@@ -101,26 +117,10 @@ describe('RAM ledger: JSON vs SQLite code store', () => {
     // vectors. N docs × ~1.6 KB of text alone would exceed this bound, never mind the vectors.
     expect(sqliteStore.residentBytes()).toBeLessThan(N * 200);
 
-    // And the measured gap: SQLite must hold clearly less heap than JSON over the same corpus.
-    //
-    // `jsonDelta * 0.75` IS a ratio, despite the comment this replaces claiming otherwise, and it
-    // inverts when the baseline is negative. A negative jsonDelta means GC ran between the two
-    // `heapUsed()` reads, so the JSON store's cost was never measured — the heap simply ended lower
-    // than it started. Comparing against it then demands `sqliteDelta < -34 MB`, which nothing can
-    // satisfy. Measured on an 8 GB box under memory pressure: the run reported jsonDelta ≈ -34 MB
-    // and failed, while the structural invariant above (the real claim) passed untouched.
-    //
-    // An unusable measurement is not evidence of a regression, so it must not be reported as one.
-    // The invariant that does not depend on GC timing is asserted unconditionally above.
-    if (jsonDelta > 0) {
-      expect(sqliteDelta).toBeLessThan(jsonDelta * 0.75);
-    } else {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `  [ram-ledger] skipping the comparative bound: GC ran during the JSON baseline ` +
-        `(jsonDelta ${(jsonDelta / 1e6).toFixed(1)} MB). The structural invariant still ran.`,
-      );
-    }
+    // Both deltas now follow forced full collection. An invalid baseline fails visibly instead
+    // of silently skipping the comparative bound; the original 75% requirement stays intact.
+    expect(jsonDelta).toBeGreaterThan(0);
+    expect(sqliteDelta).toBeLessThan(jsonDelta * 0.75);
 
     // Same pipeline, same answers: both stores return the same top hit for a lexical query.
     const jsonHits = await jsonStore.semanticSearch('fn377', 1, 0, { tags: ['code'] });

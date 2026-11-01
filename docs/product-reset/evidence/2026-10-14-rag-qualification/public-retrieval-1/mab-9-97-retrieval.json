@@ -1,0 +1,233 @@
+{
+  "row": 9,
+  "query": 97,
+  "id": "mab-9-97",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:52:08.663576+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n94. Pascal asked the inspector for a trial.\n95. Pascal fell on his knees and prayed earnestly.\n96. Pascal resolved to cast out his meals from his cell window.\n97. Pascal heard a scratching noise coming from the wall of his cell.\n98. Pascal drank the soup brought by the jailer and regained strength.\n\n\nBelow is a list of possible subsequent events:\n\n['Pascal devoured the fresh provisions brought by the jailer.', 'Pascal feasted on the delicious rations supplied by the jailer.', 'Pascal savored the rare delicacies delivered by the jailer.', 'Pascal relished the gourmet dishes provided by the jailer.', 'Pascal consumed the exquisite meals presented by the jailer.', 'Pascal enjoyed the lavish spread offered by the jailer.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Pascal devoured the fresh provisions brought by the jailer."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 568.0142919999998,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 953,
+        "maxInputChars": 953,
+        "requiredProviderTruncation": false,
+        "promptTokens": 218,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-61",
+        "context-66",
+        "context-62"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 4, excerpt) But now it is different; I have lost all that bound me to life, death smiles and invites me to repose; I die after my own manner, I die exhausted and broken-spirited, as I fall asleep when I have paced three thousand times round my cell.\"\n  (part 4 of 4) at his disposal.\n\nHe could hang himself with his handkerchief to the window bars, or refuse food and die of starvation.\n\nBut the first was repugnant to him.\n\nPascal had always entertained the greatest horror of pirates, who are hung up to the yard-arm; he would not die by what seemed an infamous death.\n\nHe resolved to adopt the second, and began that day to carry out his resolve.\n\nNearly four years had passed away; at the end of the second he had ceased to mark the lapse of time.\n\nPascal said, \"I wish to die,\" and had chosen the manner of his death, and fearful of changing his mind, he had taken an oath to die.\n\n\"When my morning and evening meals are brought,\" thought he, \"I will cast them out of the window, and they will think that I have eaten them.\"\n\nHe kept his word; twice a day he cast out, through the barred aperture, the provisions his jailer brought him -- at first gayly, then with deliberation, and at last with regret.\n\nNothing but the recollection of his oath gave him strength to proceed.\n\nHunger made viands once repugnant, now acceptable; he held the plate in his hand for an hour at a time, and gazed thoughtful\n- (part 4 of 4, excerpt) The next morning, however, just as he removed his bed from the wall, he heard three knocks; he threw himself on his knees.\n\n\"Is it you?\" said he; \"I am here.\"\n\n\"Is your jailer gone?\"\n- (part 3 of 4, excerpt) For a week since he had resolved to die, and during the four days that he had been carrying out his purpose, Armando had not spoken to the atten",
+      "evidence": [
+        {
+          "sourceId": "memory:context-61",
+          "sourceVersion": "sha256:011b9e32328b690a401a57ba9f348cc24303d1df7ad6661254b98167ca150cc6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-61",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "But now it is different; I have lost all that bound me to life, death smiles and invites me to repose; I die after my own manner, I die exhausted and broken-spirited, as I fall asleep when I have paced three thousand times round my cell.\"",
+          "id": "ev_4764e4f88f5ccbc2f73150c9",
+          "observedAt": "2026-10-14T04:52:09.234Z"
+        },
+        {
+          "sourceId": "memory:context-61",
+          "sourceVersion": "sha256:011b9e32328b690a401a57ba9f348cc24303d1df7ad6661254b98167ca150cc6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-61",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "at his disposal.\n\nHe could hang himself with his handkerchief to the window bars, or refuse food and die of starvation.\n\nBut the first was repugnant to him.\n\nPascal had always entertained the greatest horror of pirates, who are hung up to the yard-arm; he would not die by what seemed an infamous death.\n\nHe resolved to adopt the second, and began that day to carry out his resolve.\n\nNearly four years had passed away; at the end of the second he had ceased to mark the lapse of time.\n\nPascal said, \"I wish to die,\" and had chosen the manner of his death, and fearful of changing his mind, he had taken an oath to die.\n\n\"When my morning and evening meals are brought,\" thought he, \"I will cast them out of the window, and they will think that I have eaten them.\"\n\nHe kept his word; twice a day he cast out, through the barred aperture, the provisions his jailer brought him -- at first gayly, then with deliberation, and at last with regret.\n\nNothing but the recollection of his oath gave him strength to proceed.\n\nHunger made viands once repugnant, now acceptable; he held the plate in his hand for an hour at a time, and gazed thoughtful",
+          "id": "ev_3faae5e36f90409c11437ce6",
+          "observedAt": "2026-10-14T04:52:09.234Z"
+        },
+        {
+          "sourceId": "memory:context-66",
+          "sourceVersion": "sha256:91e99891c6fd724772adaf7e5175a939e5a2265f5f64fd4444adc1ce0b621fd1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-66",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "The next morning, however, just as he removed his bed from the wall, he heard three knocks; he threw himself on his knees.\n\n\"Is it you?\" said he; \"I am here.\"\n\n\"Is your jailer gone?\"",
+          "id": "ev_3bb4014a0d4a203a6f953dcd",
+          "observedAt": "2026-10-14T04:52:09.234Z"
+        },
+        {
+          "sourceId": "memory:context-62",
+          "sourceVersion": "sha256:b08b4183b80b60fa6c3f96672f14092c68c109825345a455792fba7212e74629",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-62",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "For a week since he had resolved to die, and during the four days that he had been carrying out his purpose, Armando had not spoken to the atten",
+          "id": "ev_6000a4d15a06b2448ae2ba85",
+          "observedAt": "2026-10-14T04:52:09.235Z"
+        }
+      ],
+      "sourceIds": [
+        "context-61",
+        "context-66",
+        "context-62"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.585124999999607,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-61",
+        "context-66",
+        "context-62"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 4, excerpt) But now it is different; I have lost all that bound me to life, death smiles and invites me to repose; I die after my own manner, I die exhausted and broken-spirited, as I fall asleep when I have paced three thousand times round my cell.\"\n  (part 4 of 4) at his disposal.\n\nHe could hang himself with his handkerchief to the window bars, or refuse food and die of starvation.\n\nBut the first was repugnant to him.\n\nPascal had always entertained the greatest horror of pirates, who are hung up to the yard-arm; he would not die by what seemed an infamous death.\n\nHe resolved to adopt the second, and began that day to carry out his resolve.\n\nNearly four years had passed away; at the end of the second he had ceased to mark the lapse of time.\n\nPascal said, \"I wish to die,\" and had chosen the manner of his death, and fearful of changing his mind, he had taken an oath to die.\n\n\"When my morning and evening meals are brought,\" thought he, \"I will cast them out of the window, and they will think that I have eaten them.\"\n\nHe kept his word; twice a day he cast out, through the barred aperture, the provisions his jailer brought him -- at first gayly, then with deliberation, and at last with regret.\n\nNothing but the recollection of his oath gave him strength to proceed.\n\nHunger made viands once repugnant, now acceptable; he held the plate in his hand for an hour at a time, and gazed thoughtful\n- (part 4 of 4, excerpt) The next morning, however, just as he removed his bed from the wall, he heard three knocks; he threw himself on his knees.\n\n\"Is it you?\" said he; \"I am here.\"\n\n\"Is your jailer gone?\"\n- (part 3 of 4, excerpt) For a week since he had resolved to die, and during the four days that he had been carrying out his purpose, Armando had not spoken to the atten",
+      "evidence": [
+        {
+          "sourceId": "memory:context-61",
+          "sourceVersion": "sha256:011b9e32328b690a401a57ba9f348cc24303d1df7ad6661254b98167ca150cc6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-61",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "But now it is different; I have lost all that bound me to life, death smiles and invites me to repose; I die after my own manner, I die exhausted and broken-spirited, as I fall asleep when I have paced three thousand times round my cell.\"",
+          "id": "ev_4764e4f88f5ccbc2f73150c9",
+          "observedAt": "2026-10-14T04:52:09.238Z"
+        },
+        {
+          "sourceId": "memory:context-61",
+          "sourceVersion": "sha256:011b9e32328b690a401a57ba9f348cc24303d1df7ad6661254b98167ca150cc6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-61",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "at his disposal.\n\nHe could hang himself with his handkerchief to the window bars, or refuse food and die of starvation.\n\nBut the first was repugnant to him.\n\nPascal had always entertained the greatest horror of pirates, who are hung up to the yard-arm; he would not die by what seemed an infamous death.\n\nHe resolved to adopt the second, and began that day to carry out his resolve.\n\nNearly four years had passed away; at the end of the second he had ceased to mark the lapse of time.\n\nPascal said, \"I wish to die,\" and had chosen the manner of his death, and fearful of changing his mind, he had taken an oath to die.\n\n\"When my morning and evening meals are brought,\" thought he, \"I will cast them out of the window, and they will think that I have eaten them.\"\n\nHe kept his word; twice a day he cast out, through the barred aperture, the provisions his jailer brought him -- at first gayly, then with deliberation, and at last with regret.\n\nNothing but the recollection of his oath gave him strength to proceed.\n\nHunger made viands once repugnant, now acceptable; he held the plate in his hand for an hour at a time, and gazed thoughtful",
+          "id": "ev_3faae5e36f90409c11437ce6",
+          "observedAt": "2026-10-14T04:52:09.238Z"
+        },
+        {
+          "sourceId": "memory:context-66",
+          "sourceVersion": "sha256:91e99891c6fd724772adaf7e5175a939e5a2265f5f64fd4444adc1ce0b621fd1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-66",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "The next morning, however, just as he removed his bed from the wall, he heard three knocks; he threw himself on his knees.\n\n\"Is it you?\" said he; \"I am here.\"\n\n\"Is your jailer gone?\"",
+          "id": "ev_3bb4014a0d4a203a6f953dcd",
+          "observedAt": "2026-10-14T04:52:09.238Z"
+        },
+        {
+          "sourceId": "memory:context-62",
+          "sourceVersion": "sha256:b08b4183b80b60fa6c3f96672f14092c68c109825345a455792fba7212e74629",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-62",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "For a week since he had resolved to die, and during the four days that he had been carrying out his purpose, Armando had not spoken to the atten",
+          "id": "ev_6000a4d15a06b2448ae2ba85",
+          "observedAt": "2026-10-14T04:52:09.239Z"
+        }
+      ],
+      "sourceIds": [
+        "context-61",
+        "context-66",
+        "context-62"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.142125000000306,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:52:09.240345+00:00"
+}

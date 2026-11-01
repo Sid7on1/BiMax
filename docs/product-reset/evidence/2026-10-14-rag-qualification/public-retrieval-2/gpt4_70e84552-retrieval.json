@@ -1,0 +1,235 @@
+{
+  "row": 320,
+  "id": "gpt4_70e84552",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T05:18:53.247664+00:00",
+  "valid": true,
+  "question": "Which task did I complete first, fixing the fence or trimming the goats' hooves?",
+  "references": [
+    "Fixing the fence"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/05/25 (Thu) 08:03",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 738.260749999994,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 80,
+        "maxInputChars": 80,
+        "requiredProviderTruncation": false,
+        "promptTokens": 20,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_b3070ec4_1",
+        "answer_b3070ec4_2",
+        "30491f6f_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 20) Session date: 2023/05/25 (Thu) 14:25\nuser: I'm thinking of hosting a farm open house event soon and I want to make sure everything is perfect. Can you help me come up with some ideas for activities and also give me some tips on how to promote it on social media? By the way, I just fixed that broken fence on the east side of my property three weeks ago, where my goats like to graze, and it's been a huge relief to have them safe and secure.\nassistant: Congratulations on fixing that broken fence! It's great to hear that your goats are now safe and secure.\n\nNow, let's get started on planning your farm open house event! Here are some activity ideas to get you started:\n\n**Activities:**\n  (part 5 of 20, excerpt) **Additional Tips:**\n\n1. **Plan Ahead**: Ensure you have enough parking, restrooms, and amenities to accommodate your expected number of visitors.\n2. **Safety First**: Make sure to have a first aid kit on hand and take necessary precautions to ensure visitor safety, especially around animals and equipment.\n3. **Weather Contingency**: Have a backup plan in case of inclement weather, such as a tent or indoor space.\n4. **Volunteer Support**: Recruit volunteers to help with event setup, parking, and crowd management.\n\nI hope these ideas and tips help you plan a successful and enjoyable farm open house event!\n- (part 14 of 22, excerpt) It's great to hear that you've been practicing hoof trimming and getting better at it. Regular hoof trimming is essential for your animals' health and comfort, and it's a great skill to have as a farmer. Keeping their hooves trimmed can help prevent lameness, infections, and o\n- (part 18 of 19, excerpt) Yes, I have been thinking about how I can apply some of the lessons from the Airbnb episode to my own life and work. One ch",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_b3070ec4_1",
+          "sourceVersion": "sha256:6864c44cb21bf50cee9f67583c301b77ea7f9f44b57b6a042a03a6130b76f0da",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_b3070ec4_1",
+            "part": 1,
+            "parts": 20
+          },
+          "text": "Session date: 2023/05/25 (Thu) 14:25\nuser: I'm thinking of hosting a farm open house event soon and I want to make sure everything is perfect. Can you help me come up with some ideas for activities and also give me some tips on how to promote it on social media? By the way, I just fixed that broken fence on the east side of my property three weeks ago, where my goats like to graze, and it's been a huge relief to have them safe and secure.\nassistant: Congratulations on fixing that broken fence! It's great to hear that your goats are now safe and secure.\n\nNow, let's get started on planning your farm open house event! Here are some activity ideas to get you started:\n\n**Activities:**",
+          "id": "ev_4834600127045a61d993aa29",
+          "observedAt": "2026-10-14T05:18:54.015Z"
+        },
+        {
+          "sourceId": "memory:answer_b3070ec4_1",
+          "sourceVersion": "sha256:6864c44cb21bf50cee9f67583c301b77ea7f9f44b57b6a042a03a6130b76f0da",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_b3070ec4_1",
+            "part": 5,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "**Additional Tips:**\n\n1. **Plan Ahead**: Ensure you have enough parking, restrooms, and amenities to accommodate your expected number of visitors.\n2. **Safety First**: Make sure to have a first aid kit on hand and take necessary precautions to ensure visitor safety, especially around animals and equipment.\n3. **Weather Contingency**: Have a backup plan in case of inclement weather, such as a tent or indoor space.\n4. **Volunteer Support**: Recruit volunteers to help with event setup, parking, and crowd management.\n\nI hope these ideas and tips help you plan a successful and enjoyable farm open house event!",
+          "id": "ev_763c88caa200f0e00abd3b02",
+          "observedAt": "2026-10-14T05:18:54.017Z"
+        },
+        {
+          "sourceId": "memory:answer_b3070ec4_2",
+          "sourceVersion": "sha256:ed4d3bc09552f280585b01be7b9bcdadb40406e0cdd7365465e920fbae0a8426",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_b3070ec4_2",
+            "part": 14,
+            "parts": 22,
+            "partial": true
+          },
+          "text": "It's great to hear that you've been practicing hoof trimming and getting better at it. Regular hoof trimming is essential for your animals' health and comfort, and it's a great skill to have as a farmer. Keeping their hooves trimmed can help prevent lameness, infections, and o",
+          "id": "ev_b697f2dbe8e228388a1ec369",
+          "observedAt": "2026-10-14T05:18:54.017Z"
+        },
+        {
+          "sourceId": "memory:30491f6f_1",
+          "sourceVersion": "sha256:aaa97287dbecd3c16a21011cdd5126ab70495e0135e525dd2c56f4dc203f5251",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "30491f6f_1",
+            "part": 18,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "Yes, I have been thinking about how I can apply some of the lessons from the Airbnb episode to my own life and work. One ch",
+          "id": "ev_34421d467d8771302756a75f",
+          "observedAt": "2026-10-14T05:18:54.017Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_b3070ec4_1",
+        "answer_b3070ec4_2",
+        "30491f6f_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 32.642667000000074,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_b3070ec4_1",
+        "answer_b3070ec4_2",
+        "30491f6f_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 20) Session date: 2023/05/25 (Thu) 14:25\nuser: I'm thinking of hosting a farm open house event soon and I want to make sure everything is perfect. Can you help me come up with some ideas for activities and also give me some tips on how to promote it on social media? By the way, I just fixed that broken fence on the east side of my property three weeks ago, where my goats like to graze, and it's been a huge relief to have them safe and secure.\nassistant: Congratulations on fixing that broken fence! It's great to hear that your goats are now safe and secure.\n\nNow, let's get started on planning your farm open house event! Here are some activity ideas to get you started:\n\n**Activities:**\n  (part 5 of 20, excerpt) **Additional Tips:**\n\n1. **Plan Ahead**: Ensure you have enough parking, restrooms, and amenities to accommodate your expected number of visitors.\n2. **Safety First**: Make sure to have a first aid kit on hand and take necessary precautions to ensure visitor safety, especially around animals and equipment.\n3. **Weather Contingency**: Have a backup plan in case of inclement weather, such as a tent or indoor space.\n4. **Volunteer Support**: Recruit volunteers to help with event setup, parking, and crowd management.\n\nI hope these ideas and tips help you plan a successful and enjoyable farm open house event!\n- (part 14 of 22, excerpt) It's great to hear that you've been practicing hoof trimming and getting better at it. Regular hoof trimming is essential for your animals' health and comfort, and it's a great skill to have as a farmer. Keeping their hooves trimmed can help prevent lameness, infections, and o\n- (part 18 of 19, excerpt) Yes, I have been thinking about how I can apply some of the lessons from the Airbnb episode to my own life and work. One ch",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_b3070ec4_1",
+          "sourceVersion": "sha256:6864c44cb21bf50cee9f67583c301b77ea7f9f44b57b6a042a03a6130b76f0da",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_b3070ec4_1",
+            "part": 1,
+            "parts": 20
+          },
+          "text": "Session date: 2023/05/25 (Thu) 14:25\nuser: I'm thinking of hosting a farm open house event soon and I want to make sure everything is perfect. Can you help me come up with some ideas for activities and also give me some tips on how to promote it on social media? By the way, I just fixed that broken fence on the east side of my property three weeks ago, where my goats like to graze, and it's been a huge relief to have them safe and secure.\nassistant: Congratulations on fixing that broken fence! It's great to hear that your goats are now safe and secure.\n\nNow, let's get started on planning your farm open house event! Here are some activity ideas to get you started:\n\n**Activities:**",
+          "id": "ev_4834600127045a61d993aa29",
+          "observedAt": "2026-10-14T05:18:54.024Z"
+        },
+        {
+          "sourceId": "memory:answer_b3070ec4_1",
+          "sourceVersion": "sha256:6864c44cb21bf50cee9f67583c301b77ea7f9f44b57b6a042a03a6130b76f0da",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_b3070ec4_1",
+            "part": 5,
+            "parts": 20,
+            "partial": true
+          },
+          "text": "**Additional Tips:**\n\n1. **Plan Ahead**: Ensure you have enough parking, restrooms, and amenities to accommodate your expected number of visitors.\n2. **Safety First**: Make sure to have a first aid kit on hand and take necessary precautions to ensure visitor safety, especially around animals and equipment.\n3. **Weather Contingency**: Have a backup plan in case of inclement weather, such as a tent or indoor space.\n4. **Volunteer Support**: Recruit volunteers to help with event setup, parking, and crowd management.\n\nI hope these ideas and tips help you plan a successful and enjoyable farm open house event!",
+          "id": "ev_763c88caa200f0e00abd3b02",
+          "observedAt": "2026-10-14T05:18:54.024Z"
+        },
+        {
+          "sourceId": "memory:answer_b3070ec4_2",
+          "sourceVersion": "sha256:ed4d3bc09552f280585b01be7b9bcdadb40406e0cdd7365465e920fbae0a8426",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_b3070ec4_2",
+            "part": 14,
+            "parts": 22,
+            "partial": true
+          },
+          "text": "It's great to hear that you've been practicing hoof trimming and getting better at it. Regular hoof trimming is essential for your animals' health and comfort, and it's a great skill to have as a farmer. Keeping their hooves trimmed can help prevent lameness, infections, and o",
+          "id": "ev_b697f2dbe8e228388a1ec369",
+          "observedAt": "2026-10-14T05:18:54.025Z"
+        },
+        {
+          "sourceId": "memory:30491f6f_1",
+          "sourceVersion": "sha256:aaa97287dbecd3c16a21011cdd5126ab70495e0135e525dd2c56f4dc203f5251",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "30491f6f_1",
+            "part": 18,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "Yes, I have been thinking about how I can apply some of the lessons from the Airbnb episode to my own life and work. One ch",
+          "id": "ev_34421d467d8771302756a75f",
+          "observedAt": "2026-10-14T05:18:54.026Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_b3070ec4_1",
+        "answer_b3070ec4_2",
+        "30491f6f_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 10.270416999999725,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:18:54.032106+00:00"
+}

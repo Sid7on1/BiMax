@@ -1,0 +1,235 @@
+{
+  "row": 362,
+  "id": "982b5123_abs",
+  "stratum": "abstention",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T05:10:31.917600+00:00",
+  "valid": true,
+  "question": "When did I book the Airbnb in Sacramento?",
+  "references": [
+    "The information provided is not enough. You only mentioned booking Airbnb in San Francisco."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": true,
+  "date": "2023/05/27 (Sat) 17:10",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 332.7584160000042,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 41,
+        "maxInputChars": 41,
+        "requiredProviderTruncation": false,
+        "promptTokens": 13,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_ab603dd5_abs_1",
+        "4f3b0353_2",
+        "sharegpt_syHzISp_0"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 16) Session date: 2023/05/27 (Sat) 03:04\nuser: I'm planning a trip to San Francisco and was wondering if you could recommend some good neighborhoods to stay in. By the way, I've had a great experience with Airbnb in the past, like when I stayed in Haight-Ashbury for my best friend's wedding and had to book three months in advance.\nassistant: San Francisco is an amazing city! I'd be happy to help you find a great neighborhood to stay in.\n\nFirst, I have to say that Haight-Ashbury is a fantastic choice, especially if you're looking for a vibrant and eclectic atmosphere. However, there are many other neighborhoods in San Francisco that might suit your taste and preferences. Since you've had a good experience with Airbnb, I'll suggest some popular neighborhoods to consider:\n\n1.\n\n**Fisherman's Wharf**: If you want to be close to the waterfront, Alcatraz, and the famous Pier 39, Fisherman's Wharf is a great option.\n\nIt's a bit touristy, but you'll find plenty of restaurants, shops, and street performers.\n\n2.\n\n**North Beach**: This charming neighborhood is known for its Italian-American culture, delicious food, and lively atmosphere.\n  (part 6 of 16, excerpt) 2.\n\n**SuperShuttle**: This is a shared-ride van service that can take you from the airport to your Airbnb.\n\nYou can book online in advance, and the fare is around $17-20 per person, depending on the location.\n\nThe trip takes around 30-40 minutes, depending on traffic.\n\n3.\n- (part 2 of 18, excerpt) The Airbnb in Harajuku for $50 a night might offer more comfort and privacy, but it's significantly more expensive. Harajuku is a fantastic area, but it's a bit more\n- (part 3 of 4, excerpt) Michelle grew up to become one of the most important people in our country. She is most known for being the First Lady of th",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_ab603dd5_abs_1",
+          "sourceVersion": "sha256:9ed4e0faf25f0d5d6bf27f61dbe4c945a56ecf3d72f13108c2e327f5d242c745",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ab603dd5_abs_1",
+            "part": 1,
+            "parts": 16
+          },
+          "text": "Session date: 2023/05/27 (Sat) 03:04\nuser: I'm planning a trip to San Francisco and was wondering if you could recommend some good neighborhoods to stay in. By the way, I've had a great experience with Airbnb in the past, like when I stayed in Haight-Ashbury for my best friend's wedding and had to book three months in advance.\nassistant: San Francisco is an amazing city! I'd be happy to help you find a great neighborhood to stay in.\n\nFirst, I have to say that Haight-Ashbury is a fantastic choice, especially if you're looking for a vibrant and eclectic atmosphere. However, there are many other neighborhoods in San Francisco that might suit your taste and preferences. Since you've had a good experience with Airbnb, I'll suggest some popular neighborhoods to consider:\n\n1.\n\n**Fisherman's Wharf**: If you want to be close to the waterfront, Alcatraz, and the famous Pier 39, Fisherman's Wharf is a great option.\n\nIt's a bit touristy, but you'll find plenty of restaurants, shops, and street performers.\n\n2.\n\n**North Beach**: This charming neighborhood is known for its Italian-American culture, delicious food, and lively atmosphere.",
+          "id": "ev_a02359b16da3b0e7b7798f5d",
+          "observedAt": "2026-10-14T05:10:32.285Z"
+        },
+        {
+          "sourceId": "memory:answer_ab603dd5_abs_1",
+          "sourceVersion": "sha256:9ed4e0faf25f0d5d6bf27f61dbe4c945a56ecf3d72f13108c2e327f5d242c745",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ab603dd5_abs_1",
+            "part": 6,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "2.\n\n**SuperShuttle**: This is a shared-ride van service that can take you from the airport to your Airbnb.\n\nYou can book online in advance, and the fare is around $17-20 per person, depending on the location.\n\nThe trip takes around 30-40 minutes, depending on traffic.\n\n3.",
+          "id": "ev_a88803cb484a9b270e4898bf",
+          "observedAt": "2026-10-14T05:10:32.287Z"
+        },
+        {
+          "sourceId": "memory:4f3b0353_2",
+          "sourceVersion": "sha256:bfb0601b85116439ad4889c05d3ddb9e0fd230fa53111347b83d67da76f2cf50",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "4f3b0353_2",
+            "part": 2,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "The Airbnb in Harajuku for $50 a night might offer more comfort and privacy, but it's significantly more expensive. Harajuku is a fantastic area, but it's a bit more",
+          "id": "ev_f27c2240999329ff978b85fc",
+          "observedAt": "2026-10-14T05:10:32.288Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_syHzISp_0",
+          "sourceVersion": "sha256:091d7d2fcbc39ff0307a48e1a48f90eeb03975b600174b24229a40b74b9d22c2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_syHzISp_0",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Michelle grew up to become one of the most important people in our country. She is most known for being the First Lady of th",
+          "id": "ev_0ccd6a71df65ae6f92ecb379",
+          "observedAt": "2026-10-14T05:10:32.288Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_ab603dd5_abs_1",
+        "4f3b0353_2",
+        "sharegpt_syHzISp_0"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 39.92462499999965,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_ab603dd5_abs_1",
+        "4f3b0353_2",
+        "sharegpt_syHzISp_0"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 16) Session date: 2023/05/27 (Sat) 03:04\nuser: I'm planning a trip to San Francisco and was wondering if you could recommend some good neighborhoods to stay in. By the way, I've had a great experience with Airbnb in the past, like when I stayed in Haight-Ashbury for my best friend's wedding and had to book three months in advance.\nassistant: San Francisco is an amazing city! I'd be happy to help you find a great neighborhood to stay in.\n\nFirst, I have to say that Haight-Ashbury is a fantastic choice, especially if you're looking for a vibrant and eclectic atmosphere. However, there are many other neighborhoods in San Francisco that might suit your taste and preferences. Since you've had a good experience with Airbnb, I'll suggest some popular neighborhoods to consider:\n\n1.\n\n**Fisherman's Wharf**: If you want to be close to the waterfront, Alcatraz, and the famous Pier 39, Fisherman's Wharf is a great option.\n\nIt's a bit touristy, but you'll find plenty of restaurants, shops, and street performers.\n\n2.\n\n**North Beach**: This charming neighborhood is known for its Italian-American culture, delicious food, and lively atmosphere.\n  (part 6 of 16, excerpt) 2.\n\n**SuperShuttle**: This is a shared-ride van service that can take you from the airport to your Airbnb.\n\nYou can book online in advance, and the fare is around $17-20 per person, depending on the location.\n\nThe trip takes around 30-40 minutes, depending on traffic.\n\n3.\n- (part 2 of 18, excerpt) The Airbnb in Harajuku for $50 a night might offer more comfort and privacy, but it's significantly more expensive. Harajuku is a fantastic area, but it's a bit more\n- (part 3 of 4, excerpt) Michelle grew up to become one of the most important people in our country. She is most known for being the First Lady of th",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_ab603dd5_abs_1",
+          "sourceVersion": "sha256:9ed4e0faf25f0d5d6bf27f61dbe4c945a56ecf3d72f13108c2e327f5d242c745",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ab603dd5_abs_1",
+            "part": 1,
+            "parts": 16
+          },
+          "text": "Session date: 2023/05/27 (Sat) 03:04\nuser: I'm planning a trip to San Francisco and was wondering if you could recommend some good neighborhoods to stay in. By the way, I've had a great experience with Airbnb in the past, like when I stayed in Haight-Ashbury for my best friend's wedding and had to book three months in advance.\nassistant: San Francisco is an amazing city! I'd be happy to help you find a great neighborhood to stay in.\n\nFirst, I have to say that Haight-Ashbury is a fantastic choice, especially if you're looking for a vibrant and eclectic atmosphere. However, there are many other neighborhoods in San Francisco that might suit your taste and preferences. Since you've had a good experience with Airbnb, I'll suggest some popular neighborhoods to consider:\n\n1.\n\n**Fisherman's Wharf**: If you want to be close to the waterfront, Alcatraz, and the famous Pier 39, Fisherman's Wharf is a great option.\n\nIt's a bit touristy, but you'll find plenty of restaurants, shops, and street performers.\n\n2.\n\n**North Beach**: This charming neighborhood is known for its Italian-American culture, delicious food, and lively atmosphere.",
+          "id": "ev_a02359b16da3b0e7b7798f5d",
+          "observedAt": "2026-10-14T05:10:32.300Z"
+        },
+        {
+          "sourceId": "memory:answer_ab603dd5_abs_1",
+          "sourceVersion": "sha256:9ed4e0faf25f0d5d6bf27f61dbe4c945a56ecf3d72f13108c2e327f5d242c745",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_ab603dd5_abs_1",
+            "part": 6,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "2.\n\n**SuperShuttle**: This is a shared-ride van service that can take you from the airport to your Airbnb.\n\nYou can book online in advance, and the fare is around $17-20 per person, depending on the location.\n\nThe trip takes around 30-40 minutes, depending on traffic.\n\n3.",
+          "id": "ev_a88803cb484a9b270e4898bf",
+          "observedAt": "2026-10-14T05:10:32.300Z"
+        },
+        {
+          "sourceId": "memory:4f3b0353_2",
+          "sourceVersion": "sha256:bfb0601b85116439ad4889c05d3ddb9e0fd230fa53111347b83d67da76f2cf50",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "4f3b0353_2",
+            "part": 2,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "The Airbnb in Harajuku for $50 a night might offer more comfort and privacy, but it's significantly more expensive. Harajuku is a fantastic area, but it's a bit more",
+          "id": "ev_f27c2240999329ff978b85fc",
+          "observedAt": "2026-10-14T05:10:32.300Z"
+        },
+        {
+          "sourceId": "memory:sharegpt_syHzISp_0",
+          "sourceVersion": "sha256:091d7d2fcbc39ff0307a48e1a48f90eeb03975b600174b24229a40b74b9d22c2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "sharegpt_syHzISp_0",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Michelle grew up to become one of the most important people in our country. She is most known for being the First Lady of th",
+          "id": "ev_0ccd6a71df65ae6f92ecb379",
+          "observedAt": "2026-10-14T05:10:32.301Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_ab603dd5_abs_1",
+        "4f3b0353_2",
+        "sharegpt_syHzISp_0"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 12.222000000001572,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 0.5,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T05:10:32.305614+00:00"
+}

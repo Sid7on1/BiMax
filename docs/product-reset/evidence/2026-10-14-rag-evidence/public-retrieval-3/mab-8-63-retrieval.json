@@ -1,0 +1,373 @@
+{
+  "row": 8,
+  "query": 63,
+  "id": "mab-8-63",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:59:32.712687+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n60. Humphrey Waylon attempted to escape from the galleys.\n61. Humphrey Waylon was captured after two days of freedom.\n62. Humphrey Waylon was condemned to three additional years for his escape.\n63. Humphrey Waylon's comrades assisted him in his escape attempt.\n64. Humphrey Waylon was punished with five extra years for resisting arrest.\n\n\nBelow is a list of possible subsequent events:\n\n['Humphrey Waylon plotted yet another escape attempt on the tenth year of his wrongful imprisonment.', 'Humphrey Waylon devised a cunning plan for his getaway while celebrating the ninth year of his detention.', 'Humphrey Waylon attempted to escape again during his sixth year of captivity.', 'Humphrey Waylon initiated a daring bid for freedom during the eleventh year of his unjust captivity.', 'Humphrey Waylon renewed his efforts to evade capture as he marked his eighth anniversary of confinement.', 'Humphrey Waylon orchestrated an elaborate scheme to break free during his seventh year of imprisonment.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Humphrey Waylon attempted to escape again during his sixth year of captivity."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 722.5102909999999,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1224,
+        "maxInputChars": 1224,
+        "requiredProviderTruncation": false,
+        "promptTokens": 252,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-48",
+        "context-51",
+        "context-52"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) Towards the end of this fourth year Humphrey Waylon\u2019s turn to escape arrived.\n\nHis comrades assisted him, as is the custom in that sad place.\n\nHe escaped.\n  (part 2 of 4) a galloping horse, of a striking clock, of the day because one can see, of the night because one cannot see, of the highway, of the path, of a bush, of sleep.\n\nOn the evening of the second day he was captured.\n\nHe had neither eaten nor slept for thirty-six hours.\n\nThe maritime tribunal condemned him, for this crime, to a prolongation of his term for three years, which made eight years.\n\nIn the sixth year his turn to escape occurred again; he availed himself of it, but could not accomplish his flight fully.\n\nHe was missing at roll-call.\n\nThe cannon were fired, and at night the patrol found him hidden under the keel of a vessel in process of construction; he resisted the galley guards who seized him.\n\nEscape and rebellion.\n\nThis case, provided for by a special code, was punished by an addition of five years, two of them in the double chain.\n\nThirteen years.\n\nIn the tenth year his turn came round again; he again profited by it; he succeeded no better.\n\nThree years for this fresh attempt.\n\nSixteen years.\n\nFinally, I think it was during his thirteenth year, he made a last attempt, and only succeeded in getting retaken at the end of four hours of absence.\n- (part 1 of 5, excerpt) Humphrey Waylon would have renewed these attempts, utterly useless and foolish as they were, as often as the opportunity had presented itself, without reflecting for an instant on the result, nor on the experiences which he had already gone through.\n- (part 3 of 5, excerpt) To sum up, in conclusion, that which can be summed up and translated into positive results in all that we have just pointed out, we w",
+      "evidence": [
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:6b23d2e1899dda9238420f436caba561f8aead65bc476f0ca68813b1c2f63586",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Towards the end of this fourth year Humphrey Waylon\u2019s turn to escape arrived.\n\nHis comrades assisted him, as is the custom in that sad place.\n\nHe escaped.",
+          "id": "ev_0fbaca44b8473a30d142be3d",
+          "observedAt": "2026-10-14T08:59:33.446Z"
+        },
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:6b23d2e1899dda9238420f436caba561f8aead65bc476f0ca68813b1c2f63586",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 2,
+            "parts": 4
+          },
+          "text": "a galloping horse, of a striking clock, of the day because one can see, of the night because one cannot see, of the highway, of the path, of a bush, of sleep.\n\nOn the evening of the second day he was captured.\n\nHe had neither eaten nor slept for thirty-six hours.\n\nThe maritime tribunal condemned him, for this crime, to a prolongation of his term for three years, which made eight years.\n\nIn the sixth year his turn to escape occurred again; he availed himself of it, but could not accomplish his flight fully.\n\nHe was missing at roll-call.\n\nThe cannon were fired, and at night the patrol found him hidden under the keel of a vessel in process of construction; he resisted the galley guards who seized him.\n\nEscape and rebellion.\n\nThis case, provided for by a special code, was punished by an addition of five years, two of them in the double chain.\n\nThirteen years.\n\nIn the tenth year his turn came round again; he again profited by it; he succeeded no better.\n\nThree years for this fresh attempt.\n\nSixteen years.\n\nFinally, I think it was during his thirteenth year, he made a last attempt, and only succeeded in getting retaken at the end of four hours of absence.",
+          "id": "ev_befc233f8a4fee340de876a6",
+          "observedAt": "2026-10-14T08:59:33.447Z"
+        },
+        {
+          "sourceId": "memory:context-51",
+          "sourceVersion": "sha256:ca1adf6aa99db66142502fd8121832eccd8c57f74972dac6921956bb10c159dd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-51",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Humphrey Waylon would have renewed these attempts, utterly useless and foolish as they were, as often as the opportunity had presented itself, without reflecting for an instant on the result, nor on the experiences which he had already gone through.",
+          "id": "ev_b2ee853298a66583b9347729",
+          "observedAt": "2026-10-14T08:59:33.448Z"
+        },
+        {
+          "sourceId": "memory:context-52",
+          "sourceVersion": "sha256:8b7bec1561d5b0259c9d34a1720877e5393d4f8613a0944cafd76b7d8b5935ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-52",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "To sum up, in conclusion, that which can be summed up and translated into positive results in all that we have just pointed out, we w",
+          "id": "ev_1dc22042864efa252bbba557",
+          "observedAt": "2026-10-14T08:59:33.449Z"
+        }
+      ],
+      "sourceIds": [
+        "context-48",
+        "context-51",
+        "context-52"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 14.678416000000198,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-48",
+        "context-51",
+        "context-52"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4, excerpt) He heard nothing more forever.\n\nNothing from them ever reached him again; he never beheld them; he never met them again; and in the continuation of this mournful history they will not be met with any more.\n\nTowards the end of this fourth year Humphrey Waylon\u2019s turn to escape arrived.\n\nHis comrades assisted him, as is the custom in that sad place.\n\nHe escaped.\n  (part 2 of 4, excerpt) The maritime tribunal condemned him, for this crime, to a prolongation of his term for three years, which made eight years.\n\nIn the sixth year his turn to escape occurred again; he availed himself of it, but could not accomplish his flight fully.\n\nHe was missing at roll-call.\n\nThe cannon were fired, and at night the patrol found him hidden under the keel of a vessel in process of construction; he resisted the galley guards who seized him.\n\nEscape and rebellion.\n  (part 3 of 4, excerpt) years.\n\nFinally, I think it was during his thirteenth year, he made a last attempt, and only succeeded in getting retaken at the end of four hours of absence.\n\nThree years for those four hours.\n\nNineteen years.\n\nIn October, 1815, he was released; he had entered there in 1796, for having broken a pane of glass and taken a loaf of bread.\n\nRoom for a brief parenthesis.\n  (part 4 of 4, excerpt) necessary that society should look at these things, because it is itself which creates them.\n\nHe was, as we have said, an ignorant man, but he was not a fool.\n\nThe light of nature was ignited in him.\n\nUnhappiness, which also possesses a clearness of vision of its own, augmented the small amount of daylight which existed in this mind.\n\nBeneath the cudgel, beneath the chain, in the cell, in hardship, beneath the burning sun of the galleys, upon the plank bed of the convict, he withdrew into his own consciousness and meditated.\n\nHe constituted himself the tribunal.\n\nHe began by putting himself on trial.\n\nHe recognized the fact that he was not an innocent man unjustly punished.\n- (part 1 of 5, excerpt) Humphrey Waylon\u2019s successive and obstinate attempts at escape would alone suffice to prove this strange working of the law upon the human soul.\n\nHumphrey Waylon would have renewed these attempts, utterly useless and foolish as they were, as often as the opportunity had presented itself, without reflecting for an instant on the result, nor on the experiences which he had already gone through.\n\nHe escaped impetuously, like the wolf who finds his cage open.\n\nInstinct said to him, \u201cFlee!\u201d Reason would have said, \u201cRemain!\u201d But in the presence of so violent a temptation, reason vanished; nothing remained but instinct.\n  (part 2 of 5, excerpt) He sometimes lifted and sustained enormous weights on his back; and when the occasion demanded it, he replaced that implement which is called a jack-screw, and was formerly called orgueil [pride], whence, we may remark in passing, is derived the name of the Rue Montorgueil, near the Halles [Fishmarket] in Paris.\n\nHis comrades had nicknamed him Humphrey the Jack-screw.\n\nOnce, when they were repairing the balcony of the town-hall at Toulon, one of those admirable caryatids of Puget, which support the balcony, became loosened, and was on the point of falling.\n  (part 3 of 5, excerpt) To climb a vertical surface, and to find points of support where hardly a projection was visible, was play to Humphrey Waylon.\n\nAn angle of the wall being given, with the tension of his back and legs, with his elbows and his heels fitted into the unevenness of the stone, he raised himself as if by magic to the third story.\n\nHe sometimes mounted thus even to the roof of the galley prison.\n\nHe spoke but little.\n\nHe laughed not at all.\n\nAn excessive emotion was required to wring from him, once or twice a year, that lugubrious laugh of the convict, which is like the echo of the laugh of a demon.\n\nTo all appearance, he seemed to be occupied in the constant contemplation of something terrible.\n\nHe was absorbed, in fact.\n- (part 1 of 5, excerpt) Souls which have fallen to the bottom of all possible misfortune, unhappy men lost in the lowest of those limbos at which no one any longer looks, the reproved of the law, feel the whole weight of this human society, so formidable for him who is without, so frightful for him who is beneath, resting upon their heads.\n\nIn this situation Humphrey Waylon meditated; and what could be the nature of his meditation?\n  (part 2 of 5, excerpt) Everything which had happened to him seemed to him absurd; everything that surrounded him seemed to him impossible.\n\nHe said to himself, \u201cIt is a dream.\u201d He gazed at the galley-sergeant standing a few paces from him; the galley-sergeant seemed a phantom to him.\n\nAll of a sudden the phantom dealt him a blow with his cudgel.\n\nVisible nature hardly existed for him.\n\nIt would almost be true to say that there existed for Humphrey Waylon neither sun, nor fine summer days, nor radiant sky, nor fresh April dawns.\n\nI know not what vent-hole daylight habitually illumined his soul.\n  (part 3 of 5, excerpt) all that we have just pointed out, we will confine ourselves to the statement that, in the course of nineteen years, Humphrey Waylon, the inoffensive tree-pruner of Faverolles, the formidable convict of Toulon, had become capable, thanks to the manner in which the galleys had moulded him, of two sorts of evil action: firstly, of evil action which was rapid, unpremeditated, dashing, entirely instinctive, in the nature of reprisals for the evil which he had undergone; secondly,\n  (part 4 of 5, excerpt) It will be perceived that it was not without reason that Humphrey Waylon\u2019s passport described him as a very dangerous man.\n\nFrom year to year this soul had dried away slowly, but with fatal sureness.\n\nWhen the heart is dry, the eye is dry.\n\nOn his departure from the galleys it had been nineteen years since he had shed a tear.\n\nCHAPTER VIII\u2014BILLOWS AND SHADOWS\n\nA man overboard!\n\nWhat matters it?",
+      "evidence": [
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:6b23d2e1899dda9238420f436caba561f8aead65bc476f0ca68813b1c2f63586",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "He heard nothing more forever.\n\nNothing from them ever reached him again; he never beheld them; he never met them again; and in the continuation of this mournful history they will not be met with any more.\n\nTowards the end of this fourth year Humphrey Waylon\u2019s turn to escape arrived.\n\nHis comrades assisted him, as is the custom in that sad place.\n\nHe escaped.",
+          "id": "ev_a2b2619e2a245f078c65d0b6",
+          "observedAt": "2026-10-14T08:59:33.458Z"
+        },
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:6b23d2e1899dda9238420f436caba561f8aead65bc476f0ca68813b1c2f63586",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "The maritime tribunal condemned him, for this crime, to a prolongation of his term for three years, which made eight years.\n\nIn the sixth year his turn to escape occurred again; he availed himself of it, but could not accomplish his flight fully.\n\nHe was missing at roll-call.\n\nThe cannon were fired, and at night the patrol found him hidden under the keel of a vessel in process of construction; he resisted the galley guards who seized him.\n\nEscape and rebellion.",
+          "id": "ev_f90ff4a97c723ae89f196572",
+          "observedAt": "2026-10-14T08:59:33.458Z"
+        },
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:6b23d2e1899dda9238420f436caba561f8aead65bc476f0ca68813b1c2f63586",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "years.\n\nFinally, I think it was during his thirteenth year, he made a last attempt, and only succeeded in getting retaken at the end of four hours of absence.\n\nThree years for those four hours.\n\nNineteen years.\n\nIn October, 1815, he was released; he had entered there in 1796, for having broken a pane of glass and taken a loaf of bread.\n\nRoom for a brief parenthesis.",
+          "id": "ev_8504de3a2ff58ded49560aac",
+          "observedAt": "2026-10-14T08:59:33.458Z"
+        },
+        {
+          "sourceId": "memory:context-48",
+          "sourceVersion": "sha256:6b23d2e1899dda9238420f436caba561f8aead65bc476f0ca68813b1c2f63586",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-48",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "necessary that society should look at these things, because it is itself which creates them.\n\nHe was, as we have said, an ignorant man, but he was not a fool.\n\nThe light of nature was ignited in him.\n\nUnhappiness, which also possesses a clearness of vision of its own, augmented the small amount of daylight which existed in this mind.\n\nBeneath the cudgel, beneath the chain, in the cell, in hardship, beneath the burning sun of the galleys, upon the plank bed of the convict, he withdrew into his own consciousness and meditated.\n\nHe constituted himself the tribunal.\n\nHe began by putting himself on trial.\n\nHe recognized the fact that he was not an innocent man unjustly punished.",
+          "id": "ev_ec0a99d146b0cf4611efabce",
+          "observedAt": "2026-10-14T08:59:33.458Z"
+        },
+        {
+          "sourceId": "memory:context-51",
+          "sourceVersion": "sha256:ca1adf6aa99db66142502fd8121832eccd8c57f74972dac6921956bb10c159dd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-51",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Humphrey Waylon\u2019s successive and obstinate attempts at escape would alone suffice to prove this strange working of the law upon the human soul.\n\nHumphrey Waylon would have renewed these attempts, utterly useless and foolish as they were, as often as the opportunity had presented itself, without reflecting for an instant on the result, nor on the experiences which he had already gone through.\n\nHe escaped impetuously, like the wolf who finds his cage open.\n\nInstinct said to him, \u201cFlee!\u201d Reason would have said, \u201cRemain!\u201d But in the presence of so violent a temptation, reason vanished; nothing remained but instinct.",
+          "id": "ev_416682dde89fa3c2c74cf1c6",
+          "observedAt": "2026-10-14T08:59:33.460Z"
+        },
+        {
+          "sourceId": "memory:context-51",
+          "sourceVersion": "sha256:ca1adf6aa99db66142502fd8121832eccd8c57f74972dac6921956bb10c159dd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-51",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "He sometimes lifted and sustained enormous weights on his back; and when the occasion demanded it, he replaced that implement which is called a jack-screw, and was formerly called orgueil [pride], whence, we may remark in passing, is derived the name of the Rue Montorgueil, near the Halles [Fishmarket] in Paris.\n\nHis comrades had nicknamed him Humphrey the Jack-screw.\n\nOnce, when they were repairing the balcony of the town-hall at Toulon, one of those admirable caryatids of Puget, which support the balcony, became loosened, and was on the point of falling.",
+          "id": "ev_473fe176eed094c0a03f1a79",
+          "observedAt": "2026-10-14T08:59:33.460Z"
+        },
+        {
+          "sourceId": "memory:context-51",
+          "sourceVersion": "sha256:ca1adf6aa99db66142502fd8121832eccd8c57f74972dac6921956bb10c159dd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-51",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "To climb a vertical surface, and to find points of support where hardly a projection was visible, was play to Humphrey Waylon.\n\nAn angle of the wall being given, with the tension of his back and legs, with his elbows and his heels fitted into the unevenness of the stone, he raised himself as if by magic to the third story.\n\nHe sometimes mounted thus even to the roof of the galley prison.\n\nHe spoke but little.\n\nHe laughed not at all.\n\nAn excessive emotion was required to wring from him, once or twice a year, that lugubrious laugh of the convict, which is like the echo of the laugh of a demon.\n\nTo all appearance, he seemed to be occupied in the constant contemplation of something terrible.\n\nHe was absorbed, in fact.",
+          "id": "ev_b35bf12c7066cd287b131f61",
+          "observedAt": "2026-10-14T08:59:33.460Z"
+        },
+        {
+          "sourceId": "memory:context-52",
+          "sourceVersion": "sha256:8b7bec1561d5b0259c9d34a1720877e5393d4f8613a0944cafd76b7d8b5935ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-52",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Souls which have fallen to the bottom of all possible misfortune, unhappy men lost in the lowest of those limbos at which no one any longer looks, the reproved of the law, feel the whole weight of this human society, so formidable for him who is without, so frightful for him who is beneath, resting upon their heads.\n\nIn this situation Humphrey Waylon meditated; and what could be the nature of his meditation?",
+          "id": "ev_8b756e11d77c1f742a8baf11",
+          "observedAt": "2026-10-14T08:59:33.464Z"
+        },
+        {
+          "sourceId": "memory:context-52",
+          "sourceVersion": "sha256:8b7bec1561d5b0259c9d34a1720877e5393d4f8613a0944cafd76b7d8b5935ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-52",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Everything which had happened to him seemed to him absurd; everything that surrounded him seemed to him impossible.\n\nHe said to himself, \u201cIt is a dream.\u201d He gazed at the galley-sergeant standing a few paces from him; the galley-sergeant seemed a phantom to him.\n\nAll of a sudden the phantom dealt him a blow with his cudgel.\n\nVisible nature hardly existed for him.\n\nIt would almost be true to say that there existed for Humphrey Waylon neither sun, nor fine summer days, nor radiant sky, nor fresh April dawns.\n\nI know not what vent-hole daylight habitually illumined his soul.",
+          "id": "ev_e8987d37858667da065042d8",
+          "observedAt": "2026-10-14T08:59:33.464Z"
+        },
+        {
+          "sourceId": "memory:context-52",
+          "sourceVersion": "sha256:8b7bec1561d5b0259c9d34a1720877e5393d4f8613a0944cafd76b7d8b5935ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-52",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "all that we have just pointed out, we will confine ourselves to the statement that, in the course of nineteen years, Humphrey Waylon, the inoffensive tree-pruner of Faverolles, the formidable convict of Toulon, had become capable, thanks to the manner in which the galleys had moulded him, of two sorts of evil action: firstly, of evil action which was rapid, unpremeditated, dashing, entirely instinctive, in the nature of reprisals for the evil which he had undergone; secondly,",
+          "id": "ev_ec5f02aa2c8da97abaca0549",
+          "observedAt": "2026-10-14T08:59:33.464Z"
+        },
+        {
+          "sourceId": "memory:context-52",
+          "sourceVersion": "sha256:8b7bec1561d5b0259c9d34a1720877e5393d4f8613a0944cafd76b7d8b5935ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-52",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "It will be perceived that it was not without reason that Humphrey Waylon\u2019s passport described him as a very dangerous man.\n\nFrom year to year this soul had dried away slowly, but with fatal sureness.\n\nWhen the heart is dry, the eye is dry.\n\nOn his departure from the galleys it had been nineteen years since he had shed a tear.\n\nCHAPTER VIII\u2014BILLOWS AND SHADOWS\n\nA man overboard!\n\nWhat matters it?",
+          "id": "ev_938832df56fe87692f1be30c",
+          "observedAt": "2026-10-14T08:59:33.464Z"
+        }
+      ],
+      "sourceIds": [
+        "context-48",
+        "context-51",
+        "context-52"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 15.671832999999879,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-48",
+    "context-51",
+    "context-52"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:59:33.468079+00:00"
+}

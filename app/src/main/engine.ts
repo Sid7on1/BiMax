@@ -6,6 +6,7 @@ import path from 'node:path';
 import os from 'node:os';
 import type { EngineHandle, SpawnCallbacks } from './supervisor/supervisor';
 import { PORT_ACK, type EngineWorkerData, type PortAck } from '../../../src/engine/api';
+import { bindEmbeddedTools, type EmbeddedToolsBinding } from './embedded.tools';
 import { ProcessProvenanceTracker, type ProcessProvenanceRecord } from '../phase9/process.provenance';
 import {
   buildEngineChildEnv, EngineArtifactError, PackagedRuntimeError, type Resolution,
@@ -268,18 +269,22 @@ export function spawnEngineWorker(
   extraEnv: Record<string, string>,
   cb: SpawnCallbacks,
   modulePath: string = resolveEngineModule(),
+  embedded?: EmbeddedToolsBinding,
 ): EngineHandle {
   const startedAt = Date.now();
   const { logLine, closeLog } = openEngineLog(projectDir, `worker thread ${modulePath}`);
   logCapabilityPlan(logLine, extraEnv);
 
   const { port1: port, port2: enginePort } = new MessageChannel();
+  const embeddedChannel = embedded ? new MessageChannel() : undefined;
+  const closeEmbedded = embeddedChannel ? bindEmbeddedTools(embeddedChannel.port1, embedded!) : () => {};
   const worker = new Worker(modulePath, {
     env: engineModuleEnv(projectDir, extraEnv, modulePath),
-    workerData: { bimaxEngineRoot: projectDir, bimaxEnginePort: enginePort } satisfies EngineWorkerData,
-    transferList: [enginePort],
+    workerData: { bimaxEngineRoot: projectDir, bimaxEnginePort: enginePort, ...(embeddedChannel ? { bimaxEmbeddedTools: embedded!.tools, bimaxEmbeddedToolsPort: embeddedChannel.port2 } : {}) } satisfies EngineWorkerData,
+    transferList: [enginePort, ...(embeddedChannel ? [embeddedChannel.port2] : [])],
     stdout: true, stderr: true,
-    resourceLimits: { maxOldGenerationSizeMb: ENGINE_WORKER_HEAP_MB },
+    // Bound the young generation too: Node 24 otherwise adds ~192 MiB beyond the old-generation budget.
+    resourceLimits: { maxOldGenerationSizeMb: ENGINE_WORKER_HEAP_MB, maxYoungGenerationSizeMb: 16 },
     name: 'Bimax Engine',
   });
   const command = `worker thread ${worker.threadId} ${modulePath}`;
@@ -345,6 +350,7 @@ export function spawnEngineWorker(
   worker.on('exit', (code: number) => {
     if (exited) return;
     exited = true;
+    closeEmbedded();
     if (graceTimer) clearTimeout(graceTimer);
     processProvenance.finish(provenanceLaunchId, { exitCode: code, signal: null });
     flushStdout();
@@ -360,8 +366,9 @@ export function spawnEngineWorker(
     command,
     send: (msg) => { if (!exited) { try { port.postMessage(msg); } catch { /* the engine is gone */ } } },
     // Closing our end is the engine's signal to shut down (port.host.ts), as the end of stdin was.
-    endStdin: () => { try { port.close(); } catch { /* already closed */ } },
+    endStdin: () => { closeEmbedded(); try { port.close(); } catch { /* already closed */ } },
     kill: (signal) => {
+      closeEmbedded();
       if (exited) return;
       if (signal === 'SIGKILL') { terminate(); return; }
       // SIGTERM: the port is closed (endStdin, just before), so the engine is shutting itself down; stop waiting after
@@ -379,6 +386,7 @@ export function spawnEngine(
   projectDir: string,
   extraEnv: Record<string, string>,
   cb: SpawnCallbacks,
+  embedded?: EmbeddedToolsBinding,
 ): EngineHandle {
-  return spawnEngineWorker(projectDir, extraEnv, cb);
+  return spawnEngineWorker(projectDir, extraEnv, cb, undefined, embedded);
 }

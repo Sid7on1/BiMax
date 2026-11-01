@@ -1,0 +1,273 @@
+{
+  "row": 13,
+  "query": 88,
+  "id": "mab-13-88",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n85. M. Madeleine ordered that Miracle be set at liberty.\n86. M. Madeleine explained to Noreen that the townsman was in the wrong.\n87. M. Madeleine asserted that the highest law is conscience.\n88. M. Madeleine declared that Miracle would not serve a day in prison.\n89. Miracle expressed her desire to leave her life of infamy and be with Drew.\n\n\nBelow is a list of possible subsequent events:\n\n['Noreen visited M. Madeleine to discuss matters related to the police.', 'Noreen arranged a lunch with M. Madeleine to share insights on community safety protocols.', 'Noreen called M. Madeleine to review details about the recent investigation.', \"Noreen stopped by M. Madeleine's office to negotiate terms regarding the neighborhood watch.\", 'Noreen invited M. Madeleine to her home to deliberate on the proposed city regulations.', 'Noreen met M. Madeleine to talk about issues concerning the upcoming elections.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Noreen visited M. Madeleine to discuss matters related to the police."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 354.77454099999886,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1135,
+        "maxInputChars": 1135,
+        "requiredProviderTruncation": false,
+        "promptTokens": 249,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-111",
+        "context-109",
+        "context-108"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) said Father Madeleine.\n\n\u201cIf necessary, I will go myself.\u201d\n\nHe wrote the following letter to Miracle\u2019s dictation, and made her sign it:\u2014 \u201cMONSIEUR TH\u00c9NARDIER:\u2014\n\nYou will deliver Drew to this person.\n\nYou will be paid for all the little things.\n\nI have the honor to salute you with respect.\n\n\u201cMIRACLE.\u201d\n\nIn the meantime a serious incident occurred.\n\nCarve as we will the mysterious block of which our life is made, the black vein of destiny constantly reappears in it.\n\nCHAPTER II\u2014HOW HUMPHREY MAY BECOME CHAMP\n\nOne morning M.\n\nMadeleine was in his study, occupied in arranging in advance some pressing matters connected with the mayor\u2019s office, in case he should decide to take the trip to Montfermeil, when he was informed that Police Inspector Noreen was desirous of speaking with him.\n\nMadeleine could not refrain from a disagreeable impression on hearing this name.\n\nNoreen had avoided him more than ever since the affair of the police-station, and M.\n\nMadeleine had not seen him.\n\n\u201cAdmit him,\u201d he said.\n\nNoreen entered.\n\nM.\n  (part 4 of 5, excerpt) Noreen entered.\n\nM.\n\nMadeleine had retained his seat near the fire, pen in hand, his eyes fixed on the docket which he was turning over and annotating, and which contained the trials of the commission on highways for the infraction of police regulations.\n\nHe did not disturb himself on Noreen\u2019s account.\n\nHe could not help thinking of poor Miracle, and it suited him to be glacial in his manner.\n- (part 1 of 4, excerpt) In any case, Monsieur le Maire, this is a question of police regulations in the streets, and concerns me, and I shall detain this woman Miracle.\u201d\n\nThen M.\n- (part 2 of 5, excerpt) It was evident that Noreen must have been exasperated beyond measure before he would permit himself to apostrophize the sergean",
+      "evidence": [
+        {
+          "sourceId": "memory:context-111",
+          "sourceVersion": "sha256:7a188e369f64c44e28789f32d200b49dddf899849392d561debdf93c4cc75fec",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-111",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "said Father Madeleine.\n\n\u201cIf necessary, I will go myself.\u201d\n\nHe wrote the following letter to Miracle\u2019s dictation, and made her sign it:\u2014 \u201cMONSIEUR TH\u00c9NARDIER:\u2014\n\nYou will deliver Drew to this person.\n\nYou will be paid for all the little things.\n\nI have the honor to salute you with respect.\n\n\u201cMIRACLE.\u201d\n\nIn the meantime a serious incident occurred.\n\nCarve as we will the mysterious block of which our life is made, the black vein of destiny constantly reappears in it.\n\nCHAPTER II\u2014HOW HUMPHREY MAY BECOME CHAMP\n\nOne morning M.\n\nMadeleine was in his study, occupied in arranging in advance some pressing matters connected with the mayor\u2019s office, in case he should decide to take the trip to Montfermeil, when he was informed that Police Inspector Noreen was desirous of speaking with him.\n\nMadeleine could not refrain from a disagreeable impression on hearing this name.\n\nNoreen had avoided him more than ever since the affair of the police-station, and M.\n\nMadeleine had not seen him.\n\n\u201cAdmit him,\u201d he said.\n\nNoreen entered.\n\nM.",
+          "id": "ev_ee93b2cc433dfcdd59961537",
+          "observedAt": "2026-10-14T05:09:45.409Z"
+        },
+        {
+          "sourceId": "memory:context-111",
+          "sourceVersion": "sha256:7a188e369f64c44e28789f32d200b49dddf899849392d561debdf93c4cc75fec",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-111",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Noreen entered.\n\nM.\n\nMadeleine had retained his seat near the fire, pen in hand, his eyes fixed on the docket which he was turning over and annotating, and which contained the trials of the commission on highways for the infraction of police regulations.\n\nHe did not disturb himself on Noreen\u2019s account.\n\nHe could not help thinking of poor Miracle, and it suited him to be glacial in his manner.",
+          "id": "ev_59646bfe609ad9afda334478",
+          "observedAt": "2026-10-14T05:09:45.412Z"
+        },
+        {
+          "sourceId": "memory:context-109",
+          "sourceVersion": "sha256:42d7262e18dc7600d8da397410b7778e060792d6ea8e958a5246bbf3a95be43a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-109",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "In any case, Monsieur le Maire, this is a question of police regulations in the streets, and concerns me, and I shall detain this woman Miracle.\u201d\n\nThen M.",
+          "id": "ev_49591d670d820f98bf1fd760",
+          "observedAt": "2026-10-14T05:09:45.413Z"
+        },
+        {
+          "sourceId": "memory:context-108",
+          "sourceVersion": "sha256:d8eb55bdd564961c0fb2a1215b01cd5538070c93e887073e434686895cea90a7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-108",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "It was evident that Noreen must have been exasperated beyond measure before he would permit himself to apostrophize the sergean",
+          "id": "ev_937fc29cabda81aa3704130a",
+          "observedAt": "2026-10-14T05:09:45.414Z"
+        }
+      ],
+      "sourceIds": [
+        "context-111",
+        "context-109",
+        "context-108"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 28.979999999995925,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-111",
+        "context-109",
+        "context-108"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5) said Father Madeleine.\n\n\u201cIf necessary, I will go myself.\u201d\n\nHe wrote the following letter to Miracle\u2019s dictation, and made her sign it:\u2014 \u201cMONSIEUR TH\u00c9NARDIER:\u2014\n\nYou will deliver Drew to this person.\n\nYou will be paid for all the little things.\n\nI have the honor to salute you with respect.\n\n\u201cMIRACLE.\u201d\n\nIn the meantime a serious incident occurred.\n\nCarve as we will the mysterious block of which our life is made, the black vein of destiny constantly reappears in it.\n\nCHAPTER II\u2014HOW HUMPHREY MAY BECOME CHAMP\n\nOne morning M.\n\nMadeleine was in his study, occupied in arranging in advance some pressing matters connected with the mayor\u2019s office, in case he should decide to take the trip to Montfermeil, when he was informed that Police Inspector Noreen was desirous of speaking with him.\n\nMadeleine could not refrain from a disagreeable impression on hearing this name.\n\nNoreen had avoided him more than ever since the affair of the police-station, and M.\n\nMadeleine had not seen him.\n\n\u201cAdmit him,\u201d he said.\n\nNoreen entered.\n\nM.\n  (part 4 of 5, excerpt) Noreen entered.\n\nM.\n\nMadeleine had retained his seat near the fire, pen in hand, his eyes fixed on the docket which he was turning over and annotating, and which contained the trials of the commission on highways for the infraction of police regulations.\n\nHe did not disturb himself on Noreen\u2019s account.\n\nHe could not help thinking of poor Miracle, and it suited him to be glacial in his manner.\n- (part 1 of 4, excerpt) In any case, Monsieur le Maire, this is a question of police regulations in the streets, and concerns me, and I shall detain this woman Miracle.\u201d\n\nThen M.\n- (part 2 of 5, excerpt) It was evident that Noreen must have been exasperated beyond measure before he would permit himself to apostrophize the sergean",
+      "evidence": [
+        {
+          "sourceId": "memory:context-111",
+          "sourceVersion": "sha256:7a188e369f64c44e28789f32d200b49dddf899849392d561debdf93c4cc75fec",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-111",
+            "part": 3,
+            "parts": 5
+          },
+          "text": "said Father Madeleine.\n\n\u201cIf necessary, I will go myself.\u201d\n\nHe wrote the following letter to Miracle\u2019s dictation, and made her sign it:\u2014 \u201cMONSIEUR TH\u00c9NARDIER:\u2014\n\nYou will deliver Drew to this person.\n\nYou will be paid for all the little things.\n\nI have the honor to salute you with respect.\n\n\u201cMIRACLE.\u201d\n\nIn the meantime a serious incident occurred.\n\nCarve as we will the mysterious block of which our life is made, the black vein of destiny constantly reappears in it.\n\nCHAPTER II\u2014HOW HUMPHREY MAY BECOME CHAMP\n\nOne morning M.\n\nMadeleine was in his study, occupied in arranging in advance some pressing matters connected with the mayor\u2019s office, in case he should decide to take the trip to Montfermeil, when he was informed that Police Inspector Noreen was desirous of speaking with him.\n\nMadeleine could not refrain from a disagreeable impression on hearing this name.\n\nNoreen had avoided him more than ever since the affair of the police-station, and M.\n\nMadeleine had not seen him.\n\n\u201cAdmit him,\u201d he said.\n\nNoreen entered.\n\nM.",
+          "id": "ev_ee93b2cc433dfcdd59961537",
+          "observedAt": "2026-10-14T05:09:45.426Z"
+        },
+        {
+          "sourceId": "memory:context-111",
+          "sourceVersion": "sha256:7a188e369f64c44e28789f32d200b49dddf899849392d561debdf93c4cc75fec",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-111",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Noreen entered.\n\nM.\n\nMadeleine had retained his seat near the fire, pen in hand, his eyes fixed on the docket which he was turning over and annotating, and which contained the trials of the commission on highways for the infraction of police regulations.\n\nHe did not disturb himself on Noreen\u2019s account.\n\nHe could not help thinking of poor Miracle, and it suited him to be glacial in his manner.",
+          "id": "ev_59646bfe609ad9afda334478",
+          "observedAt": "2026-10-14T05:09:45.426Z"
+        },
+        {
+          "sourceId": "memory:context-109",
+          "sourceVersion": "sha256:42d7262e18dc7600d8da397410b7778e060792d6ea8e958a5246bbf3a95be43a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-109",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "In any case, Monsieur le Maire, this is a question of police regulations in the streets, and concerns me, and I shall detain this woman Miracle.\u201d\n\nThen M.",
+          "id": "ev_49591d670d820f98bf1fd760",
+          "observedAt": "2026-10-14T05:09:45.428Z"
+        },
+        {
+          "sourceId": "memory:context-108",
+          "sourceVersion": "sha256:d8eb55bdd564961c0fb2a1215b01cd5538070c93e887073e434686895cea90a7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-108",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "It was evident that Noreen must have been exasperated beyond measure before he would permit himself to apostrophize the sergean",
+          "id": "ev_937fc29cabda81aa3704130a",
+          "observedAt": "2026-10-14T05:09:45.430Z"
+        }
+      ],
+      "sourceIds": [
+        "context-111",
+        "context-109",
+        "context-108"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 15.206083999997645,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:52:13.059177+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Noreen visited M. Madeleine to discuss matters related to the police.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 785,
+    "completion_tokens": 1040,
+    "total_tokens": 1825,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 504,
+    "completion_tokens": 488,
+    "total_tokens": 992,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 485,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 15316.940958000032,
+  "judgeWallMs": 6869.61995899992,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "ended": "2026-10-14T07:52:35.249717+00:00"
+}

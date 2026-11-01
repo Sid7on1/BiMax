@@ -1,0 +1,143 @@
+{
+  "row": 1,
+  "query": 16,
+  "id": "mab-1-16",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:48:49.839961+00:00",
+  "valid": true,
+  "question": "The Vermont Catamounts men's soccer team currently competes in a conference that was formerly known as what from 1988 to 1996?",
+  "references": [
+    "the North Atlantic Conference"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-207",
+    "context-228",
+    "context-297"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:49:18.630488+00:00",
+  "rag": {
+    "ids": [
+      "context-207",
+      "context-228",
+      "context-297"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 5) known for playing Felice Martin, the cheating and domineering mother of Donna Martin (Tori Spelling), on the long-running teen series, \"Beverly Hills, 90210\".\n\nDocument 1465:\n2016\u201317 Vermont Catamounts men's basketball team\nThe 2016\u201317 Vermont Catamounts men's basketball team represented the University of Vermont during the 2016\u201317 NCAA Division I men's basketball season. The Catamounts, led by sixth-year head coach John Becker, played their home games at Patrick Gym in Burlington, Vermont and were members of the America East Conference. They finished the season 29\u20136, 16\u20130 in America East play to win the America East regular season championship. In the America East Tournament, they defeated Maine, New Hampshire and Albany to win the tournament championship. As a result, they received the conference's automatic bid to the NCAA Tournament. As a N\n- (part 3 of 6, excerpt) The 2013\u201314 Vermont Catamounts men's basketball team represented the University of Vermont during the 2013\u201314 NCAA Division I men's basketball season. The Catamounts, led by third year head coach John Becker, played their home games at Patrick Gym and were members of the America East Conference. They finished the season 22\u201311, 15\u20131 in America East play to win the America East regular season championship. They advanced to the semifinals of the America East Conference Tournament where they lost to Albany. As a regular season conference champion who failed to win their conference tournament, the received an automatic bid to the National Invitation Tournament where they lost in the first round to Georgia.\n- (part 2 of 5, excerpt) The Vermont Catamounts men's soccer team represents the University of Vermont in all NCAA Division I men's college soccer competitions. The team competes in the Am",
+    "evidence": [
+      {
+        "sourceId": "memory:context-207",
+        "sourceVersion": "sha256:07f9316899a4cf67b131851ac02850ca875adf873965473fd6f02666d39bcbef",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-207",
+          "part": 5,
+          "parts": 5
+        },
+        "text": "known for playing Felice Martin, the cheating and domineering mother of Donna Martin (Tori Spelling), on the long-running teen series, \"Beverly Hills, 90210\".\n\nDocument 1465:\n2016\u201317 Vermont Catamounts men's basketball team\nThe 2016\u201317 Vermont Catamounts men's basketball team represented the University of Vermont during the 2016\u201317 NCAA Division I men's basketball season. The Catamounts, led by sixth-year head coach John Becker, played their home games at Patrick Gym in Burlington, Vermont and were members of the America East Conference. They finished the season 29\u20136, 16\u20130 in America East play to win the America East regular season championship. In the America East Tournament, they defeated Maine, New Hampshire and Albany to win the tournament championship. As a result, they received the conference's automatic bid to the NCAA Tournament. As a N",
+        "id": "ev_966d7238f3d756c790fd3543",
+        "observedAt": "2026-10-14T08:41:12.896Z"
+      },
+      {
+        "sourceId": "memory:context-228",
+        "sourceVersion": "sha256:ace3bde9ab1f62160901c85ce97f872cdd73fdefb4e9a0027ad0a0bc95aeeaa4",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-228",
+          "part": 3,
+          "parts": 6,
+          "partial": true
+        },
+        "text": "The 2013\u201314 Vermont Catamounts men's basketball team represented the University of Vermont during the 2013\u201314 NCAA Division I men's basketball season. The Catamounts, led by third year head coach John Becker, played their home games at Patrick Gym and were members of the America East Conference. They finished the season 22\u201311, 15\u20131 in America East play to win the America East regular season championship. They advanced to the semifinals of the America East Conference Tournament where they lost to Albany. As a regular season conference champion who failed to win their conference tournament, the received an automatic bid to the National Invitation Tournament where they lost in the first round to Georgia.",
+        "id": "ev_a9171c7ac1c76654cc33f3e5",
+        "observedAt": "2026-10-14T08:41:12.896Z"
+      },
+      {
+        "sourceId": "memory:context-297",
+        "sourceVersion": "sha256:e40125ee3d023d9d23a1ecfcdbb4ba7564985feef721149b9af17be202af20d9",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-297",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "The Vermont Catamounts men's soccer team represents the University of Vermont in all NCAA Division I men's college soccer competitions. The team competes in the Am",
+        "id": "ev_a90f1f016935780212ebfff9",
+        "observedAt": "2026-10-14T08:41:12.896Z"
+      }
+    ],
+    "sourceIds": [
+      "context-207",
+      "context-228",
+      "context-297"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.0062500000058208,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "The retrieved history does not contain the information needed to answer the question. The document mentioning the Vermont Catamounts men's soccer team is truncated (\"The team competes in the Am...\") and provides no details about the conference's former name from 1988 to 1996. \n\nSince the answer is not present in the provided history, I do not know.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 547,
+    "completion_tokens": 1104,
+    "total_tokens": 1651,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 344,
+    "completion_tokens": 754,
+    "total_tokens": 1098,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 751,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 19130.207958999563,
+  "judgeWallMs": 8855.71020899988
+}

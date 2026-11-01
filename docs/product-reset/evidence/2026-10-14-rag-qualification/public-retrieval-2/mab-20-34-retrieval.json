@@ -1,0 +1,233 @@
+{
+  "row": 20,
+  "query": 34,
+  "id": "mab-20-34",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:43:47.154954+00:00",
+  "valid": true,
+  "question": "Current Date: 2023/05/27 (Sat) 08:13,\n\n Now Answer the Question: How long had I been watching stand-up comedy specials regularly when I attended the open mic night at the local comedy club?",
+  "references": [
+    "2 months"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/05/27 (Sat) 08:13",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 383.01041599999735,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 189,
+        "maxInputChars": 189,
+        "requiredProviderTruncation": false,
+        "promptTokens": 48,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-272",
+        "context-273",
+        "context-274"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) hancers:** Check if you have any soy sauce, hot sauce, or broth that can be used to add flavor to your dishes without buying new ingredients.\\n\\nBy using pantry staples, you can reduce your overall cost and minimize food waste.\n\nJust make sure to check the expiration dates and freshness of your pantry staples before using them in your recipes.\\n\\nRemember, the key to reducing costs is to be creative and flexible with your ingredients.\n\nWith a little bit of planning and imagination, you can whip up delicious meals without breaking the bank!'}], 'Chat Time: 2023/05/27 (Sat) 00:21', [{'role': 'user', 'content': \"I'm looking for some comedy recommendations.\n\nI've been really into stand-up lately - I think it started about 3 months ago when I watched that Netflix special by John Mulaney, and I've been watching stand-ups regularly ever since.\n\nCan you suggest some comedians or specials I might enjoy?\"}, {'role': 'assistant', 'content': 'John Mulaney is a fantastic comedian!\n\nIf you enjoyed his special, here are some comedian recommendations and Netflix specials that you might enjoy:\\n\\n**Similar Style to John Mulaney:**\\n\\n1.\n  (part 4 of 4, excerpt) **Comedy Club Websites**: Look up well-known comedy clubs like Comedy Cellar, Carolines on Broadway, or the Laugh Factory, and see if they have a location near you.\n\nThese clubs often have a calendar of upcoming shows and open mics.\\n3.\n\n**Facebook Events**: Sear\n- (part 1 of 5, excerpt) These can be great resources for finding out about upcoming shows, open mics, and opportunities to perform.\\n\\nWhen it comes to trying your hand at stand-up, here are some tips:\\\n- (part 1 of 5, excerpt) Do you think it's better to try to come up with new material for each open mic, or should I focus on refining a few jokes and",
+      "evidence": [
+        {
+          "sourceId": "memory:context-272",
+          "sourceVersion": "sha256:4ed51be797a9b10fd96d7cbf4a9688cce4c37c25442d764644a44d1677b07321",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-272",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "hancers:** Check if you have any soy sauce, hot sauce, or broth that can be used to add flavor to your dishes without buying new ingredients.\\n\\nBy using pantry staples, you can reduce your overall cost and minimize food waste.\n\nJust make sure to check the expiration dates and freshness of your pantry staples before using them in your recipes.\\n\\nRemember, the key to reducing costs is to be creative and flexible with your ingredients.\n\nWith a little bit of planning and imagination, you can whip up delicious meals without breaking the bank!'}], 'Chat Time: 2023/05/27 (Sat) 00:21', [{'role': 'user', 'content': \"I'm looking for some comedy recommendations.\n\nI've been really into stand-up lately - I think it started about 3 months ago when I watched that Netflix special by John Mulaney, and I've been watching stand-ups regularly ever since.\n\nCan you suggest some comedians or specials I might enjoy?\"}, {'role': 'assistant', 'content': 'John Mulaney is a fantastic comedian!\n\nIf you enjoyed his special, here are some comedian recommendations and Netflix specials that you might enjoy:\\n\\n**Similar Style to John Mulaney:**\\n\\n1.",
+          "id": "ev_9d25071ea241a001a936d7c4",
+          "observedAt": "2026-10-14T04:43:47.543Z"
+        },
+        {
+          "sourceId": "memory:context-272",
+          "sourceVersion": "sha256:4ed51be797a9b10fd96d7cbf4a9688cce4c37c25442d764644a44d1677b07321",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-272",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "**Comedy Club Websites**: Look up well-known comedy clubs like Comedy Cellar, Carolines on Broadway, or the Laugh Factory, and see if they have a location near you.\n\nThese clubs often have a calendar of upcoming shows and open mics.\\n3.\n\n**Facebook Events**: Sear",
+          "id": "ev_4a90cc59d1706bd392682298",
+          "observedAt": "2026-10-14T04:43:47.543Z"
+        },
+        {
+          "sourceId": "memory:context-273",
+          "sourceVersion": "sha256:b431478c43802fae1a4e6fe21c926b1fe7db775b2d8e8f0547a3f725cdb10ae9",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-273",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "These can be great resources for finding out about upcoming shows, open mics, and opportunities to perform.\\n\\nWhen it comes to trying your hand at stand-up, here are some tips:\\",
+          "id": "ev_64167d335cd88ed9170d7ae4",
+          "observedAt": "2026-10-14T04:43:47.544Z"
+        },
+        {
+          "sourceId": "memory:context-274",
+          "sourceVersion": "sha256:3aee802822036960cbd7e15f912e48bfcc2b7796702d045999d9f18c9a758d17",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-274",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Do you think it's better to try to come up with new material for each open mic, or should I focus on refining a few jokes and",
+          "id": "ev_ba669b81d008d37fc5bac314",
+          "observedAt": "2026-10-14T04:43:47.544Z"
+        }
+      ],
+      "sourceIds": [
+        "context-272",
+        "context-273",
+        "context-274"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.779707999994571,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-272",
+        "context-273",
+        "context-274"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) hancers:** Check if you have any soy sauce, hot sauce, or broth that can be used to add flavor to your dishes without buying new ingredients.\\n\\nBy using pantry staples, you can reduce your overall cost and minimize food waste.\n\nJust make sure to check the expiration dates and freshness of your pantry staples before using them in your recipes.\\n\\nRemember, the key to reducing costs is to be creative and flexible with your ingredients.\n\nWith a little bit of planning and imagination, you can whip up delicious meals without breaking the bank!'}], 'Chat Time: 2023/05/27 (Sat) 00:21', [{'role': 'user', 'content': \"I'm looking for some comedy recommendations.\n\nI've been really into stand-up lately - I think it started about 3 months ago when I watched that Netflix special by John Mulaney, and I've been watching stand-ups regularly ever since.\n\nCan you suggest some comedians or specials I might enjoy?\"}, {'role': 'assistant', 'content': 'John Mulaney is a fantastic comedian!\n\nIf you enjoyed his special, here are some comedian recommendations and Netflix specials that you might enjoy:\\n\\n**Similar Style to John Mulaney:**\\n\\n1.\n  (part 4 of 4, excerpt) **Comedy Club Websites**: Look up well-known comedy clubs like Comedy Cellar, Carolines on Broadway, or the Laugh Factory, and see if they have a location near you.\n\nThese clubs often have a calendar of upcoming shows and open mics.\\n3.\n\n**Facebook Events**: Sear\n- (part 1 of 5, excerpt) These can be great resources for finding out about upcoming shows, open mics, and opportunities to perform.\\n\\nWhen it comes to trying your hand at stand-up, here are some tips:\\\n- (part 1 of 5, excerpt) Do you think it's better to try to come up with new material for each open mic, or should I focus on refining a few jokes and",
+      "evidence": [
+        {
+          "sourceId": "memory:context-272",
+          "sourceVersion": "sha256:4ed51be797a9b10fd96d7cbf4a9688cce4c37c25442d764644a44d1677b07321",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-272",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "hancers:** Check if you have any soy sauce, hot sauce, or broth that can be used to add flavor to your dishes without buying new ingredients.\\n\\nBy using pantry staples, you can reduce your overall cost and minimize food waste.\n\nJust make sure to check the expiration dates and freshness of your pantry staples before using them in your recipes.\\n\\nRemember, the key to reducing costs is to be creative and flexible with your ingredients.\n\nWith a little bit of planning and imagination, you can whip up delicious meals without breaking the bank!'}], 'Chat Time: 2023/05/27 (Sat) 00:21', [{'role': 'user', 'content': \"I'm looking for some comedy recommendations.\n\nI've been really into stand-up lately - I think it started about 3 months ago when I watched that Netflix special by John Mulaney, and I've been watching stand-ups regularly ever since.\n\nCan you suggest some comedians or specials I might enjoy?\"}, {'role': 'assistant', 'content': 'John Mulaney is a fantastic comedian!\n\nIf you enjoyed his special, here are some comedian recommendations and Netflix specials that you might enjoy:\\n\\n**Similar Style to John Mulaney:**\\n\\n1.",
+          "id": "ev_9d25071ea241a001a936d7c4",
+          "observedAt": "2026-10-14T04:43:47.549Z"
+        },
+        {
+          "sourceId": "memory:context-272",
+          "sourceVersion": "sha256:4ed51be797a9b10fd96d7cbf4a9688cce4c37c25442d764644a44d1677b07321",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-272",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "**Comedy Club Websites**: Look up well-known comedy clubs like Comedy Cellar, Carolines on Broadway, or the Laugh Factory, and see if they have a location near you.\n\nThese clubs often have a calendar of upcoming shows and open mics.\\n3.\n\n**Facebook Events**: Sear",
+          "id": "ev_4a90cc59d1706bd392682298",
+          "observedAt": "2026-10-14T04:43:47.549Z"
+        },
+        {
+          "sourceId": "memory:context-273",
+          "sourceVersion": "sha256:b431478c43802fae1a4e6fe21c926b1fe7db775b2d8e8f0547a3f725cdb10ae9",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-273",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "These can be great resources for finding out about upcoming shows, open mics, and opportunities to perform.\\n\\nWhen it comes to trying your hand at stand-up, here are some tips:\\",
+          "id": "ev_64167d335cd88ed9170d7ae4",
+          "observedAt": "2026-10-14T04:43:47.550Z"
+        },
+        {
+          "sourceId": "memory:context-274",
+          "sourceVersion": "sha256:3aee802822036960cbd7e15f912e48bfcc2b7796702d045999d9f18c9a758d17",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-274",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Do you think it's better to try to come up with new material for each open mic, or should I focus on refining a few jokes and",
+          "id": "ev_ba669b81d008d37fc5bac314",
+          "observedAt": "2026-10-14T04:43:47.550Z"
+        }
+      ],
+      "sourceIds": [
+        "context-272",
+        "context-273",
+        "context-274"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.890707999998995,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:43:47.551416+00:00"
+}

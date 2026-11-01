@@ -143,6 +143,12 @@ export class TreeSitterAnalyzer {
     return out;
   }
 
+  /** Discover supported paths without parsing their contents. */
+  public getProjectFiles(): string[] {
+    if (TreeSitterAnalyzer.supportedExtensions().length === 0) return [];
+    return this.collectFiles(this.projectRoot);
+  }
+
   /** Index every supported non-TS file under the project root into the shared graph. */
   public async analyzeProject(): Promise<void> {
     if (!(await this.init())) return;
@@ -175,19 +181,20 @@ export class TreeSitterAnalyzer {
   }
 
   /** Parse and index a single file (used by the live observer for incremental updates). */
-  public async analyzeSingleFile(absolutePath: string): Promise<void> {
+  public async analyzeSingleFile(absolutePath: string): Promise<boolean> {
     const ext = path.extname(absolutePath);
-    if (!LANGUAGES[ext]) return;
-    if (!(await this.init())) return;
+    if (!LANGUAGES[ext]) return false;
+    if (!(await this.init())) return false;
     const lang = await this.languageFor(ext);
-    if (!lang) return;
+    if (!lang) return false;
     let source: string;
-    try { source = fs.readFileSync(absolutePath, 'utf8'); } catch { return; }
+    try { source = fs.readFileSync(absolutePath, 'utf8'); } catch { return false; }
     this.parser!.setLanguage(lang);
     const tree = this.parser!.parse(source);
     const nameToIds = new Map<string, string[]>();
     this.extractNodes(tree.rootNode, absolutePath, ext, nameToIds);
     this.extractCalls(tree.rootNode, absolutePath, ext, nameToIds);
+    return true;
   }
 
   private signatureOf(node: Parser.SyntaxNode): string {

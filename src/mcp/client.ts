@@ -1,3 +1,5 @@
+import { grantMcpUi, revokeMcpUi } from './ui.grants';
+import { mcpPresentation } from './presentation';
 import { outcomeError, outcomeOk } from '../tools/outcome';
 import { reportCapability } from '../core/capability.status';
 import { ToolRegistry } from '../tools/tool.registry';
@@ -47,6 +49,7 @@ export function mcpChildEnv(spec: McpServerSpec): Record<string, string> {
   }
   const out: Record<string, string> = {};
   for (const k of MCP_ENV_BASELINE) {
+    if (spec.forceScrubEnv && (k === 'NODE_OPTIONS' || k === 'NODE_PATH')) continue;
     if (process.env[k] !== undefined) out[k] = process.env[k]!;
   }
   return { ...out, ...(spec.env || {}) };
@@ -436,6 +439,7 @@ export async function connectAndRegister(
     return closing ??= Promise.resolve().then(() => client.close()).catch(() => { /* best-effort */ });
   };
   const dispose = (): Promise<void> => {
+    revokeMcpUi(lifetime);
     lifetime.abort(new Error(`MCP '${spec.name}' connection retired.`));
     catalog.clear();
     options.signal?.removeEventListener('abort', cancel);
@@ -455,7 +459,7 @@ export async function connectAndRegister(
       return null;
     }
     const toolName = `mcp__${spec.name}__${t.name}`;
-    return buildTool({
+    const built: BuiltTool = buildTool({
       name: toolName,
       description: `[MCP:${spec.name}] ${t.description || t.name}`,
       schema: t.inputSchema || { type: 'object', properties: {} },
@@ -513,13 +517,30 @@ export async function connectAndRegister(
           });
           const text = contentToString(res);
           recordMcpCall(spec.name, t.name, Date.now() - started, res?.isError ? text : undefined);
-          return res?.isError ? outcomeError('unknown', `MCP tool ${t.name} reported an error: ${text}`) : outcomeOk(text);
+          const outcome = res?.isError ? outcomeError('unknown', `MCP tool ${t.name} reported an error: ${text}`) : outcomeOk(text);
+          outcome.presentation = mcpPresentation(spec.name, t, args, res).map(part => part.kind !== 'mcp-app' ? part : grantMcpUi(part, {
+            owner: lifetime, alive: () => !lifetime.signal.aborted && !catalogClosed && registry.getTool(toolName) === built,
+            read: async () => {
+              const response: any = await withRequestDeadline(10_000, lifetime.signal, () => new Error('Tool UI resource timed out.'), (signal, remaining) => client.readResource({uri:part.resourceUri},{signal,timeout:remaining()}));
+              const resource = response?.contents?.find((c:any) => c.uri===part.resourceUri && typeof c.text==='string' && c.mimeType?.startsWith('text/html'));
+              if (!resource || Buffer.byteLength(resource.text)>192*1024) throw new Error('Tool UI must be a bundled HTML resource of at most 192 KiB.');
+              return {html:resource.text,input:part.input,result:part.result};
+            },
+            call: async (name, input, signal) => {
+              if (name!==t.name || t._meta?.ui?.visibility && !t._meta.ui.visibility.includes('app')) throw new Error('This tool is not available to its UI.');
+              let outcome: any;
+              const text = await built.execute(input,{signal,reportOutcome:(value:any)=>{outcome=value;}});
+              return {content:[{type:'text',text:String(text)}],...(outcome?.presentation?.find((p:any)=>p.kind==='data') ? {structuredContent:outcome.presentation.find((p:any)=>p.kind==='data').value} : {}),isError:outcome?.status!=='ok'};
+            },
+          }));
+          return outcome;
         } catch (e: any) {
           recordMcpCall(spec.name, t.name, Date.now() - started, e?.message || String(e));
           throw e;
         }
       },
     }, governor);
+    return built;
   };
 
   try {

@@ -14,6 +14,7 @@ import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
+import { verifyArcSource } from '../app/scripts/computer-source.mjs';
 
 const require = createRequire(import.meta.url);
 const asar = require('../app/node_modules/@electron/asar');
@@ -30,10 +31,13 @@ const bundle = path.resolve(bundleArgument);
 if (!bundle.endsWith('.app') || !existsSync(bundle)) fail(`not an app bundle: ${bundle}`);
 
 const contents = path.join(bundle, 'Contents');
+const localNetworkPurpose = execFileSync('/usr/bin/plutil', ['-extract', 'NSLocalNetworkUsageDescription', 'raw', path.join(contents, 'Info.plist')], { encoding: 'utf8' }).trim();
+if (!localNetworkPurpose.includes('phone') || !localNetworkPurpose.includes('enable')) fail('missing explicit phone/local-network usage description');
 const files = {
   appExecutable: path.join(contents, 'MacOS', 'Bimax'),
   engine: path.join(contents, 'Resources', 'engine', 'index.js'),
   asar: path.join(contents, 'Resources', 'app.asar'),
+  projectFiles: path.join(contents, 'Resources', 'project-files', 'bimax-project-files'),
 };
 
 for (const [name, file] of Object.entries(files)) {
@@ -47,6 +51,10 @@ if (!appDescription.includes(expectedArchitecture)) {
   fail(`appExecutable is not ${expectedArchitecture}: ${appDescription}`);
 }
 
+// Project I/O must ship the descriptor-relative helper; no JavaScript path fallback is allowed.
+if ((statSync(files.projectFiles).mode & 0o111) === 0) fail('project-files helper is not executable');
+if (!execFileSync('file', [files.projectFiles], { encoding: 'utf8' }).includes(expectedArchitecture)) fail('project-files helper architecture mismatch');
+
 // The engine is JAVASCRIPT now, not a per-chip Mach-O binary — Electron's own Node runs it as a
 // worker thread, so there is no architecture to check and one artifact serves arm64 and x64. An
 // arch assertion here would fail every build for the wrong reason. What matters instead is that the
@@ -58,7 +66,7 @@ const engineDir = path.dirname(files.engine);
 const wasm = readdirSync(engineDir).filter((f) => f.endsWith('.wasm'));
 if (!wasm.length) fail(`engine bundle ships no .wasm assets; tree-sitter will not load: ${engineDir}`);
 
-// The product is code-only. A packaged bundle that has grown a Computer Use sidecar back is a
+// Legacy CU remains retired; the explicitly selected arc driver ships separately. A packaged bundle that has grown a Computer Use sidecar back is a
 // regression, so assert their ABSENCE rather than their presence.
 for (const forbidden of [
   path.join(contents, 'XPCServices'),
@@ -74,6 +82,7 @@ for (const forbidden of [
 // No retired Computer Use driver dependency may ship, inside or outside ASAR.
 const unpacked = path.join(contents, 'Resources', 'app.asar.unpacked', 'node_modules');
 const archivedPaths = asar.listPackage(files.asar);
+if (archivedPaths.some(p => p.startsWith('/out/mobile-fixture/') || p === '/out/main/phone-pairing.fixture.cjs')) fail('phone test fixtures must not ship in the app');
 for (const name of ['@trycua', '@ubjs']) {
   if (existsSync(path.join(unpacked, name)) || archivedPaths.some(p => p.includes(`/node_modules/${name}/`))) {
     fail(`retired Computer Use dependency is packaged: ${name}`);
@@ -83,9 +92,37 @@ for (const name of ['@trycua', '@ubjs']) {
 const packagedMain = asar.extractFile(files.asar, 'out/main/index.js').toString('utf8');
 
 for (const marker of ['Let Tasks Look at Other Apps', 'Let Tasks Use Other Apps',
-  'createLookService', 'createLookDriver', 'isTrustedAccessibilityClient']) {
+  'createLookService', 'createLookDriver']) {
   if (packagedMain.includes(marker)) fail(`retired Computer Use integration is packaged: ${marker}`);
 }
+const arcRuntime = path.join(contents, 'Resources', 'cu-runtime');
+const arcExecutable = path.join(arcRuntime, 'bimax-cu', 'bimax-cu');
+if (!existsSync(arcExecutable)) fail('missing internal Bimax CU runtime');
+const arcIdentity = JSON.parse(execFileSync(arcExecutable, ['--identity'], { encoding: 'utf8', timeout: 30000 }));
+const arcProvenance = JSON.parse(readFileSync(path.join(arcRuntime, 'provenance.json'), 'utf8'));
+const arcSource = verifyArcSource(path.join(arcRuntime, 'upstream-source'), arcProvenance);
+const arcComponents = JSON.parse(execFileSync(arcExecutable, ['--components'], { encoding: 'utf8', timeout: 30000 }));
+if (arcComponents.name !== 'Bimax CU' || arcComponents.transport !== 'private-child' ||
+    JSON.stringify(arcComponents.modules) !== JSON.stringify(arcSource.modules)) fail('not all Arc package modules are frozen into Bimax CU');
+for (const command of ['mcp', 'run']) {
+  let refused = false;
+  try { execFileSync(arcExecutable, [command], { encoding: 'utf8', input: '', timeout: 30000, stdio: 'pipe' }); }
+  catch (error) { refused = error.status === 2 && String(error.stderr).includes('app-owned feature'); }
+  if (!refused) fail(`Bimax CU exposes the upstream ${command} command instead of the private app feature`);
+}
+if (arcIdentity.name !== 'Bimax CU' || arcIdentity.driver !== 'arc_cua.driver.Driver' || !arcIdentity.frozen ||
+    arcIdentity.backend_version !== '0.1.1' || arcIdentity.transport !== 'private-child' || arcIdentity.commit !== '74ffae1108b1cb4b1f6b161084af12646f544ba5' ||
+    arcProvenance.commit !== arcIdentity.commit) fail('arc helper identity/provenance mismatch');
+const nativeStatusReply = execFileSync(arcExecutable, [], { encoding: 'utf8', timeout: 30000,
+  input: JSON.stringify({ id: 1, operation: 'status', arguments: {} }) + '\n' });
+const nativeStatus = JSON.parse(nativeStatusReply.trim()).result;
+if (nativeStatus?.isError || !nativeStatus?.data?.permissions) fail('arc status fails from the shipped standalone executable');
+const mcpHandshake = JSON.parse(execFileSync(arcExecutable, [], { encoding: 'utf8', timeout: 30000,
+  input: JSON.stringify({ id: 2, jsonrpc: '2.0', method: 'initialize', params: {} }) + '\n' }).trim());
+if (!mcpHandshake.error?.message?.includes('private operation contract') || mcpHandshake.result) fail('Bimax CU accepts an MCP initialize handshake');
+const actualArcTools = JSON.parse(execFileSync(arcExecutable, ['--operations'], { encoding: 'utf8', timeout: 30000 }));
+if (JSON.stringify(actualArcTools) !== JSON.stringify(JSON.parse(readFileSync(path.join(arcRuntime, 'operations.json'), 'utf8')))) fail('arc tools do not match the executed runtime');
+if (!packagedMain.includes('bimax-cu') || !packagedMain.includes('BimaxCuTool') || packagedMain.includes('proxy.cjs')) fail('main app does not connect arc');
 const packagedEngine = readFileSync(files.engine, 'utf8');
 for (const name of ['LookAtAppTool', 'PressInAppTool', 'TypeInAppTool', 'ScrollInAppTool']) {
   if (packagedEngine.includes(name)) fail(`retired Computer Use engine tool is packaged: ${name}`);
@@ -114,5 +151,6 @@ if (!/new\s+(?:[\w$]+\.)*Worker\s*\(/.test(packagedMain)) {
 
 console.log(`desktop package gate: PASS ${bundle}`);
 console.log(`desktop package gate: PASS ${expectedArchitecture} app executable and bundled engine`);
-console.log('desktop package gate: PASS no Computer Use sidecar or driver SDK is packaged');
+console.log('desktop package gate: PASS internal Bimax CU with pinned Arc backend; no MCP proxy or legacy driver');
+console.log(`desktop package gate: PASS all ${arcSource.files} Arc source files and ${arcSource.modules.length} frozen modules; upstream MCP entry refused`);
 console.log('desktop package gate: PASS packaged run resolves the engine from the bundle, as a worker thread, with no override');

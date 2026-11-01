@@ -170,10 +170,8 @@ export class McpManager {
   /**
    * Connect embedding-host capabilities before the headless protocol reports ready.
    *
-   * These are not optional user integrations: in Bimax.app this is the sole app-owned Computer
-   * Use authority. Delaying it with npm-backed MCP servers created a window where an explicit
-   * Control Mac turn was accepted as an ordinary coding turn. Terminal supplies no descriptor, so
-   * this remains a zero-work no-op there.
+   * This generic compatibility seam is for embedding integrations. Bimax CU uses a transferred
+   * internal MessagePort instead; it has no MCP connection or environment descriptor.
    */
   public async connectHostCapabilities(
     registry: ToolRegistry,

@@ -1,0 +1,426 @@
+{
+  "row": 16,
+  "id": "66f24dbb",
+  "stratum": "single-session-user",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T09:01:50.187956+00:00",
+  "valid": true,
+  "question": "What did I buy for my sister's birthday gift?",
+  "references": [
+    "a yellow dress"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": "2023/05/30 (Tue) 17:09",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 988.8632080000025,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 45,
+        "maxInputChars": 45,
+        "requiredProviderTruncation": false,
+        "promptTokens": 14,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_fea2e4d3",
+        "89452526_2",
+        "21c6c41d"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 6) Once we get started, you can add or edit the list as needed. This will help you keep track of your gifts and make it easier to plan for future occasions.\n\nLet's get organized!\nuser: Here's a start - I've bought gifts for my sister's birthday, my mom, my neighbor Mrs. Johnson, coworkers, my best friend's baby shower, and my brother's new apartment.\nassistant: Let's break down each occasion and gift. Please feel free to add more details as we go along.\n\n**Sister's Birthday**\n\n* Occasion: Sister's birthday\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mom**\n\n* Occasion: Just because/No specific occasion\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mrs. Johnson**\n\n* Occasion: _______________________________________ (was it a holiday, just because, or another reason?)\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Coworkers**\n\n* Occasion: _______________________________________ (was it a holiday, team-building, or another reason?)\n* Gift(s): _______________________________________ (what did you get them? e.g., individual gifts or a group gift?)\n  (part 4 of 6, excerpt) Next up!\n\n**Gift for Mrs. Johnson**\n\n* Occasion: _______________________________________ (was it a holiday, just because, or another reason?)\n* Gift(s): _______________________________________ (what did you get her?)\n\nWhat's the occasion and gift for Mrs. Johnson?\n- (part 12 of 13, excerpt) user: Now that I have a good idea for the gift, do you think I should include a personal message or a birthday card with the gift, or is the gift\n- (part 18 of 19, excerpt) including your story, inspiration, and what drives your creativity. This helps attendees connect with you on a personal lev",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_fea2e4d3",
+          "sourceVersion": "sha256:313a08f47221c23f7dfb3d9287a0b7f40686009c5146d1601e7ce4e94c7460cd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_fea2e4d3",
+            "part": 2,
+            "parts": 6
+          },
+          "text": "Once we get started, you can add or edit the list as needed. This will help you keep track of your gifts and make it easier to plan for future occasions.\n\nLet's get organized!\nuser: Here's a start - I've bought gifts for my sister's birthday, my mom, my neighbor Mrs. Johnson, coworkers, my best friend's baby shower, and my brother's new apartment.\nassistant: Let's break down each occasion and gift. Please feel free to add more details as we go along.\n\n**Sister's Birthday**\n\n* Occasion: Sister's birthday\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mom**\n\n* Occasion: Just because/No specific occasion\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mrs. Johnson**\n\n* Occasion: _______________________________________ (was it a holiday, just because, or another reason?)\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Coworkers**\n\n* Occasion: _______________________________________ (was it a holiday, team-building, or another reason?)\n* Gift(s): _______________________________________ (what did you get them? e.g., individual gifts or a group gift?)",
+          "id": "ev_07fb38ab0eb610dca4de96f3",
+          "observedAt": "2026-10-14T09:01:51.195Z"
+        },
+        {
+          "sourceId": "memory:answer_fea2e4d3",
+          "sourceVersion": "sha256:313a08f47221c23f7dfb3d9287a0b7f40686009c5146d1601e7ce4e94c7460cd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_fea2e4d3",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Next up!\n\n**Gift for Mrs. Johnson**\n\n* Occasion: _______________________________________ (was it a holiday, just because, or another reason?)\n* Gift(s): _______________________________________ (what did you get her?)\n\nWhat's the occasion and gift for Mrs. Johnson?",
+          "id": "ev_0b3627aeabd6ff0eef7c4607",
+          "observedAt": "2026-10-14T09:01:51.195Z"
+        },
+        {
+          "sourceId": "memory:89452526_2",
+          "sourceVersion": "sha256:69e8cf88f071857ac2dcfed805eebdbecabdf0afc1f5c23dd37205d4e0888d63",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "89452526_2",
+            "part": 12,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "user: Now that I have a good idea for the gift, do you think I should include a personal message or a birthday card with the gift, or is the gift",
+          "id": "ev_8e20e5a1da8a125accee6aa5",
+          "observedAt": "2026-10-14T09:01:51.196Z"
+        },
+        {
+          "sourceId": "memory:21c6c41d",
+          "sourceVersion": "sha256:334f6900408920edf7a132fdd9939e953cd0fa2feecdb23d9a674b6ac6204e6c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "21c6c41d",
+            "part": 18,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "including your story, inspiration, and what drives your creativity. This helps attendees connect with you on a personal lev",
+          "id": "ev_5ee2a33658b88e198eb4c449",
+          "observedAt": "2026-10-14T09:01:51.196Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_fea2e4d3",
+        "89452526_2",
+        "21c6c41d"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 20.172124999997322,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_fea2e4d3",
+        "89452526_2",
+        "21c6c41d"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- Session date: 2023/05/24 (Wed) 04:49\n  (part 2 of 6, excerpt) assistant: Let's break down each occasion and gift. Please feel free to add more details as we go along.\n\n**Sister's Birthday**\n\n* Occasion: Sister's birthday\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mom**\n\n* Occasion: Just because/No specific occasion\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mrs. Johnson**\n  (part 4 of 6, excerpt) + Pair of silver hoop earrings with a small pearl in the center\n\nNext up!\n\n**Gift for Mrs. Johnson**\n\n* Occasion: _______________________________________ (was it a holiday, just because, or another reason?)\n* Gift(s): _______________________________________ (what did you get her?)\n\nWhat's the occasion and gift for Mrs. Johnson?\nuser: I got her some groceries and flowers when she was recovering from surgery.\nassistant:That's very thoughtful of you!\n\nHere's the updated list:\n  (part 5 of 6, excerpt) **Gift for Mrs. Johnson**\n\n* Occasion: Recovery from surgery\n* Gift(s):\n\t+ Groceries\n\t+ Flowers\n\nLet's move on to the coworkers.\n\n**Coworkers**\n\n* Occasion: _______________________________________ (was it a holiday, team-building, or another reason?)\n* Gift(s): _______________________________________ (what did you get them? e.g., individual gifts or a group gift?)\n\nWhat's the occasion and gift for your coworkers?\nassistant: Waiting for your response...\n  (part 6 of 6, excerpt) **Gift for Mrs. Johnson**\n\n* Occasion: Recovery from surgery\n* Gift(s):\n\t+ Groceries\n\t+ Flowers\n\n**Coworkers**\n\n* Occasion: Team-building event and going-away party for Rachel\n* Gift(s):\n\t+ Snacks (granola bars, nuts)\n\t+ Drinks (energy drinks)\n\t+ Gift for Rachel:\n\t\t- Beautiful journal\n\t\t- Set of nice pens\n\nNext up!\n\n**Best Friend's Baby Shower**\n\n* Occasion: Baby shower\n* Gift(s): _______________________________________ (what did you get for the baby?)\n\nWhat's the gift for your best friend's baby?\n- (part 1 of 13, excerpt) Session date: 2023/05/26 (Fri) 01:15\nuser: I'm looking for some gift ideas for my brother. He's really into gaming, and I got him a customized phone case with his favorite game's logo on it for his birthday last month, which cost around $25. Do you have any suggestions for other gaming-related gifts?\nassistant: A customized phone case with his favorite game's logo is a great gift! Here are some other gaming-related gift ideas that might interest your brother, considering your budget of around $25:\n\n1.\n  (part 10 of 13, excerpt) Pairing the gaming-themed mousepad with a gift card to his favorite gaming platform's store will make a thoughtful and well-rounded gift that shows you care about your brother's gaming interests.\nuser: I think a $25 gift card would be a good amount, considering I spent around that much on the customized phone case for his birthday last month. Do you think that's a good idea?\n  (part 12 of 13, excerpt) user: Now that I have a good idea for the gift, do you think I should include a personal message or a birthday card with the gift, or is the gift itself enough?\nassistant: Including a personal message or a birthday card with the gift is a wonderful idea! It adds a thoughtful and personal touch to the gift, making it even more special and meaningful to your brother.\n\nA personal message or birthday card can:\n  (part 13 of 13, excerpt) * \"Thanks for being an awesome gaming buddy, bro! Enjoy the gift and let's play soon!\"\n* \"You're the 'high score' of brothers! Wishing you a year filled with gaming joy and excitement!\"\n\nIf you're short on time or not sure what to write, a simple \"Happy gaming, bro!\" or \"Thanks for being an awesome brother!\" can go a long way.\n\nThe gift itself is certainly a great start, but adding a personal message or birthday card takes it to the next level. It shows you're willing to go the extra mile to make the gift more special and meaningful to your brother.\n- Session date: 2023/05/24 (Wed) 02:55\n  (part 7 of 19, excerpt) (if you're selling at a craft fair)\n* #holidaymarket (if you're selling at a holiday market)\n* #farmersmarket (if you're selling at a farmers market)\n\nRemember to keep your hashtags relevant to the content you're posting. You can use a mix of niche-specific, seasonal, and event-specific hashtags to attract the right audience.\n\nHere's an example of how you could use hashtags in a post:\n\n\"New spring collection is here! Our handmade candles are infused with the sweet scent of blooming flowers. Perfect f\n  (part 8 of 19, excerpt) * #accessorize\n* #jewelryoftheday\n* #handmadejewelry\n* #uniquejewelry\n* #jewelrydesigner\n* #jewelrymaking\n* #jewelrycollector\n\n**Specific Jewelry Types:**\n\n* #necklaceoftheday (for necklaces)\n* #ringgoals (for rings)\n* #earringlove (for earrings)\n* #braceletstack (for bracelets)\n* #ankletlove (for anklets)\n\n**Materials and Styles:**\n\n* #sterlingsilverjewelry (for sterling silver jewelry)\n* #goldjewelry (for gold jewelry)\n* #gemstonejewelry (for gemstone jewelry)\n* #beadedjewelry (for beaded jewelry)\n  (part 17 of 19, excerpt) handmade candles and soaps on Instagram can definitely help attract attendees to your stall at the craft fair. Here are some content ideas to get you started:\n\n**1. Event Announcement:**\nCreate a post announcing your participation in the craft fair, including the date, time, location, and a brief description of what attendees can expect to find at your stall. Use relevant hashtags like #craftfair, #handmadedcandles, #handmadesoaps, and #localartisans.\n\n**2. Sneak Peeks:**\n  (part 18 of 19, excerpt) including your story, inspiration, and what drives your creativity. This helps attendees connect with you on a personal level and builds trust in your brand.\n\n**5. Behind-the-Scenes:**\nGive your followers a glimpse into your creative process, such as how you make your candles or soaps, or how you prepare for the craft fair. This type of content humanizes your brand and creates a sense of authenticity.\n\n**6. Special Offers:**",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_fea2e4d3",
+          "sourceVersion": "sha256:313a08f47221c23f7dfb3d9287a0b7f40686009c5146d1601e7ce4e94c7460cd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_fea2e4d3"
+          },
+          "text": "Session date: 2023/05/24 (Wed) 04:49",
+          "id": "ev_3188b28e665360aebc4516fc",
+          "observedAt": "2026-10-14T09:01:51.200Z"
+        },
+        {
+          "sourceId": "memory:answer_fea2e4d3",
+          "sourceVersion": "sha256:313a08f47221c23f7dfb3d9287a0b7f40686009c5146d1601e7ce4e94c7460cd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_fea2e4d3",
+            "part": 2,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "assistant: Let's break down each occasion and gift. Please feel free to add more details as we go along.\n\n**Sister's Birthday**\n\n* Occasion: Sister's birthday\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mom**\n\n* Occasion: Just because/No specific occasion\n* Gift(s): _______________________________________ (what did you get her?)\n\n**Gift for Mrs. Johnson**",
+          "id": "ev_45f573153977487413f88d9e",
+          "observedAt": "2026-10-14T09:01:51.200Z"
+        },
+        {
+          "sourceId": "memory:answer_fea2e4d3",
+          "sourceVersion": "sha256:313a08f47221c23f7dfb3d9287a0b7f40686009c5146d1601e7ce4e94c7460cd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_fea2e4d3",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "+ Pair of silver hoop earrings with a small pearl in the center\n\nNext up!\n\n**Gift for Mrs. Johnson**\n\n* Occasion: _______________________________________ (was it a holiday, just because, or another reason?)\n* Gift(s): _______________________________________ (what did you get her?)\n\nWhat's the occasion and gift for Mrs. Johnson?\nuser: I got her some groceries and flowers when she was recovering from surgery.\nassistant:That's very thoughtful of you!\n\nHere's the updated list:",
+          "id": "ev_e3527f620712839bfa90fb4b",
+          "observedAt": "2026-10-14T09:01:51.200Z"
+        },
+        {
+          "sourceId": "memory:answer_fea2e4d3",
+          "sourceVersion": "sha256:313a08f47221c23f7dfb3d9287a0b7f40686009c5146d1601e7ce4e94c7460cd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_fea2e4d3",
+            "part": 5,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "**Gift for Mrs. Johnson**\n\n* Occasion: Recovery from surgery\n* Gift(s):\n\t+ Groceries\n\t+ Flowers\n\nLet's move on to the coworkers.\n\n**Coworkers**\n\n* Occasion: _______________________________________ (was it a holiday, team-building, or another reason?)\n* Gift(s): _______________________________________ (what did you get them? e.g., individual gifts or a group gift?)\n\nWhat's the occasion and gift for your coworkers?\nassistant: Waiting for your response...",
+          "id": "ev_eb4dec04c78f54ea3e8fe824",
+          "observedAt": "2026-10-14T09:01:51.200Z"
+        },
+        {
+          "sourceId": "memory:answer_fea2e4d3",
+          "sourceVersion": "sha256:313a08f47221c23f7dfb3d9287a0b7f40686009c5146d1601e7ce4e94c7460cd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_fea2e4d3",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "**Gift for Mrs. Johnson**\n\n* Occasion: Recovery from surgery\n* Gift(s):\n\t+ Groceries\n\t+ Flowers\n\n**Coworkers**\n\n* Occasion: Team-building event and going-away party for Rachel\n* Gift(s):\n\t+ Snacks (granola bars, nuts)\n\t+ Drinks (energy drinks)\n\t+ Gift for Rachel:\n\t\t- Beautiful journal\n\t\t- Set of nice pens\n\nNext up!\n\n**Best Friend's Baby Shower**\n\n* Occasion: Baby shower\n* Gift(s): _______________________________________ (what did you get for the baby?)\n\nWhat's the gift for your best friend's baby?",
+          "id": "ev_48eb33a470916859992fd2bc",
+          "observedAt": "2026-10-14T09:01:51.200Z"
+        },
+        {
+          "sourceId": "memory:89452526_2",
+          "sourceVersion": "sha256:69e8cf88f071857ac2dcfed805eebdbecabdf0afc1f5c23dd37205d4e0888d63",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "89452526_2",
+            "part": 1,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "Session date: 2023/05/26 (Fri) 01:15\nuser: I'm looking for some gift ideas for my brother. He's really into gaming, and I got him a customized phone case with his favorite game's logo on it for his birthday last month, which cost around $25. Do you have any suggestions for other gaming-related gifts?\nassistant: A customized phone case with his favorite game's logo is a great gift! Here are some other gaming-related gift ideas that might interest your brother, considering your budget of around $25:\n\n1.",
+          "id": "ev_98ce50d77e179af996fe4447",
+          "observedAt": "2026-10-14T09:01:51.201Z"
+        },
+        {
+          "sourceId": "memory:89452526_2",
+          "sourceVersion": "sha256:69e8cf88f071857ac2dcfed805eebdbecabdf0afc1f5c23dd37205d4e0888d63",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "89452526_2",
+            "part": 10,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "Pairing the gaming-themed mousepad with a gift card to his favorite gaming platform's store will make a thoughtful and well-rounded gift that shows you care about your brother's gaming interests.\nuser: I think a $25 gift card would be a good amount, considering I spent around that much on the customized phone case for his birthday last month. Do you think that's a good idea?",
+          "id": "ev_b4eb97cdaf275d0e1c06651f",
+          "observedAt": "2026-10-14T09:01:51.201Z"
+        },
+        {
+          "sourceId": "memory:89452526_2",
+          "sourceVersion": "sha256:69e8cf88f071857ac2dcfed805eebdbecabdf0afc1f5c23dd37205d4e0888d63",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "89452526_2",
+            "part": 12,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "user: Now that I have a good idea for the gift, do you think I should include a personal message or a birthday card with the gift, or is the gift itself enough?\nassistant: Including a personal message or a birthday card with the gift is a wonderful idea! It adds a thoughtful and personal touch to the gift, making it even more special and meaningful to your brother.\n\nA personal message or birthday card can:",
+          "id": "ev_6f2fbea624c5801a4349c3b7",
+          "observedAt": "2026-10-14T09:01:51.201Z"
+        },
+        {
+          "sourceId": "memory:89452526_2",
+          "sourceVersion": "sha256:69e8cf88f071857ac2dcfed805eebdbecabdf0afc1f5c23dd37205d4e0888d63",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "89452526_2",
+            "part": 13,
+            "parts": 13,
+            "partial": true
+          },
+          "text": "* \"Thanks for being an awesome gaming buddy, bro! Enjoy the gift and let's play soon!\"\n* \"You're the 'high score' of brothers! Wishing you a year filled with gaming joy and excitement!\"\n\nIf you're short on time or not sure what to write, a simple \"Happy gaming, bro!\" or \"Thanks for being an awesome brother!\" can go a long way.\n\nThe gift itself is certainly a great start, but adding a personal message or birthday card takes it to the next level. It shows you're willing to go the extra mile to make the gift more special and meaningful to your brother.",
+          "id": "ev_0a26c21a1f1e6a66b58641c9",
+          "observedAt": "2026-10-14T09:01:51.201Z"
+        },
+        {
+          "sourceId": "memory:21c6c41d",
+          "sourceVersion": "sha256:334f6900408920edf7a132fdd9939e953cd0fa2feecdb23d9a674b6ac6204e6c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "21c6c41d"
+          },
+          "text": "Session date: 2023/05/24 (Wed) 02:55",
+          "id": "ev_c48277ce984b431f67275405",
+          "observedAt": "2026-10-14T09:01:51.202Z"
+        },
+        {
+          "sourceId": "memory:21c6c41d",
+          "sourceVersion": "sha256:334f6900408920edf7a132fdd9939e953cd0fa2feecdb23d9a674b6ac6204e6c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "21c6c41d",
+            "part": 7,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "(if you're selling at a craft fair)\n* #holidaymarket (if you're selling at a holiday market)\n* #farmersmarket (if you're selling at a farmers market)\n\nRemember to keep your hashtags relevant to the content you're posting. You can use a mix of niche-specific, seasonal, and event-specific hashtags to attract the right audience.\n\nHere's an example of how you could use hashtags in a post:\n\n\"New spring collection is here! Our handmade candles are infused with the sweet scent of blooming flowers. Perfect f",
+          "id": "ev_ca9665bfd86ce0bc70788cca",
+          "observedAt": "2026-10-14T09:01:51.202Z"
+        },
+        {
+          "sourceId": "memory:21c6c41d",
+          "sourceVersion": "sha256:334f6900408920edf7a132fdd9939e953cd0fa2feecdb23d9a674b6ac6204e6c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "21c6c41d",
+            "part": 8,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "* #accessorize\n* #jewelryoftheday\n* #handmadejewelry\n* #uniquejewelry\n* #jewelrydesigner\n* #jewelrymaking\n* #jewelrycollector\n\n**Specific Jewelry Types:**\n\n* #necklaceoftheday (for necklaces)\n* #ringgoals (for rings)\n* #earringlove (for earrings)\n* #braceletstack (for bracelets)\n* #ankletlove (for anklets)\n\n**Materials and Styles:**\n\n* #sterlingsilverjewelry (for sterling silver jewelry)\n* #goldjewelry (for gold jewelry)\n* #gemstonejewelry (for gemstone jewelry)\n* #beadedjewelry (for beaded jewelry)",
+          "id": "ev_b53053ee14359dff5d4a1161",
+          "observedAt": "2026-10-14T09:01:51.202Z"
+        },
+        {
+          "sourceId": "memory:21c6c41d",
+          "sourceVersion": "sha256:334f6900408920edf7a132fdd9939e953cd0fa2feecdb23d9a674b6ac6204e6c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "21c6c41d",
+            "part": 17,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "handmade candles and soaps on Instagram can definitely help attract attendees to your stall at the craft fair. Here are some content ideas to get you started:\n\n**1. Event Announcement:**\nCreate a post announcing your participation in the craft fair, including the date, time, location, and a brief description of what attendees can expect to find at your stall. Use relevant hashtags like #craftfair, #handmadedcandles, #handmadesoaps, and #localartisans.\n\n**2. Sneak Peeks:**",
+          "id": "ev_76cc830f965e43a6fd7de9be",
+          "observedAt": "2026-10-14T09:01:51.202Z"
+        },
+        {
+          "sourceId": "memory:21c6c41d",
+          "sourceVersion": "sha256:334f6900408920edf7a132fdd9939e953cd0fa2feecdb23d9a674b6ac6204e6c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "21c6c41d",
+            "part": 18,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "including your story, inspiration, and what drives your creativity. This helps attendees connect with you on a personal level and builds trust in your brand.\n\n**5. Behind-the-Scenes:**\nGive your followers a glimpse into your creative process, such as how you make your candles or soaps, or how you prepare for the craft fair. This type of content humanizes your brand and creates a sense of authenticity.\n\n**6. Special Offers:**",
+          "id": "ev_84661f181de583876d14a060",
+          "observedAt": "2026-10-14T09:01:51.202Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_fea2e4d3",
+        "89452526_2",
+        "21c6c41d"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.544541000002937,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "answer_fea2e4d3",
+    "89452526_2",
+    "21c6c41d"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T09:01:51.205206+00:00"
+}

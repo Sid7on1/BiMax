@@ -1,0 +1,21 @@
+{
+  "checked": "2026-10-13",
+  "sources": [
+    {
+      "url": "https://nodejs.org/docs/latest-v22.x/api/fs.html",
+      "decision": "Record ctime with mtime/size; hash suspects and retain failed/unavailable input. Stat observations do not prove atomic filesystem snapshots."
+    },
+    {
+      "url": "https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API",
+      "decision": "Create one Program per bounded changed-file batch, extract selected files, retain no Program across refreshes. Snapshot source identities before constructing it."
+    },
+    {
+      "url": "https://www.sqlite.org/atomiccommit.html",
+      "decision": "Keep graph persistence transaction and rollback; propagate failure before hash publication. No power-loss or full installed crash claim from an injected COMMIT failure."
+    },
+    {
+      "url": "https://lucene.apache.org/core/10_3_1/core/org/apache/lucene/util/PriorityQueue.html",
+      "decision": "Investigate bounded heap slot reuse. Reject candidate after exact-output paired timings show no convincing ordered-input win and regressions. Retain previous implementation; no upstream code copied."
+    }
+  ]
+}

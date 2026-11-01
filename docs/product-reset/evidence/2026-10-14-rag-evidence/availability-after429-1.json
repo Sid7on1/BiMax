@@ -1,0 +1,59 @@
+{
+  "at": "2026-10-14T09:12:54.911955+00:00",
+  "status": 200,
+  "wallMs": 952.0295000002079,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Reply only READY."
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 16,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "response": {
+    "id": "chatcmpl-fe5b5543-e8ee-40f2-a30d-972554ff92e4",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "content": "READY",
+          "role": "assistant",
+          "reasoning_content": null
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "created": 1791969174,
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "service_tier": null,
+    "system_fingerprint": null,
+    "object": "chat.completion",
+    "usage": {
+      "prompt_tokens": 21,
+      "completion_tokens": 3,
+      "total_tokens": 24,
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 0,
+        "rejected_prediction_tokens": null
+      }
+    }
+  },
+  "headers": {
+    "Date": "Wed, 14 Oct 2026 09:12:54 GMT"
+  },
+  "scope": "Availability probe after429 cooldown, not a benchmark answer or grading control. Single same configured key, no key rotation."
+}

@@ -1,0 +1,235 @@
+{
+  "row": 249,
+  "id": "gpt4_8279ba02",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T04:47:11.084084+00:00",
+  "valid": true,
+  "question": "How many days ago did I buy a smoker?",
+  "references": [
+    "10 days ago. 11 days (including the last day) is also acceptable."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/03/25 (Sat) 02:46",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 109.51174999999785,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 37,
+        "maxInputChars": 37,
+        "requiredProviderTruncation": false,
+        "promptTokens": 13,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_56521e65_1",
+        "86c5d31d",
+        "85f19a30_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 8 of 18, excerpt) or pork shoulders.\n* They burn slower than wood chips, producing a more consistent smoke flavor over a longer period.\n\n**How to Use Wood Chips and Chunks:**\n\n* Soak the wood chips or chunks in water for at least 30 minutes before using them. This helps them burn more slowly and produce a cleaner smoke flavor.\n* Add the wood chips or chunks to your smoker, either directly on the coals or in a smoker box.\n* For wood chips, you can add them in small handfuls every 30 minutes to 1 hour to maintain a consistent smoke flavor.\n  (part 12 of 18) (about 1 cup) and adjust as needed to achieve the desired smoke flavor.\n* Mix and match different types of wood pellets to create a unique flavor profile.\n\nOverall, wood pellets offer a convenient, efficient, and cost-effective way to add smoke flavor to your meats. They're a great option for those who want a hassle-free smoking experience with consistent results.\nuser: I've been considering trying out wood pellets for my smoker, especially since I've heard they're more efficient and produce a consistent smoke flavor. Can you recommend some good brands or types of wood pellets that are suitable for smoking meats?\nassistant: Wood pellets are a fantastic option for smoking meats, and there are many great brands and types to choose from. Here are some popular and highly-recommended wood pellet brands and types for smoking:\n\n**Top Brands:**\n- (part 3 of 5, excerpt) To make it more specific, can you tell me:\n\n1. Which month was it approximately 3 months ago? (e.g., March, April, or May)\n2. Was it a specific weekend, like a holiday weekend or a random one?\n- (part 13 of 19, excerpt) user: I'd like to know more about the Ferry Building's history. What's the story behind this iconic landmark, and how did it become a f",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_56521e65_1",
+          "sourceVersion": "sha256:d338a06ecfdc133229e119db8a84fe625456092fd5f094b3c5a79a132ab9e326",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_56521e65_1",
+            "part": 8,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "or pork shoulders.\n* They burn slower than wood chips, producing a more consistent smoke flavor over a longer period.\n\n**How to Use Wood Chips and Chunks:**\n\n* Soak the wood chips or chunks in water for at least 30 minutes before using them. This helps them burn more slowly and produce a cleaner smoke flavor.\n* Add the wood chips or chunks to your smoker, either directly on the coals or in a smoker box.\n* For wood chips, you can add them in small handfuls every 30 minutes to 1 hour to maintain a consistent smoke flavor.",
+          "id": "ev_11647d15d476557ae8794b9a",
+          "observedAt": "2026-10-14T04:47:11.202Z"
+        },
+        {
+          "sourceId": "memory:answer_56521e65_1",
+          "sourceVersion": "sha256:d338a06ecfdc133229e119db8a84fe625456092fd5f094b3c5a79a132ab9e326",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_56521e65_1",
+            "part": 12,
+            "parts": 18
+          },
+          "text": "(about 1 cup) and adjust as needed to achieve the desired smoke flavor.\n* Mix and match different types of wood pellets to create a unique flavor profile.\n\nOverall, wood pellets offer a convenient, efficient, and cost-effective way to add smoke flavor to your meats. They're a great option for those who want a hassle-free smoking experience with consistent results.\nuser: I've been considering trying out wood pellets for my smoker, especially since I've heard they're more efficient and produce a consistent smoke flavor. Can you recommend some good brands or types of wood pellets that are suitable for smoking meats?\nassistant: Wood pellets are a fantastic option for smoking meats, and there are many great brands and types to choose from. Here are some popular and highly-recommended wood pellet brands and types for smoking:\n\n**Top Brands:**",
+          "id": "ev_d714be5cb5c5213ed6330ec6",
+          "observedAt": "2026-10-14T04:47:11.203Z"
+        },
+        {
+          "sourceId": "memory:86c5d31d",
+          "sourceVersion": "sha256:b442a56922cd1cae9d7d0ddee42c6ac8960e68c4f432fd4377d2964bf0bf2b99",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "86c5d31d",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "To make it more specific, can you tell me:\n\n1. Which month was it approximately 3 months ago? (e.g., March, April, or May)\n2. Was it a specific weekend, like a holiday weekend or a random one?",
+          "id": "ev_a04d42be07a3707791e862c3",
+          "observedAt": "2026-10-14T04:47:11.203Z"
+        },
+        {
+          "sourceId": "memory:85f19a30_1",
+          "sourceVersion": "sha256:a6e6c5810a67d60823f59356bede8e800759ad2f1d79e6cc3541afb682fa7fed",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "85f19a30_1",
+            "part": 13,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "user: I'd like to know more about the Ferry Building's history. What's the story behind this iconic landmark, and how did it become a f",
+          "id": "ev_38e8438c5cd449cb20e32b34",
+          "observedAt": "2026-10-14T04:47:11.203Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_56521e65_1",
+        "86c5d31d",
+        "85f19a30_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 10.606958000000304,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_56521e65_1",
+        "86c5d31d",
+        "85f19a30_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 8 of 18, excerpt) or pork shoulders.\n* They burn slower than wood chips, producing a more consistent smoke flavor over a longer period.\n\n**How to Use Wood Chips and Chunks:**\n\n* Soak the wood chips or chunks in water for at least 30 minutes before using them. This helps them burn more slowly and produce a cleaner smoke flavor.\n* Add the wood chips or chunks to your smoker, either directly on the coals or in a smoker box.\n* For wood chips, you can add them in small handfuls every 30 minutes to 1 hour to maintain a consistent smoke flavor.\n  (part 12 of 18) (about 1 cup) and adjust as needed to achieve the desired smoke flavor.\n* Mix and match different types of wood pellets to create a unique flavor profile.\n\nOverall, wood pellets offer a convenient, efficient, and cost-effective way to add smoke flavor to your meats. They're a great option for those who want a hassle-free smoking experience with consistent results.\nuser: I've been considering trying out wood pellets for my smoker, especially since I've heard they're more efficient and produce a consistent smoke flavor. Can you recommend some good brands or types of wood pellets that are suitable for smoking meats?\nassistant: Wood pellets are a fantastic option for smoking meats, and there are many great brands and types to choose from. Here are some popular and highly-recommended wood pellet brands and types for smoking:\n\n**Top Brands:**\n- (part 3 of 5, excerpt) To make it more specific, can you tell me:\n\n1. Which month was it approximately 3 months ago? (e.g., March, April, or May)\n2. Was it a specific weekend, like a holiday weekend or a random one?\n- (part 13 of 19, excerpt) user: I'd like to know more about the Ferry Building's history. What's the story behind this iconic landmark, and how did it become a f",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_56521e65_1",
+          "sourceVersion": "sha256:d338a06ecfdc133229e119db8a84fe625456092fd5f094b3c5a79a132ab9e326",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_56521e65_1",
+            "part": 8,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "or pork shoulders.\n* They burn slower than wood chips, producing a more consistent smoke flavor over a longer period.\n\n**How to Use Wood Chips and Chunks:**\n\n* Soak the wood chips or chunks in water for at least 30 minutes before using them. This helps them burn more slowly and produce a cleaner smoke flavor.\n* Add the wood chips or chunks to your smoker, either directly on the coals or in a smoker box.\n* For wood chips, you can add them in small handfuls every 30 minutes to 1 hour to maintain a consistent smoke flavor.",
+          "id": "ev_11647d15d476557ae8794b9a",
+          "observedAt": "2026-10-14T04:47:11.205Z"
+        },
+        {
+          "sourceId": "memory:answer_56521e65_1",
+          "sourceVersion": "sha256:d338a06ecfdc133229e119db8a84fe625456092fd5f094b3c5a79a132ab9e326",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_56521e65_1",
+            "part": 12,
+            "parts": 18
+          },
+          "text": "(about 1 cup) and adjust as needed to achieve the desired smoke flavor.\n* Mix and match different types of wood pellets to create a unique flavor profile.\n\nOverall, wood pellets offer a convenient, efficient, and cost-effective way to add smoke flavor to your meats. They're a great option for those who want a hassle-free smoking experience with consistent results.\nuser: I've been considering trying out wood pellets for my smoker, especially since I've heard they're more efficient and produce a consistent smoke flavor. Can you recommend some good brands or types of wood pellets that are suitable for smoking meats?\nassistant: Wood pellets are a fantastic option for smoking meats, and there are many great brands and types to choose from. Here are some popular and highly-recommended wood pellet brands and types for smoking:\n\n**Top Brands:**",
+          "id": "ev_d714be5cb5c5213ed6330ec6",
+          "observedAt": "2026-10-14T04:47:11.205Z"
+        },
+        {
+          "sourceId": "memory:86c5d31d",
+          "sourceVersion": "sha256:b442a56922cd1cae9d7d0ddee42c6ac8960e68c4f432fd4377d2964bf0bf2b99",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "86c5d31d",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "To make it more specific, can you tell me:\n\n1. Which month was it approximately 3 months ago? (e.g., March, April, or May)\n2. Was it a specific weekend, like a holiday weekend or a random one?",
+          "id": "ev_a04d42be07a3707791e862c3",
+          "observedAt": "2026-10-14T04:47:11.206Z"
+        },
+        {
+          "sourceId": "memory:85f19a30_1",
+          "sourceVersion": "sha256:a6e6c5810a67d60823f59356bede8e800759ad2f1d79e6cc3541afb682fa7fed",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "85f19a30_1",
+            "part": 13,
+            "parts": 19,
+            "partial": true
+          },
+          "text": "user: I'd like to know more about the Ferry Building's history. What's the story behind this iconic landmark, and how did it become a f",
+          "id": "ev_38e8438c5cd449cb20e32b34",
+          "observedAt": "2026-10-14T04:47:11.206Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_56521e65_1",
+        "86c5d31d",
+        "85f19a30_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.4009159999986878,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:47:11.207184+00:00"
+}

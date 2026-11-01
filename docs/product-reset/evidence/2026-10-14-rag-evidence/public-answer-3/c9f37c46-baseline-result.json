@@ -1,0 +1,164 @@
+{
+  "row": 331,
+  "id": "c9f37c46",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T08:42:43.776774+00:00",
+  "valid": true,
+  "question": "How long had I been watching stand-up comedy specials regularly when I attended the open mic night at the local comedy club?",
+  "references": [
+    "2 months"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/05/20 (Sat) 00:44",
+  "benchmarkSessionIds": [
+    "answer_cdba3d9f_1",
+    "answer_cdba3d9f_2",
+    "c3d6a282_1"
+  ],
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:43:13.470514+00:00",
+  "rag": {
+    "ids": [
+      "answer_cdba3d9f_1",
+      "answer_cdba3d9f_2",
+      "c3d6a282_1"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 21, excerpt) Session date: 2023/05/20 (Sat) 12:45\nuser: I'm looking for some comedy recommendations. I've been really into stand-up lately - I think it started about 3 months ago when I watched that Netflix special by John Mulaney, and I've been watching stand-ups regularly ever since. Can you suggest some comedians or specials I might enjoy?\nassistant: John Mulaney is a fantastic comedian! If you enjoyed his special, here are some comedian recommendations and Netflix specials that you might enjoy:\n\n**Similar Style to John Mulaney:**\n  (part 11 of 21) While taking the class, continue attending open mics to apply what you're learning, get more stage time, and stay connected with the local comedy community.\n\nRemember, there's no one-size-fits-all approach. You can always try out open mics and then decide to take a class, or vice versa. The key is to find a approach that works for you and helps you grow as a comedian.\nuser: That's really helpful, thanks! I think I'll try attending a few open mics first to get a feel for the scene and see how I like it. Do you think it's better to try to come up with new material for each open mic, or should I focus on refining a few jokes and trying to make them better?\nassistant: When it comes to open mics, it's a good idea to strike a balance between trying out new material and refining existing jokes. Here's a suggested approach:\n\n**Initial Open Mics (1-3):**\n- (part 1 of 17, excerpt) user: I'm looking for some advice on writing jokes. I've recently gotten into stand-up comedy and I'm trying to improve my craft. Last month, I finally worked up the courage to attend an open\n- (part 2 of 16, excerpt) 1. **How Did This Get Made?**: A hilarious podcast where comedians and celebrities discuss weird movies. Episodes are around",
+    "evidence": [
+      {
+        "sourceId": "memory:answer_cdba3d9f_1",
+        "sourceVersion": "sha256:6fe507ce37235be02323d38dbeae246ad36adca9cfc6a8dc225ea0b40709e841",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_cdba3d9f_1",
+          "part": 1,
+          "parts": 21,
+          "partial": true
+        },
+        "text": "Session date: 2023/05/20 (Sat) 12:45\nuser: I'm looking for some comedy recommendations. I've been really into stand-up lately - I think it started about 3 months ago when I watched that Netflix special by John Mulaney, and I've been watching stand-ups regularly ever since. Can you suggest some comedians or specials I might enjoy?\nassistant: John Mulaney is a fantastic comedian! If you enjoyed his special, here are some comedian recommendations and Netflix specials that you might enjoy:\n\n**Similar Style to John Mulaney:**",
+        "id": "ev_232dd5081d83a0c1ef4922f0",
+        "observedAt": "2026-10-14T08:38:25.358Z"
+      },
+      {
+        "sourceId": "memory:answer_cdba3d9f_1",
+        "sourceVersion": "sha256:6fe507ce37235be02323d38dbeae246ad36adca9cfc6a8dc225ea0b40709e841",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_cdba3d9f_1",
+          "part": 11,
+          "parts": 21
+        },
+        "text": "While taking the class, continue attending open mics to apply what you're learning, get more stage time, and stay connected with the local comedy community.\n\nRemember, there's no one-size-fits-all approach. You can always try out open mics and then decide to take a class, or vice versa. The key is to find a approach that works for you and helps you grow as a comedian.\nuser: That's really helpful, thanks! I think I'll try attending a few open mics first to get a feel for the scene and see how I like it. Do you think it's better to try to come up with new material for each open mic, or should I focus on refining a few jokes and trying to make them better?\nassistant: When it comes to open mics, it's a good idea to strike a balance between trying out new material and refining existing jokes. Here's a suggested approach:\n\n**Initial Open Mics (1-3):**",
+        "id": "ev_3be50d50699e18505b51d31e",
+        "observedAt": "2026-10-14T08:38:25.359Z"
+      },
+      {
+        "sourceId": "memory:answer_cdba3d9f_2",
+        "sourceVersion": "sha256:5c4629f6eaf49ddddd6a9f710d8ec940a9ad83e69fc01f45d61ce586c7088d46",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_cdba3d9f_2",
+          "part": 1,
+          "parts": 17,
+          "partial": true
+        },
+        "text": "user: I'm looking for some advice on writing jokes. I've recently gotten into stand-up comedy and I'm trying to improve my craft. Last month, I finally worked up the courage to attend an open",
+        "id": "ev_43e14a3cbf256092dd4ebbed",
+        "observedAt": "2026-10-14T08:38:25.359Z"
+      },
+      {
+        "sourceId": "memory:c3d6a282_1",
+        "sourceVersion": "sha256:5415b2e2a75deeea799a3cd8f92a32313ab161c2991606d7fe1d44fea93662c4",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "c3d6a282_1",
+          "part": 2,
+          "parts": 16,
+          "partial": true
+        },
+        "text": "1. **How Did This Get Made?**: A hilarious podcast where comedians and celebrities discuss weird movies. Episodes are around",
+        "id": "ev_255f36b690b2ed5a5d62355a",
+        "observedAt": "2026-10-14T08:38:25.359Z"
+      }
+    ],
+    "sourceIds": [
+      "answer_cdba3d9f_1",
+      "answer_cdba3d9f_2",
+      "c3d6a282_1"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 18.640292000000045,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Based on the retrieved history from the same day (2023/05/20), you mentioned in a later session at 12:45 that you'd been into stand-up for \"about 3 months ago\" when you watched the John Mulaney special, and had been watching regularly ever since. That would place the start of your regular viewing around February 20, 2023. \n\nA separate earlier entry notes you attended an open mic \"last month\" relative to that session. Given the date of your question (2023/05/20) and the timeline in the logs, you had been watching stand-up regularly for approximately **3 months** when you attended the open mic night.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.021739130434782608
+  },
+  "readerUsage": {
+    "prompt_tokens": 577,
+    "completion_tokens": 1179,
+    "total_tokens": 1756,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 537,
+    "completion_tokens": 1026,
+    "total_tokens": 1563,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 17402.918165999836,
+  "judgeWallMs": 12289.165958000012
+}

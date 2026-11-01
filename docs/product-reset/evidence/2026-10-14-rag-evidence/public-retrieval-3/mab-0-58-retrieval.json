@@ -1,0 +1,256 @@
+{
+  "row": 0,
+  "query": 58,
+  "id": "mab-0-58",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:38:04.973826+00:00",
+  "valid": true,
+  "question": "What country was under the control of Norman barons?",
+  "references": [
+    "Wales",
+    "Wales",
+    "Wales"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 655.8904579999944,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 52,
+        "maxInputChars": 52,
+        "requiredProviderTruncation": false,
+        "promptTokens": 12,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-227",
+        "context-238",
+        "context-129"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 5) light. This insight united the nascent fields of electromagnetic theory with optics and led directly to a complete description of the electromagnetic spectrum.\n\nDocument 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n  (part 5 of 5, excerpt) Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n\nDocument 1141:\n- (part 1 of 5, excerpt) ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture and musical traditions, and for their significant military accomplishments and innovations. Norman adventurers founded the Kingdom of Sicily under Roger II after conquering southern Italy on the Saracens and B\n- (part 5 of 5, excerpt) The Normans thereafter adopted the growing feudal doctrines of the rest of France, and worked them into a functional hierarch",
+      "evidence": [
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "light. This insight united the nascent fields of electromagnetic theory with optics and led directly to a complete description of the electromagnetic spectrum.\n\nDocument 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.",
+          "id": "ev_4575747702d68363dfe23992",
+          "observedAt": "2026-10-14T08:38:05.632Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n\nDocument 1141:",
+          "id": "ev_c391cc6d316eb23d9b4468d9",
+          "observedAt": "2026-10-14T08:38:05.632Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture and musical traditions, and for their significant military accomplishments and innovations. Norman adventurers founded the Kingdom of Sicily under Roger II after conquering southern Italy on the Saracens and B",
+          "id": "ev_fb47af311fe198f35f7cd28b",
+          "observedAt": "2026-10-14T08:38:05.632Z"
+        },
+        {
+          "sourceId": "memory:context-129",
+          "sourceVersion": "sha256:2ba59df08a40b4181a9210823692bccb63a36bdfb8b42265b2602d068e7b54a2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-129",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The Normans thereafter adopted the growing feudal doctrines of the rest of France, and worked them into a functional hierarch",
+          "id": "ev_da897c377269918be7817717",
+          "observedAt": "2026-10-14T08:38:05.632Z"
+        }
+      ],
+      "sourceIds": [
+        "context-227",
+        "context-238",
+        "context-129"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.0469169999996666,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-227",
+        "context-238",
+        "context-129"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 5) light. This insight united the nascent fields of electromagnetic theory with optics and led directly to a complete description of the electromagnetic spectrum.\n\nDocument 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n  (part 5 of 5) Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n\nDocument 1141:\nIn 2014, economists with the Standard & Poor's rating agency concluded that the widening disparity between the U.S.'s wealthiest citizens and the rest of the nation had slowed its recovery from the 2008-2009 recession and made it more prone to boom-and-bust cycles. To partially remedy the wealth gap and the resulting slow growth, S&P recommended increasing access to education. It estimated that if the average United States worker had completed just\n- (part 1 of 5) ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture and musical traditions, and for their significant military accomplishments and innovations. Norman adventurers founded the Kingdom of Sicily under Roger II after conquering southern Italy on the Saracens and Byzantines, and an expedition on behalf of their duke, William the Conqueror, led to the Norman conquest of England at the Battle of Hastings in 1066. Norman cultural and military influence spread from these new European centres to the Crusader states of the Near East, where their prince Bohemond I founded the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n  (part 2 of 5) the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n\nDocument 1193:\nIn the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"renaissance\" of Norman art and scholarship were Mont-Saint-Michel, F\u00e9camp, Jumi\u00e8ges, Bec, Saint-Ouen, Saint-Evroul, and Saint-Wandrille. These centres were in contact with the so-called \"Winchester school\", which channeled a pure Carolingian artistic tradition to Normandy. In the final decade of the 11th and first of the 12th century, Normandy experienced a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.\n- (part 5 of 5) He decided that a time-sharing system, based on Kemney's work at Dartmouth\u2014which used a computer on loan from GE\u2014could be profitable. Warner was right.)\n\nDocument 648:\nThe Normans thereafter adopted the growing feudal doctrines of the rest of France, and worked them into a functional hierarchical system in both Normandy and in England. The new Norman rulers were culturally and ethnically distinct from the old French aristocracy, most of whom traced their lineage to Franks of the Carolingian dynasty. Most Norman knights remained poor and land-hungry, and by 1066 Normandy had been exporting fighting horsemen for more than a generation. Many Normans of Italy, France and England eventually served as avid Crusaders under the Italo-Norman prince Bohemund I and the Anglo-Norman king Richard the Lion-Heart.\n\nDocument 649:\nA controversial aspect of imperialism is the defense and justification of empire-building based on seemingly rational grounds. J. A. Hobson identifies this justification on general grounds as: \"It is desirable that the earth should be peopled, governed, and developed, as far as possible, by the races which can do this work best, i.e. by the races of",
+      "evidence": [
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "light. This insight united the nascent fields of electromagnetic theory with optics and led directly to a complete description of the electromagnetic spectrum.\n\nDocument 1139:\nSubsequent to the Conquest, however, the Marches came completely under the dominance of William's most trusted Norman barons, including Bernard de Neufmarch\u00e9, Roger of Montgomery in Shropshire and Hugh Lupus in Cheshire. These Normans began a long period of slow conquest during which almost all of Wales was at some point subject to Norman interference. Norman words, such as baron (barwn), first entered Welsh at that time.\n\nDocument 1140:\nIn England, the period of Norman architecture immediately succeeds that of the Anglo-Saxon and precedes the Early Gothic. In southern Italy, the Normans incorporated elements of Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.",
+          "id": "ev_4575747702d68363dfe23992",
+          "observedAt": "2026-10-14T08:38:05.634Z"
+        },
+        {
+          "sourceId": "memory:context-227",
+          "sourceVersion": "sha256:4d7a790c3753a3f0a9ba2760ce0875a03b90ca7f38e032ba3d5b446eee782f27",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-227",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "Islamic, Lombard, and Byzantine building techniques into their own, initiating a unique style known as Norman-Arab architecture within the Kingdom of Sicily.\n\nDocument 1141:\nIn 2014, economists with the Standard & Poor's rating agency concluded that the widening disparity between the U.S.'s wealthiest citizens and the rest of the nation had slowed its recovery from the 2008-2009 recession and made it more prone to boom-and-bust cycles. To partially remedy the wealth gap and the resulting slow growth, S&P recommended increasing access to education. It estimated that if the average United States worker had completed just",
+          "id": "ev_f562a36d99d0f12f9304dc3a",
+          "observedAt": "2026-10-14T08:38:05.634Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "ch crown, was a great fief of medieval France, and under Richard I of Normandy was forged into a cohesive and formidable principality in feudal tenure. The Normans are noted both for their culture, such as their unique Romanesque architecture and musical traditions, and for their significant military accomplishments and innovations. Norman adventurers founded the Kingdom of Sicily under Roger II after conquering southern Italy on the Saracens and Byzantines, and an expedition on behalf of their duke, William the Conqueror, led to the Norman conquest of England at the Battle of Hastings in 1066. Norman cultural and military influence spread from these new European centres to the Crusader states of the Near East, where their prince Bohemond I founded the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.",
+          "id": "ev_1664e9ae72dd2ec51b485949",
+          "observedAt": "2026-10-14T08:38:05.634Z"
+        },
+        {
+          "sourceId": "memory:context-238",
+          "sourceVersion": "sha256:912ef953e717df3deff60fe2d61ba29dfa571349e50ace962ed31849d5285967",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-238",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "the Principality of Antioch in the Levant, to Scotland and Wales in Great Britain, to Ireland, and to the coasts of north Africa and the Canary Islands.\n\nDocument 1193:\nIn the visual arts, the Normans did not have the rich and distinctive traditions of the cultures they conquered. However, in the early 11th century the dukes began a programme of church reform, encouraging the Cluniac reform of monasteries and patronising intellectual pursuits, especially the proliferation of scriptoria and the reconstitution of a compilation of lost illuminated manuscripts. The church was utilised by the dukes as a unifying force for their disparate duchy. The chief monasteries taking part in this \"renaissance\" of Norman art and scholarship were Mont-Saint-Michel, F\u00e9camp, Jumi\u00e8ges, Bec, Saint-Ouen, Saint-Evroul, and Saint-Wandrille. These centres were in contact with the so-called \"Winchester school\", which channeled a pure Carolingian artistic tradition to Normandy. In the final decade of the 11th and first of the 12th century, Normandy experienced a golden age of illustrated manuscripts, but it was brief and the major scriptoria of Normandy ceased to function after the midpoint of the century.",
+          "id": "ev_67ccc53433eaadaa83674ec1",
+          "observedAt": "2026-10-14T08:38:05.634Z"
+        },
+        {
+          "sourceId": "memory:context-129",
+          "sourceVersion": "sha256:2ba59df08a40b4181a9210823692bccb63a36bdfb8b42265b2602d068e7b54a2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-129",
+            "part": 5,
+            "parts": 5
+          },
+          "text": "He decided that a time-sharing system, based on Kemney's work at Dartmouth\u2014which used a computer on loan from GE\u2014could be profitable. Warner was right.)\n\nDocument 648:\nThe Normans thereafter adopted the growing feudal doctrines of the rest of France, and worked them into a functional hierarchical system in both Normandy and in England. The new Norman rulers were culturally and ethnically distinct from the old French aristocracy, most of whom traced their lineage to Franks of the Carolingian dynasty. Most Norman knights remained poor and land-hungry, and by 1066 Normandy had been exporting fighting horsemen for more than a generation. Many Normans of Italy, France and England eventually served as avid Crusaders under the Italo-Norman prince Bohemund I and the Anglo-Norman king Richard the Lion-Heart.\n\nDocument 649:\nA controversial aspect of imperialism is the defense and justification of empire-building based on seemingly rational grounds. J. A. Hobson identifies this justification on general grounds as: \"It is desirable that the earth should be peopled, governed, and developed, as far as possible, by the races which can do this work best, i.e. by the races of",
+          "id": "ev_8a7c2eb677187270e5184a90",
+          "observedAt": "2026-10-14T08:38:05.634Z"
+        }
+      ],
+      "sourceIds": [
+        "context-227",
+        "context-238",
+        "context-129"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.1487080000006245,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-227",
+    "context-238",
+    "context-129"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:38:05.636601+00:00"
+}

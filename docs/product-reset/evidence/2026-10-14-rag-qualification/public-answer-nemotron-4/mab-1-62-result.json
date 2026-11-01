@@ -1,0 +1,233 @@
+{
+  "row": 1,
+  "query": 62,
+  "id": "mab-1-62",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "question": "Who was born earlier, Emma Bull or Virginia Woolf?",
+  "references": [
+    "Adeline Virginia Woolf"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 441.1948330000014,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 50,
+        "maxInputChars": 50,
+        "requiredProviderTruncation": false,
+        "promptTokens": 13,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-123",
+        "context-326",
+        "context-78"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 6) , active in the 1930s and early 1940s.\n\nDocument 900:\nVirginia Woolf\nAdeline Virginia Woolf (n\u00e9e Stephen; 25 January 1882 \u2013 28 March 1941) was an English writer who is considered one of the foremost modernists of the twentieth century, and a pioneer in the use of stream of consciousness as a narrative device. Born in an affluent household in Kensington, London, she attended the King's College London and was acquainted with the early reformers of women's higher education.\n- (part 2 of 6) the film, his only true friend, aside from his mother, is the mouse, Timothy \u2013 a relationship parodying the stereotypical animosity between mice and elephants.\n\nDocument 2360:\nEmma Bull\nEmma Bull (born December 13, 1954) is an American science fiction and fantasy author. Her novels include the Hugo- and Nebula-nominated \"Bone Dance\" and the urban fantasy \"War for the Oaks\". She is also known for a series of anthologies set in Liavek, a shared universe that she created with her husband Will Shetterly. As a singer, songwriter, and guitarist, she has been a member of the Minneapolis-based folk/rock bands Cats Laughing and The Flash Girls.\n- (part 3 of 6, excerpt) Jane Marcus (1938\u20132015) was a pioneering feminist literary scholar, specializing in women writers of the Modernist era, but especially in the social and political context of their writings. Focusing on Virginia Woolf, Rebecca West, and Nancy Cunard, among many others, she devised groundbreaking analyses of Woolf's writings, upending a generation of criticism that ignored feminist, pacifist, and socialist themes in much of Woolf's work and critique of imperialism and bourgeois society. Marcus's understanding of Woolf's place within the larger context of English literature has become prevailing wisdom today in the",
+      "evidence": [
+        {
+          "sourceId": "memory:context-123",
+          "sourceVersion": "sha256:278141b63f54fd73e773c12dec002f1480379e67e06acf1758e3b274ced06e2d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-123",
+            "part": 1,
+            "parts": 6
+          },
+          "text": ", active in the 1930s and early 1940s.\n\nDocument 900:\nVirginia Woolf\nAdeline Virginia Woolf (n\u00e9e Stephen; 25 January 1882 \u2013 28 March 1941) was an English writer who is considered one of the foremost modernists of the twentieth century, and a pioneer in the use of stream of consciousness as a narrative device. Born in an affluent household in Kensington, London, she attended the King's College London and was acquainted with the early reformers of women's higher education.",
+          "id": "ev_365a1f3d88c652a0854a1dba",
+          "observedAt": "2026-10-14T04:49:00.603Z"
+        },
+        {
+          "sourceId": "memory:context-326",
+          "sourceVersion": "sha256:88a61d89f861d47e5942853482589e4d2373707e9a664937b56a8387335e47ab",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-326",
+            "part": 2,
+            "parts": 6
+          },
+          "text": "the film, his only true friend, aside from his mother, is the mouse, Timothy \u2013 a relationship parodying the stereotypical animosity between mice and elephants.\n\nDocument 2360:\nEmma Bull\nEmma Bull (born December 13, 1954) is an American science fiction and fantasy author. Her novels include the Hugo- and Nebula-nominated \"Bone Dance\" and the urban fantasy \"War for the Oaks\". She is also known for a series of anthologies set in Liavek, a shared universe that she created with her husband Will Shetterly. As a singer, songwriter, and guitarist, she has been a member of the Minneapolis-based folk/rock bands Cats Laughing and The Flash Girls.",
+          "id": "ev_30da99d3523439b2ff1d5fc6",
+          "observedAt": "2026-10-14T04:49:00.603Z"
+        },
+        {
+          "sourceId": "memory:context-78",
+          "sourceVersion": "sha256:e99c10282004b124cc08d658cf59657992b5c484785da7459303517f5676034d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-78",
+            "part": 3,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Jane Marcus (1938\u20132015) was a pioneering feminist literary scholar, specializing in women writers of the Modernist era, but especially in the social and political context of their writings. Focusing on Virginia Woolf, Rebecca West, and Nancy Cunard, among many others, she devised groundbreaking analyses of Woolf's writings, upending a generation of criticism that ignored feminist, pacifist, and socialist themes in much of Woolf's work and critique of imperialism and bourgeois society. Marcus's understanding of Woolf's place within the larger context of English literature has become prevailing wisdom today in the",
+          "id": "ev_ab0bd6925e0bc195a2361ce5",
+          "observedAt": "2026-10-14T04:49:00.603Z"
+        }
+      ],
+      "sourceIds": [
+        "context-123",
+        "context-326",
+        "context-78"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.063708000001498,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-123",
+        "context-326",
+        "context-78"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 6) , active in the 1930s and early 1940s.\n\nDocument 900:\nVirginia Woolf\nAdeline Virginia Woolf (n\u00e9e Stephen; 25 January 1882 \u2013 28 March 1941) was an English writer who is considered one of the foremost modernists of the twentieth century, and a pioneer in the use of stream of consciousness as a narrative device. Born in an affluent household in Kensington, London, she attended the King's College London and was acquainted with the early reformers of women's higher education.\n- (part 2 of 6) the film, his only true friend, aside from his mother, is the mouse, Timothy \u2013 a relationship parodying the stereotypical animosity between mice and elephants.\n\nDocument 2360:\nEmma Bull\nEmma Bull (born December 13, 1954) is an American science fiction and fantasy author. Her novels include the Hugo- and Nebula-nominated \"Bone Dance\" and the urban fantasy \"War for the Oaks\". She is also known for a series of anthologies set in Liavek, a shared universe that she created with her husband Will Shetterly. As a singer, songwriter, and guitarist, she has been a member of the Minneapolis-based folk/rock bands Cats Laughing and The Flash Girls.\n- (part 3 of 6, excerpt) Jane Marcus (1938\u20132015) was a pioneering feminist literary scholar, specializing in women writers of the Modernist era, but especially in the social and political context of their writings. Focusing on Virginia Woolf, Rebecca West, and Nancy Cunard, among many others, she devised groundbreaking analyses of Woolf's writings, upending a generation of criticism that ignored feminist, pacifist, and socialist themes in much of Woolf's work and critique of imperialism and bourgeois society. Marcus's understanding of Woolf's place within the larger context of English literature has become prevailing wisdom today in the",
+      "evidence": [
+        {
+          "sourceId": "memory:context-123",
+          "sourceVersion": "sha256:278141b63f54fd73e773c12dec002f1480379e67e06acf1758e3b274ced06e2d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-123",
+            "part": 1,
+            "parts": 6
+          },
+          "text": ", active in the 1930s and early 1940s.\n\nDocument 900:\nVirginia Woolf\nAdeline Virginia Woolf (n\u00e9e Stephen; 25 January 1882 \u2013 28 March 1941) was an English writer who is considered one of the foremost modernists of the twentieth century, and a pioneer in the use of stream of consciousness as a narrative device. Born in an affluent household in Kensington, London, she attended the King's College London and was acquainted with the early reformers of women's higher education.",
+          "id": "ev_365a1f3d88c652a0854a1dba",
+          "observedAt": "2026-10-14T04:49:00.608Z"
+        },
+        {
+          "sourceId": "memory:context-326",
+          "sourceVersion": "sha256:88a61d89f861d47e5942853482589e4d2373707e9a664937b56a8387335e47ab",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-326",
+            "part": 2,
+            "parts": 6
+          },
+          "text": "the film, his only true friend, aside from his mother, is the mouse, Timothy \u2013 a relationship parodying the stereotypical animosity between mice and elephants.\n\nDocument 2360:\nEmma Bull\nEmma Bull (born December 13, 1954) is an American science fiction and fantasy author. Her novels include the Hugo- and Nebula-nominated \"Bone Dance\" and the urban fantasy \"War for the Oaks\". She is also known for a series of anthologies set in Liavek, a shared universe that she created with her husband Will Shetterly. As a singer, songwriter, and guitarist, she has been a member of the Minneapolis-based folk/rock bands Cats Laughing and The Flash Girls.",
+          "id": "ev_30da99d3523439b2ff1d5fc6",
+          "observedAt": "2026-10-14T04:49:00.608Z"
+        },
+        {
+          "sourceId": "memory:context-78",
+          "sourceVersion": "sha256:e99c10282004b124cc08d658cf59657992b5c484785da7459303517f5676034d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-78",
+            "part": 3,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Jane Marcus (1938\u20132015) was a pioneering feminist literary scholar, specializing in women writers of the Modernist era, but especially in the social and political context of their writings. Focusing on Virginia Woolf, Rebecca West, and Nancy Cunard, among many others, she devised groundbreaking analyses of Woolf's writings, upending a generation of criticism that ignored feminist, pacifist, and socialist themes in much of Woolf's work and critique of imperialism and bourgeois society. Marcus's understanding of Woolf's place within the larger context of English literature has become prevailing wisdom today in the",
+          "id": "ev_ab0bd6925e0bc195a2361ce5",
+          "observedAt": "2026-10-14T04:49:00.609Z"
+        }
+      ],
+      "sourceIds": [
+        "context-123",
+        "context-326",
+        "context-78"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.219041999996989,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "started": "2026-10-14T07:46:08.566188+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Virginia Woolf was born earlier (25 January 1882) than Emma Bull (born December 13, 1954).",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 539,
+    "completion_tokens": 503,
+    "total_tokens": 1042,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 469,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 276,
+    "completion_tokens": 664,
+    "total_tokens": 940,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 661,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 5719.371041999921,
+  "judgeWallMs": 7363.637292000021,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.2222222222222222
+  },
+  "ended": "2026-10-14T07:46:21.652265+00:00"
+}

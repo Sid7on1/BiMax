@@ -1,0 +1,249 @@
+{
+  "date": "2026-10-26",
+  "record": 116,
+  "classicBaselineCommit": "7d1346dd9f428ce780871a652ce2f3a27b5388f6",
+  "classicSourceSha256": "137032b875c291d27345f64aced2248c5053f6772a66581dcd8eaa1aa4678531",
+  "desktopFocused": {
+    "tests": 153,
+    "suites": 11
+  },
+  "rendererRecoveryUnits": 4,
+  "rendered": {
+    "renderer": {
+      "count": 36,
+      "checks": [
+        "phone renders classic GFM, Highlight.js, KaTeX and Mermaid offline",
+        "raw HTML remains literal and remote images do not load",
+        "unsafe links have no navigation target",
+        "phone cannot access Desktop bridge or keep-output actions",
+        "native Copy receives exact code bytes",
+        "HTTP links require native bridge confirmation and never navigate",
+        "phone and actual Desktop Markdown match structure, bytes, font, size, line spacing and colors",
+        "classic Desktop code Copy and Keep output preserve exact code/language, with duplicate save disabled",
+        "completed blocks retain DOM identity during streaming",
+        "actual shared renderer applies incremental streaming patches",
+        "changed-tail patch exposes Retry through the narrow bridge",
+        "incomplete diagram remains readable without speculative SVG",
+        "CSP blocks non-nonce scripts and network requests",
+        "phone and Desktop use the same message component and user bubble structure/styles",
+        "reasoning disclosure and text layout use one shared Desktop/phone implementation",
+        "phone uses actual Desktop generation words, reasoning tail, status and shimmer",
+        "live reasoning can be hidden and shown with the same Desktop control",
+        "Desktop generation words rotate on the phone while waiting for an answer",
+        "same Desktop guard hides degenerate reasoning rather than printing token loops",
+        "generation indicator gives way to streamed answer text",
+        "phone thinking display honors system Reduce Motion",
+        "app Reduce motion stops generation-word rotation and shimmer even with system motion enabled",
+        "thinking-detail setting hides live reasoning while preserving the working indicator",
+        "preference-only patches restore available reasoning and re-enable motion live",
+        "hidden thinking does not remove completed answers or expose reasoning disclosures",
+        "Follow new replies off preserves reading position during a long live conversation",
+        "Follow new replies on tracks the bottom after the reader returns there",
+        "classic code keeps one compact Copy control and a single scrolling frame",
+        "phone canvas supports actual comfortable 17px and large 19px reading sizes through preference-only patches",
+        "larger phone canvas keeps long code and tables inside the viewport at 320px",
+        "actual Desktop Transcript uses the original responsive reading column and 13.5px message layout while streaming and after completion",
+        "appending a reference definition re-parses earlier inline tokens correctly",
+        "two thousand saved messages mount at most eighty renderer trees",
+        "earlier page remains mounted during a live tail update",
+        "paging retains the exact canonical streamed tail without another history request",
+        "no browser exceptions"
+      ],
+      "errors": []
+    },
+    "phone-chat-ui": {
+      "count": 22,
+      "checks": [
+        "Your Mac opens connection settings with actual route, cellular/Expo distinction and working reconnect, without duplicated chat list",
+        "actual Mac drawer row tap opens selected conversation route",
+        "actual phone conversation displays saved Mac history in shared offline renderer",
+        "remote composer exposes Mac model and no unsupported attachment control",
+        "reply addresses selected Mac conversation and receives authoritative live updates",
+        "reply result is visible without another history request",
+        "Mac-originated messages appear live with one initial history read",
+        "cloned trusted-desktop metadata does not clear the conversation or resubscribe",
+        "real connection state changes retain saved messages, reattach once and never resend a model turn",
+        "another conversation tool request is not presented as this chat action",
+        "waiting tool action opens its exact decision screen on the phone",
+        "actual phone shell uses Desktop dark background without horizontal screen overflow",
+        "Mac switch shows only Mac chats with the exact selected source",
+        "left Phone and right Mac toggle show mutually exclusive histories without ID collisions",
+        "search and switching select the exact source and chat in one drawer",
+        "permanent Settings navigation opens working preferences and account/Mac controls",
+        "all three real preference switches apply and persist after a full app remount",
+        "Settings and drawer Your Mac both lead to the same connection settings page",
+        "saved preferences reach the actual isolated conversation renderer after navigating from Settings",
+        "New Mac chat requires an explicit folder, creates a fresh empty conversation, and clears previous history and composer draft",
+        "first message is addressed to the newly created conversation rather than the previously open Mac chat",
+        "new standalone phone chat also retires the previous transcript and unsent draft"
+      ],
+      "errors": []
+    },
+    "routing-recovery": {
+      "count": 7,
+      "checks": [
+        "actual remote-send hook enqueues one idempotent selected-chat message, sends once to the Mac, and performs zero phone HTTP/model calls",
+        "native content-process termination remounts only the WebView and restores the latest exact streamed state",
+        "renderer recovery does not replay the chat, re-enqueue a prompt, or call a phone model",
+        "duplicate process events consume one attempt and repeated failures stop after two automatic remounts",
+        "explicit Reload restores current conversation without another model invocation",
+        "account change during an asynchronous outbox write cannot send using the old Mac authority",
+        "actual React native host and remote hook run without browser exceptions"
+      ],
+      "errors": []
+    }
+  },
+  "mutations": {
+    "faults": [
+      {
+        "name": "unbounded-auto-remount",
+        "caught": true
+      },
+      {
+        "name": "duplicate-native-events",
+        "caught": true
+      },
+      {
+        "name": "unbounded-event-retention",
+        "caught": true
+      },
+      {
+        "name": "synchronous-socket-throw",
+        "caught": true
+      },
+      {
+        "name": "phone-model-call",
+        "caught": true
+      },
+      {
+        "name": "account-change-during-write",
+        "caught": true
+      },
+      {
+        "name": "metadata-resubscription",
+        "caught": true
+      }
+    ]
+  },
+  "packagedPhone": {
+    "checks": [
+      "opening settings never starts relay; current phone-authority help is rendered",
+      "Stop stays reachable while enable IPC is pending and rejects late enable",
+      "rendered QR decodes to actual phone advertisement",
+      "LAN bearer persists encrypted",
+      "copy uses production preload/native clipboard",
+      "wrong admission token never upgrades",
+      "unconfirmed and wrong-code peer has no trust",
+      "actual phone handshake and Settings confirmation establish trusted session",
+      "encrypted preferences and trusted phone survive controller restart",
+      "forget clears trust and encrypted session",
+      "Stop closes LAN and latches off until app restart"
+    ],
+    "physicalPhone": false,
+    "realEngineEffects": false,
+    "packagedRuntime": true
+  },
+  "realDesktopAdapter": {
+    "schemaVersion": 1,
+    "protocolVersion": 2,
+    "checks": [
+      "real-phone-signature",
+      "two-engine-request-1",
+      "session-tamper-denied",
+      "signature-tamper-denied",
+      "single-execution-replay",
+      "capability-overwrite-denied",
+      "request-snapshot-immutable",
+      "stop-before-execution",
+      "saved-history-without-engine-or-selection",
+      "exact-history-and-reasoning",
+      "missing-history-refused",
+      "stopped-selected-chat-resumes-without-switch",
+      "concurrent-selected-chat-refused",
+      "large-history-bounded"
+    ],
+    "engineReplies": 2
+  },
+  "installation": {
+    "installed": "/Applications/Bimax.app",
+    "previous": "/Users/vishsiddharth/.local/state/bimax/renderer-recovery-20261026/previous-installed/Bimax.app",
+    "profileFiles": 921,
+    "profileUnchanged": true,
+    "sameSigningRequirement": true,
+    "asarSha256": "8fe8ccd6569503449ab890acbac5b2781bf6297da0ac23e522ac594900a3261d",
+    "nativeWindowObserved": true,
+    "nativeObservation": "Installed app opened with saved history/sidebar/composer and an active owner turn; AX and screenshot observed. No diagnostic prompt was sent."
+  },
+  "delivery": {
+    "iosManifest": true,
+    "bundleBytes": 14357493,
+    "bundleSha256": "3694b261a39e6d151360ab840a9e0ef916b3fa3c4af08d73a51f7e937b543c69",
+    "rendererHash": "aab8c20b7c7008e107a0d08631acd017aec5761f7f94cac08c9b66925ce65b2c",
+    "markers": {
+      "data-classic-markdown": true,
+      "aab8c20b7c7008e107a0d08631acd017aec5761f7f94cac08c9b66925ce65b2c": true,
+      "Account or paired Mac changed": true,
+      "content-process-ended": true
+    },
+    "providerCredentialLiteralCounts": {
+      "nvidia": 0,
+      "openai": 0,
+      "groq": 0
+    },
+    "publicEnvironmentNames": [
+      "EXPO_PUBLIC_GATEWAY_URL",
+      "EXPO_PUBLIC_SUPABASE_ANON_KEY",
+      "EXPO_PUBLIC_SUPABASE_URL"
+    ]
+  },
+  "sourcePreservation": {
+    "desktop": {
+      "unchanged": 10124,
+      "changed": [
+        "app/src/mobile-renderer/index.tsx",
+        "app/scripts/build-mobile-renderer.mjs",
+        "app/src/mobile-renderer/transcript.css",
+        "docs/product-reset/competitive/07_BUILD_SEQUENCE.md",
+        "docs/product-reset/competitive/05_GAP_REGISTER.md",
+        "app/scripts/fixtures/mobile-chat-ui.tsx",
+        "app/src/__tests__/ui.fix.list.test.tsx",
+        "app/src/renderer/src/components/ThinkingIndicator.tsx",
+        "docs/product-reset/08_ACCEPTANCE_GATES.md",
+        "docs/product-reset/README.md",
+        "docs/product-reset/02_RESEARCH_LEDGER.md",
+        "app/src/renderer/src/markdown.tsx",
+        "app/scripts/verify-mobile-chat-ui.mjs",
+        "app/src/renderer/src/components/conversation-message.css",
+        "app/scripts/verify-mobile-renderer.mjs"
+      ],
+      "newlyMissing": [],
+      "priorDeletionsRestored": [],
+      "priorDeletions": 0
+    },
+    "mobile": {
+      "unchanged": 274,
+      "changed": [
+        "apps/mobile/components/SharedTranscript.web.tsx",
+        "apps/mobile/app/desktop-chat/[id].tsx",
+        "scripts/test-linked-ui.mjs",
+        "apps/mobile/lib/relay/client.ts",
+        "scripts/test-all.mjs",
+        "apps/mobile/app/settings.tsx",
+        "apps/mobile/components/SharedTranscript.tsx",
+        "apps/mobile/lib/session/use-remote-actions.ts"
+      ],
+      "newlyMissing": [],
+      "priorDeletionsRestored": [],
+      "priorDeletions": 77
+    }
+  },
+  "fullMobileCheck": "passed; three inherited lint warnings; final Keep output adjustment separately renderer/build/export-qualified",
+  "nativeIPhone": "Target; Mirroring timed out",
+  "runtimeCrashCausality": "unestablished; simulated WebView faults and reproduced metadata reset paths only",
+  "publicRelease": "Target; local stable manual-alpha signature only",
+  "installedCompiledBytes": {
+    "verifiedCompiledFiles": 82,
+    "asarSha256": "8fe8ccd6569503449ab890acbac5b2781bf6297da0ac23e522ac594900a3261d"
+  },
+  "whitespaceChecks": "both repositories: scoped git diff --check passed"
+}

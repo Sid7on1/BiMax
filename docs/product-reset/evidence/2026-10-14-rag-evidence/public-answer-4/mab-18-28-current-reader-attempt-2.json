@@ -1,0 +1,34 @@
+{
+  "started": "2026-10-14T09:19:34.956955+00:00",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": false,
+  "attempt": 2,
+  "request": {
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Answer the question using only the retrieved history. If it is insufficient, say you do not know. Prefer the latest dated evidence when facts change. Give a concise, complete answer."
+      },
+      {
+        "role": "user",
+        "content": "Question date: 2023/05/28 (Sun) 09:39\nQuestion: Current Date: 2023/05/28 (Sun) 09:39,\n\n Now Answer the Question: What is the total number of siblings I have?\n\nRetrieved history:\n[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) Have I had any recently?'}, {'role': 'assistant', 'content': \"Let's add a column to the table to track oil changes:\\n\\n| Date | Description | Cost |\\n| --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 |\\n| Feb 10 | Gas fill-up | $30 |\\n| Dec 28 | Gas fill-up | unknown |\\n|  |  |  |\\n\\nDo you remember when you last got an oil change?\n  (part 2 of 5, excerpt) I'm pretty sure it was a while ago, but I'm not sure exactly when.\"}, {'role': 'assistant', 'content': \"Don't worry, we can try to figure it out.\\n\\nSince you're not sure when the last oil change was, let's add a note to the table to remind us to investigate further:\\n\\n| Date | Description | Cost |\\n| --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 |\\n| Feb 10 | Gas fill-up | $30 |\\n| Dec 28 | Gas fill-up | unknown |\\n| ???\n  (part 3 of 5, excerpt) Have you had any of those done recently?'}, {'role': 'assistant', 'content': \"Let's add a few more columns to the table to track those regular maintenance tasks:\\n\\n| Date | Description | Cost | Tire Rotation | Brake Pads | Other |\\n| --- | --- | --- | --- | --- | --- |\\n| Feb 10 | Replaced air filter | $25 | | | |\\n| Feb 10 | Gas fill-up | $30 | | | |\\n| Dec 28 | Gas fill-up | unknown | | | |\\n| ???\n  (part 4 of 5, excerpt) We can also check your car's maintenance schedule or consult with a mechanic to determine when these services are typically recommended.\\n\\nLet me know if you have any ideas or if you'd like to investigate further!\"}], 'Chat Time: 2023/05/23 (Tue) 06:01', [{'role': 'user', 'content': \"I'm planning a trip to Asia and I'm considering visiting Japan.\n\nCan you recommend some must-see attractions in Kyoto?\"}, {'role': 'assistant', 'content': 'Kyoto!\n\nYou\\'re in for a treat!\n- (part 1 of 5) \\n| Instagram | Fri, [Date] | Sneak peek into your weekend plans | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"A day in the life\" vlog | Video | 10:00 AM |\\n| Facebook | Sun, [Date] | Weekly wrap-up (e.g., \"My favorite moments from the week\") | Post | 6:00 PM |\\n\\n**Week 2:**\\n\\n| Platform | Date | Content Theme | Post Type | Time |\\n| --- | --- | --- | --- | --- |\\n| Twitter | Mon, [Date] | Quote related to your favorite TV show/movie | Tweet | 10:00 AM |\\n| Instagram | Tue, [Date] | Hobby-related photo (e.g., a photo you took with your camera) | Post | 3:00 PM |\\n| TikTok | Wed, [Date] | \"Get ready with me\" morning routine | Video | 8:00 AM |\\n| Facebook | Thu, [Date] | Behind-the-scenes look at your daily life (e.g., a photo of your workspace) | Post | 12:00 PM |\\n| Instagram | Fri, [Date] | Sneak peek into a new hobby or interest | Story | 5:00 PM |\\n| TikTok | Sat, [Date] | \"Q&A\" session (answer questions from followers) | Video | 2:00 PM |\\n| Facebook | Sun, [Date] | Share a personal achievement or milestone | Post | 6:00 PM |\\n\\nThis content calendar offers a mix of:\\n\\n1.\n- (part 2 of 5) for your outdoor ceremony!\"}], 'Chat Time: 2023/11/03 (Fri) 08:08', [{'role': 'user', 'content': \"I'm feeling overwhelmed with work and social commitments.\n\nCan you help me organize my schedule and prioritize tasks?\n\nBy the way, I had a session with Dr.\n\nSmith this week and we discussed how I need to set healthy boundaries.\"}, {'role': 'assistant', 'content': \"I'm so glad you reached out!\n\nI'd be happy to help you organize your schedule and prioritize tasks.\n\nIt's great that you're taking steps to set healthy boundaries, and we can work together to make that a reality.\\n\\nTo get started, can you tell me a bit more about your current schedule and commitments?\n\nFor example:\\n\\n* What are your work hours and responsibilities?\\n* What social commitments do you have (e.g., regular meetups, events, family obligations)?\\n* Do you have any recurring tasks or activities that you need to fit into your schedule (e.g., exercise, hobbies, self-care)?\\n\\nAlso, what are your top priorities right now?\n\nAre there any deadlines or tasks that are causing you the most stress or anxiety?\\n\\nLastly, what did you learn from your session with Dr.\n\nSmith about setting healthy boundaries?"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "stream": false,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    },
+    "reasoning_budget": 1024
+  },
+  "status": 429,
+  "response": {
+    "status": 429,
+    "title": "Too Many Requests"
+  },
+  "valid": false,
+  "error": "ValueError",
+  "wallMs": 101.85191699929419
+}

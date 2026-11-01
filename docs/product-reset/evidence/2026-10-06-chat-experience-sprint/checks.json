@@ -1,0 +1,84 @@
+[
+  {
+    "name": "root-typecheck",
+    "command": [
+      "npx",
+      "tsc",
+      "--noEmit"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "root-build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "app-typecheck-final",
+    "command": [
+      "npm",
+      "--prefix",
+      "app",
+      "run",
+      "typecheck"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "app-build",
+    "command": [
+      "npm",
+      "--prefix",
+      "app",
+      "run",
+      "build"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "changed-lint-scope",
+    "command": null,
+    "exit": 0
+  },
+  {
+    "name": "browser-script-syntax",
+    "command": [
+      "node",
+      "--check",
+      "app/scripts/ui/chat-experience-sprint.mjs"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "proof-script-syntax",
+    "command": [
+      "python3",
+      "-m",
+      "py_compile",
+      "scripts/prove-chat-experience-sprint.py",
+      "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-06-chat-experience-sprint/run-staged-engine.py",
+      "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-06-chat-experience-sprint/run-local-checks.py"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "browser-final",
+    "command": [
+      "node",
+      "app/scripts/ui/chat-experience-sprint.mjs"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "staged-engine",
+    "command": [
+      "python3",
+      "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-06-chat-experience-sprint/run-staged-engine.py"
+    ],
+    "exit": 0
+  }
+]

@@ -1,0 +1,41 @@
+import {build} from 'esbuild';
+import {createRequire} from 'node:module';
+import path from 'node:path';
+import {readFileSync,writeFileSync,mkdtempSync,rmSync,mkdirSync} from 'node:fs';
+import {createServer} from 'node:http';
+import {tmpdir} from 'node:os';
+import assert from 'node:assert/strict';
+import puppeteer from 'puppeteer-core';
+import {mobileLink} from './mobile.integration.mjs';
+import {chromeExecutable} from './ui/harness.mjs';
+const mobile=mobileLink().mobileRoot,require=createRequire(path.join(mobile,'apps/mobile/package.json'));
+const scratch=mkdtempSync(path.join(tmpdir(),'bimax-remote-recovery-')),fixture=path.join(import.meta.dirname,'fixtures/mobile-routing-recovery.tsx');
+const output=process.env.BIMAX_PARITY_EVIDENCE||scratch;mkdirSync(output,{recursive:true});
+await build({entryPoints:[fixture],outfile:path.join(scratch,'ui.js'),bundle:true,format:'iife',platform:'browser',minify:true,alias:{react:path.join(mobile,'node_modules/react'),'react-dom':path.dirname(require.resolve('react-dom/package.json')),'react-native':path.join(mobile,'node_modules/react-native-web'),'phone-remote-actions':process.env.BIMAX_REMOTE_ACTIONS_SOURCE||path.join(mobile,'apps/mobile/lib/session/use-remote-actions.ts'),'phone-native-transcript':path.join(mobile,'apps/mobile/components/SharedTranscript.tsx')},plugins:[{name:'native-and-storage-ports',setup(b){
+ b.onResolve({filter:/^(react-native-webview|expo-clipboard)$/},()=>({path:fixture}));
+ b.onResolve({filter:/^(\.\.\/)+(crypto(\/keys)?|approvals(\/device-auth)?|operation-outbox|account-scope|lib\/preferences-context)$/},()=>({path:fixture}));
+}}],define:{'process.env.NODE_ENV':'"production"',global:'globalThis'}});
+writeFileSync(path.join(scratch,'index.html'),'<html><body><div id="root"></div><script src="ui.js"></script></body></html>');
+const server=createServer((req,res)=>{try{const f=path.join(scratch,req.url==='/'?'index.html':req.url.slice(1));res.setHeader('Content-Type',f.endsWith('.js')?'text/javascript':'text/html');res.end(readFileSync(f));}catch{res.writeHead(404).end();}});await new Promise(r=>server.listen(0,'127.0.0.1',r));
+const report={checks:[],errors:[]};let browser;
+const check=(name,value=true)=>{assert.ok(value,name);report.checks.push(name);};
+try{
+ browser=await puppeteer.launch({executablePath:chromeExecutable(),headless:true});const page=await browser.newPage();page.on('pageerror',e=>report.errors.push(e.message));await page.goto(`http://127.0.0.1:${server.address().port}`);await page.waitForSelector('[data-webview]');
+ const result=await page.evaluate(()=>window.sendMac('exact-selected','A Mac-only prompt α'));
+ assert.deepEqual(result,{ok:true,sessionId:'exact-selected'});
+ const route=await page.evaluate(()=>({encrypted:window.encrypted,outbox:window.outbox,modelRequests:window.modelRequests}));
+ assert.equal(route.encrypted.length,1);assert.equal(route.outbox.length,1);assert.equal(route.encrypted[0].kind,'chat_message');assert.equal(route.encrypted[0].to,'selected-mac');assert.equal(route.encrypted[0].body.sessionId,'exact-selected');assert.equal(route.encrypted[0].body.idempotencyKey,route.outbox[0].id);assert.equal(route.modelRequests,0);
+ check('actual remote-send hook enqueues one idempotent selected-chat message, sends once to the Mac, and performs zero phone HTTP/model calls');
+ await page.evaluate(()=>window.ready());await page.waitForFunction(()=>window.operations.some(s=>s.includes('Exact live α')));
+ await page.evaluate(()=>{window.setReply('Latest streamed α終');window.fail();});await page.waitForFunction(()=>window.mounts===2);await page.evaluate(()=>window.ready());await page.waitForFunction(()=>window.operations.at(-1).includes('Latest streamed α終'));
+ check('native content-process termination remounts only the WebView and restores the latest exact streamed state');
+ assert.equal(await page.evaluate(()=>window.encrypted.length),1);assert.equal(await page.evaluate(()=>window.outbox.length),1);check('renderer recovery does not replay the chat, re-enqueue a prompt, or call a phone model');
+ await page.evaluate(()=>window.fail());await page.waitForFunction(()=>window.mounts===3);await page.evaluate(()=>window.ready());await page.evaluate(()=>window.fail());await page.waitForSelector('[aria-label="Reload conversation view"]');assert.equal(await page.evaluate(()=>window.mounts),3);check('duplicate process events consume one attempt and repeated failures stop after two automatic remounts');
+ await page.evaluate(()=>window.setReply('Authoritative completed answer α終'));await page.click('[aria-label="Reload conversation view"]');await page.waitForFunction(()=>window.mounts===4);await page.evaluate(()=>window.ready());await page.waitForFunction(()=>window.operations.at(-1).includes('Authoritative completed answer α終'));
+ assert.equal(await page.evaluate(()=>window.encrypted.length),1);assert.equal(await page.evaluate(()=>window.modelRequests),0);check('explicit Reload restores current conversation without another model invocation');
+ await page.evaluate(()=>{window.holdOutbox=true;window.pendingSend=window.sendMac('exact-selected','No send after sign-out').then(()=>{window.accountResult='unexpected success';},e=>{window.accountResult=e.message;});});
+ await page.waitForFunction(()=>typeof window.releaseOutbox==='function');await page.evaluate(()=>{window.activeOwner='another-account';window.releaseOutbox();});await page.waitForFunction(()=>window.accountResult);
+ assert.match(await page.evaluate(()=>window.accountResult),/Account.*changed/);assert.equal(await page.evaluate(()=>window.encrypted.length),1);assert.equal(await page.evaluate(()=>window.modelRequests),0);
+ check('account change during an asynchronous outbox write cannot send using the old Mac authority');
+ assert.deepEqual(report.errors,[]);check('actual React native host and remote hook run without browser exceptions');
+}catch(e){report.failure=String(e);process.exitCode=1;}finally{writeFileSync(path.join(output,'routing-recovery.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));await browser?.close();await new Promise(r=>server.close(r));rmSync(scratch,{recursive:true,force:true});}

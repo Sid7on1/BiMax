@@ -1,0 +1,256 @@
+{
+  "row": 0,
+  "query": 60,
+  "id": "mab-0-60",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:38:02.377834+00:00",
+  "valid": true,
+  "question": "Who was in charge of the papal army in the War of Barbastro?",
+  "references": [
+    "William of Montreuil",
+    "William of Montreuil",
+    "William of Montreuil"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 429.00133300000016,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 60,
+        "maxInputChars": 60,
+        "requiredProviderTruncation": false,
+        "promptTokens": 18,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-56",
+        "context-27",
+        "context-124"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) Document 286:\nThe legendary religious zeal of the Normans was exercised in religious wars long before the First Crusade carved out a Norman principality in Antioch. They were major foreign participants in the Reconquista in Iberia. In 1018, Roger de Tosny travelled to the Iberian Peninsula to carve out a state for himself from Moorish lands, but failed. In 1064, during the War of Barbastro, William of Montreuil led the papal army and took a huge booty.\n  (part 2 of 5) out a state for himself from Moorish lands, but failed. In 1064, during the War of Barbastro, William of Montreuil led the papal army and took a huge booty.\n\nDocument 287:\nThe \"West Side\" of Fresno, also often called \"Southwest Fresno\", is one of the oldest neighborhoods in the city. The neighborhood lies southwest of the 99 freeway (which divides it from Downtown Fresno), west of the 41 freeway and south of Nielsen Ave (or the newly constructed 180 Freeway), and extends to the city limits to the west and south. The neighborhood is traditionally considered to be the center of Fresno's African-American community. It is culturally diverse and also includes significant Mexican-American and Asian-American (principally Hmong or Laotian) populations.\n- (part 5 of 6, excerpt) Newcastle replaced him in January 1756 with Lord Loudoun, with Major General James Abercrombie as his second in command. Neither of these men had as much campaign experience as the trio of officers France sent to North America. French regular army reinforcements arrived in New France in May 1756, led by Major General Louis-Joseph de Montcalm and seconded by the Chev\n- (part 1 of 6, excerpt) of-affairs paved the road to a third attack in 1185, when a large Norman army invaded Dyrrachium, owing to the betrayal of hi",
+      "evidence": [
+        {
+          "sourceId": "memory:context-56",
+          "sourceVersion": "sha256:f3f949db7ffa31aa2687316dc369db0566b9c8b18a9034b274aef0f315aae476",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-56",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Document 286:\nThe legendary religious zeal of the Normans was exercised in religious wars long before the First Crusade carved out a Norman principality in Antioch. They were major foreign participants in the Reconquista in Iberia. In 1018, Roger de Tosny travelled to the Iberian Peninsula to carve out a state for himself from Moorish lands, but failed. In 1064, during the War of Barbastro, William of Montreuil led the papal army and took a huge booty.",
+          "id": "ev_73488ca49194b8de5a4d780e",
+          "observedAt": "2026-10-14T08:38:02.809Z"
+        },
+        {
+          "sourceId": "memory:context-56",
+          "sourceVersion": "sha256:f3f949db7ffa31aa2687316dc369db0566b9c8b18a9034b274aef0f315aae476",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-56",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "out a state for himself from Moorish lands, but failed. In 1064, during the War of Barbastro, William of Montreuil led the papal army and took a huge booty.\n\nDocument 287:\nThe \"West Side\" of Fresno, also often called \"Southwest Fresno\", is one of the oldest neighborhoods in the city. The neighborhood lies southwest of the 99 freeway (which divides it from Downtown Fresno), west of the 41 freeway and south of Nielsen Ave (or the newly constructed 180 Freeway), and extends to the city limits to the west and south. The neighborhood is traditionally considered to be the center of Fresno's African-American community. It is culturally diverse and also includes significant Mexican-American and Asian-American (principally Hmong or Laotian) populations.",
+          "id": "ev_d18ae4d0fd4d3e808310ac01",
+          "observedAt": "2026-10-14T08:38:02.809Z"
+        },
+        {
+          "sourceId": "memory:context-27",
+          "sourceVersion": "sha256:4ef9610f24914fe6c721725d41bb74e879f3e90f2bf4bdb022d9332b1f50dab8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-27",
+            "part": 5,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Newcastle replaced him in January 1756 with Lord Loudoun, with Major General James Abercrombie as his second in command. Neither of these men had as much campaign experience as the trio of officers France sent to North America. French regular army reinforcements arrived in New France in May 1756, led by Major General Louis-Joseph de Montcalm and seconded by the Chev",
+          "id": "ev_06d465a2198b040b09fc5fc5",
+          "observedAt": "2026-10-14T08:38:02.809Z"
+        },
+        {
+          "sourceId": "memory:context-124",
+          "sourceVersion": "sha256:a25001fe4482fd7eb6ab30ff7a66001fe919c87dd2d84b94ddf94e54c18aeea3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-124",
+            "part": 1,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "of-affairs paved the road to a third attack in 1185, when a large Norman army invaded Dyrrachium, owing to the betrayal of hi",
+          "id": "ev_66fb32f1465f4d630aa0e12c",
+          "observedAt": "2026-10-14T08:38:02.809Z"
+        }
+      ],
+      "sourceIds": [
+        "context-56",
+        "context-27",
+        "context-124"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.1985419999982696,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-56",
+        "context-27",
+        "context-124"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) ol, e.g. they must teach the state curriculum, they must employ registered teachers, and they can't charge tuition fees (they can charge \"attendance dues\" for the upkeep on the still-private school land and buildings). The largest decline in private school numbers occurred between 1979 and 1984, when the nation's then-private Catholic school system integrated. As a result, private schools in New Zealand are now largely restricted to the largest cities (Auckland, Hamilton, Wellington and Christchurch) and niche markets.\n\nDocument 286:\nThe legendary religious zeal of the Normans was exercised in religious wars long before the First Crusade carved out a Norman principality in Antioch. They were major foreign participants in the Reconquista in Iberia. In 1018, Roger de Tosny travelled to the Iberian Peninsula to carve out a state for himself from Moorish lands, but failed. In 1064, during the War of Barbastro, William of Montreuil led the papal army and took a huge booty.\n  (part 2 of 5) out a state for himself from Moorish lands, but failed. In 1064, during the War of Barbastro, William of Montreuil led the papal army and took a huge booty.\n\nDocument 287:\nThe \"West Side\" of Fresno, also often called \"Southwest Fresno\", is one of the oldest neighborhoods in the city. The neighborhood lies southwest of the 99 freeway (which divides it from Downtown Fresno), west of the 41 freeway and south of Nielsen Ave (or the newly constructed 180 Freeway), and extends to the city limits to the west and south. The neighborhood is traditionally considered to be the center of Fresno's African-American community. It is culturally diverse and also includes significant Mexican-American and Asian-American (principally Hmong or Laotian) populations.\n- (part 5 of 6) Western/foreign ideas and practices into Islamic societies. Its views were outlined in a pamphlet written by Muhammad Abd al-Salaam Farag, in which he states:\n\nDocument 147:\nNewcastle replaced him in January 1756 with Lord Loudoun, with Major General James Abercrombie as his second in command. Neither of these men had as much campaign experience as the trio of officers France sent to North America. French regular army reinforcements arrived in New France in May 1756, led by Major General Louis-Joseph de Montcalm and seconded by the Chevalier de L\u00e9vis and Colonel Fran\u00e7ois-Charles de Bourlamaque, all experienced veterans from the War of the Austrian Succession. During that time in Europe, on May 18, 1756, England formally declared war on France, which expanded the war into Europe, which was later to be known as the Seven Years' War.\n  (part 6 of 6) in Europe, on May 18, 1756, England formally declared war on France, which expanded the war into Europe, which was later to be known as the Seven Years' War.\n\nDocument 148:\nThe acme of the horizontal engine was the Corliss steam engine, patented in 1849, which was a four-valve counter flow engine with separate steam admission and exhaust valves and automatic variable steam cutoff. When Corliss was given the Rumford medal the committee said that \"no one invention since Watt's time has so enhanced the efficiency of the steam engine\". In addition to using 30% less steam, it provided more uniform spee\n- (part 1 of 6) of-affairs paved the road to a third attack in 1185, when a large Norman army invaded Dyrrachium, owing to the betrayal of high Byzantine officials. Some time later, Dyrrachium\u2014one of the most important naval bases of the Adriatic\u2014fell again to Byzantine hands.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-56",
+          "sourceVersion": "sha256:f3f949db7ffa31aa2687316dc369db0566b9c8b18a9034b274aef0f315aae476",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-56",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "ol, e.g. they must teach the state curriculum, they must employ registered teachers, and they can't charge tuition fees (they can charge \"attendance dues\" for the upkeep on the still-private school land and buildings). The largest decline in private school numbers occurred between 1979 and 1984, when the nation's then-private Catholic school system integrated. As a result, private schools in New Zealand are now largely restricted to the largest cities (Auckland, Hamilton, Wellington and Christchurch) and niche markets.\n\nDocument 286:\nThe legendary religious zeal of the Normans was exercised in religious wars long before the First Crusade carved out a Norman principality in Antioch. They were major foreign participants in the Reconquista in Iberia. In 1018, Roger de Tosny travelled to the Iberian Peninsula to carve out a state for himself from Moorish lands, but failed. In 1064, during the War of Barbastro, William of Montreuil led the papal army and took a huge booty.",
+          "id": "ev_6497299d09f4b4d041f912cc",
+          "observedAt": "2026-10-14T08:38:02.812Z"
+        },
+        {
+          "sourceId": "memory:context-56",
+          "sourceVersion": "sha256:f3f949db7ffa31aa2687316dc369db0566b9c8b18a9034b274aef0f315aae476",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-56",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "out a state for himself from Moorish lands, but failed. In 1064, during the War of Barbastro, William of Montreuil led the papal army and took a huge booty.\n\nDocument 287:\nThe \"West Side\" of Fresno, also often called \"Southwest Fresno\", is one of the oldest neighborhoods in the city. The neighborhood lies southwest of the 99 freeway (which divides it from Downtown Fresno), west of the 41 freeway and south of Nielsen Ave (or the newly constructed 180 Freeway), and extends to the city limits to the west and south. The neighborhood is traditionally considered to be the center of Fresno's African-American community. It is culturally diverse and also includes significant Mexican-American and Asian-American (principally Hmong or Laotian) populations.",
+          "id": "ev_d18ae4d0fd4d3e808310ac01",
+          "observedAt": "2026-10-14T08:38:02.812Z"
+        },
+        {
+          "sourceId": "memory:context-27",
+          "sourceVersion": "sha256:4ef9610f24914fe6c721725d41bb74e879f3e90f2bf4bdb022d9332b1f50dab8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-27",
+            "part": 5,
+            "parts": 6
+          },
+          "text": "Western/foreign ideas and practices into Islamic societies. Its views were outlined in a pamphlet written by Muhammad Abd al-Salaam Farag, in which he states:\n\nDocument 147:\nNewcastle replaced him in January 1756 with Lord Loudoun, with Major General James Abercrombie as his second in command. Neither of these men had as much campaign experience as the trio of officers France sent to North America. French regular army reinforcements arrived in New France in May 1756, led by Major General Louis-Joseph de Montcalm and seconded by the Chevalier de L\u00e9vis and Colonel Fran\u00e7ois-Charles de Bourlamaque, all experienced veterans from the War of the Austrian Succession. During that time in Europe, on May 18, 1756, England formally declared war on France, which expanded the war into Europe, which was later to be known as the Seven Years' War.",
+          "id": "ev_a64089c8f4f5c287c9436a4d",
+          "observedAt": "2026-10-14T08:38:02.812Z"
+        },
+        {
+          "sourceId": "memory:context-27",
+          "sourceVersion": "sha256:4ef9610f24914fe6c721725d41bb74e879f3e90f2bf4bdb022d9332b1f50dab8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-27",
+            "part": 6,
+            "parts": 6
+          },
+          "text": "in Europe, on May 18, 1756, England formally declared war on France, which expanded the war into Europe, which was later to be known as the Seven Years' War.\n\nDocument 148:\nThe acme of the horizontal engine was the Corliss steam engine, patented in 1849, which was a four-valve counter flow engine with separate steam admission and exhaust valves and automatic variable steam cutoff. When Corliss was given the Rumford medal the committee said that \"no one invention since Watt's time has so enhanced the efficiency of the steam engine\". In addition to using 30% less steam, it provided more uniform spee",
+          "id": "ev_51818524e9cc99285145c044",
+          "observedAt": "2026-10-14T08:38:02.812Z"
+        },
+        {
+          "sourceId": "memory:context-124",
+          "sourceVersion": "sha256:a25001fe4482fd7eb6ab30ff7a66001fe919c87dd2d84b94ddf94e54c18aeea3",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-124",
+            "part": 1,
+            "parts": 6
+          },
+          "text": "of-affairs paved the road to a third attack in 1185, when a large Norman army invaded Dyrrachium, owing to the betrayal of high Byzantine officials. Some time later, Dyrrachium\u2014one of the most important naval bases of the Adriatic\u2014fell again to Byzantine hands.",
+          "id": "ev_3babeac975c4c0dd76edb41a",
+          "observedAt": "2026-10-14T08:38:02.812Z"
+        }
+      ],
+      "sourceIds": [
+        "context-56",
+        "context-27",
+        "context-124"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.4888750000027358,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-56",
+    "context-27",
+    "context-124"
+  ],
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T08:38:02.813648+00:00"
+}

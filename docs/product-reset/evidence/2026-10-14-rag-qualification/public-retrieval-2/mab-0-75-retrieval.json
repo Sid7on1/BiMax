@@ -1,0 +1,235 @@
+{
+  "row": 0,
+  "query": 75,
+  "id": "mab-0-75",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:44:31.505425+00:00",
+  "valid": true,
+  "question": "Who sold the rights?",
+  "references": [
+    "Maciot de Bethencourt",
+    "Maciot de Bethencourt",
+    "Maciot de Bethencourt"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 7.506291999998211,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 20,
+        "maxInputChars": 20,
+        "requiredProviderTruncation": false,
+        "promptTokens": 7,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-47",
+        "context-42",
+        "context-122"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) In Alpine Investments BV v Minister van Financi\u00ebn a business that sold commodities futures (with Merrill Lynch and another banking firms) attempted to challenge a Dutch law that prohibiting cold calling customers.\n  (part 2 of 5) that sold commodities futures (with Merrill Lynch and another banking firms) attempted to challenge a Dutch law that prohibiting cold calling customers.\n\nThe Court of Justice held the Dutch prohibition pursued a legitimate aim to prevent \"undesirable developments in securities trading\" including protecting the consumer from aggressive sales tactics, thus maintaining confidence in the Dutch markets.\n\nIn Omega Spielhallen GmbH v Bonn a \"laserdrome\" business was banned by the Bonn council.\n\nIt bought fake laser gun services from a UK firm called Pulsar Ltd, but residents had protested against \"playing at killing\" entertainment.\n\nThe Court of Justice held that the German constitutional value of human dignity, which underpinned the ban, did count as a justified restriction on freedom to provide services.\n\nIn Liga Portuguesa de Futebol v Santa Casa da Miseric\u00f3rdia de Lisboa the Court of Justice also held that the state monopoly on gambling, and a penalty for a Gibraltar firm that had sold internet gambling services, was justified to prevent fraud and gambling where people's views were highly divergent.\n- (part 4 of 5, excerpt) According to the Court of Justice, a \"worker\" is anybody who is economically active, which includes everyone in an employment relationship, \"under the direction of another person\" for \"remuneration\".\n- (part 6 of 6, excerpt) The 2007 Lisbon Treaty explicitly recognised fundamental rights by providing in Article 6(1) that \"The Union recognises the rights, freedoms and principles set out in the Charter",
+      "evidence": [
+        {
+          "sourceId": "memory:context-47",
+          "sourceVersion": "sha256:861801cc9be03df09131c80411cbb3e7076ab1eaa9658d0ea7cf805579c40ecb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-47",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In Alpine Investments BV v Minister van Financi\u00ebn a business that sold commodities futures (with Merrill Lynch and another banking firms) attempted to challenge a Dutch law that prohibiting cold calling customers.",
+          "id": "ev_8990ce315fc951027fe43e64",
+          "observedAt": "2026-10-14T04:44:31.514Z"
+        },
+        {
+          "sourceId": "memory:context-47",
+          "sourceVersion": "sha256:861801cc9be03df09131c80411cbb3e7076ab1eaa9658d0ea7cf805579c40ecb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-47",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "that sold commodities futures (with Merrill Lynch and another banking firms) attempted to challenge a Dutch law that prohibiting cold calling customers.\n\nThe Court of Justice held the Dutch prohibition pursued a legitimate aim to prevent \"undesirable developments in securities trading\" including protecting the consumer from aggressive sales tactics, thus maintaining confidence in the Dutch markets.\n\nIn Omega Spielhallen GmbH v Bonn a \"laserdrome\" business was banned by the Bonn council.\n\nIt bought fake laser gun services from a UK firm called Pulsar Ltd, but residents had protested against \"playing at killing\" entertainment.\n\nThe Court of Justice held that the German constitutional value of human dignity, which underpinned the ban, did count as a justified restriction on freedom to provide services.\n\nIn Liga Portuguesa de Futebol v Santa Casa da Miseric\u00f3rdia de Lisboa the Court of Justice also held that the state monopoly on gambling, and a penalty for a Gibraltar firm that had sold internet gambling services, was justified to prevent fraud and gambling where people's views were highly divergent.",
+          "id": "ev_3605debce37b77b8f85db94d",
+          "observedAt": "2026-10-14T04:44:31.514Z"
+        },
+        {
+          "sourceId": "memory:context-42",
+          "sourceVersion": "sha256:fddc99fac78ec3e48bc1b38f400068f4d86c75945aa1a1f86392ea115108e79e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-42",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "According to the Court of Justice, a \"worker\" is anybody who is economically active, which includes everyone in an employment relationship, \"under the direction of another person\" for \"remuneration\".",
+          "id": "ev_47469dd25a4f2eb6c16090b0",
+          "observedAt": "2026-10-14T04:44:31.514Z"
+        },
+        {
+          "sourceId": "memory:context-122",
+          "sourceVersion": "sha256:f21ffd09a9a96f789dba9c696ae89a038038bf927b5edc079b0e614c048cbc23",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-122",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "The 2007 Lisbon Treaty explicitly recognised fundamental rights by providing in Article 6(1) that \"The Union recognises the rights, freedoms and principles set out in the Charter",
+          "id": "ev_0e592831f84565e1bd45475a",
+          "observedAt": "2026-10-14T04:44:31.514Z"
+        }
+      ],
+      "sourceIds": [
+        "context-47",
+        "context-42",
+        "context-122"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.9512919999979204,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-47",
+        "context-42",
+        "context-122"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) In Alpine Investments BV v Minister van Financi\u00ebn a business that sold commodities futures (with Merrill Lynch and another banking firms) attempted to challenge a Dutch law that prohibiting cold calling customers.\n  (part 2 of 5) that sold commodities futures (with Merrill Lynch and another banking firms) attempted to challenge a Dutch law that prohibiting cold calling customers.\n\nThe Court of Justice held the Dutch prohibition pursued a legitimate aim to prevent \"undesirable developments in securities trading\" including protecting the consumer from aggressive sales tactics, thus maintaining confidence in the Dutch markets.\n\nIn Omega Spielhallen GmbH v Bonn a \"laserdrome\" business was banned by the Bonn council.\n\nIt bought fake laser gun services from a UK firm called Pulsar Ltd, but residents had protested against \"playing at killing\" entertainment.\n\nThe Court of Justice held that the German constitutional value of human dignity, which underpinned the ban, did count as a justified restriction on freedom to provide services.\n\nIn Liga Portuguesa de Futebol v Santa Casa da Miseric\u00f3rdia de Lisboa the Court of Justice also held that the state monopoly on gambling, and a penalty for a Gibraltar firm that had sold internet gambling services, was justified to prevent fraud and gambling where people's views were highly divergent.\n- (part 4 of 5, excerpt) According to the Court of Justice, a \"worker\" is anybody who is economically active, which includes everyone in an employment relationship, \"under the direction of another person\" for \"remuneration\".\n- (part 6 of 6, excerpt) The 2007 Lisbon Treaty explicitly recognised fundamental rights by providing in Article 6(1) that \"The Union recognises the rights, freedoms and principles set out in the Charter",
+      "evidence": [
+        {
+          "sourceId": "memory:context-47",
+          "sourceVersion": "sha256:861801cc9be03df09131c80411cbb3e7076ab1eaa9658d0ea7cf805579c40ecb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-47",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In Alpine Investments BV v Minister van Financi\u00ebn a business that sold commodities futures (with Merrill Lynch and another banking firms) attempted to challenge a Dutch law that prohibiting cold calling customers.",
+          "id": "ev_8990ce315fc951027fe43e64",
+          "observedAt": "2026-10-14T04:44:31.516Z"
+        },
+        {
+          "sourceId": "memory:context-47",
+          "sourceVersion": "sha256:861801cc9be03df09131c80411cbb3e7076ab1eaa9658d0ea7cf805579c40ecb",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-47",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "that sold commodities futures (with Merrill Lynch and another banking firms) attempted to challenge a Dutch law that prohibiting cold calling customers.\n\nThe Court of Justice held the Dutch prohibition pursued a legitimate aim to prevent \"undesirable developments in securities trading\" including protecting the consumer from aggressive sales tactics, thus maintaining confidence in the Dutch markets.\n\nIn Omega Spielhallen GmbH v Bonn a \"laserdrome\" business was banned by the Bonn council.\n\nIt bought fake laser gun services from a UK firm called Pulsar Ltd, but residents had protested against \"playing at killing\" entertainment.\n\nThe Court of Justice held that the German constitutional value of human dignity, which underpinned the ban, did count as a justified restriction on freedom to provide services.\n\nIn Liga Portuguesa de Futebol v Santa Casa da Miseric\u00f3rdia de Lisboa the Court of Justice also held that the state monopoly on gambling, and a penalty for a Gibraltar firm that had sold internet gambling services, was justified to prevent fraud and gambling where people's views were highly divergent.",
+          "id": "ev_3605debce37b77b8f85db94d",
+          "observedAt": "2026-10-14T04:44:31.516Z"
+        },
+        {
+          "sourceId": "memory:context-42",
+          "sourceVersion": "sha256:fddc99fac78ec3e48bc1b38f400068f4d86c75945aa1a1f86392ea115108e79e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-42",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "According to the Court of Justice, a \"worker\" is anybody who is economically active, which includes everyone in an employment relationship, \"under the direction of another person\" for \"remuneration\".",
+          "id": "ev_47469dd25a4f2eb6c16090b0",
+          "observedAt": "2026-10-14T04:44:31.516Z"
+        },
+        {
+          "sourceId": "memory:context-122",
+          "sourceVersion": "sha256:f21ffd09a9a96f789dba9c696ae89a038038bf927b5edc079b0e614c048cbc23",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-122",
+            "part": 6,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "The 2007 Lisbon Treaty explicitly recognised fundamental rights by providing in Article 6(1) that \"The Union recognises the rights, freedoms and principles set out in the Charter",
+          "id": "ev_0e592831f84565e1bd45475a",
+          "observedAt": "2026-10-14T04:44:31.516Z"
+        }
+      ],
+      "sourceIds": [
+        "context-47",
+        "context-42",
+        "context-122"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.5868330000012065,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:44:31.516923+00:00"
+}

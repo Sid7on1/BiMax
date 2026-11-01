@@ -1,0 +1,233 @@
+{
+  "row": 1,
+  "query": 43,
+  "id": "mab-1-43",
+  "stratum": "ruler_qa2_421K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:49:03.823912+00:00",
+  "valid": true,
+  "question": "The battle in which Giuseppe Arimondi lost his life secured what for Ethiopia?",
+  "references": [
+    "sovereignty"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 11.245000000009895,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 78,
+        "maxInputChars": 78,
+        "requiredProviderTruncation": false,
+        "promptTokens": 18,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-198",
+        "context-189",
+        "context-235"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6) several essays on the life and works of Liszt. As a composer, he mainly produced works for solo piano and also made arrangements of several works by Liszt.\n\nDocument 1407:\nEthiopia\u2013Japan relations\nEthiopia\u2013Japan relations are the international relations between Ethiopia and Japan. Both were nations with an ancient history which successfully repulsed European military advances to dominate them, Ethiopia at the Battle of Adwa, and Japan at the Battle of Tsushima, and as a result both nations considered each other potential allies prior to World War II.\n  (part 5 of 6, excerpt) Ethiopia at the Battle of Adwa, and Japan at the Battle of Tsushima, and as a result both nations considered each other potential allies prior to World War II.\n\nDocument 1408:\nThe Hork-Bajir Chronicles\n- (part 4 of 4, excerpt) In 1910, he played 35 games for the Vancouver Beavers though his batting average dropped to .207.\n\nHe also played professional football in the early days of the professional game in the 1910s.\n\nHe resided in Fresno, California in his later years.\n\nDocument 1344:\nGiuseppe Arimondi\nGiuseppe Edoardo Arimondi, OSML, OMS, OCI (Savigliano, 26 April 1846 \u2013 Adwa, 1 March 1896) was an Italian general, mostly known for his role during the First Italo-Ethiopian War. He was one of the few European commanders who gained a victory over the Mahdists before Kitchener's Expedition, soundly defeating them at Agordat in 1893. After a long and successfull colonial service, he died in combat at Adwa, and was posthumously awarded the Gold Medal of Military Valor.\n\nDocument 1345:\nThomas More\n- (part 2 of 5, excerpt) Much to their surprise, they found that Ethiopian ruler Menelik II, rather than being opposed by some of his traditional enemies, was supported by them, so the Italian",
+      "evidence": [
+        {
+          "sourceId": "memory:context-198",
+          "sourceVersion": "sha256:f62224161dfd83bf2c8039ee2843931ce8758f1592d45afcbba7fe1a955e0360",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-198",
+            "part": 4,
+            "parts": 6
+          },
+          "text": "several essays on the life and works of Liszt. As a composer, he mainly produced works for solo piano and also made arrangements of several works by Liszt.\n\nDocument 1407:\nEthiopia\u2013Japan relations\nEthiopia\u2013Japan relations are the international relations between Ethiopia and Japan. Both were nations with an ancient history which successfully repulsed European military advances to dominate them, Ethiopia at the Battle of Adwa, and Japan at the Battle of Tsushima, and as a result both nations considered each other potential allies prior to World War II.",
+          "id": "ev_4572a00bfab628e6162aad50",
+          "observedAt": "2026-10-14T04:49:03.839Z"
+        },
+        {
+          "sourceId": "memory:context-198",
+          "sourceVersion": "sha256:f62224161dfd83bf2c8039ee2843931ce8758f1592d45afcbba7fe1a955e0360",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-198",
+            "part": 5,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Ethiopia at the Battle of Adwa, and Japan at the Battle of Tsushima, and as a result both nations considered each other potential allies prior to World War II.\n\nDocument 1408:\nThe Hork-Bajir Chronicles",
+          "id": "ev_cfdbff57c2c97df6ff8bd4c7",
+          "observedAt": "2026-10-14T04:49:03.839Z"
+        },
+        {
+          "sourceId": "memory:context-189",
+          "sourceVersion": "sha256:bc72c3412d3eea132f9a1ef3cf140284c18e1fa88d4e760370f5373b0e2b3836",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-189",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "In 1910, he played 35 games for the Vancouver Beavers though his batting average dropped to .207.\n\nHe also played professional football in the early days of the professional game in the 1910s.\n\nHe resided in Fresno, California in his later years.\n\nDocument 1344:\nGiuseppe Arimondi\nGiuseppe Edoardo Arimondi, OSML, OMS, OCI (Savigliano, 26 April 1846 \u2013 Adwa, 1 March 1896) was an Italian general, mostly known for his role during the First Italo-Ethiopian War. He was one of the few European commanders who gained a victory over the Mahdists before Kitchener's Expedition, soundly defeating them at Agordat in 1893. After a long and successfull colonial service, he died in combat at Adwa, and was posthumously awarded the Gold Medal of Military Valor.\n\nDocument 1345:\nThomas More",
+          "id": "ev_a8ef8c3c3a5e51a3167c3d7d",
+          "observedAt": "2026-10-14T04:49:03.840Z"
+        },
+        {
+          "sourceId": "memory:context-235",
+          "sourceVersion": "sha256:9666cfeebad20d482fd9e5acf6e24f6cc85b9f19efa91cefb21761826de2b4ac",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-235",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Much to their surprise, they found that Ethiopian ruler Menelik II, rather than being opposed by some of his traditional enemies, was supported by them, so the Italian",
+          "id": "ev_03d0ceca369c396c075bddac",
+          "observedAt": "2026-10-14T04:49:03.840Z"
+        }
+      ],
+      "sourceIds": [
+        "context-198",
+        "context-189",
+        "context-235"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.47758399999293,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-198",
+        "context-189",
+        "context-235"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 4 of 6) several essays on the life and works of Liszt. As a composer, he mainly produced works for solo piano and also made arrangements of several works by Liszt.\n\nDocument 1407:\nEthiopia\u2013Japan relations\nEthiopia\u2013Japan relations are the international relations between Ethiopia and Japan. Both were nations with an ancient history which successfully repulsed European military advances to dominate them, Ethiopia at the Battle of Adwa, and Japan at the Battle of Tsushima, and as a result both nations considered each other potential allies prior to World War II.\n  (part 5 of 6, excerpt) Ethiopia at the Battle of Adwa, and Japan at the Battle of Tsushima, and as a result both nations considered each other potential allies prior to World War II.\n\nDocument 1408:\nThe Hork-Bajir Chronicles\n- (part 4 of 4, excerpt) In 1910, he played 35 games for the Vancouver Beavers though his batting average dropped to .207.\n\nHe also played professional football in the early days of the professional game in the 1910s.\n\nHe resided in Fresno, California in his later years.\n\nDocument 1344:\nGiuseppe Arimondi\nGiuseppe Edoardo Arimondi, OSML, OMS, OCI (Savigliano, 26 April 1846 \u2013 Adwa, 1 March 1896) was an Italian general, mostly known for his role during the First Italo-Ethiopian War. He was one of the few European commanders who gained a victory over the Mahdists before Kitchener's Expedition, soundly defeating them at Agordat in 1893. After a long and successfull colonial service, he died in combat at Adwa, and was posthumously awarded the Gold Medal of Military Valor.\n\nDocument 1345:\nThomas More\n- (part 2 of 5, excerpt) Much to their surprise, they found that Ethiopian ruler Menelik II, rather than being opposed by some of his traditional enemies, was supported by them, so the Italian",
+      "evidence": [
+        {
+          "sourceId": "memory:context-198",
+          "sourceVersion": "sha256:f62224161dfd83bf2c8039ee2843931ce8758f1592d45afcbba7fe1a955e0360",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-198",
+            "part": 4,
+            "parts": 6
+          },
+          "text": "several essays on the life and works of Liszt. As a composer, he mainly produced works for solo piano and also made arrangements of several works by Liszt.\n\nDocument 1407:\nEthiopia\u2013Japan relations\nEthiopia\u2013Japan relations are the international relations between Ethiopia and Japan. Both were nations with an ancient history which successfully repulsed European military advances to dominate them, Ethiopia at the Battle of Adwa, and Japan at the Battle of Tsushima, and as a result both nations considered each other potential allies prior to World War II.",
+          "id": "ev_4572a00bfab628e6162aad50",
+          "observedAt": "2026-10-14T04:49:03.844Z"
+        },
+        {
+          "sourceId": "memory:context-198",
+          "sourceVersion": "sha256:f62224161dfd83bf2c8039ee2843931ce8758f1592d45afcbba7fe1a955e0360",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-198",
+            "part": 5,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "Ethiopia at the Battle of Adwa, and Japan at the Battle of Tsushima, and as a result both nations considered each other potential allies prior to World War II.\n\nDocument 1408:\nThe Hork-Bajir Chronicles",
+          "id": "ev_cfdbff57c2c97df6ff8bd4c7",
+          "observedAt": "2026-10-14T04:49:03.844Z"
+        },
+        {
+          "sourceId": "memory:context-189",
+          "sourceVersion": "sha256:bc72c3412d3eea132f9a1ef3cf140284c18e1fa88d4e760370f5373b0e2b3836",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-189",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "In 1910, he played 35 games for the Vancouver Beavers though his batting average dropped to .207.\n\nHe also played professional football in the early days of the professional game in the 1910s.\n\nHe resided in Fresno, California in his later years.\n\nDocument 1344:\nGiuseppe Arimondi\nGiuseppe Edoardo Arimondi, OSML, OMS, OCI (Savigliano, 26 April 1846 \u2013 Adwa, 1 March 1896) was an Italian general, mostly known for his role during the First Italo-Ethiopian War. He was one of the few European commanders who gained a victory over the Mahdists before Kitchener's Expedition, soundly defeating them at Agordat in 1893. After a long and successfull colonial service, he died in combat at Adwa, and was posthumously awarded the Gold Medal of Military Valor.\n\nDocument 1345:\nThomas More",
+          "id": "ev_a8ef8c3c3a5e51a3167c3d7d",
+          "observedAt": "2026-10-14T04:49:03.845Z"
+        },
+        {
+          "sourceId": "memory:context-235",
+          "sourceVersion": "sha256:9666cfeebad20d482fd9e5acf6e24f6cc85b9f19efa91cefb21761826de2b4ac",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-235",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Much to their surprise, they found that Ethiopian ruler Menelik II, rather than being opposed by some of his traditional enemies, was supported by them, so the Italian",
+          "id": "ev_03d0ceca369c396c075bddac",
+          "observedAt": "2026-10-14T04:49:03.845Z"
+        }
+      ],
+      "sourceIds": [
+        "context-198",
+        "context-189",
+        "context-235"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.791999999986729,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:49:03.846106+00:00"
+}

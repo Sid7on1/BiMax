@@ -1,0 +1,273 @@
+{
+  "row": 13,
+  "query": 70,
+  "id": "mab-13-70",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n67. The townspeople said that the Th\u00e9nardiers were good people for raising Drew.\n68. Drew was called the Lark in the neighborhood.\n69. Father Madeleine mingled with families in mourning at funerals.\n70. Father Madeleine entered houses privately at night.\n71. Noreen was an inspector in the police at M. sur M.\n\n\nBelow is a list of possible subsequent events:\n\n['Father Madeleine sought the locations of local orphans wishing to sell baked goods.', 'Father Madeleine inquired the names of young Savoyards seeking chimneys to sweep.', 'Father Madeleine examined the dreams of adolescent students wishing to study painting.', 'Father Madeleine asked the ages of young artisans eager to craft wooden toys.', 'Father Madeleine probed the ambitions of young musicians aspiring to join the choir.', 'Father Madeleine checked the intentions of local boys hoping to train as potters.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Father Madeleine inquired the names of young Savoyards seeking chimneys to sweep."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 642.890250000004,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1101,
+        "maxInputChars": 1101,
+        "requiredProviderTruncation": false,
+        "promptTokens": 227,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-92",
+        "context-111",
+        "context-120"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 4, excerpt) \u201cHe has gone into mourning for the Bishop of D\u2014\u2014\u201d said the drawing-rooms; this raised M.\n\nMadeleine\u2019s credit greatly, and procured for him, instantly and at one blow, a certain consideration in the noble world of M.\n\nsur M.\n  (part 4 of 4) blow, a certain consideration in the noble world of M.\n\nsur M.\n\nThe microscopic Faubourg Saint-Germain of the place meditated raising the quarantine against M.\n\nMadeleine, the probable relative of a bishop.\n\nM.\n\nMadeleine perceived the advancement which he had obtained, by the more numerous courtesies of the old women and the more plentiful smiles of the young ones.\n\nOne evening, a ruler in that petty great world, who was curious by right of seniority, ventured to ask him, \u201cM.\n\nle Maire is doubtless a cousin of the late Bishop of D\u2014\u2014?\u201d\n\nHe said, \u201cNo, Madame.\u201d\n\n\u201cBut,\u201d resumed the dowager, \u201cyou are wearing mourning for him.\u201d\n\nHe replied, \u201cIt is because I was a servant in his family in my youth.\u201d\n\nAnother thing which was remarked, was, that every time that he encountered in the town a young Savoyard who was roaming about the country and seeking chimneys to sweep, the mayor had him summoned, inquired his name, and gave him money.\n\nThe little Savoyards told each other about it: a great many of them passed that way.\n\nCHAPTER V\u2014VAGUE FLASHES ON THE HORIZON\n\nLittle by little, and in the course of time, all this opposition subsided.\n\nThere had at first been exercised against M\n- (part 3 of 5, excerpt) Madeleine was in his study, occupied in arranging in advance some pressing matters connected with the mayor\u2019s office, in case he should decide to take the trip to Montfe\n- (part 3 of 4, excerpt) Thus, in spite of all his reserve and all his prudence, he had preserved the Bishop\u2019s candlesticks, worn mourning for him, su",
+      "evidence": [
+        {
+          "sourceId": "memory:context-92",
+          "sourceVersion": "sha256:b45b56fd588d2f6cb71ff9bb6b510c332cfc6a9bee02dc858fa8625f9835423e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-92",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cHe has gone into mourning for the Bishop of D\u2014\u2014\u201d said the drawing-rooms; this raised M.\n\nMadeleine\u2019s credit greatly, and procured for him, instantly and at one blow, a certain consideration in the noble world of M.\n\nsur M.",
+          "id": "ev_cdfb179e6692b74977cec4a1",
+          "observedAt": "2026-10-14T05:09:46.087Z"
+        },
+        {
+          "sourceId": "memory:context-92",
+          "sourceVersion": "sha256:b45b56fd588d2f6cb71ff9bb6b510c332cfc6a9bee02dc858fa8625f9835423e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-92",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "blow, a certain consideration in the noble world of M.\n\nsur M.\n\nThe microscopic Faubourg Saint-Germain of the place meditated raising the quarantine against M.\n\nMadeleine, the probable relative of a bishop.\n\nM.\n\nMadeleine perceived the advancement which he had obtained, by the more numerous courtesies of the old women and the more plentiful smiles of the young ones.\n\nOne evening, a ruler in that petty great world, who was curious by right of seniority, ventured to ask him, \u201cM.\n\nle Maire is doubtless a cousin of the late Bishop of D\u2014\u2014?\u201d\n\nHe said, \u201cNo, Madame.\u201d\n\n\u201cBut,\u201d resumed the dowager, \u201cyou are wearing mourning for him.\u201d\n\nHe replied, \u201cIt is because I was a servant in his family in my youth.\u201d\n\nAnother thing which was remarked, was, that every time that he encountered in the town a young Savoyard who was roaming about the country and seeking chimneys to sweep, the mayor had him summoned, inquired his name, and gave him money.\n\nThe little Savoyards told each other about it: a great many of them passed that way.\n\nCHAPTER V\u2014VAGUE FLASHES ON THE HORIZON\n\nLittle by little, and in the course of time, all this opposition subsided.\n\nThere had at first been exercised against M",
+          "id": "ev_e407d7d3dc95127d3d8e75b0",
+          "observedAt": "2026-10-14T05:09:46.088Z"
+        },
+        {
+          "sourceId": "memory:context-111",
+          "sourceVersion": "sha256:7a188e369f64c44e28789f32d200b49dddf899849392d561debdf93c4cc75fec",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-111",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Madeleine was in his study, occupied in arranging in advance some pressing matters connected with the mayor\u2019s office, in case he should decide to take the trip to Montfe",
+          "id": "ev_63fc927d95cd82930f47f932",
+          "observedAt": "2026-10-14T05:09:46.089Z"
+        },
+        {
+          "sourceId": "memory:context-120",
+          "sourceVersion": "sha256:d121c25223f2944adb1e33153699037d99ccd4a943d62441a1f20e541c83f355",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-120",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Thus, in spite of all his reserve and all his prudence, he had preserved the Bishop\u2019s candlesticks, worn mourning for him, su",
+          "id": "ev_791a147ae39096de35969b23",
+          "observedAt": "2026-10-14T05:09:46.090Z"
+        }
+      ],
+      "sourceIds": [
+        "context-92",
+        "context-111",
+        "context-120"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 10.792916999998852,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-92",
+        "context-111",
+        "context-120"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 4, excerpt) \u201cHe has gone into mourning for the Bishop of D\u2014\u2014\u201d said the drawing-rooms; this raised M.\n\nMadeleine\u2019s credit greatly, and procured for him, instantly and at one blow, a certain consideration in the noble world of M.\n\nsur M.\n  (part 4 of 4) blow, a certain consideration in the noble world of M.\n\nsur M.\n\nThe microscopic Faubourg Saint-Germain of the place meditated raising the quarantine against M.\n\nMadeleine, the probable relative of a bishop.\n\nM.\n\nMadeleine perceived the advancement which he had obtained, by the more numerous courtesies of the old women and the more plentiful smiles of the young ones.\n\nOne evening, a ruler in that petty great world, who was curious by right of seniority, ventured to ask him, \u201cM.\n\nle Maire is doubtless a cousin of the late Bishop of D\u2014\u2014?\u201d\n\nHe said, \u201cNo, Madame.\u201d\n\n\u201cBut,\u201d resumed the dowager, \u201cyou are wearing mourning for him.\u201d\n\nHe replied, \u201cIt is because I was a servant in his family in my youth.\u201d\n\nAnother thing which was remarked, was, that every time that he encountered in the town a young Savoyard who was roaming about the country and seeking chimneys to sweep, the mayor had him summoned, inquired his name, and gave him money.\n\nThe little Savoyards told each other about it: a great many of them passed that way.\n\nCHAPTER V\u2014VAGUE FLASHES ON THE HORIZON\n\nLittle by little, and in the course of time, all this opposition subsided.\n\nThere had at first been exercised against M\n- (part 3 of 5, excerpt) Madeleine was in his study, occupied in arranging in advance some pressing matters connected with the mayor\u2019s office, in case he should decide to take the trip to Montfe\n- (part 3 of 4, excerpt) Thus, in spite of all his reserve and all his prudence, he had preserved the Bishop\u2019s candlesticks, worn mourning for him, su",
+      "evidence": [
+        {
+          "sourceId": "memory:context-92",
+          "sourceVersion": "sha256:b45b56fd588d2f6cb71ff9bb6b510c332cfc6a9bee02dc858fa8625f9835423e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-92",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cHe has gone into mourning for the Bishop of D\u2014\u2014\u201d said the drawing-rooms; this raised M.\n\nMadeleine\u2019s credit greatly, and procured for him, instantly and at one blow, a certain consideration in the noble world of M.\n\nsur M.",
+          "id": "ev_cdfb179e6692b74977cec4a1",
+          "observedAt": "2026-10-14T05:09:46.097Z"
+        },
+        {
+          "sourceId": "memory:context-92",
+          "sourceVersion": "sha256:b45b56fd588d2f6cb71ff9bb6b510c332cfc6a9bee02dc858fa8625f9835423e",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-92",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "blow, a certain consideration in the noble world of M.\n\nsur M.\n\nThe microscopic Faubourg Saint-Germain of the place meditated raising the quarantine against M.\n\nMadeleine, the probable relative of a bishop.\n\nM.\n\nMadeleine perceived the advancement which he had obtained, by the more numerous courtesies of the old women and the more plentiful smiles of the young ones.\n\nOne evening, a ruler in that petty great world, who was curious by right of seniority, ventured to ask him, \u201cM.\n\nle Maire is doubtless a cousin of the late Bishop of D\u2014\u2014?\u201d\n\nHe said, \u201cNo, Madame.\u201d\n\n\u201cBut,\u201d resumed the dowager, \u201cyou are wearing mourning for him.\u201d\n\nHe replied, \u201cIt is because I was a servant in his family in my youth.\u201d\n\nAnother thing which was remarked, was, that every time that he encountered in the town a young Savoyard who was roaming about the country and seeking chimneys to sweep, the mayor had him summoned, inquired his name, and gave him money.\n\nThe little Savoyards told each other about it: a great many of them passed that way.\n\nCHAPTER V\u2014VAGUE FLASHES ON THE HORIZON\n\nLittle by little, and in the course of time, all this opposition subsided.\n\nThere had at first been exercised against M",
+          "id": "ev_e407d7d3dc95127d3d8e75b0",
+          "observedAt": "2026-10-14T05:09:46.097Z"
+        },
+        {
+          "sourceId": "memory:context-111",
+          "sourceVersion": "sha256:7a188e369f64c44e28789f32d200b49dddf899849392d561debdf93c4cc75fec",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-111",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Madeleine was in his study, occupied in arranging in advance some pressing matters connected with the mayor\u2019s office, in case he should decide to take the trip to Montfe",
+          "id": "ev_63fc927d95cd82930f47f932",
+          "observedAt": "2026-10-14T05:09:46.098Z"
+        },
+        {
+          "sourceId": "memory:context-120",
+          "sourceVersion": "sha256:d121c25223f2944adb1e33153699037d99ccd4a943d62441a1f20e541c83f355",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-120",
+            "part": 3,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Thus, in spite of all his reserve and all his prudence, he had preserved the Bishop\u2019s candlesticks, worn mourning for him, su",
+          "id": "ev_791a147ae39096de35969b23",
+          "observedAt": "2026-10-14T05:09:46.099Z"
+        }
+      ],
+      "sourceIds": [
+        "context-92",
+        "context-111",
+        "context-120"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 8.863291000001482,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:53:40.497806+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Father Madeleine inquired the names of young Savoyards seeking chimneys to sweep.",
+  "correct": true,
+  "readerUsage": {
+    "prompt_tokens": 753,
+    "completion_tokens": 1041,
+    "total_tokens": 1794,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 484,
+    "completion_tokens": 352,
+    "total_tokens": 836,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 349,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 11365.188083999783,
+  "judgeWallMs": 5614.533957999811,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "ended": "2026-10-14T07:53:58.541681+00:00"
+}

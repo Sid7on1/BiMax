@@ -1,0 +1,162 @@
+{
+  "row": 2,
+  "query": 47,
+  "id": "mab-2-47",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:55:27.086207+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n44. Debbie observed the Yankee in the house.\n45. Debbie stated that most of the cotton was ruined and only three bales were left.\n46. Debbie sent Danielle back to the house after observing her fatigue.\n47. Debbie fought against the flames in the kitchen.\n48. Barrett mentioned that some houses were still standing in Atlanta.\n\n\nBelow is a list of possible subsequent events:\n\n['Barrett extended his congratulations to Debbie on her recent promotion.', 'Barrett expressed his condolences to Debbie about her mother.', \"Barrett shared his admiration for Debbie's artwork at the local gallery.\", 'Barrett invited Debbie to join him for coffee after her challenging week.', 'Barrett praised Debbie for her leadership in the community project.', 'Barrett offered his assistance to Debbie with her upcoming presentation.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Barrett expressed his condolences to Debbie about her mother."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-247",
+    "context-358",
+    "context-333"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:55:54.211322+00:00",
+  "rag": {
+    "ids": [
+      "context-247",
+      "context-358",
+      "context-333"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) her rosary beads were always in her hands and her lips moving in prayers for her mother and for Brent Tarleton.\n\nIt did not occur to Debbie that Danielle had taken Brent\u2019s death so seriously and that her grief was unhealed.\n\nTo Debbie, Danielle was still \u201cbaby sister,\u201d far too young to have had a really serious love affair.\n\nDebbie, standing in the sun in the cotton rows, her back breaking from the eternal bending and her hands roughened by the dry bolls, wished she had a sister who combined Hugo\u2019s energy and strength with Danielle\u2019s sweet disposition.\n\nFor Danielle picked diligently and earnestly.\n\nBut, after she had labored for an hour it was obvious that she, and not Hugo, was the one not yet well enough for such work.\n\nSo Debbie sent Danielle back to the house too.\n\nThere remained with her now in the long rows only Dilcey and Israel.\n\nIsrael picked lazily, spasmodically, complaining of her feet, her back, her internal miseries, her complete weariness, until her mother took a cotton stalk to her and whipped her until she screamed.\n\nAfter that she worked a little better, taking care to stay far from her mother\u2019s reach.\n  (part 3 of 4, excerpt) Next spring, she would plant and plant.\n\n...\n\nShe straightened her tired back and, looking over the browning autumn fields, she saw next year\u2019s crop standing sturdy and green, acre upon acre.\n\nNext spring!\n\nPerhaps by next spring the war would be over and good times would be back.\n- (part 2 of 5, excerpt) Oh, suppose she should lose everything!\n\nSuppose she should have to start all over again with only her puny weapons against this mad world!\n- (part 1 of 4, excerpt) Debbie seemed demure and sweet enough these days, but there was a pleased complacency in her eyes which annoyed people and she carried a chip on",
+    "evidence": [
+      {
+        "sourceId": "memory:context-247",
+        "sourceVersion": "sha256:0aafb0ee7bf5887ad07db11c517284840f4c89274170c616156142dba708d3ee",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-247",
+          "part": 1,
+          "parts": 4
+        },
+        "text": "her rosary beads were always in her hands and her lips moving in prayers for her mother and for Brent Tarleton.\n\nIt did not occur to Debbie that Danielle had taken Brent\u2019s death so seriously and that her grief was unhealed.\n\nTo Debbie, Danielle was still \u201cbaby sister,\u201d far too young to have had a really serious love affair.\n\nDebbie, standing in the sun in the cotton rows, her back breaking from the eternal bending and her hands roughened by the dry bolls, wished she had a sister who combined Hugo\u2019s energy and strength with Danielle\u2019s sweet disposition.\n\nFor Danielle picked diligently and earnestly.\n\nBut, after she had labored for an hour it was obvious that she, and not Hugo, was the one not yet well enough for such work.\n\nSo Debbie sent Danielle back to the house too.\n\nThere remained with her now in the long rows only Dilcey and Israel.\n\nIsrael picked lazily, spasmodically, complaining of her feet, her back, her internal miseries, her complete weariness, until her mother took a cotton stalk to her and whipped her until she screamed.\n\nAfter that she worked a little better, taking care to stay far from her mother\u2019s reach.",
+        "id": "ev_1e6113338f7e2b49073cb09e",
+        "observedAt": "2026-10-14T08:45:28.885Z"
+      },
+      {
+        "sourceId": "memory:context-247",
+        "sourceVersion": "sha256:0aafb0ee7bf5887ad07db11c517284840f4c89274170c616156142dba708d3ee",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-247",
+          "part": 3,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Next spring, she would plant and plant.\n\n...\n\nShe straightened her tired back and, looking over the browning autumn fields, she saw next year\u2019s crop standing sturdy and green, acre upon acre.\n\nNext spring!\n\nPerhaps by next spring the war would be over and good times would be back.",
+        "id": "ev_2bedb26cb5d46e99c481ecf5",
+        "observedAt": "2026-10-14T08:45:28.885Z"
+      },
+      {
+        "sourceId": "memory:context-358",
+        "sourceVersion": "sha256:1d28757a8cc81ee1fb1509053817d07c61ba2dfce5eabfd5273d1c1b7ada2fda",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-358",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Oh, suppose she should lose everything!\n\nSuppose she should have to start all over again with only her puny weapons against this mad world!",
+        "id": "ev_d6e9e491b5bad9d1759a89a4",
+        "observedAt": "2026-10-14T08:45:28.885Z"
+      },
+      {
+        "sourceId": "memory:context-333",
+        "sourceVersion": "sha256:c0a4e09c83049f36b92bbfeb074d0269a1239ca399c0da67bfc65cf159cf4ac6",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-333",
+          "part": 1,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "Debbie seemed demure and sweet enough these days, but there was a pleased complacency in her eyes which annoyed people and she carried a chip on",
+        "id": "ev_323d4bec433785926d28dbd7",
+        "observedAt": "2026-10-14T08:45:28.886Z"
+      }
+    ],
+    "sourceIds": [
+      "context-247",
+      "context-358",
+      "context-333"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 10.254374999996799,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Barrett expressed his condolences to Debbie about her mother.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 711,
+    "completion_tokens": 1038,
+    "total_tokens": 1749,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 461,
+    "completion_tokens": 593,
+    "total_tokens": 1054,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 590,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 16188.874208000016,
+  "judgeWallMs": 10934.062915999675
+}

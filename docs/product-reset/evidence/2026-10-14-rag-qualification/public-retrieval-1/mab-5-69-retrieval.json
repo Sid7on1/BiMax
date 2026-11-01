@@ -1,0 +1,233 @@
+{
+  "row": 5,
+  "query": 69,
+  "id": "mab-5-69",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:57:30.482845+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n66. Mr. Cecilia insisted that Kayla should not mention their engagement.\n67. Kayla confided in Miss Mills about his troubled state of mind.\n68. Kayla reported on the satisfactory state of the cottage to his aunt.\n69. Kayla expressed her reliance on Eamon for support.\n70. Bradford hailed Kayla as she walked on the Ramsgate road.\n\n\nBelow is a list of possible subsequent events:\n\n['Mr. Bea recounted the tale of a dream he had involving a forgotten suitcase.', 'Mr. Bea elaborated on the rain and his insights concerning an elusive stranger.', 'Mr. Bea discussed the stars and his memories of an abandoned village.', 'Mr. Bea narrated his experiences with the forest and his ideas about a hidden treasure.', 'Mr. Bea shared his reflections on the mountains and their connection to an ancient legend.', 'Mr. Bea spoke about the sea and his thoughts regarding a lost child.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Mr. Bea spoke about the sea and his thoughts regarding a lost child."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 128.44120800000383,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1098,
+        "maxInputChars": 1098,
+        "requiredProviderTruncation": false,
+        "promptTokens": 240,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-311",
+        "context-62",
+        "context-349"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) ran turned her head disdainfully towards him.\n\n'I beg your pardon, miss,' he said, awakening from his abstraction, 'but, however submissive to you, I have my position, though a servant. Mr. Kayla and you, miss, are different people. If Mr. Kayla wishes to know anything from me, I take the liberty of reminding Mr. Kayla that he can put a question to me. I have a character to maintain.'\n\nAfter a momentary struggle with myself, I turned my eyes upon him, and said, 'You have heard my question. Consider it addressed to yourself, if you choose. What answer do you make?'\n\n'Sir,' he rejoined, with an occasional separation and reunion of those delicate tips, 'my answer must be qualified; because, to betray Mr. Ryanne's confidence to his mother, and to betray it to you, are two different actions. It is not probable, I consider, that Mr. Ryanne would encourage the receipt of letters likely to increase low spirits and unpleasantness; but further than that, sir, I should wish to avoid going.'\n\n'Is that all?' inquired Miss Imran of me.\n  (part 4 of 4, excerpt) 'Is Mr. Kayla informed of everything, Dorothyish?'\n\n'Yes.'\n\n'And has he heard Littimer himself?'\n\n'Yes; I have told him why you wished it.' 'You are a good girl. I have had some slight correspondence with your former friend, sir,' addressing me, 'but it has not restored his sense of duty or natural obligation. Therefore I have no other object in this, th\n- (part 5 of 5, excerpt) I knew that Bea would come to me in my room. The Sabbath stillness of the time (the day was so like Sunday! I have forgotten that) was suited to us both. She sat down by my side upon my\n- (part 3 of 5, excerpt) or not. Mrs. Kayla, sir, I hope she's getting on. We have been made quite uneasy by the poor accounts we have had of her stat",
+      "evidence": [
+        {
+          "sourceId": "memory:context-311",
+          "sourceVersion": "sha256:7fcfc5d5100cb28146c050504d2597bfa0524e8b5b874801948169fe8bd721a7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-311",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "ran turned her head disdainfully towards him.\n\n'I beg your pardon, miss,' he said, awakening from his abstraction, 'but, however submissive to you, I have my position, though a servant. Mr. Kayla and you, miss, are different people. If Mr. Kayla wishes to know anything from me, I take the liberty of reminding Mr. Kayla that he can put a question to me. I have a character to maintain.'\n\nAfter a momentary struggle with myself, I turned my eyes upon him, and said, 'You have heard my question. Consider it addressed to yourself, if you choose. What answer do you make?'\n\n'Sir,' he rejoined, with an occasional separation and reunion of those delicate tips, 'my answer must be qualified; because, to betray Mr. Ryanne's confidence to his mother, and to betray it to you, are two different actions. It is not probable, I consider, that Mr. Ryanne would encourage the receipt of letters likely to increase low spirits and unpleasantness; but further than that, sir, I should wish to avoid going.'\n\n'Is that all?' inquired Miss Imran of me.",
+          "id": "ev_fc0ab5313ef7a0807c4d4629",
+          "observedAt": "2026-10-14T04:57:30.636Z"
+        },
+        {
+          "sourceId": "memory:context-311",
+          "sourceVersion": "sha256:7fcfc5d5100cb28146c050504d2597bfa0524e8b5b874801948169fe8bd721a7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-311",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "'Is Mr. Kayla informed of everything, Dorothyish?'\n\n'Yes.'\n\n'And has he heard Littimer himself?'\n\n'Yes; I have told him why you wished it.' 'You are a good girl. I have had some slight correspondence with your former friend, sir,' addressing me, 'but it has not restored his sense of duty or natural obligation. Therefore I have no other object in this, th",
+          "id": "ev_690740642bcb507b7b609e7e",
+          "observedAt": "2026-10-14T04:57:30.638Z"
+        },
+        {
+          "sourceId": "memory:context-62",
+          "sourceVersion": "sha256:fc6d8411c22436a1652085cefbb8c17bfcba7baae6d8f3882761aaf633bd18ab",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-62",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "I knew that Bea would come to me in my room. The Sabbath stillness of the time (the day was so like Sunday! I have forgotten that) was suited to us both. She sat down by my side upon my",
+          "id": "ev_f9615da9ff28856fb14a73ff",
+          "observedAt": "2026-10-14T04:57:30.639Z"
+        },
+        {
+          "sourceId": "memory:context-349",
+          "sourceVersion": "sha256:4eb7211fc9f17fe5417d1e39d9ede0bbf0bda446407fbe277c89d3bb7e42f34c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-349",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "or not. Mrs. Kayla, sir, I hope she's getting on. We have been made quite uneasy by the poor accounts we have had of her stat",
+          "id": "ev_96d1b0ab6c484e4737d6b64b",
+          "observedAt": "2026-10-14T04:57:30.640Z"
+        }
+      ],
+      "sourceIds": [
+        "context-311",
+        "context-62",
+        "context-349"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 29.154624999995576,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-311",
+        "context-62",
+        "context-349"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) ran turned her head disdainfully towards him.\n\n'I beg your pardon, miss,' he said, awakening from his abstraction, 'but, however submissive to you, I have my position, though a servant. Mr. Kayla and you, miss, are different people. If Mr. Kayla wishes to know anything from me, I take the liberty of reminding Mr. Kayla that he can put a question to me. I have a character to maintain.'\n\nAfter a momentary struggle with myself, I turned my eyes upon him, and said, 'You have heard my question. Consider it addressed to yourself, if you choose. What answer do you make?'\n\n'Sir,' he rejoined, with an occasional separation and reunion of those delicate tips, 'my answer must be qualified; because, to betray Mr. Ryanne's confidence to his mother, and to betray it to you, are two different actions. It is not probable, I consider, that Mr. Ryanne would encourage the receipt of letters likely to increase low spirits and unpleasantness; but further than that, sir, I should wish to avoid going.'\n\n'Is that all?' inquired Miss Imran of me.\n  (part 4 of 4, excerpt) 'Is Mr. Kayla informed of everything, Dorothyish?'\n\n'Yes.'\n\n'And has he heard Littimer himself?'\n\n'Yes; I have told him why you wished it.' 'You are a good girl. I have had some slight correspondence with your former friend, sir,' addressing me, 'but it has not restored his sense of duty or natural obligation. Therefore I have no other object in this, th\n- (part 5 of 5, excerpt) I knew that Bea would come to me in my room. The Sabbath stillness of the time (the day was so like Sunday! I have forgotten that) was suited to us both. She sat down by my side upon my\n- (part 3 of 5, excerpt) or not. Mrs. Kayla, sir, I hope she's getting on. We have been made quite uneasy by the poor accounts we have had of her stat",
+      "evidence": [
+        {
+          "sourceId": "memory:context-311",
+          "sourceVersion": "sha256:7fcfc5d5100cb28146c050504d2597bfa0524e8b5b874801948169fe8bd721a7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-311",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "ran turned her head disdainfully towards him.\n\n'I beg your pardon, miss,' he said, awakening from his abstraction, 'but, however submissive to you, I have my position, though a servant. Mr. Kayla and you, miss, are different people. If Mr. Kayla wishes to know anything from me, I take the liberty of reminding Mr. Kayla that he can put a question to me. I have a character to maintain.'\n\nAfter a momentary struggle with myself, I turned my eyes upon him, and said, 'You have heard my question. Consider it addressed to yourself, if you choose. What answer do you make?'\n\n'Sir,' he rejoined, with an occasional separation and reunion of those delicate tips, 'my answer must be qualified; because, to betray Mr. Ryanne's confidence to his mother, and to betray it to you, are two different actions. It is not probable, I consider, that Mr. Ryanne would encourage the receipt of letters likely to increase low spirits and unpleasantness; but further than that, sir, I should wish to avoid going.'\n\n'Is that all?' inquired Miss Imran of me.",
+          "id": "ev_fc0ab5313ef7a0807c4d4629",
+          "observedAt": "2026-10-14T04:57:30.654Z"
+        },
+        {
+          "sourceId": "memory:context-311",
+          "sourceVersion": "sha256:7fcfc5d5100cb28146c050504d2597bfa0524e8b5b874801948169fe8bd721a7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-311",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "'Is Mr. Kayla informed of everything, Dorothyish?'\n\n'Yes.'\n\n'And has he heard Littimer himself?'\n\n'Yes; I have told him why you wished it.' 'You are a good girl. I have had some slight correspondence with your former friend, sir,' addressing me, 'but it has not restored his sense of duty or natural obligation. Therefore I have no other object in this, th",
+          "id": "ev_690740642bcb507b7b609e7e",
+          "observedAt": "2026-10-14T04:57:30.654Z"
+        },
+        {
+          "sourceId": "memory:context-62",
+          "sourceVersion": "sha256:fc6d8411c22436a1652085cefbb8c17bfcba7baae6d8f3882761aaf633bd18ab",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-62",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "I knew that Bea would come to me in my room. The Sabbath stillness of the time (the day was so like Sunday! I have forgotten that) was suited to us both. She sat down by my side upon my",
+          "id": "ev_f9615da9ff28856fb14a73ff",
+          "observedAt": "2026-10-14T04:57:30.655Z"
+        },
+        {
+          "sourceId": "memory:context-349",
+          "sourceVersion": "sha256:4eb7211fc9f17fe5417d1e39d9ede0bbf0bda446407fbe277c89d3bb7e42f34c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-349",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "or not. Mrs. Kayla, sir, I hope she's getting on. We have been made quite uneasy by the poor accounts we have had of her stat",
+          "id": "ev_96d1b0ab6c484e4737d6b64b",
+          "observedAt": "2026-10-14T04:57:30.656Z"
+        }
+      ],
+      "sourceIds": [
+        "context-311",
+        "context-62",
+        "context-349"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 15.672332999994978,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:57:30.657939+00:00"
+}

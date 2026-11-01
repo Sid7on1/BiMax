@@ -1,0 +1,313 @@
+{
+  "row": 158,
+  "id": "1d4e3b97",
+  "stratum": "single-session-preference",
+  "dataset": "longmemeval",
+  "question": "I noticed my bike seems to be performing even better during my Sunday group rides. Could there be a reason for this?",
+  "references": [
+    "The user would prefer responses that reference specific details from their previous interactions, such as the replacement of the bike's chain and cassette, and the use of a new Garmin bike computer. They might prefer explanations that connect these details to the observed improvement in bike performance. The user may not prefer responses that fail to acknowledge these specific details or provide vague, general explanations for the improvement."
+  ],
+  "kind": "single-session-preference",
+  "abstention": false,
+  "date": "2024/02/20 (Tue) 23:40",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 378.7999999999993,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 116,
+        "maxInputChars": 116,
+        "requiredProviderTruncation": false,
+        "promptTokens": 26,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "ecb24dd8_2",
+        "answer_e6b6353d",
+        "809cabca_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 18, excerpt) and there are many great spin classes and YouTube channels that can provide a similar workout experience. Here are some popular options:\n\n**Spin Classes:**\n\n1. **SoulCycle**: A high-energy, full-body workout that combines cycling with strength training and meditation. Find a studio near you or try their at-home program, SoulCycle At-Home.\n  (part 7 of 18, excerpt) 1. **Zwift**: A virtual cycling platform that allows you to ride with others in real-time, using your own bike and trainer\n  (part 13 of 18) a different beast. A beginner's class will help you build confidence on the bike and get comfortable with the high-energy atmosphere and instructor guidance.\n\nAfter you've completed a beginner's class or introductory ride, you can assess your fitness level and decide if you're ready to move on to more challenging rides. SoulCycle offers various ride types, including:\n\n* **Beginner rides**: Focus on technique, form, and building confidence on the bike.\n* **All-level rides**: Suitable for riders of all fitness levels, these classes offer a mix of cardio, strength, and endurance training.\n* **Challenging rides**: Designed for more experienced riders, these classes feature higher intensities, longer climbs, and more advanced exercises.\n\nRemember, it's always better to start slow and progress gradually, especially when trying a new type of workout. You'll get more out of the class, and you'll be less likely to experience fatigue or discomfort.\n- (part 9 of 16, excerpt) user: Can you suggest some good bike safety tips to keep in mind during my 20-mile ride?\n- (part 7 of 25, excerpt) Some people might find that their energy levels change depending on the day of the week, time of year, or even their menstrual cycle (for women). It's essential to listen",
+      "evidence": [
+        {
+          "sourceId": "memory:ecb24dd8_2",
+          "sourceVersion": "sha256:dd879e043124dd51e1a1c8b7d65554d7ec1ada69fbec5025bd4708004b440275",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ecb24dd8_2",
+            "part": 5,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "and there are many great spin classes and YouTube channels that can provide a similar workout experience. Here are some popular options:\n\n**Spin Classes:**\n\n1. **SoulCycle**: A high-energy, full-body workout that combines cycling with strength training and meditation. Find a studio near you or try their at-home program, SoulCycle At-Home.",
+          "id": "ev_312a7e457dcb57ddaaf69891",
+          "observedAt": "2026-10-14T04:57:39.815Z"
+        },
+        {
+          "sourceId": "memory:ecb24dd8_2",
+          "sourceVersion": "sha256:dd879e043124dd51e1a1c8b7d65554d7ec1ada69fbec5025bd4708004b440275",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ecb24dd8_2",
+            "part": 7,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "1. **Zwift**: A virtual cycling platform that allows you to ride with others in real-time, using your own bike and trainer",
+          "id": "ev_a972953c7cb3afe350111977",
+          "observedAt": "2026-10-14T04:57:39.816Z"
+        },
+        {
+          "sourceId": "memory:ecb24dd8_2",
+          "sourceVersion": "sha256:dd879e043124dd51e1a1c8b7d65554d7ec1ada69fbec5025bd4708004b440275",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ecb24dd8_2",
+            "part": 13,
+            "parts": 18
+          },
+          "text": "a different beast. A beginner's class will help you build confidence on the bike and get comfortable with the high-energy atmosphere and instructor guidance.\n\nAfter you've completed a beginner's class or introductory ride, you can assess your fitness level and decide if you're ready to move on to more challenging rides. SoulCycle offers various ride types, including:\n\n* **Beginner rides**: Focus on technique, form, and building confidence on the bike.\n* **All-level rides**: Suitable for riders of all fitness levels, these classes offer a mix of cardio, strength, and endurance training.\n* **Challenging rides**: Designed for more experienced riders, these classes feature higher intensities, longer climbs, and more advanced exercises.\n\nRemember, it's always better to start slow and progress gradually, especially when trying a new type of workout. You'll get more out of the class, and you'll be less likely to experience fatigue or discomfort.",
+          "id": "ev_2d97c22015e303fd6b9d88af",
+          "observedAt": "2026-10-14T04:57:39.816Z"
+        },
+        {
+          "sourceId": "memory:answer_e6b6353d",
+          "sourceVersion": "sha256:10280dd84cd36aa8e3d090ca7aeb33e38c39d8cf70319fc3142f8c4b02821ea1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e6b6353d",
+            "part": 9,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "user: Can you suggest some good bike safety tips to keep in mind during my 20-mile ride?",
+          "id": "ev_294c3236e828f6586c295001",
+          "observedAt": "2026-10-14T04:57:39.816Z"
+        },
+        {
+          "sourceId": "memory:809cabca_1",
+          "sourceVersion": "sha256:6b4d6275556612fb436b0b714436b802fe91b66df8bc33c8f6aa7519c1fd8e76",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "809cabca_1",
+            "part": 7,
+            "parts": 25,
+            "partial": true
+          },
+          "text": "Some people might find that their energy levels change depending on the day of the week, time of year, or even their menstrual cycle (for women). It's essential to listen",
+          "id": "ev_e7a5b5b730fc8122840404ae",
+          "observedAt": "2026-10-14T04:57:39.817Z"
+        }
+      ],
+      "sourceIds": [
+        "ecb24dd8_2",
+        "answer_e6b6353d",
+        "809cabca_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 25.998249999996915,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "ecb24dd8_2",
+        "answer_e6b6353d",
+        "809cabca_1"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 5 of 18, excerpt) and there are many great spin classes and YouTube channels that can provide a similar workout experience. Here are some popular options:\n\n**Spin Classes:**\n\n1. **SoulCycle**: A high-energy, full-body workout that combines cycling with strength training and meditation. Find a studio near you or try their at-home program, SoulCycle At-Home.\n  (part 7 of 18, excerpt) 1. **Zwift**: A virtual cycling platform that allows you to ride with others in real-time, using your own bike and trainer\n  (part 13 of 18) a different beast. A beginner's class will help you build confidence on the bike and get comfortable with the high-energy atmosphere and instructor guidance.\n\nAfter you've completed a beginner's class or introductory ride, you can assess your fitness level and decide if you're ready to move on to more challenging rides. SoulCycle offers various ride types, including:\n\n* **Beginner rides**: Focus on technique, form, and building confidence on the bike.\n* **All-level rides**: Suitable for riders of all fitness levels, these classes offer a mix of cardio, strength, and endurance training.\n* **Challenging rides**: Designed for more experienced riders, these classes feature higher intensities, longer climbs, and more advanced exercises.\n\nRemember, it's always better to start slow and progress gradually, especially when trying a new type of workout. You'll get more out of the class, and you'll be less likely to experience fatigue or discomfort.\n- (part 9 of 16, excerpt) user: Can you suggest some good bike safety tips to keep in mind during my 20-mile ride?\n- (part 7 of 25, excerpt) Some people might find that their energy levels change depending on the day of the week, time of year, or even their menstrual cycle (for women). It's essential to listen",
+      "evidence": [
+        {
+          "sourceId": "memory:ecb24dd8_2",
+          "sourceVersion": "sha256:dd879e043124dd51e1a1c8b7d65554d7ec1ada69fbec5025bd4708004b440275",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ecb24dd8_2",
+            "part": 5,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "and there are many great spin classes and YouTube channels that can provide a similar workout experience. Here are some popular options:\n\n**Spin Classes:**\n\n1. **SoulCycle**: A high-energy, full-body workout that combines cycling with strength training and meditation. Find a studio near you or try their at-home program, SoulCycle At-Home.",
+          "id": "ev_312a7e457dcb57ddaaf69891",
+          "observedAt": "2026-10-14T04:57:39.823Z"
+        },
+        {
+          "sourceId": "memory:ecb24dd8_2",
+          "sourceVersion": "sha256:dd879e043124dd51e1a1c8b7d65554d7ec1ada69fbec5025bd4708004b440275",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ecb24dd8_2",
+            "part": 7,
+            "parts": 18,
+            "partial": true
+          },
+          "text": "1. **Zwift**: A virtual cycling platform that allows you to ride with others in real-time, using your own bike and trainer",
+          "id": "ev_a972953c7cb3afe350111977",
+          "observedAt": "2026-10-14T04:57:39.823Z"
+        },
+        {
+          "sourceId": "memory:ecb24dd8_2",
+          "sourceVersion": "sha256:dd879e043124dd51e1a1c8b7d65554d7ec1ada69fbec5025bd4708004b440275",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "ecb24dd8_2",
+            "part": 13,
+            "parts": 18
+          },
+          "text": "a different beast. A beginner's class will help you build confidence on the bike and get comfortable with the high-energy atmosphere and instructor guidance.\n\nAfter you've completed a beginner's class or introductory ride, you can assess your fitness level and decide if you're ready to move on to more challenging rides. SoulCycle offers various ride types, including:\n\n* **Beginner rides**: Focus on technique, form, and building confidence on the bike.\n* **All-level rides**: Suitable for riders of all fitness levels, these classes offer a mix of cardio, strength, and endurance training.\n* **Challenging rides**: Designed for more experienced riders, these classes feature higher intensities, longer climbs, and more advanced exercises.\n\nRemember, it's always better to start slow and progress gradually, especially when trying a new type of workout. You'll get more out of the class, and you'll be less likely to experience fatigue or discomfort.",
+          "id": "ev_2d97c22015e303fd6b9d88af",
+          "observedAt": "2026-10-14T04:57:39.823Z"
+        },
+        {
+          "sourceId": "memory:answer_e6b6353d",
+          "sourceVersion": "sha256:10280dd84cd36aa8e3d090ca7aeb33e38c39d8cf70319fc3142f8c4b02821ea1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_e6b6353d",
+            "part": 9,
+            "parts": 16,
+            "partial": true
+          },
+          "text": "user: Can you suggest some good bike safety tips to keep in mind during my 20-mile ride?",
+          "id": "ev_294c3236e828f6586c295001",
+          "observedAt": "2026-10-14T04:57:39.823Z"
+        },
+        {
+          "sourceId": "memory:809cabca_1",
+          "sourceVersion": "sha256:6b4d6275556612fb436b0b714436b802fe91b66df8bc33c8f6aa7519c1fd8e76",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "809cabca_1",
+            "part": 7,
+            "parts": 25,
+            "partial": true
+          },
+          "text": "Some people might find that their energy levels change depending on the day of the week, time of year, or even their menstrual cycle (for women). It's essential to listen",
+          "id": "ev_e7a5b5b730fc8122840404ae",
+          "observedAt": "2026-10-14T04:57:39.823Z"
+        }
+      ],
+      "sourceIds": [
+        "ecb24dd8_2",
+        "answer_e6b6353d",
+        "809cabca_1"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 6.515541999997367,
+      "provenance": true
+    }
+  },
+  "sources": {
+    "recallAt3": 1.0,
+    "complete": true
+  },
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:59:52.306972+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "Based on the retrieved history, there is no information explaining why your bike might perform better during Sunday group rides. The available excerpts mention that energy levels can vary by day of the week, time of year, or other factors, but they do not address cycling performance, group ride dynamics, or any specific reason for improved bike performance on Sundays. \n\nThe retrieved material is insufficient to answer your question. \n\nI do not know.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 539,
+    "completion_tokens": 887,
+    "total_tokens": 1426,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 796,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 406,
+    "completion_tokens": 568,
+    "total_tokens": 974,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 565,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 9208.785332999923,
+  "judgeWallMs": 10517.043124999873,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.20155038759689922
+  },
+  "ended": "2026-10-14T08:00:12.035318+00:00"
+}

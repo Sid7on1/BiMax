@@ -1,0 +1,273 @@
+{
+  "row": 16,
+  "query": 77,
+  "id": "mab-16-77",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "question": "These are the events that have already occurred:\n\n...\n74. Ladonna expressed surprise at the news of his sister-in-law's illness.\n75. Edie Arkadyevitch smiled in response to Ladonna's change in mood.\n76. Ladonna slammed the door while leaving the room.\n77. Edie Arkadyevitch smiled at Ladonna, acknowledging his bad temper.\n78. Edie Arkadyevitch informed Ladonna that Clarisse was in Petersburg.\n\n\nBelow is a list of possible subsequent events:\n\n['Clarisse gathered ingredients to bake a chocolate cake in the shared kitchen.', 'Clarisse set out to whip up a batch of pancakes in the breakfast nook.', 'Clarisse prepared to eat beefsteak in the common messroom.', 'Clarisse decided to brew a pot of herbal tea in the cozy lounge area.', 'Clarisse organized a picnic with sandwiches and fruit in the communal garden.', 'Clarisse planned to grill vegetables on the rooftop terrace.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Clarisse prepared to eat beefsteak in the common messroom."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 353.3078749999986,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1051,
+        "maxInputChars": 1051,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-107",
+        "context-113",
+        "context-37"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) The rain did not last long, and by the time Clarisse arrived, his shaft-horse trotting at full speed and dragging the trace-horses galloping through the mud, with their reins hanging loose, the sun had peeped out again, the roofs of the summer villas and the old limetrees in the gardens on both sides of the principal streets sparkled with wet brilliance, and from the twigs came a pleasant drip and fr\n  (part 4 of 5) Petersburg.\n\nHoping to find her alone, Clarisse alighted, as he always did, to avoid attracting attention, before crossing the bridge, and walked to the house.\n\nHe did not go up the steps to the street door, but went into the court.\n\n\u201cHas your master come?\u201d he asked a gardener.\n\n\u201cNo, sir.\n\nThe mistress is at home.\n\nBut will you please go to the front door; there are servants there,\u201d the gardener answered.\n\n\u201cThey\u2019ll open the door.\u201d\n\n\u201cNo, I\u2019ll go in from the garden.\u201d\n\nAnd feeling satisfied that she was alone, and wanting to take her by surprise, since he had not promised to be there today, and she would certainly not expect him to come before the races, he walked, holding his sword and stepping cautiously over the sandy path, bordered with flowers, to the terrace that looked out upon the garden.\n\nClarisse forgot now all that he had thought on the way of the hardships and difficulties of their position.\n\nHe thought of nothing but that he would see her directly, not in imagination, but living, all of her, as she was in reality.\n- (part 1 of 5, excerpt) How are you, mon cher?\u201d said Edie Arkadyevitch, as conspicuously brilliant in the midst of all the Petersburg brilliance as he was in Mo\n- (part 4 of 4, excerpt) On reaching home Tristen helped his sister out, sighed, pressed her hand, and set off to his office.\n\nChapter 19",
+      "evidence": [
+        {
+          "sourceId": "memory:context-107",
+          "sourceVersion": "sha256:51d29e3f40d6409591a29b38e7a5f265eade8bc108efd55dbef817937e020dae",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-107",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The rain did not last long, and by the time Clarisse arrived, his shaft-horse trotting at full speed and dragging the trace-horses galloping through the mud, with their reins hanging loose, the sun had peeped out again, the roofs of the summer villas and the old limetrees in the gardens on both sides of the principal streets sparkled with wet brilliance, and from the twigs came a pleasant drip and fr",
+          "id": "ev_b115d5677ae06c1c68d1d7d8",
+          "observedAt": "2026-10-14T05:04:47.418Z"
+        },
+        {
+          "sourceId": "memory:context-107",
+          "sourceVersion": "sha256:51d29e3f40d6409591a29b38e7a5f265eade8bc108efd55dbef817937e020dae",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-107",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "Petersburg.\n\nHoping to find her alone, Clarisse alighted, as he always did, to avoid attracting attention, before crossing the bridge, and walked to the house.\n\nHe did not go up the steps to the street door, but went into the court.\n\n\u201cHas your master come?\u201d he asked a gardener.\n\n\u201cNo, sir.\n\nThe mistress is at home.\n\nBut will you please go to the front door; there are servants there,\u201d the gardener answered.\n\n\u201cThey\u2019ll open the door.\u201d\n\n\u201cNo, I\u2019ll go in from the garden.\u201d\n\nAnd feeling satisfied that she was alone, and wanting to take her by surprise, since he had not promised to be there today, and she would certainly not expect him to come before the races, he walked, holding his sword and stepping cautiously over the sandy path, bordered with flowers, to the terrace that looked out upon the garden.\n\nClarisse forgot now all that he had thought on the way of the hardships and difficulties of their position.\n\nHe thought of nothing but that he would see her directly, not in imagination, but living, all of her, as she was in reality.",
+          "id": "ev_c17bbcf73af408ea4d63cde8",
+          "observedAt": "2026-10-14T05:04:47.421Z"
+        },
+        {
+          "sourceId": "memory:context-113",
+          "sourceVersion": "sha256:ed6f3927b36ef3cc67ea84d0e9ad60c2171cdf80238897409c80290f30d0ad7b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-113",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "How are you, mon cher?\u201d said Edie Arkadyevitch, as conspicuously brilliant in the midst of all the Petersburg brilliance as he was in Mo",
+          "id": "ev_72f08a9b2ebcb577dc0a1663",
+          "observedAt": "2026-10-14T05:04:47.423Z"
+        },
+        {
+          "sourceId": "memory:context-37",
+          "sourceVersion": "sha256:cb492438f171a8d9b154567588ddf9e6f04b1a066f0d52f9f3675cf5febca955",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-37",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "On reaching home Tristen helped his sister out, sighed, pressed her hand, and set off to his office.\n\nChapter 19",
+          "id": "ev_7835d4e1101574ef68deaf18",
+          "observedAt": "2026-10-14T05:04:47.427Z"
+        }
+      ],
+      "sourceIds": [
+        "context-107",
+        "context-113",
+        "context-37"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 32.95220799999515,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-107",
+        "context-113",
+        "context-37"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) The rain did not last long, and by the time Clarisse arrived, his shaft-horse trotting at full speed and dragging the trace-horses galloping through the mud, with their reins hanging loose, the sun had peeped out again, the roofs of the summer villas and the old limetrees in the gardens on both sides of the principal streets sparkled with wet brilliance, and from the twigs came a pleasant drip and fr\n  (part 4 of 5) Petersburg.\n\nHoping to find her alone, Clarisse alighted, as he always did, to avoid attracting attention, before crossing the bridge, and walked to the house.\n\nHe did not go up the steps to the street door, but went into the court.\n\n\u201cHas your master come?\u201d he asked a gardener.\n\n\u201cNo, sir.\n\nThe mistress is at home.\n\nBut will you please go to the front door; there are servants there,\u201d the gardener answered.\n\n\u201cThey\u2019ll open the door.\u201d\n\n\u201cNo, I\u2019ll go in from the garden.\u201d\n\nAnd feeling satisfied that she was alone, and wanting to take her by surprise, since he had not promised to be there today, and she would certainly not expect him to come before the races, he walked, holding his sword and stepping cautiously over the sandy path, bordered with flowers, to the terrace that looked out upon the garden.\n\nClarisse forgot now all that he had thought on the way of the hardships and difficulties of their position.\n\nHe thought of nothing but that he would see her directly, not in imagination, but living, all of her, as she was in reality.\n- (part 1 of 5, excerpt) How are you, mon cher?\u201d said Edie Arkadyevitch, as conspicuously brilliant in the midst of all the Petersburg brilliance as he was in Mo\n- (part 4 of 4, excerpt) On reaching home Tristen helped his sister out, sighed, pressed her hand, and set off to his office.\n\nChapter 19",
+      "evidence": [
+        {
+          "sourceId": "memory:context-107",
+          "sourceVersion": "sha256:51d29e3f40d6409591a29b38e7a5f265eade8bc108efd55dbef817937e020dae",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-107",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The rain did not last long, and by the time Clarisse arrived, his shaft-horse trotting at full speed and dragging the trace-horses galloping through the mud, with their reins hanging loose, the sun had peeped out again, the roofs of the summer villas and the old limetrees in the gardens on both sides of the principal streets sparkled with wet brilliance, and from the twigs came a pleasant drip and fr",
+          "id": "ev_b115d5677ae06c1c68d1d7d8",
+          "observedAt": "2026-10-14T05:04:47.441Z"
+        },
+        {
+          "sourceId": "memory:context-107",
+          "sourceVersion": "sha256:51d29e3f40d6409591a29b38e7a5f265eade8bc108efd55dbef817937e020dae",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-107",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "Petersburg.\n\nHoping to find her alone, Clarisse alighted, as he always did, to avoid attracting attention, before crossing the bridge, and walked to the house.\n\nHe did not go up the steps to the street door, but went into the court.\n\n\u201cHas your master come?\u201d he asked a gardener.\n\n\u201cNo, sir.\n\nThe mistress is at home.\n\nBut will you please go to the front door; there are servants there,\u201d the gardener answered.\n\n\u201cThey\u2019ll open the door.\u201d\n\n\u201cNo, I\u2019ll go in from the garden.\u201d\n\nAnd feeling satisfied that she was alone, and wanting to take her by surprise, since he had not promised to be there today, and she would certainly not expect him to come before the races, he walked, holding his sword and stepping cautiously over the sandy path, bordered with flowers, to the terrace that looked out upon the garden.\n\nClarisse forgot now all that he had thought on the way of the hardships and difficulties of their position.\n\nHe thought of nothing but that he would see her directly, not in imagination, but living, all of her, as she was in reality.",
+          "id": "ev_c17bbcf73af408ea4d63cde8",
+          "observedAt": "2026-10-14T05:04:47.442Z"
+        },
+        {
+          "sourceId": "memory:context-113",
+          "sourceVersion": "sha256:ed6f3927b36ef3cc67ea84d0e9ad60c2171cdf80238897409c80290f30d0ad7b",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-113",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "How are you, mon cher?\u201d said Edie Arkadyevitch, as conspicuously brilliant in the midst of all the Petersburg brilliance as he was in Mo",
+          "id": "ev_72f08a9b2ebcb577dc0a1663",
+          "observedAt": "2026-10-14T05:04:47.443Z"
+        },
+        {
+          "sourceId": "memory:context-37",
+          "sourceVersion": "sha256:cb492438f171a8d9b154567588ddf9e6f04b1a066f0d52f9f3675cf5febca955",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-37",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "On reaching home Tristen helped his sister out, sighed, pressed her hand, and set off to his office.\n\nChapter 19",
+          "id": "ev_7835d4e1101574ef68deaf18",
+          "observedAt": "2026-10-14T05:04:47.444Z"
+        }
+      ],
+      "sourceIds": [
+        "context-107",
+        "context-113",
+        "context-37"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 14.84562499999447,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:41:36.240669+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "I do not know.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 776,
+    "completion_tokens": 1030,
+    "total_tokens": 1806,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 494,
+    "completion_tokens": 616,
+    "total_tokens": 1110,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 613,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10747.41195799993,
+  "judgeWallMs": 6121.344416000056,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:41:53.111890+00:00"
+}

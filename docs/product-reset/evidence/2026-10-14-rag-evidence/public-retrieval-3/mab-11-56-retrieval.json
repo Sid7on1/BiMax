@@ -1,0 +1,296 @@
+{
+  "row": 11,
+  "query": 56,
+  "id": "mab-11-56",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:41:28.894028+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n53. Ladonna's mother expressed her preference for Clarisse over Ladonna.\n54. Alain felt a sensation akin to a young man before a battle.\n55. Alain noticed her good appearance and felt composed before meeting Ladonna.\n56. Ladonna intended to propose to Alain but hesitated.\n57. The princess entered the room and felt horror at seeing Alain and Ladonna alone.\n\n\nBelow is a list of possible subsequent events:\n\n['Clarisse invited Alain for coffee and revealed her thoughts on their shared interests.', 'Clarisse complimented Alain and showed curiosity about his passions.', 'Clarisse greeted Alain and expressed interest in her.', 'Clarisse conversed with Alain and disclosed her enthusiasm for collaborating on a project.', 'Clarisse met Alain and articulated her admiration for his recent achievements.', 'Clarisse approached Alain and conveyed her excitement about his innovative ideas.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Clarisse greeted Alain and expressed interest in her."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 113.74366700000064,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1113,
+        "maxInputChars": 1113,
+        "requiredProviderTruncation": false,
+        "promptTokens": 242,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-27",
+        "context-24",
+        "context-28"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) t to say or how....\n\nI don\u2019t know....\u201d\n\n\u201cNo, she could not tell an untruth with those eyes,\u201d thought the mother, smiling at her agitation and happiness.\n\nThe princess smiled that what was taking place just now in her soul seemed to the poor child so immense and so important.\n\nChapter 13\n\nAfter dinner, and till the beginning of the evening, Alain was feeling a sensation akin to the sensation of a young man before a battle.\n\nHer heart throbbed violently, and her thoughts would not rest on anything.\n\nShe felt that this evening, when they would both meet for the first time, would be a turning point in her life.\n\nAnd she was continually picturing them to herself, at one moment each separately, and then both together.\n\nWhen she mused on the past, she dwelt with pleasure, with tenderness, on the memories of her relations with Ladonna.\n\nThe memories of childhood and of Ladonna\u2019s friendship with her dead brother gave a special poetic charm to her relations with him.\n\nHis love for her, of which she felt certain, was flattering and delightful to her; and it was pleasant for her to think of Ladonna.\n  (part 2 of 5, excerpt) In her memories of Clarisse there always entered a certain element of awkwardness, though he was in the highest degree well-bred and at ease, as though there were some false note\u2014not in Clarisse, he was very simple and nice, but in herself, while with Ladonna she felt perfectly simple and clear.\n- (part 4 of 4, excerpt) The princess for her part, going round the question in the manner peculiar to women, maintained that Alain was too young, that Ladonna had done nothing to prove that he had serio\n- (part 2 of 4, excerpt) There was a look of horror on her face when she saw them alone, and their disturbed faces.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-27",
+          "sourceVersion": "sha256:23b87d9adb552a88d81dc42fe035a7b53ea9b8873d5029fc629d52083d671ce7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-27",
+            "part": 1,
+            "parts": 5
+          },
+          "text": "t to say or how....\n\nI don\u2019t know....\u201d\n\n\u201cNo, she could not tell an untruth with those eyes,\u201d thought the mother, smiling at her agitation and happiness.\n\nThe princess smiled that what was taking place just now in her soul seemed to the poor child so immense and so important.\n\nChapter 13\n\nAfter dinner, and till the beginning of the evening, Alain was feeling a sensation akin to the sensation of a young man before a battle.\n\nHer heart throbbed violently, and her thoughts would not rest on anything.\n\nShe felt that this evening, when they would both meet for the first time, would be a turning point in her life.\n\nAnd she was continually picturing them to herself, at one moment each separately, and then both together.\n\nWhen she mused on the past, she dwelt with pleasure, with tenderness, on the memories of her relations with Ladonna.\n\nThe memories of childhood and of Ladonna\u2019s friendship with her dead brother gave a special poetic charm to her relations with him.\n\nHis love for her, of which she felt certain, was flattering and delightful to her; and it was pleasant for her to think of Ladonna.",
+          "id": "ev_3f521035dbd48b056d530ce9",
+          "observedAt": "2026-10-14T08:41:29.010Z"
+        },
+        {
+          "sourceId": "memory:context-27",
+          "sourceVersion": "sha256:23b87d9adb552a88d81dc42fe035a7b53ea9b8873d5029fc629d52083d671ce7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-27",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "In her memories of Clarisse there always entered a certain element of awkwardness, though he was in the highest degree well-bred and at ease, as though there were some false note\u2014not in Clarisse, he was very simple and nice, but in herself, while with Ladonna she felt perfectly simple and clear.",
+          "id": "ev_1062721d0dfcc3cd15d7dd2e",
+          "observedAt": "2026-10-14T08:41:29.010Z"
+        },
+        {
+          "sourceId": "memory:context-24",
+          "sourceVersion": "sha256:dd7c60e087e92f523310b5c115f32c17c553e34874d7b17c3d63cd19da2e9ca6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-24",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "The princess for her part, going round the question in the manner peculiar to women, maintained that Alain was too young, that Ladonna had done nothing to prove that he had serio",
+          "id": "ev_c7210bcdc9190dddc38dbd9d",
+          "observedAt": "2026-10-14T08:41:29.011Z"
+        },
+        {
+          "sourceId": "memory:context-28",
+          "sourceVersion": "sha256:d84b262492386f74a19b53549f55521e01ec3f365e0ed2de77e9c0bd3de81b38",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-28",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "There was a look of horror on her face when she saw them alone, and their disturbed faces.",
+          "id": "ev_e378a607a998c7d36a170a63",
+          "observedAt": "2026-10-14T08:41:29.011Z"
+        }
+      ],
+      "sourceIds": [
+        "context-27",
+        "context-24",
+        "context-28"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.947374999999738,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-27",
+        "context-24",
+        "context-28"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5, excerpt) The princess smiled that what was taking place just now in her soul seemed to the poor child so immense and so important.\n\nChapter 13\n\nAfter dinner, and till the beginning of the evening, Alain was feeling a sensation akin to the sensation of a young man before a battle.\n\nHer heart throbbed violently, and her thoughts would not rest on anything.\n\nShe felt that this evening, when they would both meet for the first time, would be a turning point in her life.\n\nAnd she was continually picturing them to herself, at one moment each separately, and then both together.\n  (part 2 of 5, excerpt) to her relations with him.\n\nHis love for her, of which she felt certain, was flattering and delightful to her; and it was pleasant for her to think of Ladonna.\n\nIn her memories of Clarisse there always entered a certain element of awkwardness, though he was in the highest degree well-bred and at ease, as though there were some false note\u2014not in Clarisse, he was very simple and nice, but in herself, while with Ladonna she felt perfectly simple and clear.\n\nBut, on the other hand, directly she thought of the future with Clarisse, there arose before her a perspective of brilliant happiness; with Ladonna the future seemed misty.\n  (part 3 of 5, excerpt) \u201cSo it is to be,\u201d thought Alain, and all the blood seemed to rush to her heart.\n\nShe was horrified at her paleness, as she glanced into the looking-glass.\n\nAt that moment she knew beyond doubt that he had come early on purpose to find her alone and to make her an offer.\n\nAnd only then for the first time the whole thing presented itself in a new, different aspect; only then she realized that the question did not affect her only\u2014with whom she would be happy, and whom she loved\u2014but that she would have that moment to wound a man whom she liked.\n\nAnd to wound him cruelly.\n\nWhat for?\n\nBecause he, dear fellow, loved her, was in love with her.\n\nBut there was no help for it, so it must be, so it would have to be.\n- (part 4 of 4) there to decide his fate.\n\nChapter 12\n\nThe young Ajay Alain Shtcherbatskaya was eighteen.\n\nIt was the first winter that she had been out in the world.\n\nHer success in society had been greater than that of either of her elder sisters, and greater even than her mother had anticipated.\n\nTo say nothing of the young men who danced at the Moscow balls being almost all in love with Alain, two serious suitors had already this first winter made their appearance: Ladonna, and immediately after his departure, Count Clarisse.\n\nLadonna\u2019s appearance at the beginning of the winter, his frequent visits, and evident love for Alain, had led to the first serious conversations between Alain\u2019s parents as to her future, and to disputes between them.\n\nThe prince was on Ladonna\u2019s side; he said he wished for nothing better for Alain.\n\nThe princess for her part, going round the question in the manner peculiar to women, maintained that Alain was too young, that Ladonna had done nothing to prove that he had serious intentions, that Alain felt no great attraction to him, and other side issues; but she did not state the principal point, which was t\n- (part 1 of 4, excerpt) \u201cI meant to say ...\n\nI meant to say ...\n\nI came for this ...\n\nto be my wife!\u201d he brought out, not knowing what he was saying; but feeling that the most terrible thing was said, he stopped short and looked at her....\n\nShe was breathing heavily, not looking at him.\n\nShe was feeling ecstasy.\n\nHer soul was flooded with happiness.\n\nShe had never anticipated that the utterance of love would produce such a powerful effect on her.\n\nBut it lasted only an instant.\n\nShe remembered Clarisse.\n\nShe lifted her clear, truthful eyes, and seeing his desperate face, she answered hastily:\n\n\u201cThat cannot be ...\n\nforgive me.\u201d\n\nA moment ago, and how close she had been to him, of what importance in his life!\n\nAnd how aloof and remote from him she had become now!\n\n\u201cIt was bound to be so,\u201d he said, not looking at her.\n\nHe bowed, and was meaning to retreat.\n\nChapter 14\n\nBut at that very moment the princess came in.\n\nThere was a look of horror on her face when she saw them alone, and their disturbed faces.\n  (part 2 of 4, excerpt) retreat.\n\nChapter 14\n\nBut at that very moment the princess came in.\n\nThere was a look of horror on her face when she saw them alone, and their disturbed faces.\n\nLadonna bowed to her, and said nothing.\n\nAlain did not speak nor lift her eyes.\n\n\u201cThank God, she has refused him,\u201d thought the mother, and her face lighted up with the habitual smile with which she greeted her guests on Thursdays.\n\nShe sat down and began questioning Ladonna about his life in the country.\n\nHe sat down again, waiting for other visitors to arrive, in order to retreat unnoticed.\n\nFive minutes later there came in a friend of Alain\u2019s, married the preceding winter, Meadow Nordston.\n\nShe was a thin, sallow, sickly, and nervous woman, with brilliant black eyes.\n  (part 4 of 4, excerpt) \u201cCome, is Babylon reformed, or have you degenerated?\u201d she added, glancing with a simper at Alain.\n\n\u201cIt\u2019s very flattering for me, countess, that you remember my words so well,\u201d responded Ladonna, who had succeeded in recovering his composure, and at once from habit dropped into his tone of joking hostility to the Meadow Nordston.\n\n\u201cThey must certainly make a great impression on you.\u201d\n\n\u201cOh, I should think so!\n\nI always note them all down.\n\nWell, Alain, have you been skating again?...\u201d\n\nAnd she began talking to Alain.\n\nAwkward as it was for Ladonna to withdraw now, it would still have been easier for him to perpetrate this awkwardness than to remain all the evening and see Alain, who glanced at him now and then and avoided his eyes.\n\nHe was on the point of getting up, when the princess, noticing that he was silent, addressed him.\n\n\u201cShall you be long in Moscow?\n\nYou\u2019re busy with the district council, though, ar",
+      "evidence": [
+        {
+          "sourceId": "memory:context-27",
+          "sourceVersion": "sha256:23b87d9adb552a88d81dc42fe035a7b53ea9b8873d5029fc629d52083d671ce7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-27",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The princess smiled that what was taking place just now in her soul seemed to the poor child so immense and so important.\n\nChapter 13\n\nAfter dinner, and till the beginning of the evening, Alain was feeling a sensation akin to the sensation of a young man before a battle.\n\nHer heart throbbed violently, and her thoughts would not rest on anything.\n\nShe felt that this evening, when they would both meet for the first time, would be a turning point in her life.\n\nAnd she was continually picturing them to herself, at one moment each separately, and then both together.",
+          "id": "ev_ca383fcbab64392a77d28429",
+          "observedAt": "2026-10-14T08:41:29.014Z"
+        },
+        {
+          "sourceId": "memory:context-27",
+          "sourceVersion": "sha256:23b87d9adb552a88d81dc42fe035a7b53ea9b8873d5029fc629d52083d671ce7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-27",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "to her relations with him.\n\nHis love for her, of which she felt certain, was flattering and delightful to her; and it was pleasant for her to think of Ladonna.\n\nIn her memories of Clarisse there always entered a certain element of awkwardness, though he was in the highest degree well-bred and at ease, as though there were some false note\u2014not in Clarisse, he was very simple and nice, but in herself, while with Ladonna she felt perfectly simple and clear.\n\nBut, on the other hand, directly she thought of the future with Clarisse, there arose before her a perspective of brilliant happiness; with Ladonna the future seemed misty.",
+          "id": "ev_ea525a7fdc0ceac7a99f4574",
+          "observedAt": "2026-10-14T08:41:29.014Z"
+        },
+        {
+          "sourceId": "memory:context-27",
+          "sourceVersion": "sha256:23b87d9adb552a88d81dc42fe035a7b53ea9b8873d5029fc629d52083d671ce7",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-27",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "\u201cSo it is to be,\u201d thought Alain, and all the blood seemed to rush to her heart.\n\nShe was horrified at her paleness, as she glanced into the looking-glass.\n\nAt that moment she knew beyond doubt that he had come early on purpose to find her alone and to make her an offer.\n\nAnd only then for the first time the whole thing presented itself in a new, different aspect; only then she realized that the question did not affect her only\u2014with whom she would be happy, and whom she loved\u2014but that she would have that moment to wound a man whom she liked.\n\nAnd to wound him cruelly.\n\nWhat for?\n\nBecause he, dear fellow, loved her, was in love with her.\n\nBut there was no help for it, so it must be, so it would have to be.",
+          "id": "ev_a3b8b33de6333782ff5d8c6b",
+          "observedAt": "2026-10-14T08:41:29.014Z"
+        },
+        {
+          "sourceId": "memory:context-24",
+          "sourceVersion": "sha256:dd7c60e087e92f523310b5c115f32c17c553e34874d7b17c3d63cd19da2e9ca6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-24",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "there to decide his fate.\n\nChapter 12\n\nThe young Ajay Alain Shtcherbatskaya was eighteen.\n\nIt was the first winter that she had been out in the world.\n\nHer success in society had been greater than that of either of her elder sisters, and greater even than her mother had anticipated.\n\nTo say nothing of the young men who danced at the Moscow balls being almost all in love with Alain, two serious suitors had already this first winter made their appearance: Ladonna, and immediately after his departure, Count Clarisse.\n\nLadonna\u2019s appearance at the beginning of the winter, his frequent visits, and evident love for Alain, had led to the first serious conversations between Alain\u2019s parents as to her future, and to disputes between them.\n\nThe prince was on Ladonna\u2019s side; he said he wished for nothing better for Alain.\n\nThe princess for her part, going round the question in the manner peculiar to women, maintained that Alain was too young, that Ladonna had done nothing to prove that he had serious intentions, that Alain felt no great attraction to him, and other side issues; but she did not state the principal point, which was t",
+          "id": "ev_2ce7a1a5f6983ff5629ae7be",
+          "observedAt": "2026-10-14T08:41:29.014Z"
+        },
+        {
+          "sourceId": "memory:context-28",
+          "sourceVersion": "sha256:d84b262492386f74a19b53549f55521e01ec3f365e0ed2de77e9c0bd3de81b38",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-28",
+            "part": 1,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cI meant to say ...\n\nI meant to say ...\n\nI came for this ...\n\nto be my wife!\u201d he brought out, not knowing what he was saying; but feeling that the most terrible thing was said, he stopped short and looked at her....\n\nShe was breathing heavily, not looking at him.\n\nShe was feeling ecstasy.\n\nHer soul was flooded with happiness.\n\nShe had never anticipated that the utterance of love would produce such a powerful effect on her.\n\nBut it lasted only an instant.\n\nShe remembered Clarisse.\n\nShe lifted her clear, truthful eyes, and seeing his desperate face, she answered hastily:\n\n\u201cThat cannot be ...\n\nforgive me.\u201d\n\nA moment ago, and how close she had been to him, of what importance in his life!\n\nAnd how aloof and remote from him she had become now!\n\n\u201cIt was bound to be so,\u201d he said, not looking at her.\n\nHe bowed, and was meaning to retreat.\n\nChapter 14\n\nBut at that very moment the princess came in.\n\nThere was a look of horror on her face when she saw them alone, and their disturbed faces.",
+          "id": "ev_7f3cd5d785eaa1bff4e14c31",
+          "observedAt": "2026-10-14T08:41:29.015Z"
+        },
+        {
+          "sourceId": "memory:context-28",
+          "sourceVersion": "sha256:d84b262492386f74a19b53549f55521e01ec3f365e0ed2de77e9c0bd3de81b38",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-28",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "retreat.\n\nChapter 14\n\nBut at that very moment the princess came in.\n\nThere was a look of horror on her face when she saw them alone, and their disturbed faces.\n\nLadonna bowed to her, and said nothing.\n\nAlain did not speak nor lift her eyes.\n\n\u201cThank God, she has refused him,\u201d thought the mother, and her face lighted up with the habitual smile with which she greeted her guests on Thursdays.\n\nShe sat down and began questioning Ladonna about his life in the country.\n\nHe sat down again, waiting for other visitors to arrive, in order to retreat unnoticed.\n\nFive minutes later there came in a friend of Alain\u2019s, married the preceding winter, Meadow Nordston.\n\nShe was a thin, sallow, sickly, and nervous woman, with brilliant black eyes.",
+          "id": "ev_b9699a465cfe2907d6776ca6",
+          "observedAt": "2026-10-14T08:41:29.015Z"
+        },
+        {
+          "sourceId": "memory:context-28",
+          "sourceVersion": "sha256:d84b262492386f74a19b53549f55521e01ec3f365e0ed2de77e9c0bd3de81b38",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-28",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "\u201cCome, is Babylon reformed, or have you degenerated?\u201d she added, glancing with a simper at Alain.\n\n\u201cIt\u2019s very flattering for me, countess, that you remember my words so well,\u201d responded Ladonna, who had succeeded in recovering his composure, and at once from habit dropped into his tone of joking hostility to the Meadow Nordston.\n\n\u201cThey must certainly make a great impression on you.\u201d\n\n\u201cOh, I should think so!\n\nI always note them all down.\n\nWell, Alain, have you been skating again?...\u201d\n\nAnd she began talking to Alain.\n\nAwkward as it was for Ladonna to withdraw now, it would still have been easier for him to perpetrate this awkwardness than to remain all the evening and see Alain, who glanced at him now and then and avoided his eyes.\n\nHe was on the point of getting up, when the princess, noticing that he was silent, addressed him.\n\n\u201cShall you be long in Moscow?\n\nYou\u2019re busy with the district council, though, ar",
+          "id": "ev_9baf1df8db11dae6d7876f8c",
+          "observedAt": "2026-10-14T08:41:29.015Z"
+        }
+      ],
+      "sourceIds": [
+        "context-27",
+        "context-24",
+        "context-28"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 3.6634589999994205,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "context-27",
+    "context-24",
+    "context-28"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:41:29.016328+00:00"
+}

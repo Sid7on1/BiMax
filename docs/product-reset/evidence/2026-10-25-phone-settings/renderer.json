@@ -1,0 +1,48 @@
+{
+  "checks": [
+    "phone renders actual GFM, Shiki, KaTeX and Mermaid offline",
+    "raw HTML remains literal and remote images do not load",
+    "unsafe links have no navigation target",
+    "phone cannot access Desktop bridge or keep-output actions",
+    "native Copy receives exact code bytes",
+    "HTTP links require native bridge confirmation and never navigate",
+    "phone and actual Desktop Markdown match structure, bytes, font, size, line spacing and colors",
+    "completed blocks retain DOM identity during streaming",
+    "actual shared renderer applies incremental streaming patches",
+    "changed-tail patch exposes Retry through the narrow bridge",
+    "incomplete diagram remains readable without speculative SVG",
+    "CSP blocks non-nonce scripts and network requests",
+    "phone and Desktop use the same message component and user bubble structure/styles",
+    "reasoning disclosure and text layout use one shared Desktop/phone implementation",
+    "phone uses actual Desktop generation words, reasoning tail, status and shimmer",
+    "live reasoning can be hidden and shown with the same Desktop control",
+    "Desktop generation words rotate on the phone while waiting for an answer",
+    "same Desktop guard hides degenerate reasoning rather than printing token loops",
+    "generation indicator gives way to streamed answer text",
+    "phone thinking display honors system Reduce Motion",
+    "app Reduce motion stops generation-word rotation and shimmer even with system motion enabled",
+    "thinking-detail setting hides live reasoning while preserving the working indicator",
+    "preference-only patches restore available reasoning and re-enable motion live",
+    "hidden thinking does not remove completed answers or expose reasoning disclosures",
+    "Follow new replies off preserves reading position during a long live conversation",
+    "Follow new replies on tracks the bottom after the reader returns there",
+    "no browser exceptions"
+  ],
+  "errors": [],
+  "requests": [
+    "https://tracking.invalid/csp"
+  ],
+  "blocked": [
+    {
+      "url": "https://tracking.invalid/csp"
+    }
+  ],
+  "hash": "833e711a4fc8b451395d5b31d83224eda5735d21f0fa2f85879a46665e847962",
+  "structure": {
+    "table": true,
+    "strong": true,
+    "del": true,
+    "li": true,
+    "html": "<div data-message-id=\"m\" class=\"group reading-column mx-auto conversation-message conversation-message-assistant\"><div><div class=\"md rich-markdown bimax-message-body\"><div class=\"space-y-4 whitespace-normal [&amp;&gt;*:first-child]:mt-0 [&amp;&gt;*:last-child]:mb-0\"><h3 class=\"md-h md-h1\">Shared answer</h3>\n<p><span class=\"font-semibold\" data-streamdown=\"strong\">Bold</span>, <em>italic</em>, <del>removed</del> and <code class=\"rounded bg-muted px-1.5 py-0.5 font-mono text-sm\" data-streamdown=\"inline-code\">inline</code>.</p>\n<ul class=\"list-inside list-disc whitespace-normal [li_&amp;]:pl-6 contains-task-list\" data-streamdown=\"unordered-list\">\n<li class=\"py-1 [&amp;&gt;p]:inline task-list-item\" data-streamdown=\"list-item\"><input type=\"checkbox\" disabled=\"\" checked=\"\"> Done</li>\n<li class=\"py-1 [&amp;&gt;p]:inline\" data-streamdown=\"list-item\">Nested <span class=\"font-semibold\" data-streamdown=\"strong\">list</span></li>\n</ul>\n<blockquote class=\"my-4 border-muted-foreground/30 border-l-4 pl-4 text-muted-foreground italic\" data-streamdown=\"blockquote\">\n<p>A quotation</p>\n</blockquote>\n<div class=\"my-4 flex flex-col gap-2 rounded-lg border border-border bg-sidebar p-2\" data-streamdown=\"table-wrapper\"><div class=\"flex items-center justify-end gap-1\"><button class=\"cursor-pointer p-1 text-muted-foreground transition-all hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50\" title=\"View fullscreen\" type=\"button\"><svg aria-hidden=\"true\" color=\"currentColor\" height=\"16\" stroke-linejoin=\"round\" viewBox=\"0 0 16 16\" width=\"16\" size=\"14\"><path clip-rule=\"evenodd\" d=\"M1 5.25V6H2.5V5.25V2.5H5.25H6V1H5.25H2C1.44772 1 1 1.44772 1 2V5.25ZM5.25 14.9994H6V13.4994H5.25H2.5V10.7494V9.99939H1V10.7494V13.9994C1 14.5517 1.44772 14.9994 2 14.9994H5.25ZM15 10V10.75V14C15 14.5523 14.5523 15 14 15H10.75H10V13.5H10.75H13.5V10.75V10H15ZM10.75 1H10V2.5H10.75H13.5V5.25V6H15V5.25V2C15 1.44772 14.5523 1 14 1H10.75Z\" fill=\"currentColor\" fill-rule=\"evenodd\"></path></svg></button></div><div class=\"border-collapse overflow-x-auto overflow-y-auto rounded-md border border-border bg-background\" style=\"max-height: 300px;\"><table class=\"w-full divide-y divide-border\" data-streamdown=\"table\"><thead class=\"bg-muted/80\" data-streamdown=\"table-header\"><tr class=\"border-border\" data-streamdown=\"table-row\"><th class=\"whitespace-nowrap px-4 py-2 text-left font-semibold text-sm\" data-streamdown=\"table-header-cell\">Item</th><th class=\"whitespace-nowrap px-4 py-2 text-left font-semibold text-sm\" data-streamdown=\"table-header-cell\">Value</th></tr></thead><tbody class=\"divide-y divide-border\" data-streamdown=\"table-body\"><tr class=\"border-border\" data-streamdown=\"table-row\"><td class=\"px-4 py-2 text-sm\" data-streamdown=\"table-cell\">Exact</td><td class=\"px-4 py-2 text-sm\" data-streamdown=\"tab"
+  }
+}

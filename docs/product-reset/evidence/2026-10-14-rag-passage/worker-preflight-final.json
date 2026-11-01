@@ -1,0 +1,151 @@
+{
+  "at": "2026-10-14T15:16:44.368363+00:00",
+  "workerSha256": "c79b8f8c2eef826b7c9b8556038ecfe65ddb589056ce9057a898b39378268cbb",
+  "load": {
+    "corpusSerial": 1,
+    "documents": 1,
+    "chunks": 1,
+    "ingestionMs": 1089.156792,
+    "embedding": "ollama:all-minilm:1b226e2802dbb772b5fc32a58f103ca1804ef7501331012de126ab22f67475ef:384",
+    "embeddingObservations": [
+      {
+        "role": "passage",
+        "inputs": 1,
+        "inputChars": 113,
+        "maxInputChars": 113,
+        "requiredProviderTruncation": false,
+        "promptTokens": 24,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "stats": {
+      "documents": 1,
+      "chunks": 1,
+      "embedded": 1,
+      "pending": 0,
+      "maxVectors": 500,
+      "lastMode": {
+        "lexical": true,
+        "dense": false,
+        "reranked": false
+      }
+    },
+    "execution": {
+      "embeddingWorkerConcurrency": 1,
+      "batchSize": 16,
+      "num_gpu": 0,
+      "num_thread": 1,
+      "keep_alive": "30s",
+      "cacheTransaction": "one per fresh embedding batch",
+      "seedReadOnly": true
+    },
+    "inputSha256": "a5e62436f01e71167c21dde75f37d371baf092eca76b89eb1c9d83a5c05ee474",
+    "rss": 57982976,
+    "embeddingCache": {
+      "hits": 0,
+      "misses": 1,
+      "format": "exact normalized JSON vectors, model-digest/role/text-SHA keyed, batch truncation conservative flag"
+    }
+  },
+  "query": {
+    "same": true,
+    "sameSources": true,
+    "queryEmbeddingMs": 37.86604200000011,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 65,
+        "maxInputChars": 65,
+        "requiredProviderTruncation": false,
+        "promptTokens": 14,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "independent-cobalt-final"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- The final independent cobalt orchard service retry limit is19seconds. Complete-passage cache transaction control.",
+      "evidence": [
+        {
+          "sourceId": "memory:independent-cobalt-final",
+          "sourceVersion": "sha256:989a5b82d761953e7e70ff9fb108fa6a73819a195e893dc53cca3a62d4a19467",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "independent-cobalt-final",
+            "part": 1,
+            "parts": 1
+          },
+          "text": "The final independent cobalt orchard service retry limit is19seconds. Complete-passage cache transaction control.",
+          "id": "ev_8ceb0cd2fca20be13fe2dbd4",
+          "observedAt": "2026-10-14T15:16:44.321Z"
+        }
+      ],
+      "sourceIds": [
+        "independent-cobalt-final"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 11.236750000000029,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "independent-cobalt-final"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- The final independent cobalt orchard service retry limit is19seconds. Complete-passage cache transaction control.",
+      "evidence": [
+        {
+          "sourceId": "memory:independent-cobalt-final",
+          "sourceVersion": "sha256:989a5b82d761953e7e70ff9fb108fa6a73819a195e893dc53cca3a62d4a19467",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "independent-cobalt-final",
+            "part": 1,
+            "parts": 1
+          },
+          "text": "The final independent cobalt orchard service retry limit is19seconds. Complete-passage cache transaction control.",
+          "id": "ev_8ceb0cd2fca20be13fe2dbd4",
+          "observedAt": "2026-10-14T15:16:44.332Z"
+        }
+      ],
+      "sourceIds": [
+        "independent-cobalt-final"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 2.1759170000000267,
+      "provenance": true
+    }
+  },
+  "closed": {
+    "closed": true
+  },
+  "readerJudgeCalls": 0,
+  "source": "Independent synthetic control; real CPU embeddings and batched persistent cache, not qualification data."
+}

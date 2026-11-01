@@ -261,8 +261,17 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
       }
       this.observedDimensions = width;
       return [...rows].sort((a, b) => a.index! - b.index!).map(row => normalize(row.embedding!));
-    } catch {
-      return this.fail('Embedding request failed, timed out, or returned unreadable data.');
+    } catch (error) {
+      const err=error as {message?:string;name?:string;code?:string;cause?:{code?:string}};
+      const code=err?.cause?.code ?? err?.code;
+      let local=false;try {local=['localhost','127.0.0.1','[::1]'].includes(new URL(credentials.baseURL).hostname);}catch { /* No unsafe raw endpoint/error in UI. */ }
+      if(code==='ECONNREFUSED')return this.fail(local
+        ? 'The local embedding service is not running or refused the connection. Open Ollama (or your configured local embedding server), then retry search.'
+        : 'The configured embedding service refused the connection. Check that the service is running.');
+      if(err?.message==='Capability deadline exceeded' || err?.name==='AbortError' || ['ETIMEDOUT','UND_ERR_CONNECT_TIMEOUT','UND_ERR_HEADERS_TIMEOUT'].includes(code??''))
+        return this.fail('The embedding service timed out. Search is using keywords until a later request succeeds.');
+      if(err?.name==='SyntaxError')return this.fail('The embedding service returned unreadable JSON. Check its model and embeddings API compatibility.');
+      return this.fail('The embedding service could not be reached or returned unreadable data. Check the configured service; a later search retries.');
     }
   }
 }

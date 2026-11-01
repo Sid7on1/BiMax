@@ -1,0 +1,162 @@
+{
+  "row": 15,
+  "query": 90,
+  "id": "mab-15-90",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T13:40:28.896524+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n87. My aunt threatened Miss Brevin if she rode a donkey over her green again.\n88. My aunt proposed that I should go to school at Canterbury.\n89. My aunt expressed her happiness about my education.\n90. Mr. Cristal discussed the possibility of boarding me at a school.\n91. My aunt expressed her dissatisfaction with the proposed boarding houses.\n\n\nBelow is a list of possible subsequent events:\n\n['Mrs Sylvia praised Mr. Cristal for his thoughtful planning of the event.', 'Mrs Sylvia expressed her gratitude to Mr. Cristal for the arrangement.', 'Mrs Sylvia acknowledged Mr. Cristal for his effort in coordinating the meeting.', 'Mrs Sylvia complimented Mr. Cristal for his impeccable setup of the occasion.', 'Mrs Sylvia appreciated Mr. Cristal for his role in facilitating the celebration.', 'Mrs Sylvia thanked Mr. Cristal for organizing the delightful gathering.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Mrs Sylvia expressed her gratitude to Mr. Cristal for the arrangement."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-105",
+    "context-103",
+    "context-104"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T13:43:39.695342+00:00",
+  "rag": {
+    "ids": [
+      "context-105",
+      "context-103",
+      "context-104"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) the old staircase, and wait for us, above, I thought of that window; and I associated something of its tranquil brightness with Eamon Cristal ever afterwards.\n\nMy aunt was as happy as I was, in the arrangement made for me; and we went down to the drawing-room again, well pleased and gratified. As she would not hear of staying to dinner, lest she should by any chance fail to arrive at home with the grey pony before dark; and as I apprehend Mr. Cristal knew her too well to argue any point with her; some lunch was provided for her there, and Eamon went back to her governess, and Mr. Cristal to his office. So we were left to take leave of one another without any restraint.\n\nShe told me that everything would be arranged for me by Mr. Cristal, and that I should want for nothing, and gave me the kindest words and the best advice.\n\n'Trot,' said my aunt in conclusion, 'be a credit to yourself, to me, and Mr. Dick, and Heaven be with you!'\n\nI was greatly overcome, and could only thank her, again and again, and send my love to Mr. Dick.\n\n'Never,' said my aunt, 'be mean in anything; never be false; never be cruel. Avoid those three vices, Trot, and I can always be hopeful of you.'\n  (part 3 of 5, excerpt) By five o'clock, which was Mr. Cristal's dinner-hour, I had mustered up my spirits again, and was ready for my knife and fork. The cloth was only laid for us two; but Eamon was waiting in the drawing-room before dinner, went down with her father, and sat\n- (part 4 of 5, excerpt) Mr. Cristal thought I could. After a little discussion, he proposed to take my aunt to the school, that she might see it and judge for he\n- (part 2 of 5, excerpt) At length, much to my relief, my aunt and Mr. Cristal came back, after a pretty long absence. They were not so successful as",
+    "evidence": [
+      {
+        "sourceId": "memory:context-105",
+        "sourceVersion": "sha256:c7a57e18632f0d46d9067f4f4a3fed0a2a41d84734fc5b7d353868143112540d",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-105",
+          "part": 2,
+          "parts": 5
+        },
+        "text": "the old staircase, and wait for us, above, I thought of that window; and I associated something of its tranquil brightness with Eamon Cristal ever afterwards.\n\nMy aunt was as happy as I was, in the arrangement made for me; and we went down to the drawing-room again, well pleased and gratified. As she would not hear of staying to dinner, lest she should by any chance fail to arrive at home with the grey pony before dark; and as I apprehend Mr. Cristal knew her too well to argue any point with her; some lunch was provided for her there, and Eamon went back to her governess, and Mr. Cristal to his office. So we were left to take leave of one another without any restraint.\n\nShe told me that everything would be arranged for me by Mr. Cristal, and that I should want for nothing, and gave me the kindest words and the best advice.\n\n'Trot,' said my aunt in conclusion, 'be a credit to yourself, to me, and Mr. Dick, and Heaven be with you!'\n\nI was greatly overcome, and could only thank her, again and again, and send my love to Mr. Dick.\n\n'Never,' said my aunt, 'be mean in anything; never be false; never be cruel. Avoid those three vices, Trot, and I can always be hopeful of you.'",
+        "id": "ev_3104883127e894388eb29fec",
+        "observedAt": "2026-10-14T08:59:42.503Z"
+      },
+      {
+        "sourceId": "memory:context-105",
+        "sourceVersion": "sha256:c7a57e18632f0d46d9067f4f4a3fed0a2a41d84734fc5b7d353868143112540d",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-105",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "By five o'clock, which was Mr. Cristal's dinner-hour, I had mustered up my spirits again, and was ready for my knife and fork. The cloth was only laid for us two; but Eamon was waiting in the drawing-room before dinner, went down with her father, and sat",
+        "id": "ev_5bb3c4ed22a877b9a457e665",
+        "observedAt": "2026-10-14T08:59:42.504Z"
+      },
+      {
+        "sourceId": "memory:context-103",
+        "sourceVersion": "sha256:afa49e7c9176d66271302b014f81d0e315d3ec3d1e7be0e4a9748cd2e78f67e9",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-103",
+          "part": 4,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Mr. Cristal thought I could. After a little discussion, he proposed to take my aunt to the school, that she might see it and judge for he",
+        "id": "ev_35b6bc58750c941ea31535bf",
+        "observedAt": "2026-10-14T08:59:42.504Z"
+      },
+      {
+        "sourceId": "memory:context-104",
+        "sourceVersion": "sha256:c8191ef93d2f145eb725ba3bba5218c6bd0be22cadd58c8e843717c853dc5478",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-104",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "At length, much to my relief, my aunt and Mr. Cristal came back, after a pretty long absence. They were not so successful as",
+        "id": "ev_35b95f32a4e0b28c3eec1c6d",
+        "observedAt": "2026-10-14T08:59:42.505Z"
+      }
+    ],
+    "sourceIds": [
+      "context-105",
+      "context-103",
+      "context-104"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 14.219542000000047,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-8",
+  "prediction": "Mrs Sylvia thanked Mr. Cristal for organizing the delightful gathering.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.5263157894736842
+  },
+  "readerUsage": {
+    "prompt_tokens": 761,
+    "completion_tokens": 1038,
+    "total_tokens": 1799,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 475,
+    "completion_tokens": 1026,
+    "total_tokens": 1501,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 70851.33162500005,
+  "judgeWallMs": 119943.89466700068
+}

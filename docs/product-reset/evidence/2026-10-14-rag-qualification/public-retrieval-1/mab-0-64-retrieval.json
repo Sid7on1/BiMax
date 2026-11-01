@@ -1,0 +1,235 @@
+{
+  "row": 0,
+  "query": 64,
+  "id": "mab-0-64",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:44:31.527645+00:00",
+  "valid": true,
+  "question": "How long did Western Europe control Cyprus?",
+  "references": [
+    "380 years",
+    "380 years",
+    "380 years"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 7.591791999999259,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 43,
+        "maxInputChars": 43,
+        "requiredProviderTruncation": false,
+        "promptTokens": 10,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-10",
+        "context-49",
+        "context-188"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 6) One converted movie studio site, Norman Studios, remains in Arlington; It has been converted to the Jacksonville Silent Film Museum at Norman Studios.\n\nDocument 52:\nThe conquest of Cyprus by the Anglo-Norman forces of the Third Crusade opened a new chapter in the history of the island, which would be under Western European domination for the following 380 years. Although not part of a planned operation, the conquest had much more permanent results than initially expected.\n- (part 1 of 5, excerpt) Minor amendments were made during the 1960s and 1970s.\n\nMajor amending treaties were signed to complete the development of a single, internal market in the Single European Act 1986, to further the development of a more social Europe in the Treaty of Amsterdam 1997, and to make minor amendments to the relative power of member states in the EU institutions in the Treaty of Nice 2001 and the Treaty of Lisbon 2007.\n\nSince its establishment, more member states have joined through a series of accession treaties, from the UK, Ireland, Denmark and Norway in 1972 (though Norway did not end up joining), Greece in 1979, Spain and Portugal 1985, Austria, Finland, Norway and Sweden in 1994 (though again Norway failed to join, because of lack of support in the referendum), the Czech Republic, Cyprus, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Slovakia and Slovenia in 2004, Romania and Bulgaria in 2007 and Croatia in 2013.\n  (part 2 of 5, excerpt) Czech Republic, Cyprus, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Slovakia and Slovenia in 2004, Romania and Bulgaria in 2007 and Croatia in 2013.\n- (part 2 of 5, excerpt) With Istanbul as its capital and control of lands around the Mediterranean basin, the Ottoman Empire was at the center of interactions betwee",
+      "evidence": [
+        {
+          "sourceId": "memory:context-10",
+          "sourceVersion": "sha256:1629f046541cb5a07fb58e4e6cd7cc9f7314f97e18b4d8aab83f1f15c8abb994",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-10",
+            "part": 2,
+            "parts": 6
+          },
+          "text": "One converted movie studio site, Norman Studios, remains in Arlington; It has been converted to the Jacksonville Silent Film Museum at Norman Studios.\n\nDocument 52:\nThe conquest of Cyprus by the Anglo-Norman forces of the Third Crusade opened a new chapter in the history of the island, which would be under Western European domination for the following 380 years. Although not part of a planned operation, the conquest had much more permanent results than initially expected.",
+          "id": "ev_53a0aeff33c1d9768e55fe3b",
+          "observedAt": "2026-10-14T04:44:31.536Z"
+        },
+        {
+          "sourceId": "memory:context-49",
+          "sourceVersion": "sha256:da79f100c631b5c13198cd3e64f401d714c89c634099a1ecec05a56a9769eaf6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-49",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Minor amendments were made during the 1960s and 1970s.\n\nMajor amending treaties were signed to complete the development of a single, internal market in the Single European Act 1986, to further the development of a more social Europe in the Treaty of Amsterdam 1997, and to make minor amendments to the relative power of member states in the EU institutions in the Treaty of Nice 2001 and the Treaty of Lisbon 2007.\n\nSince its establishment, more member states have joined through a series of accession treaties, from the UK, Ireland, Denmark and Norway in 1972 (though Norway did not end up joining), Greece in 1979, Spain and Portugal 1985, Austria, Finland, Norway and Sweden in 1994 (though again Norway failed to join, because of lack of support in the referendum), the Czech Republic, Cyprus, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Slovakia and Slovenia in 2004, Romania and Bulgaria in 2007 and Croatia in 2013.",
+          "id": "ev_8b84d8b809e112628ce648ea",
+          "observedAt": "2026-10-14T04:44:31.536Z"
+        },
+        {
+          "sourceId": "memory:context-49",
+          "sourceVersion": "sha256:da79f100c631b5c13198cd3e64f401d714c89c634099a1ecec05a56a9769eaf6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-49",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Czech Republic, Cyprus, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Slovakia and Slovenia in 2004, Romania and Bulgaria in 2007 and Croatia in 2013.",
+          "id": "ev_cf262fb0e714b745049957e1",
+          "observedAt": "2026-10-14T04:44:31.536Z"
+        },
+        {
+          "sourceId": "memory:context-188",
+          "sourceVersion": "sha256:8ac417f601f426931d2248a50252ca42d6cbb716be4f69229298f29dc36b311d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-188",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "With Istanbul as its capital and control of lands around the Mediterranean basin, the Ottoman Empire was at the center of interactions betwee",
+          "id": "ev_13c4c08f45acd13e423437c9",
+          "observedAt": "2026-10-14T04:44:31.536Z"
+        }
+      ],
+      "sourceIds": [
+        "context-10",
+        "context-49",
+        "context-188"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.5518749999973807,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-10",
+        "context-49",
+        "context-188"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 6) One converted movie studio site, Norman Studios, remains in Arlington; It has been converted to the Jacksonville Silent Film Museum at Norman Studios.\n\nDocument 52:\nThe conquest of Cyprus by the Anglo-Norman forces of the Third Crusade opened a new chapter in the history of the island, which would be under Western European domination for the following 380 years. Although not part of a planned operation, the conquest had much more permanent results than initially expected.\n- (part 1 of 5, excerpt) Minor amendments were made during the 1960s and 1970s.\n\nMajor amending treaties were signed to complete the development of a single, internal market in the Single European Act 1986, to further the development of a more social Europe in the Treaty of Amsterdam 1997, and to make minor amendments to the relative power of member states in the EU institutions in the Treaty of Nice 2001 and the Treaty of Lisbon 2007.\n\nSince its establishment, more member states have joined through a series of accession treaties, from the UK, Ireland, Denmark and Norway in 1972 (though Norway did not end up joining), Greece in 1979, Spain and Portugal 1985, Austria, Finland, Norway and Sweden in 1994 (though again Norway failed to join, because of lack of support in the referendum), the Czech Republic, Cyprus, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Slovakia and Slovenia in 2004, Romania and Bulgaria in 2007 and Croatia in 2013.\n  (part 2 of 5, excerpt) Czech Republic, Cyprus, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Slovakia and Slovenia in 2004, Romania and Bulgaria in 2007 and Croatia in 2013.\n- (part 2 of 5, excerpt) With Istanbul as its capital and control of lands around the Mediterranean basin, the Ottoman Empire was at the center of interactions betwee",
+      "evidence": [
+        {
+          "sourceId": "memory:context-10",
+          "sourceVersion": "sha256:1629f046541cb5a07fb58e4e6cd7cc9f7314f97e18b4d8aab83f1f15c8abb994",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-10",
+            "part": 2,
+            "parts": 6
+          },
+          "text": "One converted movie studio site, Norman Studios, remains in Arlington; It has been converted to the Jacksonville Silent Film Museum at Norman Studios.\n\nDocument 52:\nThe conquest of Cyprus by the Anglo-Norman forces of the Third Crusade opened a new chapter in the history of the island, which would be under Western European domination for the following 380 years. Although not part of a planned operation, the conquest had much more permanent results than initially expected.",
+          "id": "ev_53a0aeff33c1d9768e55fe3b",
+          "observedAt": "2026-10-14T04:44:31.537Z"
+        },
+        {
+          "sourceId": "memory:context-49",
+          "sourceVersion": "sha256:da79f100c631b5c13198cd3e64f401d714c89c634099a1ecec05a56a9769eaf6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-49",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Minor amendments were made during the 1960s and 1970s.\n\nMajor amending treaties were signed to complete the development of a single, internal market in the Single European Act 1986, to further the development of a more social Europe in the Treaty of Amsterdam 1997, and to make minor amendments to the relative power of member states in the EU institutions in the Treaty of Nice 2001 and the Treaty of Lisbon 2007.\n\nSince its establishment, more member states have joined through a series of accession treaties, from the UK, Ireland, Denmark and Norway in 1972 (though Norway did not end up joining), Greece in 1979, Spain and Portugal 1985, Austria, Finland, Norway and Sweden in 1994 (though again Norway failed to join, because of lack of support in the referendum), the Czech Republic, Cyprus, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Slovakia and Slovenia in 2004, Romania and Bulgaria in 2007 and Croatia in 2013.",
+          "id": "ev_8b84d8b809e112628ce648ea",
+          "observedAt": "2026-10-14T04:44:31.538Z"
+        },
+        {
+          "sourceId": "memory:context-49",
+          "sourceVersion": "sha256:da79f100c631b5c13198cd3e64f401d714c89c634099a1ecec05a56a9769eaf6",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-49",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Czech Republic, Cyprus, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Slovakia and Slovenia in 2004, Romania and Bulgaria in 2007 and Croatia in 2013.",
+          "id": "ev_cf262fb0e714b745049957e1",
+          "observedAt": "2026-10-14T04:44:31.538Z"
+        },
+        {
+          "sourceId": "memory:context-188",
+          "sourceVersion": "sha256:8ac417f601f426931d2248a50252ca42d6cbb716be4f69229298f29dc36b311d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-188",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "With Istanbul as its capital and control of lands around the Mediterranean basin, the Ottoman Empire was at the center of interactions betwee",
+          "id": "ev_13c4c08f45acd13e423437c9",
+          "observedAt": "2026-10-14T04:44:31.538Z"
+        }
+      ],
+      "sourceIds": [
+        "context-10",
+        "context-49",
+        "context-188"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.4756249999991269,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": true,
+  "ended": "2026-10-14T04:44:31.538987+00:00"
+}

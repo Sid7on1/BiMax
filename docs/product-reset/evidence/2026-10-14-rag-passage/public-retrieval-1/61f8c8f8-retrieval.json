@@ -1,0 +1,423 @@
+{
+  "row": 204,
+  "id": "61f8c8f8",
+  "stratum": "multi-session",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T15:21:34.385684+00:00",
+  "valid": true,
+  "question": "How much faster did I finish the 5K run compared to my previous year's time?",
+  "references": [
+    "10 minutes"
+  ],
+  "kind": "multi-session",
+  "abstention": false,
+  "date": "2023/10/01 (Sun) 23:53",
+  "rag": {
+    "same": false,
+    "sameSources": true,
+    "queryEmbeddingMs": 25.56770900000265,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 76,
+        "maxInputChars": 76,
+        "requiredProviderTruncation": false,
+        "promptTokens": 21,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "answer_872e8da2_1",
+        "a3107e2a_1",
+        "fa3c6c2c_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 15, excerpt) Session date: 2023/10/01 (Sun) 16:16\nuser: I'm training for a 5K run and I'm trying to create a training plan. Can you help me with that?\n  (part 4 of 15) interesting and prevent boredom.\n7. **Join a running community or find a running buddy**: Having a support system can help keep you motivated and accountable.\n\nRemember, this is just a general plan, and you should adjust it based on your individual needs and progress. Pay attention to your body, and don't be afraid to take rest days or modify the plan as needed. Good luck with your training, and have fun!\nuser: I was thinking of starting with a base building phase, but I'm not sure how to pace myself. I've done a 5K run last year, but it took me 45 minutes to complete.\nassistant: Congratulations on having a baseline 5K time! That's a great starting point.\n\nFor a base building phase, the goal is to establish a consistent running habit, build your endurance, and increase your weekly mileage. To pace yourself, let's determine your current running pace and use that as a guideline.\n\n**Calculating Your Current Running Pace:**\n\nBased on your previous 5K time of 45 minutes, we can estimate your average pace per mile. There are a few ways to do this, but a simple method is to divide your finish time by the distance:\n\n45 minutes \u00f7 3.1 miles = approximately 14:30 minutes per mile\n- (part 11 of 24, excerpt) **Benefits of Transfer Learning:**\n\n1. **Reduced Training Time**: Fine-tuning a pre-trained model is much faster than training a new model from scratch.\n- (part 9 of 24, excerpt) 2. **Set realistic goals**: Determine how many days per week you can commit to exercising and set specific goals for each workout. For example, you might aim to do 3 runs, 2 strength training sessions, and 1 HIIT workout pe",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_872e8da2_1",
+          "sourceVersion": "sha256:f555a6c2c50831178ed48c3a4df6040633040089414966bf8e322af19baf35f8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_872e8da2_1",
+            "part": 1,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "Session date: 2023/10/01 (Sun) 16:16\nuser: I'm training for a 5K run and I'm trying to create a training plan. Can you help me with that?",
+          "id": "ev_74f0d3c1f5c4303f75d196fc",
+          "observedAt": "2026-10-14T15:21:34.449Z"
+        },
+        {
+          "sourceId": "memory:answer_872e8da2_1",
+          "sourceVersion": "sha256:f555a6c2c50831178ed48c3a4df6040633040089414966bf8e322af19baf35f8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_872e8da2_1",
+            "part": 4,
+            "parts": 15
+          },
+          "text": "interesting and prevent boredom.\n7. **Join a running community or find a running buddy**: Having a support system can help keep you motivated and accountable.\n\nRemember, this is just a general plan, and you should adjust it based on your individual needs and progress. Pay attention to your body, and don't be afraid to take rest days or modify the plan as needed. Good luck with your training, and have fun!\nuser: I was thinking of starting with a base building phase, but I'm not sure how to pace myself. I've done a 5K run last year, but it took me 45 minutes to complete.\nassistant: Congratulations on having a baseline 5K time! That's a great starting point.\n\nFor a base building phase, the goal is to establish a consistent running habit, build your endurance, and increase your weekly mileage. To pace yourself, let's determine your current running pace and use that as a guideline.\n\n**Calculating Your Current Running Pace:**\n\nBased on your previous 5K time of 45 minutes, we can estimate your average pace per mile. There are a few ways to do this, but a simple method is to divide your finish time by the distance:\n\n45 minutes \u00f7 3.1 miles = approximately 14:30 minutes per mile",
+          "id": "ev_2e959b1caf5dbceaf1f8e2f4",
+          "observedAt": "2026-10-14T15:21:34.456Z"
+        },
+        {
+          "sourceId": "memory:a3107e2a_1",
+          "sourceVersion": "sha256:8df9a9e4b25b2caf92f558d90754a0efe6efe97b8957fa12aa5c7291ac8be1f1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "a3107e2a_1",
+            "part": 11,
+            "parts": 24,
+            "partial": true
+          },
+          "text": "**Benefits of Transfer Learning:**\n\n1. **Reduced Training Time**: Fine-tuning a pre-trained model is much faster than training a new model from scratch.",
+          "id": "ev_fe3426631382f9a7f41f45bb",
+          "observedAt": "2026-10-14T15:21:34.456Z"
+        },
+        {
+          "sourceId": "memory:fa3c6c2c_2",
+          "sourceVersion": "sha256:0dcce7900a7e7de5d37aaa4cb53b399915ce209ef35fbb23b1d7fc7e6f7b3fde",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "fa3c6c2c_2",
+            "part": 9,
+            "parts": 24,
+            "partial": true
+          },
+          "text": "2. **Set realistic goals**: Determine how many days per week you can commit to exercising and set specific goals for each workout. For example, you might aim to do 3 runs, 2 strength training sessions, and 1 HIIT workout pe",
+          "id": "ev_68eca769fcfa0f698f3428ec",
+          "observedAt": "2026-10-14T15:21:34.456Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_872e8da2_1",
+        "a3107e2a_1",
+        "fa3c6c2c_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 44.2800419999985,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "answer_872e8da2_1",
+        "a3107e2a_1",
+        "fa3c6c2c_2"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 15, excerpt) Session date: 2023/10/01 (Sun) 16:16\nuser: I'm training for a 5K run and I'm trying to create a training plan. Can you help me with that?\n  (part 4 of 15) interesting and prevent boredom.\n7. **Join a running community or find a running buddy**: Having a support system can help keep you motivated and accountable.\n\nRemember, this is just a general plan, and you should adjust it based on your individual needs and progress. Pay attention to your body, and don't be afraid to take rest days or modify the plan as needed. Good luck with your training, and have fun!\nuser: I was thinking of starting with a base building phase, but I'm not sure how to pace myself. I've done a 5K run last year, but it took me 45 minutes to complete.\nassistant: Congratulations on having a baseline 5K time! That's a great starting point.\n\nFor a base building phase, the goal is to establish a consistent running habit, build your endurance, and increase your weekly mileage. To pace yourself, let's determine your current running pace and use that as a guideline.\n\n**Calculating Your Current Running Pace:**\n\nBased on your previous 5K time of 45 minutes, we can estimate your average pace per mile. There are a few ways to do this, but a simple method is to divide your finish time by the distance:\n\n45 minutes \u00f7 3.1 miles = approximately 14:30 minutes per mile\n  (part 5 of 15, excerpt) are a few ways to do this, but a simple method is to divide your finish time by the distance:\n\n45 minutes \u00f7 3.1 miles = approximately 14:30 minutes per mile\n  (part 10 of 15, excerpt) **6. Focus on the Process, Not the Outcome:** Instead of focusing on the end goal (e.g., running a 5K), focus on the daily process of building your endurance and making progress.\n- Session date: 2023/10/01 (Sun) 08:43\n  (part 11 of 24) is trained on a smaller dataset specific to the target task, with the pre-trained model's weights as a starting point.\n\n**Benefits of Transfer Learning:**\n\n1. **Reduced Training Time**: Fine-tuning a pre-trained model is much faster than training a new model from scratch.\n2. **Improved Performance**: Pre-trained models have already learned general features that can be useful for the target task, leading to better performance.\n3. **Fewer Data Requirements**: The target dataset can be smaller, as the pre-trained model has already learned general features.\n\n**Applying Transfer Learning with Pre-trained Models:**\n\nLet's take VGG16 and ResNet50 as examples. These models were pre-trained on the ImageNet dataset, which contains over 14 million images from 21,841 categories.\n\nTo apply transfer learning using these models, you can follow these steps:\n  (part 13 of 24, excerpt) user: I'm interested in exploring more about the applications of transfer learning in computer vision. Can you tell me more about how transfer learning is used in object detection tasks, such as YOLO, SSD, and Faster R-CNN?\n  (part 17 of 24, excerpt) In summary, transfer learning is a crucial component in object detection tasks, and it's widely used in popular architectures like YOLO, SSD, and Faster R-CNN. By leveraging pre-trained models as feature extractors, object detection models can achieve better performance, faster training times, and fewer data requirements.\nuser: I'm interested in exploring more about the applications of transfer learning in natural language processing (NLP). Can you tell me more about how transfer learning is used in language models like BERT, RoBERTa, and XLNet?\n  (part 20 of 24, excerpt) 2. **Reduced Training Time**: Fine-tuning a pre-trained language model is faster than training a new model from scratch.\n3. **Fewer Data Requirements**: The target dataset can be smaller, as the pre-trained language model has already learned general language patterns.\n\n**Applications of Transfer Learning in Language Models:**\n- Session date: 2023/10/01 (Sun) 07:50\n  (part 9 of 24) fitness. Here are some tips to help you create a workout plan that incorporates running, strength training, and high-intensity interval training (HIIT):\n\n1. **Start with a baseline**: Continue tracking your runs with your Garmin Forerunner 245 Music and monitor your blood pressure regularly. This will give you a baseline to work from and help you track progress.\n2. **Set realistic goals**: Determine how many days per week you can commit to exercising and set specific goals for each workout. For example, you might aim to do 3 runs, 2 strength training sessions, and 1 HIIT workout per week.\n3. **Create a schedule**: Plan out your workouts for the week, including rest days. Aim to space out your runs and strength training sessions to allow for recovery time. For example:\n\nMonday: Run (30 minutes, easy pace)\nTuesday: Strength training (lower body focus)\nWednesday: Rest day\nThursday: HIIT workout (20-30 minutes)\nFriday: Run (30 minutes, moderate pace)\nSaturday: Strength training (upper body focus)\nSunday: Rest day or active recovery (e.g., yoga or a leisurely walk)\n\n4.\n  (part 10 of 24, excerpt) Friday: Run (30 minutes, moderate pace)\nSaturday: Strength training (upper body focus)\nSunday: Rest day or active recovery (e.g., yoga or a leisurely walk)\n\n4.\n  (part 11 of 24, excerpt) Here's an example workout plan to get you started:\n\n**Monday (Run)**\n\n* Warm-up: 5-minute easy jog\n* Run: 30 minutes at an easy pace\n* Cool-down: 5-minute stretching\n\n**Tuesday (Strength Training - Lower Body)**\n\n* Warm-up: 5-minute cardio (jogging, jumping jacks, etc.)\n* Squats: 3 sets of 10 reps\n  (part 12 of 24, excerpt) (HIIT)**\n\n* Warm-up: 5-minute cardio\n* HIIT workout: 20 minutes (e.g., burpees, jump squats, box jumps)\n* Cool-down: 5-minute stretching\n\n**Friday (Run)**\n\n* Warm-up: 5-minute easy jog\n* Run: 30 minutes at a moderate pace\n* Cool-down: 5-minute stretching\n\n**Saturday (Strength Training - Upper Body)**\n\n* Warm-up: 5-minute cardio\n* Push",
+      "evidence": [
+        {
+          "sourceId": "memory:answer_872e8da2_1",
+          "sourceVersion": "sha256:f555a6c2c50831178ed48c3a4df6040633040089414966bf8e322af19baf35f8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_872e8da2_1",
+            "part": 1,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "Session date: 2023/10/01 (Sun) 16:16\nuser: I'm training for a 5K run and I'm trying to create a training plan. Can you help me with that?",
+          "id": "ev_74f0d3c1f5c4303f75d196fc",
+          "observedAt": "2026-10-14T15:21:34.461Z"
+        },
+        {
+          "sourceId": "memory:answer_872e8da2_1",
+          "sourceVersion": "sha256:f555a6c2c50831178ed48c3a4df6040633040089414966bf8e322af19baf35f8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_872e8da2_1",
+            "part": 4,
+            "parts": 15
+          },
+          "text": "interesting and prevent boredom.\n7. **Join a running community or find a running buddy**: Having a support system can help keep you motivated and accountable.\n\nRemember, this is just a general plan, and you should adjust it based on your individual needs and progress. Pay attention to your body, and don't be afraid to take rest days or modify the plan as needed. Good luck with your training, and have fun!\nuser: I was thinking of starting with a base building phase, but I'm not sure how to pace myself. I've done a 5K run last year, but it took me 45 minutes to complete.\nassistant: Congratulations on having a baseline 5K time! That's a great starting point.\n\nFor a base building phase, the goal is to establish a consistent running habit, build your endurance, and increase your weekly mileage. To pace yourself, let's determine your current running pace and use that as a guideline.\n\n**Calculating Your Current Running Pace:**\n\nBased on your previous 5K time of 45 minutes, we can estimate your average pace per mile. There are a few ways to do this, but a simple method is to divide your finish time by the distance:\n\n45 minutes \u00f7 3.1 miles = approximately 14:30 minutes per mile",
+          "id": "ev_2e959b1caf5dbceaf1f8e2f4",
+          "observedAt": "2026-10-14T15:21:34.461Z"
+        },
+        {
+          "sourceId": "memory:answer_872e8da2_1",
+          "sourceVersion": "sha256:f555a6c2c50831178ed48c3a4df6040633040089414966bf8e322af19baf35f8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_872e8da2_1",
+            "part": 5,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "are a few ways to do this, but a simple method is to divide your finish time by the distance:\n\n45 minutes \u00f7 3.1 miles = approximately 14:30 minutes per mile",
+          "id": "ev_7d4f12c10b8311f384ea6cd8",
+          "observedAt": "2026-10-14T15:21:34.461Z"
+        },
+        {
+          "sourceId": "memory:answer_872e8da2_1",
+          "sourceVersion": "sha256:f555a6c2c50831178ed48c3a4df6040633040089414966bf8e322af19baf35f8",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "answer_872e8da2_1",
+            "part": 10,
+            "parts": 15,
+            "partial": true
+          },
+          "text": "**6. Focus on the Process, Not the Outcome:** Instead of focusing on the end goal (e.g., running a 5K), focus on the daily process of building your endurance and making progress.",
+          "id": "ev_301f337c91aa4770e22f138d",
+          "observedAt": "2026-10-14T15:21:34.461Z"
+        },
+        {
+          "sourceId": "memory:a3107e2a_1",
+          "sourceVersion": "sha256:8df9a9e4b25b2caf92f558d90754a0efe6efe97b8957fa12aa5c7291ac8be1f1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "a3107e2a_1"
+          },
+          "text": "Session date: 2023/10/01 (Sun) 08:43",
+          "id": "ev_604420419c9508c4a7f199e6",
+          "observedAt": "2026-10-14T15:21:34.462Z"
+        },
+        {
+          "sourceId": "memory:a3107e2a_1",
+          "sourceVersion": "sha256:8df9a9e4b25b2caf92f558d90754a0efe6efe97b8957fa12aa5c7291ac8be1f1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "a3107e2a_1",
+            "part": 11,
+            "parts": 24
+          },
+          "text": "is trained on a smaller dataset specific to the target task, with the pre-trained model's weights as a starting point.\n\n**Benefits of Transfer Learning:**\n\n1. **Reduced Training Time**: Fine-tuning a pre-trained model is much faster than training a new model from scratch.\n2. **Improved Performance**: Pre-trained models have already learned general features that can be useful for the target task, leading to better performance.\n3. **Fewer Data Requirements**: The target dataset can be smaller, as the pre-trained model has already learned general features.\n\n**Applying Transfer Learning with Pre-trained Models:**\n\nLet's take VGG16 and ResNet50 as examples. These models were pre-trained on the ImageNet dataset, which contains over 14 million images from 21,841 categories.\n\nTo apply transfer learning using these models, you can follow these steps:",
+          "id": "ev_ab32f1565d59c1d933088ebe",
+          "observedAt": "2026-10-14T15:21:34.462Z"
+        },
+        {
+          "sourceId": "memory:a3107e2a_1",
+          "sourceVersion": "sha256:8df9a9e4b25b2caf92f558d90754a0efe6efe97b8957fa12aa5c7291ac8be1f1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "a3107e2a_1",
+            "part": 13,
+            "parts": 24,
+            "partial": true
+          },
+          "text": "user: I'm interested in exploring more about the applications of transfer learning in computer vision. Can you tell me more about how transfer learning is used in object detection tasks, such as YOLO, SSD, and Faster R-CNN?",
+          "id": "ev_a9b43807d83a49a4fdcbeaa3",
+          "observedAt": "2026-10-14T15:21:34.462Z"
+        },
+        {
+          "sourceId": "memory:a3107e2a_1",
+          "sourceVersion": "sha256:8df9a9e4b25b2caf92f558d90754a0efe6efe97b8957fa12aa5c7291ac8be1f1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "a3107e2a_1",
+            "part": 17,
+            "parts": 24,
+            "partial": true
+          },
+          "text": "In summary, transfer learning is a crucial component in object detection tasks, and it's widely used in popular architectures like YOLO, SSD, and Faster R-CNN. By leveraging pre-trained models as feature extractors, object detection models can achieve better performance, faster training times, and fewer data requirements.\nuser: I'm interested in exploring more about the applications of transfer learning in natural language processing (NLP). Can you tell me more about how transfer learning is used in language models like BERT, RoBERTa, and XLNet?",
+          "id": "ev_199c807525d0a2be96599af9",
+          "observedAt": "2026-10-14T15:21:34.462Z"
+        },
+        {
+          "sourceId": "memory:a3107e2a_1",
+          "sourceVersion": "sha256:8df9a9e4b25b2caf92f558d90754a0efe6efe97b8957fa12aa5c7291ac8be1f1",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "a3107e2a_1",
+            "part": 20,
+            "parts": 24,
+            "partial": true
+          },
+          "text": "2. **Reduced Training Time**: Fine-tuning a pre-trained language model is faster than training a new model from scratch.\n3. **Fewer Data Requirements**: The target dataset can be smaller, as the pre-trained language model has already learned general language patterns.\n\n**Applications of Transfer Learning in Language Models:**",
+          "id": "ev_fafc8bb5ed05c9b5b208db9f",
+          "observedAt": "2026-10-14T15:21:34.462Z"
+        },
+        {
+          "sourceId": "memory:fa3c6c2c_2",
+          "sourceVersion": "sha256:0dcce7900a7e7de5d37aaa4cb53b399915ce209ef35fbb23b1d7fc7e6f7b3fde",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "fa3c6c2c_2"
+          },
+          "text": "Session date: 2023/10/01 (Sun) 07:50",
+          "id": "ev_68358e2abeb2c2c462762e68",
+          "observedAt": "2026-10-14T15:21:34.462Z"
+        },
+        {
+          "sourceId": "memory:fa3c6c2c_2",
+          "sourceVersion": "sha256:0dcce7900a7e7de5d37aaa4cb53b399915ce209ef35fbb23b1d7fc7e6f7b3fde",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "fa3c6c2c_2",
+            "part": 9,
+            "parts": 24
+          },
+          "text": "fitness. Here are some tips to help you create a workout plan that incorporates running, strength training, and high-intensity interval training (HIIT):\n\n1. **Start with a baseline**: Continue tracking your runs with your Garmin Forerunner 245 Music and monitor your blood pressure regularly. This will give you a baseline to work from and help you track progress.\n2. **Set realistic goals**: Determine how many days per week you can commit to exercising and set specific goals for each workout. For example, you might aim to do 3 runs, 2 strength training sessions, and 1 HIIT workout per week.\n3. **Create a schedule**: Plan out your workouts for the week, including rest days. Aim to space out your runs and strength training sessions to allow for recovery time. For example:\n\nMonday: Run (30 minutes, easy pace)\nTuesday: Strength training (lower body focus)\nWednesday: Rest day\nThursday: HIIT workout (20-30 minutes)\nFriday: Run (30 minutes, moderate pace)\nSaturday: Strength training (upper body focus)\nSunday: Rest day or active recovery (e.g., yoga or a leisurely walk)\n\n4.",
+          "id": "ev_9c36904a54e21061883917c0",
+          "observedAt": "2026-10-14T15:21:34.462Z"
+        },
+        {
+          "sourceId": "memory:fa3c6c2c_2",
+          "sourceVersion": "sha256:0dcce7900a7e7de5d37aaa4cb53b399915ce209ef35fbb23b1d7fc7e6f7b3fde",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "fa3c6c2c_2",
+            "part": 10,
+            "parts": 24,
+            "partial": true
+          },
+          "text": "Friday: Run (30 minutes, moderate pace)\nSaturday: Strength training (upper body focus)\nSunday: Rest day or active recovery (e.g., yoga or a leisurely walk)\n\n4.",
+          "id": "ev_4830c856d635b0d6ac0dbf6e",
+          "observedAt": "2026-10-14T15:21:34.462Z"
+        },
+        {
+          "sourceId": "memory:fa3c6c2c_2",
+          "sourceVersion": "sha256:0dcce7900a7e7de5d37aaa4cb53b399915ce209ef35fbb23b1d7fc7e6f7b3fde",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "fa3c6c2c_2",
+            "part": 11,
+            "parts": 24,
+            "partial": true
+          },
+          "text": "Here's an example workout plan to get you started:\n\n**Monday (Run)**\n\n* Warm-up: 5-minute easy jog\n* Run: 30 minutes at an easy pace\n* Cool-down: 5-minute stretching\n\n**Tuesday (Strength Training - Lower Body)**\n\n* Warm-up: 5-minute cardio (jogging, jumping jacks, etc.)\n* Squats: 3 sets of 10 reps",
+          "id": "ev_cef243a0b155865cd6f53777",
+          "observedAt": "2026-10-14T15:21:34.462Z"
+        },
+        {
+          "sourceId": "memory:fa3c6c2c_2",
+          "sourceVersion": "sha256:0dcce7900a7e7de5d37aaa4cb53b399915ce209ef35fbb23b1d7fc7e6f7b3fde",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "fa3c6c2c_2",
+            "part": 12,
+            "parts": 24,
+            "partial": true
+          },
+          "text": "(HIIT)**\n\n* Warm-up: 5-minute cardio\n* HIIT workout: 20 minutes (e.g., burpees, jump squats, box jumps)\n* Cool-down: 5-minute stretching\n\n**Friday (Run)**\n\n* Warm-up: 5-minute easy jog\n* Run: 30 minutes at a moderate pace\n* Cool-down: 5-minute stretching\n\n**Saturday (Strength Training - Upper Body)**\n\n* Warm-up: 5-minute cardio\n* Push",
+          "id": "ev_ded8cac2651bdc28fa34fc83",
+          "observedAt": "2026-10-14T15:21:34.462Z"
+        }
+      ],
+      "sourceIds": [
+        "answer_872e8da2_1",
+        "a3107e2a_1",
+        "fa3c6c2c_2"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 8.242624999998952,
+      "provenance": true
+    }
+  },
+  "benchmarkSessionIds": [
+    "answer_872e8da2_1",
+    "a3107e2a_1",
+    "fa3c6c2c_2"
+  ],
+  "sources": {
+    "recallAt3": 0.5,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T15:21:34.469280+00:00"
+}

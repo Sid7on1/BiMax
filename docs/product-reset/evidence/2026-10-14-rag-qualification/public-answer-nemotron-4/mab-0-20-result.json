@@ -1,0 +1,275 @@
+{
+  "row": 0,
+  "query": 20,
+  "id": "mab-0-20",
+  "stratum": "ruler_qa1_197K",
+  "dataset": "memoryagentbench",
+  "question": "Who ruined Roussel de Bailleul's plans for an independent state?",
+  "references": [
+    "Alexius Komnenos",
+    "Alexius Komnenos",
+    "Alexius Komnenos"
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 7.494917000003625,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 64,
+        "maxInputChars": 64,
+        "requiredProviderTruncation": false,
+        "promptTokens": 19,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-204",
+        "context-33",
+        "context-20"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) their knowledge on significant historical works. Also, he codified much of the law, as well as publishing or translating a number of Chinese books and works.\n\nDocument 1018:\nBy 1620 the Huguenots were on the defensive, and the government increasingly applied pressure. A series of three small civil wars known as the Huguenot rebellions broke out, mainly in southwestern France, between 1621 and 1629. revolted against royal authority. The uprising occurred a decade following the death of Henry IV, a Huguenot before converting to Catholicism, who had protected Protestants through the Edict of Nantes. His successor Louis XIII, under the regency of his Italian Catholic mother Marie de' Medici, became more intolerant of Protestantism. The Huguenots respond by establishing independent political and military structures, establishing diplomatic contacts with foreign powers, and openly revolting against central power. The rebellions were implacably suppressed by the French Crown.[citation needed]\n  (part 3 of 5, excerpt) Prince Louis de Cond\u00e9, along with his sons Daniel and Osias,[citation needed] arranged with Count Ludwig von Nassau-Saarbr\u00fccken to establish a Huguenot community in present-day Saarland in 1604. The Count supported mercantilism and welcomed technically skilled immigrants into his lands, regardless of their religion. The Cond\u00e9s established a thriving glass-making works, which provided wealth to the principality for many years. Other foundi\n- (part 4 of 6, excerpt) One of the first Norman mercenaries to serve as a Byzantine general was Herv\u00e9 in the 1050s. By then however, there were already Norman m\n- (part 5 of 5, excerpt) The first Huguenots to leave France sought freedom from persecution in Switzerland and the Netherlands.[citation needed] A gr",
+      "evidence": [
+        {
+          "sourceId": "memory:context-204",
+          "sourceVersion": "sha256:ce0b8e682840f891a9634db690cfffaa33fccf38a81cde4aef6857a65126ef35",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-204",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "their knowledge on significant historical works. Also, he codified much of the law, as well as publishing or translating a number of Chinese books and works.\n\nDocument 1018:\nBy 1620 the Huguenots were on the defensive, and the government increasingly applied pressure. A series of three small civil wars known as the Huguenot rebellions broke out, mainly in southwestern France, between 1621 and 1629. revolted against royal authority. The uprising occurred a decade following the death of Henry IV, a Huguenot before converting to Catholicism, who had protected Protestants through the Edict of Nantes. His successor Louis XIII, under the regency of his Italian Catholic mother Marie de' Medici, became more intolerant of Protestantism. The Huguenots respond by establishing independent political and military structures, establishing diplomatic contacts with foreign powers, and openly revolting against central power. The rebellions were implacably suppressed by the French Crown.[citation needed]",
+          "id": "ev_9d5dc7916cb547eb8c7c73f9",
+          "observedAt": "2026-10-14T04:44:31.559Z"
+        },
+        {
+          "sourceId": "memory:context-204",
+          "sourceVersion": "sha256:ce0b8e682840f891a9634db690cfffaa33fccf38a81cde4aef6857a65126ef35",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-204",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Prince Louis de Cond\u00e9, along with his sons Daniel and Osias,[citation needed] arranged with Count Ludwig von Nassau-Saarbr\u00fccken to establish a Huguenot community in present-day Saarland in 1604. The Count supported mercantilism and welcomed technically skilled immigrants into his lands, regardless of their religion. The Cond\u00e9s established a thriving glass-making works, which provided wealth to the principality for many years. Other foundi",
+          "id": "ev_99ffecc9ccab2899082fe597",
+          "observedAt": "2026-10-14T04:44:31.559Z"
+        },
+        {
+          "sourceId": "memory:context-33",
+          "sourceVersion": "sha256:4fe6f6c806f31427a49979f1aef3dade62ee29ecf87bae6c30dde213db13653c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-33",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "One of the first Norman mercenaries to serve as a Byzantine general was Herv\u00e9 in the 1050s. By then however, there were already Norman m",
+          "id": "ev_1de2b3bb0a4a07ecd98977da",
+          "observedAt": "2026-10-14T04:44:31.559Z"
+        },
+        {
+          "sourceId": "memory:context-20",
+          "sourceVersion": "sha256:06d7db5e1715934cd5e914e0aa47c6b9e7d75c3a39476c8931ffccd16e522263",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-20",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The first Huguenots to leave France sought freedom from persecution in Switzerland and the Netherlands.[citation needed] A gr",
+          "id": "ev_75399251b416b716d14abc97",
+          "observedAt": "2026-10-14T04:44:31.559Z"
+        }
+      ],
+      "sourceIds": [
+        "context-204",
+        "context-33",
+        "context-20"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.6053329999995185,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-204",
+        "context-33",
+        "context-20"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 5) their knowledge on significant historical works. Also, he codified much of the law, as well as publishing or translating a number of Chinese books and works.\n\nDocument 1018:\nBy 1620 the Huguenots were on the defensive, and the government increasingly applied pressure. A series of three small civil wars known as the Huguenot rebellions broke out, mainly in southwestern France, between 1621 and 1629. revolted against royal authority. The uprising occurred a decade following the death of Henry IV, a Huguenot before converting to Catholicism, who had protected Protestants through the Edict of Nantes. His successor Louis XIII, under the regency of his Italian Catholic mother Marie de' Medici, became more intolerant of Protestantism. The Huguenots respond by establishing independent political and military structures, establishing diplomatic contacts with foreign powers, and openly revolting against central power. The rebellions were implacably suppressed by the French Crown.[citation needed]\n  (part 3 of 5, excerpt) Prince Louis de Cond\u00e9, along with his sons Daniel and Osias,[citation needed] arranged with Count Ludwig von Nassau-Saarbr\u00fccken to establish a Huguenot community in present-day Saarland in 1604. The Count supported mercantilism and welcomed technically skilled immigrants into his lands, regardless of their religion. The Cond\u00e9s established a thriving glass-making works, which provided wealth to the principality for many years. Other foundi\n- (part 4 of 6, excerpt) One of the first Norman mercenaries to serve as a Byzantine general was Herv\u00e9 in the 1050s. By then however, there were already Norman m\n- (part 5 of 5, excerpt) The first Huguenots to leave France sought freedom from persecution in Switzerland and the Netherlands.[citation needed] A gr",
+      "evidence": [
+        {
+          "sourceId": "memory:context-204",
+          "sourceVersion": "sha256:ce0b8e682840f891a9634db690cfffaa33fccf38a81cde4aef6857a65126ef35",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-204",
+            "part": 2,
+            "parts": 5
+          },
+          "text": "their knowledge on significant historical works. Also, he codified much of the law, as well as publishing or translating a number of Chinese books and works.\n\nDocument 1018:\nBy 1620 the Huguenots were on the defensive, and the government increasingly applied pressure. A series of three small civil wars known as the Huguenot rebellions broke out, mainly in southwestern France, between 1621 and 1629. revolted against royal authority. The uprising occurred a decade following the death of Henry IV, a Huguenot before converting to Catholicism, who had protected Protestants through the Edict of Nantes. His successor Louis XIII, under the regency of his Italian Catholic mother Marie de' Medici, became more intolerant of Protestantism. The Huguenots respond by establishing independent political and military structures, establishing diplomatic contacts with foreign powers, and openly revolting against central power. The rebellions were implacably suppressed by the French Crown.[citation needed]",
+          "id": "ev_9d5dc7916cb547eb8c7c73f9",
+          "observedAt": "2026-10-14T04:44:31.561Z"
+        },
+        {
+          "sourceId": "memory:context-204",
+          "sourceVersion": "sha256:ce0b8e682840f891a9634db690cfffaa33fccf38a81cde4aef6857a65126ef35",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-204",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Prince Louis de Cond\u00e9, along with his sons Daniel and Osias,[citation needed] arranged with Count Ludwig von Nassau-Saarbr\u00fccken to establish a Huguenot community in present-day Saarland in 1604. The Count supported mercantilism and welcomed technically skilled immigrants into his lands, regardless of their religion. The Cond\u00e9s established a thriving glass-making works, which provided wealth to the principality for many years. Other foundi",
+          "id": "ev_99ffecc9ccab2899082fe597",
+          "observedAt": "2026-10-14T04:44:31.561Z"
+        },
+        {
+          "sourceId": "memory:context-33",
+          "sourceVersion": "sha256:4fe6f6c806f31427a49979f1aef3dade62ee29ecf87bae6c30dde213db13653c",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-33",
+            "part": 4,
+            "parts": 6,
+            "partial": true
+          },
+          "text": "One of the first Norman mercenaries to serve as a Byzantine general was Herv\u00e9 in the 1050s. By then however, there were already Norman m",
+          "id": "ev_1de2b3bb0a4a07ecd98977da",
+          "observedAt": "2026-10-14T04:44:31.561Z"
+        },
+        {
+          "sourceId": "memory:context-20",
+          "sourceVersion": "sha256:06d7db5e1715934cd5e914e0aa47c6b9e7d75c3a39476c8931ffccd16e522263",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-20",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "The first Huguenots to leave France sought freedom from persecution in Switzerland and the Netherlands.[citation needed] A gr",
+          "id": "ev_75399251b416b716d14abc97",
+          "observedAt": "2026-10-14T04:44:31.561Z"
+        }
+      ],
+      "sourceIds": [
+        "context-204",
+        "context-33",
+        "context-20"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 1.4476660000000265,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:40:43.992903+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "The retrieved history does not contain any information about Roussel de Bailleul or his plans for an independent state, so I cannot determine who ruined them based on the provided text.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 506,
+    "completion_tokens": 1061,
+    "total_tokens": 1567,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 283,
+    "completion_tokens": 441,
+    "total_tokens": 724,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 438,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 10974.637749999829,
+  "judgeWallMs": 4556.280000000015,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:40:59.525979+00:00"
+}

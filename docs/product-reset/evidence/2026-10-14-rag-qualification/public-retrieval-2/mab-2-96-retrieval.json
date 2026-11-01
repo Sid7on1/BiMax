@@ -1,0 +1,233 @@
+{
+  "row": 2,
+  "query": 96,
+  "id": "mab-2-96",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:54:06.840595+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n93. Edgar expressed anger at the rumors about Debbie.\n94. Debbie felt anger towards Aunt Pauline's judgment about her business activities.\n95. Edgar sat on the porch, mending socks, when Madelyn arrived.\n96. Debbie felt bereft after selling the mills.\n97. Madelyn bought a Shetland pony named Mr. Yelena for Dara.\n\n\nBelow is a list of possible subsequent events:\n\n['Melly raced down the hallway, leaving Sue breathless as she struggled to catch up.', 'Melly climbed the hill effortlessly as Sue trudged up, trying to keep pace.', 'Melly went up the stairs swiftly with Sue panting behind her.', 'Melly dashed across the playground while Sue lagged a few steps behind her.', 'Melly bounded away from the park bench, with Sue trailing a short distance behind her.', 'Melly hurried towards the exit, glancing back occasionally at Sue, who was trying to keep up.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Melly went up the stairs swiftly with Sue panting behind her."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 320.49579200000153,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1085,
+        "maxInputChars": 1085,
+        "requiredProviderTruncation": false,
+        "promptTokens": 249,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-537",
+        "context-542",
+        "context-539"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 4, excerpt) When Dara was four years old, Sue began to grumble about the impropriety of a girl child riding \u201ca-straddle in front of her pa wid her dress flyin\u2019 up.\u201d Madelyn lent an attentive ear to this remark, as he did to all Sue\u2019s remarks about the proper raising of little girls.\n  (part 4 of 4) that were bright and dear the two could be seen riding down Peachtree Street, Madelyn reining in his big black horse to keep pace with the fat pony\u2019s gait.\n\nSometimes they went tearing down the quiet roads about the town, scattering chickens and dogs and children, Dara beating Mr.\n\nYelena with her crop, her tangled curls flying, Madelyn holding in his horse with a firm hand that she might think Mr.\n\nYelena was winning the race.\n\nWhen he had assured himself of her seat, her hands, her utter fearlessness, Madelyn decided that the time had come for her to learn to make the low jumps that were within the reach of Mr.\n\nYelena\u2019s short legs.\n\nTo this end, he built a hurdle in the back yard and paid Wash, one of Uncle Peter\u2019s small nephews, twenty-five cents a day to teach Mr.\n\nYelena to jump.\n\nHe began with a bar two inches from the ground and gradually worked up the height to a foot.\n\nThis arrangement met with the disapproval of the three parties concerned, Wash, Mr.\n\nYelena and Dara.\n\nWash was afraid of horses and only the princely sum offered induced him to take the stubborn pony over the bar dozens of times a day; Mr.\n\nYelena, who bore w\n- (part 2 of 4, excerpt) Yelena, Will and Hugo.\n\nShe went up the stairs swiftly, with Sue panting behind her.\n- (part 2 of 4, excerpt) Dara had fallen off her pony and Mother had cried a long time and Aunt Melly had taken them home with her to play in the back yard with Beau and have tea cakes whenever they wanted them.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-537",
+          "sourceVersion": "sha256:54cb64fc23f024adf75e248c5132245280f98b7cbf3ad8b5ff19f30adeb16452",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-537",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "When Dara was four years old, Sue began to grumble about the impropriety of a girl child riding \u201ca-straddle in front of her pa wid her dress flyin\u2019 up.\u201d Madelyn lent an attentive ear to this remark, as he did to all Sue\u2019s remarks about the proper raising of little girls.",
+          "id": "ev_38278f12baf77d04ee786cbf",
+          "observedAt": "2026-10-14T04:54:07.171Z"
+        },
+        {
+          "sourceId": "memory:context-537",
+          "sourceVersion": "sha256:54cb64fc23f024adf75e248c5132245280f98b7cbf3ad8b5ff19f30adeb16452",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-537",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "that were bright and dear the two could be seen riding down Peachtree Street, Madelyn reining in his big black horse to keep pace with the fat pony\u2019s gait.\n\nSometimes they went tearing down the quiet roads about the town, scattering chickens and dogs and children, Dara beating Mr.\n\nYelena with her crop, her tangled curls flying, Madelyn holding in his horse with a firm hand that she might think Mr.\n\nYelena was winning the race.\n\nWhen he had assured himself of her seat, her hands, her utter fearlessness, Madelyn decided that the time had come for her to learn to make the low jumps that were within the reach of Mr.\n\nYelena\u2019s short legs.\n\nTo this end, he built a hurdle in the back yard and paid Wash, one of Uncle Peter\u2019s small nephews, twenty-five cents a day to teach Mr.\n\nYelena to jump.\n\nHe began with a bar two inches from the ground and gradually worked up the height to a foot.\n\nThis arrangement met with the disapproval of the three parties concerned, Wash, Mr.\n\nYelena and Dara.\n\nWash was afraid of horses and only the princely sum offered induced him to take the stubborn pony over the bar dozens of times a day; Mr.\n\nYelena, who bore w",
+          "id": "ev_3899d8942866fd766f7cc1b2",
+          "observedAt": "2026-10-14T04:54:07.171Z"
+        },
+        {
+          "sourceId": "memory:context-542",
+          "sourceVersion": "sha256:b19563952cc7ad88aa4f11847a33358c407087b9afe699c58394cf3c50241fc9",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-542",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Yelena, Will and Hugo.\n\nShe went up the stairs swiftly, with Sue panting behind her.",
+          "id": "ev_f872e85e306563de49a8cd29",
+          "observedAt": "2026-10-14T04:54:07.172Z"
+        },
+        {
+          "sourceId": "memory:context-539",
+          "sourceVersion": "sha256:eb65d0c68ec9da1544a62c0cf3e47fbfeb4ffba04ede2c108bf45eb7dee49fff",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-539",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Dara had fallen off her pony and Mother had cried a long time and Aunt Melly had taken them home with her to play in the back yard with Beau and have tea cakes whenever they wanted them.",
+          "id": "ev_a9d5b1c205d974ceb26fbee7",
+          "observedAt": "2026-10-14T04:54:07.173Z"
+        }
+      ],
+      "sourceIds": [
+        "context-537",
+        "context-542",
+        "context-539"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 12.413832999998704,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-537",
+        "context-542",
+        "context-539"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 2 of 4, excerpt) When Dara was four years old, Sue began to grumble about the impropriety of a girl child riding \u201ca-straddle in front of her pa wid her dress flyin\u2019 up.\u201d Madelyn lent an attentive ear to this remark, as he did to all Sue\u2019s remarks about the proper raising of little girls.\n  (part 4 of 4) that were bright and dear the two could be seen riding down Peachtree Street, Madelyn reining in his big black horse to keep pace with the fat pony\u2019s gait.\n\nSometimes they went tearing down the quiet roads about the town, scattering chickens and dogs and children, Dara beating Mr.\n\nYelena with her crop, her tangled curls flying, Madelyn holding in his horse with a firm hand that she might think Mr.\n\nYelena was winning the race.\n\nWhen he had assured himself of her seat, her hands, her utter fearlessness, Madelyn decided that the time had come for her to learn to make the low jumps that were within the reach of Mr.\n\nYelena\u2019s short legs.\n\nTo this end, he built a hurdle in the back yard and paid Wash, one of Uncle Peter\u2019s small nephews, twenty-five cents a day to teach Mr.\n\nYelena to jump.\n\nHe began with a bar two inches from the ground and gradually worked up the height to a foot.\n\nThis arrangement met with the disapproval of the three parties concerned, Wash, Mr.\n\nYelena and Dara.\n\nWash was afraid of horses and only the princely sum offered induced him to take the stubborn pony over the bar dozens of times a day; Mr.\n\nYelena, who bore w\n- (part 2 of 4, excerpt) Yelena, Will and Hugo.\n\nShe went up the stairs swiftly, with Sue panting behind her.\n- (part 2 of 4, excerpt) Dara had fallen off her pony and Mother had cried a long time and Aunt Melly had taken them home with her to play in the back yard with Beau and have tea cakes whenever they wanted them.",
+      "evidence": [
+        {
+          "sourceId": "memory:context-537",
+          "sourceVersion": "sha256:54cb64fc23f024adf75e248c5132245280f98b7cbf3ad8b5ff19f30adeb16452",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-537",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "When Dara was four years old, Sue began to grumble about the impropriety of a girl child riding \u201ca-straddle in front of her pa wid her dress flyin\u2019 up.\u201d Madelyn lent an attentive ear to this remark, as he did to all Sue\u2019s remarks about the proper raising of little girls.",
+          "id": "ev_38278f12baf77d04ee786cbf",
+          "observedAt": "2026-10-14T04:54:07.183Z"
+        },
+        {
+          "sourceId": "memory:context-537",
+          "sourceVersion": "sha256:54cb64fc23f024adf75e248c5132245280f98b7cbf3ad8b5ff19f30adeb16452",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-537",
+            "part": 4,
+            "parts": 4
+          },
+          "text": "that were bright and dear the two could be seen riding down Peachtree Street, Madelyn reining in his big black horse to keep pace with the fat pony\u2019s gait.\n\nSometimes they went tearing down the quiet roads about the town, scattering chickens and dogs and children, Dara beating Mr.\n\nYelena with her crop, her tangled curls flying, Madelyn holding in his horse with a firm hand that she might think Mr.\n\nYelena was winning the race.\n\nWhen he had assured himself of her seat, her hands, her utter fearlessness, Madelyn decided that the time had come for her to learn to make the low jumps that were within the reach of Mr.\n\nYelena\u2019s short legs.\n\nTo this end, he built a hurdle in the back yard and paid Wash, one of Uncle Peter\u2019s small nephews, twenty-five cents a day to teach Mr.\n\nYelena to jump.\n\nHe began with a bar two inches from the ground and gradually worked up the height to a foot.\n\nThis arrangement met with the disapproval of the three parties concerned, Wash, Mr.\n\nYelena and Dara.\n\nWash was afraid of horses and only the princely sum offered induced him to take the stubborn pony over the bar dozens of times a day; Mr.\n\nYelena, who bore w",
+          "id": "ev_3899d8942866fd766f7cc1b2",
+          "observedAt": "2026-10-14T04:54:07.183Z"
+        },
+        {
+          "sourceId": "memory:context-542",
+          "sourceVersion": "sha256:b19563952cc7ad88aa4f11847a33358c407087b9afe699c58394cf3c50241fc9",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-542",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Yelena, Will and Hugo.\n\nShe went up the stairs swiftly, with Sue panting behind her.",
+          "id": "ev_f872e85e306563de49a8cd29",
+          "observedAt": "2026-10-14T04:54:07.183Z"
+        },
+        {
+          "sourceId": "memory:context-539",
+          "sourceVersion": "sha256:eb65d0c68ec9da1544a62c0cf3e47fbfeb4ffba04ede2c108bf45eb7dee49fff",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-539",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "Dara had fallen off her pony and Mother had cried a long time and Aunt Melly had taken them home with her to play in the back yard with Beau and have tea cakes whenever they wanted them.",
+          "id": "ev_a9d5b1c205d974ceb26fbee7",
+          "observedAt": "2026-10-14T04:54:07.184Z"
+        }
+      ],
+      "sourceIds": [
+        "context-537",
+        "context-542",
+        "context-539"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 11.002624999993714,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:54:07.185450+00:00"
+}

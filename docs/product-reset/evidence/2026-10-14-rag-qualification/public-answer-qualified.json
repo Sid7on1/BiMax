@@ -1,0 +1,1079 @@
+{
+  "scope": "100 balanced LongMemEval_S questions and 100 balanced MemoryAgentBench Accurate_Retrieval questions; not full-suite scores",
+  "selectionSha256": "7574e4ac67eaa0e9b19cd3915a5160c1892d92bb32a6aa346193437046164c4a",
+  "all200Valid": true,
+  "baselineCurrentPromptEqual": 200,
+  "reader": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "judge": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "modelDifference": "Configured NVIDIA nvidia/nemotron-3.5-lightning-30b-a3b reader/judge; not the benchmark reference models or official leaderboard. Owner authorized an available alternate after gpt-oss-20b timed out.",
+  "rawCompletionAudit": {
+    "readerPrompts": 200,
+    "readerPredictions": 200,
+    "judgeVerdicts": 200,
+    "sourceHashes": "all match frozen run configuration"
+  },
+  "judgedAnswers": {
+    "longmemeval": {
+      "valid": 100,
+      "correct": 40,
+      "judgeAccuracy": 0.4,
+      "wilson95": [
+        0.3093997461136029,
+        0.4979992153815976
+      ],
+      "exactMatch": 0.03,
+      "tokenF1": 0.14761968008215764,
+      "strata": {
+        "abstention": {
+          "valid": 15,
+          "correct": 14
+        },
+        "knowledge-update": {
+          "valid": 15,
+          "correct": 3
+        },
+        "multi-session": {
+          "valid": 14,
+          "correct": 2
+        },
+        "single-session-assistant": {
+          "valid": 14,
+          "correct": 12
+        },
+        "single-session-preference": {
+          "valid": 14,
+          "correct": 2
+        },
+        "single-session-user": {
+          "valid": 14,
+          "correct": 6
+        },
+        "temporal-reasoning": {
+          "valid": 14,
+          "correct": 1
+        }
+      }
+    },
+    "memoryagentbench": {
+      "valid": 100,
+      "correct": 39,
+      "judgeAccuracy": 0.39,
+      "wilson95": [
+        0.300167219319702,
+        0.4879716383250184
+      ],
+      "exactMatch": 0.22,
+      "tokenF1": 0.35399583334246765,
+      "strata": {
+        "eventqa_131072": {
+          "valid": 17,
+          "correct": 7
+        },
+        "eventqa_65536": {
+          "valid": 17,
+          "correct": 9
+        },
+        "eventqa_full": {
+          "valid": 17,
+          "correct": 4
+        },
+        "longmemeval_s*": {
+          "valid": 17,
+          "correct": 3
+        },
+        "ruler_qa1_197K": {
+          "valid": 16,
+          "correct": 9
+        },
+        "ruler_qa2_421K": {
+          "valid": 16,
+          "correct": 7
+        }
+      }
+    }
+  },
+  "started": "2026-10-14T07:37:38.477372+00:00",
+  "ended": "2026-10-14T08:00:30.422143+00:00",
+  "answerRunElapsedSeconds": 1371.944771,
+  "provenance": "Exact source IDs/UTF-8 hashes and exact shown spans; source containment permits production chunker whitespace changes.",
+  "embedding": "ollama:all-minilm:1b226e2802dbb772b5fc32a58f103ca1804ef7501331012de126ab22f67475ef:384",
+  "corpora": 121,
+  "documents": 11290,
+  "chunks": 90648,
+  "embeddingTruncation": {
+    "affectedPassageBatches": 1467,
+    "affectedPassageInputBound": [
+      1467,
+      90316
+    ],
+    "affectedQueries": [
+      "mab-11-94",
+      "mab-16-66",
+      "mab-12-50",
+      "mab-11-85",
+      "mab-15-7",
+      "mab-16-43",
+      "mab-9-21",
+      "mab-4-52",
+      "mab-16-80",
+      "mab-5-94",
+      "mab-16-77",
+      "mab-16-59",
+      "mab-12-36",
+      "mab-15-95"
+    ]
+  },
+  "upstreamMabMetrics": {
+    "method": "Preserved upstream EM/F1/substring helpers and published family postprocessing; ROUGE excluded, not a complete official evaluator or leaderboard.",
+    "sourceSha256": "d77976be409298970614d477a9d8003850caddb0510e56a7e821a037d98493a2",
+    "overall": {
+      "exactMatch": 0.22,
+      "tokenF1": 0.35252601065199735,
+      "substringExactMatch": 0.37
+    },
+    "families": {
+      "eventqa_131072": {
+        "count": 17,
+        "exactMatch": 0.4117647058823529,
+        "tokenF1": 0.6019849146747462,
+        "substringExactMatch": 0.4117647058823529,
+        "eventqaRecall": 0.4117647058823529
+      },
+      "eventqa_65536": {
+        "count": 17,
+        "exactMatch": 0.5294117647058824,
+        "tokenF1": 0.6972185365374219,
+        "substringExactMatch": 0.5294117647058824,
+        "eventqaRecall": 0.5294117647058824
+      },
+      "eventqa_full": {
+        "count": 17,
+        "exactMatch": 0.23529411764705882,
+        "tokenF1": 0.4015882496449511,
+        "substringExactMatch": 0.23529411764705882,
+        "eventqaRecall": 0.23529411764705882
+      },
+      "longmemeval_s*": {
+        "count": 17,
+        "exactMatch": 0.058823529411764705,
+        "tokenF1": 0.1179980035278601,
+        "substringExactMatch": 0.11764705882352941
+      },
+      "ruler_qa1_197K": {
+        "count": 16,
+        "exactMatch": 0.0,
+        "tokenF1": 0.10621249257278668,
+        "substringExactMatch": 0.5625
+      },
+      "ruler_qa2_421K": {
+        "count": 16,
+        "exactMatch": 0.0625,
+        "tokenF1": 0.16461101309315596,
+        "substringExactMatch": 0.375
+      }
+    },
+    "questions": [
+      {
+        "id": "mab-0-20",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-17",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-19-22",
+        "family": "longmemeval_s*",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-3-56",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.33333333333333337,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-1-86",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-12",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.07999999999999999,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-7-2",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.4444444444444445,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-11-94",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-9-8",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5263157894736842,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-14-4",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.2608695652173913,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-4-26",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.18181818181818185,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-19-47",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-10-4",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-0-35",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.25,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-3-89",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.28571428571428575,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-7-17",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-1-62",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.2222222222222222,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-2-64",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.3,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-12-21",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.25,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-14-41",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5555555555555556,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-1-50",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.037037037037037035,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-17-37",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.14285714285714288,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-64",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.18181818181818182,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-21-40",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-7-71",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-5-25",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.19999999999999998,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-1-6",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-5-86",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-17-13",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.11235955056179775,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-16-66",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-1-36",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-8",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-13-70",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-20-39",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.024390243902439025,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-36",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.11764705882352941,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-19-34",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.17777777777777778,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-13-88",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-1-43",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-33",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-2-96",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.2608695652173913,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-7-53",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-1-56",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.04081632653061225,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-11",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.4,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-17-41",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.041666666666666664,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-11-0",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-12-50",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.23076923076923078,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-0-48",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.05882352941176471,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-11-85",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.26666666666666666,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-15-7",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-16-43",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.48000000000000004,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-19-56",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-9-21",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-9-97",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-4-52",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-18-46",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.11764705882352941,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-17-23",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-16-99",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.380952380952381,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-0-97",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-16-80",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.23076923076923078,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-9-31",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.2105263157894737,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-0-76",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.25,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-7-82",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.33333333333333326,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-18-56",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.11594202898550723,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-24",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.4615384615384615,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-21",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-48",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-5-69",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-5-94",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-1-66",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.16216216216216214,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-9-0",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-7-88",
+        "family": "eventqa_65536",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5714285714285715,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-16-77",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-4-31",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-16-59",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.3448275862068966,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-0-10",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-7-81",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-0-75",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-91",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-3-73",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.23529411764705882,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-19-0",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.09523809523809525,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-10-93",
+        "family": "eventqa_65536",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-4-16",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-1-70",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.16,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-20-0",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.14634146341463414,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-12-36",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-20-21",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0.031746031746031744,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-14-64",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-1-75",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.15,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-0-42",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.25,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-3-97",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.375,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-6-37",
+        "family": "eventqa_full",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-20-58",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-1-10",
+        "family": "ruler_qa2_421K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.4,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-2-48",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.2105263157894737,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-4-58",
+        "family": "eventqa_full",
+        "exactMatch": 0.0,
+        "tokenF1": 0.4444444444444444,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-15-95",
+        "family": "eventqa_131072",
+        "exactMatch": 1.0,
+        "tokenF1": 1.0,
+        "substringExactMatch": 1.0,
+        "eventqaRecall": 1.0
+      },
+      {
+        "id": "mab-0-15",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      },
+      {
+        "id": "mab-0-65",
+        "family": "ruler_qa1_197K",
+        "exactMatch": 0.0,
+        "tokenF1": 0.1111111111111111,
+        "substringExactMatch": 1.0
+      },
+      {
+        "id": "mab-16-1",
+        "family": "eventqa_131072",
+        "exactMatch": 0.0,
+        "tokenF1": 0.5,
+        "substringExactMatch": 0.0,
+        "eventqaRecall": 0.0
+      },
+      {
+        "id": "mab-20-34",
+        "family": "longmemeval_s*",
+        "exactMatch": 0.0,
+        "tokenF1": 0,
+        "substringExactMatch": 0.0
+      }
+    ]
+  },
+  "longmemevalAnswerableSourceCoverage": {
+    "questions": 85,
+    "meanRecallAt3": 0.9405882352941176,
+    "complete": 74
+  },
+  "latencyMs": {
+    "reader": {
+      "count": 200,
+      "median": 11513.692187500283,
+      "p95": 24881.987792000018,
+      "min": 3696.3039999998273,
+      "max": 46697.954957999624
+    },
+    "judge": {
+      "count": 200,
+      "median": 8301.8639579999,
+      "p95": 19352.938374999896,
+      "min": 2105.917082999895,
+      "max": 48052.38237499998
+    },
+    "queryEmbedding": {
+      "count": 200,
+      "median": 402.94885400000385,
+      "p95": 1162.657459000009,
+      "min": 6.355041999995592,
+      "max": 1622.6895409999997
+    },
+    "currentRecall": {
+      "count": 200,
+      "median": 6.500499500001752,
+      "p95": 18.186040999993565,
+      "min": 1.1317920000001322,
+      "max": 34.22516699999687
+    },
+    "ingestionPerCorpus": {
+      "count": 121,
+      "median": 26337.752582999998,
+      "p95": 100786.025208,
+      "min": 10728.182125,
+      "max": 207877.84075
+    }
+  },
+  "latencyMethod": "Reader/judge distributions describe the accepted completion attempt only; elapsed run time includes controls, retries and pacing. Provider-attempt distributions below include retries and the 17 initial controls.",
+  "providerAttemptLatencyMs": {
+    "reader": {
+      "count": 211,
+      "median": 11777.162791999672,
+      "p95": 24881.987792000018,
+      "min": 555.1433340001495,
+      "max": 46697.954957999624
+    },
+    "judge": {
+      "count": 220,
+      "median": 8294.57339599992,
+      "p95": 19283.477250000033,
+      "min": 422.3189159999947,
+      "max": 48052.38237499998
+    }
+  },
+  "providerAttempts": {
+    "reader": 211,
+    "judge": 220
+  },
+  "invalidProviderAttempts": [
+    {
+      "file": "mab-4-16-reader-attempt-0.json",
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "mab-7-71-reader-attempt-1.json",
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "dfde3500-reader-attempt-0.json",
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "29f2956b_abs-judge-attempt-0.json",
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "mab-19-47-reader-attempt-0.json",
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "mab-7-71-reader-attempt-0.json",
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "mab-4-26-reader-attempt-0.json",
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "09ba9854_abs-reader-attempt-0.json",
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "0e4e4c46-reader-attempt-0.json",
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "70b3e69b-judge-attempt-0.json",
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "mab-14-64-reader-attempt-0.json",
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "mab-14-64-reader-attempt-1.json",
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "38146c39-judge-attempt-0.json",
+      "status": 200,
+      "error": "ValueError"
+    },
+    {
+      "file": "mab-4-31-reader-attempt-0.json",
+      "status": 200,
+      "error": "ValueError"
+    }
+  ],
+  "reportedUsageAllAttemptsIncludingControls": {
+    "prompt_tokens": 213082,
+    "completion_tokens": 358757,
+    "total_tokens": 571839,
+    "prompt_tokens_details.cached_tokens": 0,
+    "completion_tokens_details.reasoning_tokens": 336480
+  },
+  "cost": "Currency cost unavailable from this configured endpoint; usage and failures are reported rather than inferred prices.",
+  "caveats": [
+    "Balanced qualification subset, not natural-population estimate or leaderboard.",
+    "Reader nvidia/nemotron-3.5-lightning-30b-a3b, judge nvidia/nemotron-3.5-lightning-30b-a3b; correlated judging errors remain possible.",
+    "Small all-minilm backend has explicit measured truncation; no reranker.",
+    "Public latencies are observations on a shared local machine and hosted service, not a paired performance claim.",
+    "Identical baseline/current prompts share a model response; no independent answer-accuracy improvement claim."
+  ]
+}

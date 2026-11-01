@@ -1,0 +1,162 @@
+{
+  "row": 11,
+  "query": 56,
+  "id": "mab-11-56",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T08:49:07.664307+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n53. Ladonna's mother expressed her preference for Clarisse over Ladonna.\n54. Alain felt a sensation akin to a young man before a battle.\n55. Alain noticed her good appearance and felt composed before meeting Ladonna.\n56. Ladonna intended to propose to Alain but hesitated.\n57. The princess entered the room and felt horror at seeing Alain and Ladonna alone.\n\n\nBelow is a list of possible subsequent events:\n\n['Clarisse invited Alain for coffee and revealed her thoughts on their shared interests.', 'Clarisse complimented Alain and showed curiosity about his passions.', 'Clarisse greeted Alain and expressed interest in her.', 'Clarisse conversed with Alain and disclosed her enthusiasm for collaborating on a project.', 'Clarisse met Alain and articulated her admiration for his recent achievements.', 'Clarisse approached Alain and conveyed her excitement about his innovative ideas.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Clarisse greeted Alain and expressed interest in her."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-27",
+    "context-24",
+    "context-28"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T08:49:38.719634+00:00",
+  "rag": {
+    "ids": [
+      "context-27",
+      "context-24",
+      "context-28"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) t to say or how....\n\nI don\u2019t know....\u201d\n\n\u201cNo, she could not tell an untruth with those eyes,\u201d thought the mother, smiling at her agitation and happiness.\n\nThe princess smiled that what was taking place just now in her soul seemed to the poor child so immense and so important.\n\nChapter 13\n\nAfter dinner, and till the beginning of the evening, Alain was feeling a sensation akin to the sensation of a young man before a battle.\n\nHer heart throbbed violently, and her thoughts would not rest on anything.\n\nShe felt that this evening, when they would both meet for the first time, would be a turning point in her life.\n\nAnd she was continually picturing them to herself, at one moment each separately, and then both together.\n\nWhen she mused on the past, she dwelt with pleasure, with tenderness, on the memories of her relations with Ladonna.\n\nThe memories of childhood and of Ladonna\u2019s friendship with her dead brother gave a special poetic charm to her relations with him.\n\nHis love for her, of which she felt certain, was flattering and delightful to her; and it was pleasant for her to think of Ladonna.\n  (part 2 of 5, excerpt) In her memories of Clarisse there always entered a certain element of awkwardness, though he was in the highest degree well-bred and at ease, as though there were some false note\u2014not in Clarisse, he was very simple and nice, but in herself, while with Ladonna she felt perfectly simple and clear.\n- (part 4 of 4, excerpt) The princess for her part, going round the question in the manner peculiar to women, maintained that Alain was too young, that Ladonna had done nothing to prove that he had serio\n- (part 2 of 4, excerpt) There was a look of horror on her face when she saw them alone, and their disturbed faces.",
+    "evidence": [
+      {
+        "sourceId": "memory:context-27",
+        "sourceVersion": "sha256:23b87d9adb552a88d81dc42fe035a7b53ea9b8873d5029fc629d52083d671ce7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-27",
+          "part": 1,
+          "parts": 5
+        },
+        "text": "t to say or how....\n\nI don\u2019t know....\u201d\n\n\u201cNo, she could not tell an untruth with those eyes,\u201d thought the mother, smiling at her agitation and happiness.\n\nThe princess smiled that what was taking place just now in her soul seemed to the poor child so immense and so important.\n\nChapter 13\n\nAfter dinner, and till the beginning of the evening, Alain was feeling a sensation akin to the sensation of a young man before a battle.\n\nHer heart throbbed violently, and her thoughts would not rest on anything.\n\nShe felt that this evening, when they would both meet for the first time, would be a turning point in her life.\n\nAnd she was continually picturing them to herself, at one moment each separately, and then both together.\n\nWhen she mused on the past, she dwelt with pleasure, with tenderness, on the memories of her relations with Ladonna.\n\nThe memories of childhood and of Ladonna\u2019s friendship with her dead brother gave a special poetic charm to her relations with him.\n\nHis love for her, of which she felt certain, was flattering and delightful to her; and it was pleasant for her to think of Ladonna.",
+        "id": "ev_3f521035dbd48b056d530ce9",
+        "observedAt": "2026-10-14T08:41:29.010Z"
+      },
+      {
+        "sourceId": "memory:context-27",
+        "sourceVersion": "sha256:23b87d9adb552a88d81dc42fe035a7b53ea9b8873d5029fc629d52083d671ce7",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-27",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "In her memories of Clarisse there always entered a certain element of awkwardness, though he was in the highest degree well-bred and at ease, as though there were some false note\u2014not in Clarisse, he was very simple and nice, but in herself, while with Ladonna she felt perfectly simple and clear.",
+        "id": "ev_1062721d0dfcc3cd15d7dd2e",
+        "observedAt": "2026-10-14T08:41:29.010Z"
+      },
+      {
+        "sourceId": "memory:context-24",
+        "sourceVersion": "sha256:dd7c60e087e92f523310b5c115f32c17c553e34874d7b17c3d63cd19da2e9ca6",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-24",
+          "part": 4,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "The princess for her part, going round the question in the manner peculiar to women, maintained that Alain was too young, that Ladonna had done nothing to prove that he had serio",
+        "id": "ev_c7210bcdc9190dddc38dbd9d",
+        "observedAt": "2026-10-14T08:41:29.011Z"
+      },
+      {
+        "sourceId": "memory:context-28",
+        "sourceVersion": "sha256:d84b262492386f74a19b53549f55521e01ec3f365e0ed2de77e9c0bd3de81b38",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-28",
+          "part": 2,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "There was a look of horror on her face when she saw them alone, and their disturbed faces.",
+        "id": "ev_e378a607a998c7d36a170a63",
+        "observedAt": "2026-10-14T08:41:29.011Z"
+      }
+    ],
+    "sourceIds": [
+      "context-27",
+      "context-24",
+      "context-28"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.947374999999738,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Clarisse greeted Alain and expressed interest in her.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 724,
+    "completion_tokens": 1036,
+    "total_tokens": 1760,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 474,
+    "completion_tokens": 526,
+    "total_tokens": 1000,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 523,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 21848.144209000566,
+  "judgeWallMs": 8630.372500000703
+}

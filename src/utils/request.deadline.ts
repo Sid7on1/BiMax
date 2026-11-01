@@ -45,13 +45,19 @@ export async function withRequestDeadline<T>(
   };
   try {
     // Defer invocation so a synchronous exception follows the same cleanup path.
-    return await Promise.race([
+    const result = await Promise.race([
       Promise.resolve().then(() => {
         remainingMs();
         return operation(controller.signal, remainingMs);
       }),
       aborted,
     ]);
+    // A stalled event loop may settle the operation before its overdue timer callback.
+    remainingMs();
+    return result;
+  } catch (error) {
+    remainingMs();
+    throw error;
   } finally {
     clearTimeout(timer);
     parent?.removeEventListener('abort', stop);

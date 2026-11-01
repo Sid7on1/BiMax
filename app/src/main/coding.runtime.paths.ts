@@ -47,7 +47,7 @@ export function buildEngineChildEnv(input: {
     BGW_FIRST_CHUNK_TIMEOUT_MS: '45000',
     ...(input.compileCacheDir ? { NODE_COMPILE_CACHE: input.compileCacheDir } : {}),
   };
-  // Computer Use is retired: neither saved preferences nor injected launch flags may restore it.
+  // Legacy Computer Use is retired: neither saved preferences nor injected launch flags may restore it.
   for (const variable of [
     'BIMAX_COMPUTER_LOOK',
     'BIMAX_COMPUTER_USE',
@@ -73,6 +73,8 @@ export function buildEngineChildEnv(input: {
     'BGW_VISION_MODEL',
     'BIMAX_FALLBACK_MODEL',
   ]) delete env[variable];
+  // Only the Mac app's explicit child environment can supply native capabilities. Never inherit them from a shell.
+  // CU authority is transferred as a MessagePort, never reconstructed from an environment descriptor.
   // One task may answer with a different model than Bimax's saved slots (the ⌘2 model menu, "Retry with…", talk mode).
   // It arrives as BIMAX_THREAD_MODEL and becomes the engine's volatile overrides, applied after the clearing above and
   // never written back to the user's configuration.

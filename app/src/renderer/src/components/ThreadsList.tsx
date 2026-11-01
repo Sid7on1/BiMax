@@ -5,6 +5,7 @@ import {
 import { isQuickThread, threadActivity, type ThreadList, type ThreadSummary } from '../../../shared/threads';
 import { visibleThreads } from '../threads.list.model';
 import { cn } from '../lib/cn';
+import { ThreadRecoveryList } from './ThreadRecoveryList';
 import { SeedMenu, SeedMenuItem, SeedMenuLabel, SeedMenuSeparator } from './ui/morph/SeedMenu';
 
 /** What a thread action answers: a refusal says why; a cancelled confirmation says nothing. */
@@ -48,7 +49,7 @@ export function ThreadsList(): React.ReactElement {
   const quick = data.threads.filter(isQuickThread);
   // Search runs in the main process, over each thread's name, folder and conversation (backlog N11).
   useEffect(() => {
-    if (!query.trim()) { setMatches(null); return; }
+    if (!query.trim()) { setMatches(null); return undefined; }
     let live = true;
     const timer = setTimeout(() => {
       void window.bimax.threads.search(query).then((ids: string[]) => { if (live) setMatches(new Set(ids)); });
@@ -57,7 +58,7 @@ export function ThreadsList(): React.ReactElement {
   },[query, quick.length]);
   const archivedCount = data.archivedCount ?? 0;
   useEffect(() => {
-    if (!showArchived) return;
+    if (!showArchived) return undefined;
     let live = true;
     void window.bimax.threads.archived().then((list: ThreadSummary[]) => { if (live) setArchived(list); });
     return () => { live = false; };
@@ -91,6 +92,8 @@ export function ThreadsList(): React.ReactElement {
     if (title && title !== data.threads.find(t => t.id === current.id)?.title) void action(() => window.bimax.threads.rename(current.id, title));
   }
   return <div className="space-y-px pb-1">
+    {data.savingError && <p role="alert" className="px-2.5 py-2 text-[12px] text-rust">Conversation changes are not saved. {data.savingError}</p>}
+    <ThreadRecoveryList entries={data.recovery ?? []} exportCopy={(id, archived, backup) => window.bimax.threads.exportRecovery(id, archived, backup)} />
     {(quick.length > 5 || archivedCount > 0) && <label className="mx-1 mb-1 flex items-center gap-1.5 rounded-md bg-hover px-2 py-1 text-[11px] text-dim">
       <Search size={11} className="shrink-0" aria-hidden/>
       <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search threads" aria-label="Search threads" className="min-w-0 flex-1 bg-transparent text-ink outline-none"/>

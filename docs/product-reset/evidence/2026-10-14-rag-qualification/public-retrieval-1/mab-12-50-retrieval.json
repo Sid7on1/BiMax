@@ -1,0 +1,233 @@
+{
+  "row": 12,
+  "query": 50,
+  "id": "mab-12-50",
+  "stratum": "eventqa_131072",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:45:33.815266+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n47. Edgar defended Debbie against Honey's accusations.\n48. Debbie expressed her hopes of returning in a fine carriage with pretty clothes and a house of her own.\n49. Debbie rejected the idea of a double wedding, expressing her desire for her own wedding.\n50. Debbie reflected on her wedding feeling it was unreal and like a nightmare.\n51. Debbie reflected on her feelings for Kali during Edgar's wedding.\n\n\nBelow is a list of possible subsequent events:\n\n['Debbie felt boredom and despair due to the absence of young men in the County.', 'Debbie suffered from restlessness and unease caused by the scarcity of recreational activities in the area.', 'Debbie faced irritation and discontent due to the limited opportunities for socializing in her neighborhood.', 'Debbie grappled with monotony and disillusionment over the few cultural events happening in the city.', 'Debbie encountered loneliness and angst stemming from the dwindling number of local artists in the community.', 'Debbie experienced frustration and disappointment because of the lack of nightlife in the town.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie felt boredom and despair due to the absence of young men in the County."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 499.2178750000021,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1302,
+        "maxInputChars": 1302,
+        "requiredProviderTruncation": true,
+        "promptTokens": 256,
+        "truncationAffectedInputsBound": [
+          1,
+          1
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-70",
+        "context-109",
+        "context-89"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) flew and they were gone, leaving her alone again.\n\nThe white house reared its tall columns before her, seeming to withdraw with dignified aloofness from her.\n\nIt would never be her house now.\n\nKali would never carry her over the threshold as his bride.\n\nOh, Kali, Kali!\n\nWhat have I done?\n\nDeep in her, under layers of hurt pride and cold practicality, something stirred hurtingly.\n  (part 4 of 5) but, to her dismay, motherhood soon followed.\n\nIn after years when she thought of those last days of April, 1861, Debbie could never quite remember details.\n\nTime and events were telescoped, jumbled together like a nightmare that had no reality or reason.\n\nTill the day she died there would be blank spots in her memories of those days.\n\nEspecially vague were her recollections of the time between her acceptance of Kamala and her wedding.\n\nTwo weeks!\n\nSo short an engagement would have been impossible in times of peace.\n\nThen there would have been a decorous interval of a year or at least six months.\n\nBut the South was aflame with war, events roared along as swiftly as if carried by a mighty wind and the slow tempo of the old days was gone.\n\nLucian had wrung her hands and coun\ufffeseled delay, in order that Debbie might think the matter over at greater length.\n\nBut to her pleadings, Debbie turned a sullen face and a deaf ear.\n\nMarry she would!\n\nand quickly too.\n\nWithin two weeks.\n- (part 4 of 5, excerpt) Marianne was ominously silent although he kissed Debbie and pinched Edgar\u2019s cheek approvingly and called her \u201cCousin Melly.\u201d Debbie would have infinitely preferred bellowing oaths and accusations.\n- (part 2 of 5, excerpt) How could Edgar be content to stay at home and never have any fun and wear cr\u00eape for her brother when she was only eighteen years old?",
+      "evidence": [
+        {
+          "sourceId": "memory:context-70",
+          "sourceVersion": "sha256:281ebfa60f62032cb9a4a2269a08bfa532a492d1305bc8f56c4ddd71eb2d41a0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-70",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "flew and they were gone, leaving her alone again.\n\nThe white house reared its tall columns before her, seeming to withdraw with dignified aloofness from her.\n\nIt would never be her house now.\n\nKali would never carry her over the threshold as his bride.\n\nOh, Kali, Kali!\n\nWhat have I done?\n\nDeep in her, under layers of hurt pride and cold practicality, something stirred hurtingly.",
+          "id": "ev_c9c00df1061237f76ed51632",
+          "observedAt": "2026-10-14T04:45:34.318Z"
+        },
+        {
+          "sourceId": "memory:context-70",
+          "sourceVersion": "sha256:281ebfa60f62032cb9a4a2269a08bfa532a492d1305bc8f56c4ddd71eb2d41a0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-70",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "but, to her dismay, motherhood soon followed.\n\nIn after years when she thought of those last days of April, 1861, Debbie could never quite remember details.\n\nTime and events were telescoped, jumbled together like a nightmare that had no reality or reason.\n\nTill the day she died there would be blank spots in her memories of those days.\n\nEspecially vague were her recollections of the time between her acceptance of Kamala and her wedding.\n\nTwo weeks!\n\nSo short an engagement would have been impossible in times of peace.\n\nThen there would have been a decorous interval of a year or at least six months.\n\nBut the South was aflame with war, events roared along as swiftly as if carried by a mighty wind and the slow tempo of the old days was gone.\n\nLucian had wrung her hands and coun\ufffeseled delay, in order that Debbie might think the matter over at greater length.\n\nBut to her pleadings, Debbie turned a sullen face and a deaf ear.\n\nMarry she would!\n\nand quickly too.\n\nWithin two weeks.",
+          "id": "ev_e2f0c403d662e8d12f6f9403",
+          "observedAt": "2026-10-14T04:45:34.318Z"
+        },
+        {
+          "sourceId": "memory:context-109",
+          "sourceVersion": "sha256:d305b523c01c75a6e197a9f92851d0dadf6bd7609b60ce86d86829116ec099bc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-109",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Marianne was ominously silent although he kissed Debbie and pinched Edgar\u2019s cheek approvingly and called her \u201cCousin Melly.\u201d Debbie would have infinitely preferred bellowing oaths and accusations.",
+          "id": "ev_b6fdd4a5135e928eb4b946fa",
+          "observedAt": "2026-10-14T04:45:34.319Z"
+        },
+        {
+          "sourceId": "memory:context-89",
+          "sourceVersion": "sha256:f0a9e84ba48c6081629c747647f7876bec66f75f095cacbd5abb93fe2c880ddd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-89",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "How could Edgar be content to stay at home and never have any fun and wear cr\u00eape for her brother when she was only eighteen years old?",
+          "id": "ev_91fe4f9fbd47433cc7375e79",
+          "observedAt": "2026-10-14T04:45:34.319Z"
+        }
+      ],
+      "sourceIds": [
+        "context-70",
+        "context-109",
+        "context-89"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.533708000002662,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-70",
+        "context-109",
+        "context-89"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 3 of 5, excerpt) flew and they were gone, leaving her alone again.\n\nThe white house reared its tall columns before her, seeming to withdraw with dignified aloofness from her.\n\nIt would never be her house now.\n\nKali would never carry her over the threshold as his bride.\n\nOh, Kali, Kali!\n\nWhat have I done?\n\nDeep in her, under layers of hurt pride and cold practicality, something stirred hurtingly.\n  (part 4 of 5) but, to her dismay, motherhood soon followed.\n\nIn after years when she thought of those last days of April, 1861, Debbie could never quite remember details.\n\nTime and events were telescoped, jumbled together like a nightmare that had no reality or reason.\n\nTill the day she died there would be blank spots in her memories of those days.\n\nEspecially vague were her recollections of the time between her acceptance of Kamala and her wedding.\n\nTwo weeks!\n\nSo short an engagement would have been impossible in times of peace.\n\nThen there would have been a decorous interval of a year or at least six months.\n\nBut the South was aflame with war, events roared along as swiftly as if carried by a mighty wind and the slow tempo of the old days was gone.\n\nLucian had wrung her hands and coun\ufffeseled delay, in order that Debbie might think the matter over at greater length.\n\nBut to her pleadings, Debbie turned a sullen face and a deaf ear.\n\nMarry she would!\n\nand quickly too.\n\nWithin two weeks.\n- (part 4 of 5, excerpt) Marianne was ominously silent although he kissed Debbie and pinched Edgar\u2019s cheek approvingly and called her \u201cCousin Melly.\u201d Debbie would have infinitely preferred bellowing oaths and accusations.\n- (part 2 of 5, excerpt) How could Edgar be content to stay at home and never have any fun and wear cr\u00eape for her brother when she was only eighteen years old?",
+      "evidence": [
+        {
+          "sourceId": "memory:context-70",
+          "sourceVersion": "sha256:281ebfa60f62032cb9a4a2269a08bfa532a492d1305bc8f56c4ddd71eb2d41a0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-70",
+            "part": 3,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "flew and they were gone, leaving her alone again.\n\nThe white house reared its tall columns before her, seeming to withdraw with dignified aloofness from her.\n\nIt would never be her house now.\n\nKali would never carry her over the threshold as his bride.\n\nOh, Kali, Kali!\n\nWhat have I done?\n\nDeep in her, under layers of hurt pride and cold practicality, something stirred hurtingly.",
+          "id": "ev_c9c00df1061237f76ed51632",
+          "observedAt": "2026-10-14T04:45:34.324Z"
+        },
+        {
+          "sourceId": "memory:context-70",
+          "sourceVersion": "sha256:281ebfa60f62032cb9a4a2269a08bfa532a492d1305bc8f56c4ddd71eb2d41a0",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-70",
+            "part": 4,
+            "parts": 5
+          },
+          "text": "but, to her dismay, motherhood soon followed.\n\nIn after years when she thought of those last days of April, 1861, Debbie could never quite remember details.\n\nTime and events were telescoped, jumbled together like a nightmare that had no reality or reason.\n\nTill the day she died there would be blank spots in her memories of those days.\n\nEspecially vague were her recollections of the time between her acceptance of Kamala and her wedding.\n\nTwo weeks!\n\nSo short an engagement would have been impossible in times of peace.\n\nThen there would have been a decorous interval of a year or at least six months.\n\nBut the South was aflame with war, events roared along as swiftly as if carried by a mighty wind and the slow tempo of the old days was gone.\n\nLucian had wrung her hands and coun\ufffeseled delay, in order that Debbie might think the matter over at greater length.\n\nBut to her pleadings, Debbie turned a sullen face and a deaf ear.\n\nMarry she would!\n\nand quickly too.\n\nWithin two weeks.",
+          "id": "ev_e2f0c403d662e8d12f6f9403",
+          "observedAt": "2026-10-14T04:45:34.324Z"
+        },
+        {
+          "sourceId": "memory:context-109",
+          "sourceVersion": "sha256:d305b523c01c75a6e197a9f92851d0dadf6bd7609b60ce86d86829116ec099bc",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-109",
+            "part": 4,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Marianne was ominously silent although he kissed Debbie and pinched Edgar\u2019s cheek approvingly and called her \u201cCousin Melly.\u201d Debbie would have infinitely preferred bellowing oaths and accusations.",
+          "id": "ev_b6fdd4a5135e928eb4b946fa",
+          "observedAt": "2026-10-14T04:45:34.325Z"
+        },
+        {
+          "sourceId": "memory:context-89",
+          "sourceVersion": "sha256:f0a9e84ba48c6081629c747647f7876bec66f75f095cacbd5abb93fe2c880ddd",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-89",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "How could Edgar be content to stay at home and never have any fun and wear cr\u00eape for her brother when she was only eighteen years old?",
+          "id": "ev_91fe4f9fbd47433cc7375e79",
+          "observedAt": "2026-10-14T04:45:34.325Z"
+        }
+      ],
+      "sourceIds": [
+        "context-70",
+        "context-109",
+        "context-89"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 5.807499999998981,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:45:34.326689+00:00"
+}

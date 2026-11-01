@@ -1,0 +1,39 @@
+{
+  "outcome": "failed",
+  "reason": "advertised flat pid conflicted with native nested argument executor; zero input",
+  "fixtureAfter": {
+    "saves": 0,
+    "text": ""
+  },
+  "threadId": "5d37bcaf-6655-4ce6-8449-3b66b60422be",
+  "model": "gpt-oss-20b",
+  "calls": [
+    {
+      "id": "chatcmpl-tool-ba60a836e10cc8ff",
+      "toolName": "BimaxCuTool",
+      "input": "{\"operation\":\"apps\"}",
+      "output": "{\n  \"apps\": [\n    {\n      \"pid\": 644,\n      \"name\": \"Finder\",\n      \"bundle_id\": \"com.apple.finder\",\n      \"frontmost\": false,\n      \"hidden\": false\n    },\n    {\n      \"pid\": 876,\n      \"name\": \"Aside\",\n      \"bundle_id\": \"at.studio.AsideBrowser\",\n      \"frontmost\": false,\n      \"hidden\": false\n    },\n    {\n      \"pid\": 1216,\n      \"name\": \"ChatGPT\",\n      \"bundle_id\": \"com.openai.codex\",\n      \"frontmost\": false,\n      \"hidden\": false\n    },\n    {\n      \"pid\": 2736,\n      \"name\": \"Muse\",\n      \"bundle_id\": \"com.meta.endo\",\n      \"frontmost\": false,\n      \"hidden\": false\n    },\n    {\n      \"pid\": 98681,\n      \"name\": \"Terminal\",\n      \"bundle_id\": \"com.apple.Terminal\",\n      \"frontmost\": false,\n      \"hidden\": false\n    },\n    {\n      \"pid\": 2092,\n      \"name\": \"Bimax\",\n      \"bundle_id\": \"ai.bimax.app\",\n      \"frontmost\": true,\n      \"hidden\": false\n    },\n    {\n      \"pid\": 2980,\n      \"name\": \"Arc Fixture\",\n      \"bundle_id\": \"org.arc.proof.fixture\",\n      \"frontmost\": false,\n      \"hidden\": false\n    }\n  ]\n}",
+      "status": "success",
+      "startTime": "2026-10-07T07:40:55.118Z",
+      "endTime": "2026-10-07T07:40:55.500Z"
+    },
+    {
+      "id": "chatcmpl-tool-a4f88d26328a0ceb",
+      "toolName": "BimaxCuTool",
+      "input": "{\"operation\":\"windows\",\"pid\":2980}",
+      "output": "Tool Error: arguments.pid is unknown",
+      "status": "error",
+      "startTime": "2026-10-07T07:40:58.539Z",
+      "endTime": "2026-10-07T07:40:58.543Z"
+    },
+    {
+      "id": "chatcmpl-tool-aac152c9eb06ccca",
+      "toolName": "BimaxCuTool",
+      "input": "{\"operation\":\"windows\"}",
+      "output": "{\n  \"ok\": false,\n  \"blocked\": true,\n  \"executor\": \"stop\",\n  \"code\": \"native_operation_stopped\",\n  \"driver\": \"Bimax CU\",\n  \"operation\": \"windows\",\n  \"reason\": \"arguments.pid is required\",\n  \"replay\": false\n}",
+      "status": "error",
+      "startTime": "2026-10-07T07:41:04.571Z",
+      "endTime": "2026-10-07T07:41:04.573Z"
+    }
+  ]
+}

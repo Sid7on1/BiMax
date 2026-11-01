@@ -43,6 +43,7 @@ export async function fileVersion(file: string, signal?: AbortSignal): Promise<s
   try {
     return versionOfBytes(await readEvidenceFile(file, signal, MAX_VERSION_READ_BYTES));
   } catch {
+    signal?.throwIfAborted();
     return null;
   }
 }
@@ -228,7 +229,9 @@ export class ContextEvidence {
     }
     const marked: string[] = [];
     for (const sourceId of files) {
-      marked.push(...this.sourceChanged(sourceId, await fileVersion(sourceId.slice('file:'.length), signal)));
+      const version = await fileVersion(sourceId.slice('file:'.length), signal);
+      signal?.throwIfAborted();
+      marked.push(...this.sourceChanged(sourceId, version));
     }
     return marked;
   }

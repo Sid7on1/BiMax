@@ -1,0 +1,233 @@
+{
+  "row": 2,
+  "query": 48,
+  "id": "mab-2-48",
+  "stratum": "eventqa_full",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T04:54:06.099557+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n45. Debbie stated that most of the cotton was ruined and only three bales were left.\n46. Debbie sent Danielle back to the house after observing her fatigue.\n47. Debbie fought against the flames in the kitchen.\n48. Barrett mentioned that some houses were still standing in Atlanta.\n49. Barrett expressed his condolences to Debbie about her mother.\n\n\nBelow is a list of possible subsequent events:\n\n['Alex met with Tony at the Parker homestead and reviewed planting strategies for next season.', 'Debbie accompanied Alex to the Martinez estate and evaluated crop yield issues.', 'Debbie joined Tony at the Greene residence to analyze livestock health concerns.', 'Tony invited Alex over for a barbecue where they deliberated on irrigation challenges.', 'Debbie visited the Fontaine family and discussed farm problems.', 'Debbie and Alex stopped by the Rivera farm to address harvest timing dilemmas.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie visited the Fontaine family and discussed farm problems."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 706.1644170000072,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 1124,
+        "maxInputChars": 1124,
+        "requiredProviderTruncation": false,
+        "promptTokens": 228,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-247",
+        "context-277",
+        "context-529"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) her rosary beads were always in her hands and her lips moving in prayers for her mother and for Brent Tarleton.\n\nIt did not occur to Debbie that Danielle had taken Brent\u2019s death so seriously and that her grief was unhealed.\n\nTo Debbie, Danielle was still \u201cbaby sister,\u201d far too young to have had a really serious love affair.\n\nDebbie, standing in the sun in the cotton rows, her back breaking from the eternal bending and her hands roughened by the dry bolls, wished she had a sister who combined Hugo\u2019s energy and strength with Danielle\u2019s sweet disposition.\n\nFor Danielle picked diligently and earnestly.\n\nBut, after she had labored for an hour it was obvious that she, and not Hugo, was the one not yet well enough for such work.\n\nSo Debbie sent Danielle back to the house too.\n\nThere remained with her now in the long rows only Dilcey and Israel.\n\nIsrael picked lazily, spasmodically, complaining of her feet, her back, her internal miseries, her complete weariness, until her mother took a cotton stalk to her and whipped her until she screamed.\n\nAfter that she worked a little better, taking care to stay far from her mother\u2019s reach.\n  (part 4 of 4, excerpt) There was a chill in the air, the first chill of the year, and Jasmin, standing behind Debbie\u2019s chair, rubbed his hands together in glee and questioned: \u201cAin\u2019 it \u2018bout time fer de hawg killin\u2019, Miss Debbie?\u201d \u201cYou can taste those chitlins already,\n- (part 1 of 5, excerpt) She told him about her problems of weeding and hoeing and planting, of fattening the hogs and breeding the cow, and he gave good advice for he had owned a small farm in south Georgia and two neg\n- (part 2 of 5, excerpt) Now, plantation after plantation was going back to the forest and dismal fields of broomsedge, scrub oak and runty pines had",
+      "evidence": [
+        {
+          "sourceId": "memory:context-247",
+          "sourceVersion": "sha256:0aafb0ee7bf5887ad07db11c517284840f4c89274170c616156142dba708d3ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-247",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "her rosary beads were always in her hands and her lips moving in prayers for her mother and for Brent Tarleton.\n\nIt did not occur to Debbie that Danielle had taken Brent\u2019s death so seriously and that her grief was unhealed.\n\nTo Debbie, Danielle was still \u201cbaby sister,\u201d far too young to have had a really serious love affair.\n\nDebbie, standing in the sun in the cotton rows, her back breaking from the eternal bending and her hands roughened by the dry bolls, wished she had a sister who combined Hugo\u2019s energy and strength with Danielle\u2019s sweet disposition.\n\nFor Danielle picked diligently and earnestly.\n\nBut, after she had labored for an hour it was obvious that she, and not Hugo, was the one not yet well enough for such work.\n\nSo Debbie sent Danielle back to the house too.\n\nThere remained with her now in the long rows only Dilcey and Israel.\n\nIsrael picked lazily, spasmodically, complaining of her feet, her back, her internal miseries, her complete weariness, until her mother took a cotton stalk to her and whipped her until she screamed.\n\nAfter that she worked a little better, taking care to stay far from her mother\u2019s reach.",
+          "id": "ev_1e6113338f7e2b49073cb09e",
+          "observedAt": "2026-10-14T04:54:06.826Z"
+        },
+        {
+          "sourceId": "memory:context-247",
+          "sourceVersion": "sha256:0aafb0ee7bf5887ad07db11c517284840f4c89274170c616156142dba708d3ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-247",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "There was a chill in the air, the first chill of the year, and Jasmin, standing behind Debbie\u2019s chair, rubbed his hands together in glee and questioned: \u201cAin\u2019 it \u2018bout time fer de hawg killin\u2019, Miss Debbie?\u201d \u201cYou can taste those chitlins already,",
+          "id": "ev_4b4200aa968db3dcfd46627d",
+          "observedAt": "2026-10-14T04:54:06.826Z"
+        },
+        {
+          "sourceId": "memory:context-277",
+          "sourceVersion": "sha256:8be6df68347d573decf5290931bd3551e2d9ef23ae8e29bbfccf4fd0216db8e2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-277",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "She told him about her problems of weeding and hoeing and planting, of fattening the hogs and breeding the cow, and he gave good advice for he had owned a small farm in south Georgia and two neg",
+          "id": "ev_c4750a8d4c2669d8313cf31e",
+          "observedAt": "2026-10-14T04:54:06.827Z"
+        },
+        {
+          "sourceId": "memory:context-529",
+          "sourceVersion": "sha256:6d30e5c90452abb04867f48de8c20e379f1e07c73cbfe01d0f097282ce379a4d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-529",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Now, plantation after plantation was going back to the forest and dismal fields of broomsedge, scrub oak and runty pines had",
+          "id": "ev_05fa671d7fcca48221a79153",
+          "observedAt": "2026-10-14T04:54:06.827Z"
+        }
+      ],
+      "sourceIds": [
+        "context-247",
+        "context-277",
+        "context-529"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 22.431165999994846,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-247",
+        "context-277",
+        "context-529"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) her rosary beads were always in her hands and her lips moving in prayers for her mother and for Brent Tarleton.\n\nIt did not occur to Debbie that Danielle had taken Brent\u2019s death so seriously and that her grief was unhealed.\n\nTo Debbie, Danielle was still \u201cbaby sister,\u201d far too young to have had a really serious love affair.\n\nDebbie, standing in the sun in the cotton rows, her back breaking from the eternal bending and her hands roughened by the dry bolls, wished she had a sister who combined Hugo\u2019s energy and strength with Danielle\u2019s sweet disposition.\n\nFor Danielle picked diligently and earnestly.\n\nBut, after she had labored for an hour it was obvious that she, and not Hugo, was the one not yet well enough for such work.\n\nSo Debbie sent Danielle back to the house too.\n\nThere remained with her now in the long rows only Dilcey and Israel.\n\nIsrael picked lazily, spasmodically, complaining of her feet, her back, her internal miseries, her complete weariness, until her mother took a cotton stalk to her and whipped her until she screamed.\n\nAfter that she worked a little better, taking care to stay far from her mother\u2019s reach.\n  (part 4 of 4, excerpt) There was a chill in the air, the first chill of the year, and Jasmin, standing behind Debbie\u2019s chair, rubbed his hands together in glee and questioned: \u201cAin\u2019 it \u2018bout time fer de hawg killin\u2019, Miss Debbie?\u201d \u201cYou can taste those chitlins already,\n- (part 1 of 5, excerpt) She told him about her problems of weeding and hoeing and planting, of fattening the hogs and breeding the cow, and he gave good advice for he had owned a small farm in south Georgia and two neg\n- (part 2 of 5, excerpt) Now, plantation after plantation was going back to the forest and dismal fields of broomsedge, scrub oak and runty pines had",
+      "evidence": [
+        {
+          "sourceId": "memory:context-247",
+          "sourceVersion": "sha256:0aafb0ee7bf5887ad07db11c517284840f4c89274170c616156142dba708d3ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-247",
+            "part": 1,
+            "parts": 4
+          },
+          "text": "her rosary beads were always in her hands and her lips moving in prayers for her mother and for Brent Tarleton.\n\nIt did not occur to Debbie that Danielle had taken Brent\u2019s death so seriously and that her grief was unhealed.\n\nTo Debbie, Danielle was still \u201cbaby sister,\u201d far too young to have had a really serious love affair.\n\nDebbie, standing in the sun in the cotton rows, her back breaking from the eternal bending and her hands roughened by the dry bolls, wished she had a sister who combined Hugo\u2019s energy and strength with Danielle\u2019s sweet disposition.\n\nFor Danielle picked diligently and earnestly.\n\nBut, after she had labored for an hour it was obvious that she, and not Hugo, was the one not yet well enough for such work.\n\nSo Debbie sent Danielle back to the house too.\n\nThere remained with her now in the long rows only Dilcey and Israel.\n\nIsrael picked lazily, spasmodically, complaining of her feet, her back, her internal miseries, her complete weariness, until her mother took a cotton stalk to her and whipped her until she screamed.\n\nAfter that she worked a little better, taking care to stay far from her mother\u2019s reach.",
+          "id": "ev_1e6113338f7e2b49073cb09e",
+          "observedAt": "2026-10-14T04:54:06.836Z"
+        },
+        {
+          "sourceId": "memory:context-247",
+          "sourceVersion": "sha256:0aafb0ee7bf5887ad07db11c517284840f4c89274170c616156142dba708d3ee",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-247",
+            "part": 4,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "There was a chill in the air, the first chill of the year, and Jasmin, standing behind Debbie\u2019s chair, rubbed his hands together in glee and questioned: \u201cAin\u2019 it \u2018bout time fer de hawg killin\u2019, Miss Debbie?\u201d \u201cYou can taste those chitlins already,",
+          "id": "ev_4b4200aa968db3dcfd46627d",
+          "observedAt": "2026-10-14T04:54:06.836Z"
+        },
+        {
+          "sourceId": "memory:context-277",
+          "sourceVersion": "sha256:8be6df68347d573decf5290931bd3551e2d9ef23ae8e29bbfccf4fd0216db8e2",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-277",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "She told him about her problems of weeding and hoeing and planting, of fattening the hogs and breeding the cow, and he gave good advice for he had owned a small farm in south Georgia and two neg",
+          "id": "ev_c4750a8d4c2669d8313cf31e",
+          "observedAt": "2026-10-14T04:54:06.837Z"
+        },
+        {
+          "sourceId": "memory:context-529",
+          "sourceVersion": "sha256:6d30e5c90452abb04867f48de8c20e379f1e07c73cbfe01d0f097282ce379a4d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-529",
+            "part": 2,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Now, plantation after plantation was going back to the forest and dismal fields of broomsedge, scrub oak and runty pines had",
+          "id": "ev_05fa671d7fcca48221a79153",
+          "observedAt": "2026-10-14T04:54:06.838Z"
+        }
+      ],
+      "sourceIds": [
+        "context-247",
+        "context-277",
+        "context-529"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 10.167416999989655,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T04:54:06.839258+00:00"
+}

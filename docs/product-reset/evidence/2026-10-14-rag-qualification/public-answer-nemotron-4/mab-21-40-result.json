@@ -1,0 +1,273 @@
+{
+  "row": 21,
+  "query": 40,
+  "id": "mab-21-40",
+  "stratum": "longmemeval_s*",
+  "dataset": "memoryagentbench",
+  "question": "Current Date: 2023/07/01 (Sat) 06:58,\n\n Now Answer the Question: I mentioned participating in a sports event two weeks ago. What was the event?",
+  "references": [
+    "The company's annual charity soccer tournament."
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2023/07/01 (Sat) 06:58",
+  "rag": {
+    "same": true,
+    "queryEmbeddingMs": 141.63524999999936,
+    "queryEmbeddingObservations": [
+      {
+        "role": "query",
+        "inputs": 1,
+        "inputChars": 143,
+        "maxInputChars": 143,
+        "requiredProviderTruncation": false,
+        "promptTokens": 39,
+        "truncationAffectedInputsBound": [
+          0,
+          0
+        ]
+      }
+    ],
+    "baseline": {
+      "ids": [
+        "context-381",
+        "context-109",
+        "context-321"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) .\\n\\nRemember, every small action counts, and by participating in these programs, you'll be contributing to the zoo's conservation efforts and making a difference for wildlife and their habitats.\"}], 'Chat Time: 2023/11/04 (Sat) 15:08', [{'role': 'user', 'content': \"I'm planning a trip to Disneyland and was wondering if you could help me with some info on their Halloween events.\n\nBy the way, I rode Space Mountain: Ghost Galaxy three times at Disneyland on September 24th during Mickey's Halloween Party, and it was a blast!\n\nDo you know if they'll have similar events this year?\"}, {'role': 'assistant', 'content': 'Haunted Space Mountain: Ghost Galaxy is an amazing experience!\n\nI\\'m happy to help you with information on Disneyland\\'s Halloween events.\\n\\nEvery year, Disneyland Resort in California celebrates Halloween Time, which typically runs from mid-September to November 1st.\n\nDuring this time, the park is transformed with spooky decorations, themed attractions, and special events.\\n\\nMickey\\'s Halloween Party is a separate-ticket event that takes place on select nights, usually from mid-September to October 31st.\n\nThe party offers exclusive experiences, such as:\\n\\n1.\n  (part 2 of 4, excerpt) a separate-ticket event that takes place on select nights, usually from mid-September to October 31st.\n\nThe party offers exclusive experiences, such as:\\n\\n1.\n\nTrick-or-treating at designated locations throughout the park.\\n2.\n- (part 5 of 5, excerpt) You can filter by date, location, and type of event.\\n2.\n\nLocal Stamp Clubs: Reach out to loca\n- (part 1 of 5, excerpt) Have you found any inspiration in unexpected places, or have any surprises come up during the planning process?\"}], 'Chat Time: 2023/06/17 (Sat) 09:18', [{'role': 'user', 'content': \"I'm looking",
+      "evidence": [
+        {
+          "sourceId": "memory:context-381",
+          "sourceVersion": "sha256:bd30463a5b33ecb8e42bc324f42e9c28d255998dad9ff75bbf98503df9337c6d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-381",
+            "part": 1,
+            "parts": 4
+          },
+          "text": ".\\n\\nRemember, every small action counts, and by participating in these programs, you'll be contributing to the zoo's conservation efforts and making a difference for wildlife and their habitats.\"}], 'Chat Time: 2023/11/04 (Sat) 15:08', [{'role': 'user', 'content': \"I'm planning a trip to Disneyland and was wondering if you could help me with some info on their Halloween events.\n\nBy the way, I rode Space Mountain: Ghost Galaxy three times at Disneyland on September 24th during Mickey's Halloween Party, and it was a blast!\n\nDo you know if they'll have similar events this year?\"}, {'role': 'assistant', 'content': 'Haunted Space Mountain: Ghost Galaxy is an amazing experience!\n\nI\\'m happy to help you with information on Disneyland\\'s Halloween events.\\n\\nEvery year, Disneyland Resort in California celebrates Halloween Time, which typically runs from mid-September to November 1st.\n\nDuring this time, the park is transformed with spooky decorations, themed attractions, and special events.\\n\\nMickey\\'s Halloween Party is a separate-ticket event that takes place on select nights, usually from mid-September to October 31st.\n\nThe party offers exclusive experiences, such as:\\n\\n1.",
+          "id": "ev_050a5636a51957fbcc83cf99",
+          "observedAt": "2026-10-14T04:46:31.203Z"
+        },
+        {
+          "sourceId": "memory:context-381",
+          "sourceVersion": "sha256:bd30463a5b33ecb8e42bc324f42e9c28d255998dad9ff75bbf98503df9337c6d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-381",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "a separate-ticket event that takes place on select nights, usually from mid-September to October 31st.\n\nThe party offers exclusive experiences, such as:\\n\\n1.\n\nTrick-or-treating at designated locations throughout the park.\\n2.",
+          "id": "ev_6ddae92297023bedfa806ab5",
+          "observedAt": "2026-10-14T04:46:31.204Z"
+        },
+        {
+          "sourceId": "memory:context-109",
+          "sourceVersion": "sha256:5f03079f80fb1a39226a93d5253cc8185abbfc86794469e8324e8e947ebbde4a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-109",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "You can filter by date, location, and type of event.\\n2.\n\nLocal Stamp Clubs: Reach out to loca",
+          "id": "ev_54c8cccd389f70b39af03f77",
+          "observedAt": "2026-10-14T04:46:31.204Z"
+        },
+        {
+          "sourceId": "memory:context-321",
+          "sourceVersion": "sha256:36e17cff2b3d23f4c4d16c095249e0a862f69c356d6a67ad27d11b93fb0ea980",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-321",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Have you found any inspiration in unexpected places, or have any surprises come up during the planning process?\"}], 'Chat Time: 2023/06/17 (Sat) 09:18', [{'role': 'user', 'content': \"I'm looking",
+          "id": "ev_c1f424865cb1fcc19ae55cac",
+          "observedAt": "2026-10-14T04:46:31.204Z"
+        }
+      ],
+      "sourceIds": [
+        "context-381",
+        "context-109",
+        "context-321"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 12.248124999998254,
+      "provenance": true
+    },
+    "current": {
+      "ids": [
+        "context-381",
+        "context-109",
+        "context-321"
+      ],
+      "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 4) .\\n\\nRemember, every small action counts, and by participating in these programs, you'll be contributing to the zoo's conservation efforts and making a difference for wildlife and their habitats.\"}], 'Chat Time: 2023/11/04 (Sat) 15:08', [{'role': 'user', 'content': \"I'm planning a trip to Disneyland and was wondering if you could help me with some info on their Halloween events.\n\nBy the way, I rode Space Mountain: Ghost Galaxy three times at Disneyland on September 24th during Mickey's Halloween Party, and it was a blast!\n\nDo you know if they'll have similar events this year?\"}, {'role': 'assistant', 'content': 'Haunted Space Mountain: Ghost Galaxy is an amazing experience!\n\nI\\'m happy to help you with information on Disneyland\\'s Halloween events.\\n\\nEvery year, Disneyland Resort in California celebrates Halloween Time, which typically runs from mid-September to November 1st.\n\nDuring this time, the park is transformed with spooky decorations, themed attractions, and special events.\\n\\nMickey\\'s Halloween Party is a separate-ticket event that takes place on select nights, usually from mid-September to October 31st.\n\nThe party offers exclusive experiences, such as:\\n\\n1.\n  (part 2 of 4, excerpt) a separate-ticket event that takes place on select nights, usually from mid-September to October 31st.\n\nThe party offers exclusive experiences, such as:\\n\\n1.\n\nTrick-or-treating at designated locations throughout the park.\\n2.\n- (part 5 of 5, excerpt) You can filter by date, location, and type of event.\\n2.\n\nLocal Stamp Clubs: Reach out to loca\n- (part 1 of 5, excerpt) Have you found any inspiration in unexpected places, or have any surprises come up during the planning process?\"}], 'Chat Time: 2023/06/17 (Sat) 09:18', [{'role': 'user', 'content': \"I'm looking",
+      "evidence": [
+        {
+          "sourceId": "memory:context-381",
+          "sourceVersion": "sha256:bd30463a5b33ecb8e42bc324f42e9c28d255998dad9ff75bbf98503df9337c6d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-381",
+            "part": 1,
+            "parts": 4
+          },
+          "text": ".\\n\\nRemember, every small action counts, and by participating in these programs, you'll be contributing to the zoo's conservation efforts and making a difference for wildlife and their habitats.\"}], 'Chat Time: 2023/11/04 (Sat) 15:08', [{'role': 'user', 'content': \"I'm planning a trip to Disneyland and was wondering if you could help me with some info on their Halloween events.\n\nBy the way, I rode Space Mountain: Ghost Galaxy three times at Disneyland on September 24th during Mickey's Halloween Party, and it was a blast!\n\nDo you know if they'll have similar events this year?\"}, {'role': 'assistant', 'content': 'Haunted Space Mountain: Ghost Galaxy is an amazing experience!\n\nI\\'m happy to help you with information on Disneyland\\'s Halloween events.\\n\\nEvery year, Disneyland Resort in California celebrates Halloween Time, which typically runs from mid-September to November 1st.\n\nDuring this time, the park is transformed with spooky decorations, themed attractions, and special events.\\n\\nMickey\\'s Halloween Party is a separate-ticket event that takes place on select nights, usually from mid-September to October 31st.\n\nThe party offers exclusive experiences, such as:\\n\\n1.",
+          "id": "ev_050a5636a51957fbcc83cf99",
+          "observedAt": "2026-10-14T04:46:31.209Z"
+        },
+        {
+          "sourceId": "memory:context-381",
+          "sourceVersion": "sha256:bd30463a5b33ecb8e42bc324f42e9c28d255998dad9ff75bbf98503df9337c6d",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-381",
+            "part": 2,
+            "parts": 4,
+            "partial": true
+          },
+          "text": "a separate-ticket event that takes place on select nights, usually from mid-September to October 31st.\n\nThe party offers exclusive experiences, such as:\\n\\n1.\n\nTrick-or-treating at designated locations throughout the park.\\n2.",
+          "id": "ev_6ddae92297023bedfa806ab5",
+          "observedAt": "2026-10-14T04:46:31.209Z"
+        },
+        {
+          "sourceId": "memory:context-109",
+          "sourceVersion": "sha256:5f03079f80fb1a39226a93d5253cc8185abbfc86794469e8324e8e947ebbde4a",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-109",
+            "part": 5,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "You can filter by date, location, and type of event.\\n2.\n\nLocal Stamp Clubs: Reach out to loca",
+          "id": "ev_54c8cccd389f70b39af03f77",
+          "observedAt": "2026-10-14T04:46:31.209Z"
+        },
+        {
+          "sourceId": "memory:context-321",
+          "sourceVersion": "sha256:36e17cff2b3d23f4c4d16c095249e0a862f69c356d6a67ad27d11b93fb0ea980",
+          "scope": {
+            "tags": []
+          },
+          "derivedFrom": [],
+          "kind": "source",
+          "locator": {
+            "kind": "memory",
+            "documentId": "context-321",
+            "part": 1,
+            "parts": 5,
+            "partial": true
+          },
+          "text": "Have you found any inspiration in unexpected places, or have any surprises come up during the planning process?\"}], 'Chat Time: 2023/06/17 (Sat) 09:18', [{'role': 'user', 'content': \"I'm looking",
+          "id": "ev_c1f424865cb1fcc19ae55cac",
+          "observedAt": "2026-10-14T04:46:31.209Z"
+        }
+      ],
+      "sourceIds": [
+        "context-381",
+        "context-109",
+        "context-321"
+      ],
+      "mode": {
+        "lexical": true,
+        "dense": true,
+        "reranked": false
+      },
+      "recallSkipped": false,
+      "wallMs": 4.360124999999243,
+      "provenance": true
+    }
+  },
+  "sources": null,
+  "referenceTextPresent": false,
+  "started": "2026-10-14T07:55:13.368208+00:00",
+  "valid": true,
+  "cachedRetrieval": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-retrieval-2",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-qualification/public-answer-nemotron-4",
+  "prediction": "I do not know. The retrieved history does not contain any record of you participating in a sports event two weeks ago.",
+  "correct": false,
+  "readerUsage": {
+    "prompt_tokens": 621,
+    "completion_tokens": 1049,
+    "total_tokens": 1670,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 431,
+    "completion_tokens": 902,
+    "total_tokens": 1333,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 899,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 11560.435833000156,
+  "judgeWallMs": 9778.099792000376,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "ended": "2026-10-14T07:55:34.709478+00:00"
+}

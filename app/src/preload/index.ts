@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron';
 import type { WindowChromeState } from '../shared/window.chrome';
+import type { ComputerRoute, ComputerTargets, ComputerRunState, ComputerControl } from '../shared/computer';
 
 /**
  * The renderer's only door to the engine. Mirrors the NDJSON protocol 1:1 — `send` takes a
@@ -30,6 +31,38 @@ export interface OrganizeView {
   tree: Array<{ folder: string; files: Array<{ name: string; from: string; group: string; byYou: boolean }> }>;
 }
 const api = {
+  mobile: {
+    status: () => ipcRenderer.invoke('mobile:status'),
+    enable: (address:string) => ipcRenderer.invoke('mobile:enable',address),
+    disable: () => ipcRenderer.invoke('mobile:disable'),
+    advertisement: () => ipcRenderer.invoke('mobile:advertisement'),
+    confirm: (code:string,phoneId:string) => ipcRenderer.invoke('mobile:confirm',code,phoneId),
+    revoke: () => ipcRenderer.invoke('mobile:revoke'),
+    stop: () => ipcRenderer.invoke('mobile:stop'),
+  } satisfies import('../shared/mobile').MobileApi,
+  outputs: {
+    cancelPreview:(owner:string):Promise<boolean>=>ipcRenderer.invoke('outputs:preview-cancel',owner),
+    app: (owner:string,grant:string,bounds:import('../shared/outputs').PreviewBounds):Promise<string|null> => ipcRenderer.invoke('outputs:app-start',owner,grant,bounds),
+    list: (): Promise<import('../shared/outputs').OutputRecord[]> => ipcRenderer.invoke('outputs:list'),
+    read: (id: string, version?: string): Promise<import('../shared/outputs').OutputDocument | null> => ipcRenderer.invoke('outputs:read', id, version),
+    save: (owner: string, input: import('../shared/outputs').OutputInput): Promise<import('../shared/outputs').OutputDocument | null> => ipcRenderer.invoke('outputs:save', owner, input),
+    export: (id: string, version: string): Promise<boolean> => ipcRenderer.invoke('outputs:export', id, version),
+    onChanged: (cb: () => void) => subscribe('outputs:changed', cb),
+    preview: (owner: string, id: string, version: string, bounds: import('../shared/outputs').PreviewBounds): Promise<string | null> => ipcRenderer.invoke('outputs:preview-start', owner, id, version, bounds),
+    resize: (owner: string, token: string, bounds: import('../shared/outputs').PreviewBounds): Promise<boolean> => ipcRenderer.invoke('outputs:preview-resize', owner, token, bounds),
+    stop: (owner: string, token: string): Promise<boolean> => ipcRenderer.invoke('outputs:preview-stop', owner, token),
+    onPreview: (cb: (event: import('../shared/outputs').PreviewEvent) => void) => subscribe('outputs:preview-event', cb),
+  },
+  computer: {
+    state: (threadId: string): Promise<ComputerRunState | null> => ipcRenderer.invoke('computer:state', threadId),
+    onState: (cb: (event: { id: string; state: ComputerRunState }) => void): (() => void) => subscribe('computer:state', cb),
+    control: (threadId: string, revision: string, action: ComputerControl, candidate?: number): Promise<boolean> => ipcRenderer.invoke('computer:control', threadId, revision, action, candidate),
+    save: (threadId: string, revision: string, name: string): Promise<boolean> => ipcRenderer.invoke('computer:save', threadId, revision, name),
+    recipes: (threadId?: string): Promise<Array<{ name: string; text: string }>> => ipcRenderer.invoke('computer:recipes', threadId),
+    targets: (threadId?: string, pid?: number): Promise<ComputerTargets> => ipcRenderer.invoke('computer:targets', threadId, pid),
+    cancelTargets: (threadId?: string): Promise<boolean> => ipcRenderer.invoke('computer:cancel-targets', threadId),
+    submit: (threadId: string, text: string, engineText: string, route: ComputerRoute): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('computer:submit', threadId, text, engineText, route),
+  },
   // Dictation (main/voice.ts): events arrive only in the window that started it.
   voice: {
     available: () => ipcRenderer.invoke('voice:available'),
@@ -79,7 +112,7 @@ const api = {
     pickFolder: () => ipcRenderer.invoke('threads:pick-folder'),
     // The welcome screen: choose a folder and open the ⌘2 bar on it (backlog N14).
     startInFolder: () => ipcRenderer.invoke('threads:start-in-folder'),
-    quickSubmit: (prompt: string, options?: { attachments?: unknown[]; root?: string }) => ipcRenderer.invoke('threads:quick-submit', prompt, options),
+    quickSubmit: (prompt: string, options?: { attachments?: unknown[]; root?: string; route?: ComputerRoute; threadId?: string }) => ipcRenderer.invoke('threads:quick-submit', prompt, options),
     hide: () => ipcRenderer.send('threads:hide'),
     approvals: () => ipcRenderer.invoke('threads:approvals'),
     onApprovals: (cb: (value: any) => void) => subscribe('threads:approvals', cb),
@@ -88,6 +121,7 @@ const api = {
     rename: (id: string, title: string) => ipcRenderer.invoke('threads:rename', id, title),
     search: (query: string) => ipcRenderer.invoke('threads:search', query),
     archived: () => ipcRenderer.invoke('threads:archived'),
+    exportRecovery: (id: string, archived: boolean, backup = false): Promise<{ ok: boolean; error?: string; cancelled?: boolean }> => ipcRenderer.invoke('threads:export-recovery', id, archived, backup),
     archive: (id: string) => ipcRenderer.invoke('threads:archive', id),
     unarchive: (id: string) => ipcRenderer.invoke('threads:unarchive', id),
     moveToBin: (id: string, archived: boolean) => ipcRenderer.invoke('threads:bin', id, archived),

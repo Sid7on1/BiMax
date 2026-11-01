@@ -503,7 +503,8 @@ export class LlmAdapter implements LLMProvider {
     const route = `${kr.provider}:${model}`;
     if (rates.basis?.startsWith('unpriced') && !this.warnedPricing.has(route)) {
       this.warnedPricing.add(route);
-      engineEvents.emit('status', `Spend for ${model} is an estimate. Set BIMAX_MODEL_PRICING_JSON for your provider’s rates.`);
+      engineEvents.emit('engine_notice', { id: `pricing:${route}`, category: 'pricing',
+        text: `Spend for ${model} is estimated because this provider route has no configured rates.` });
     }
     return tokenCost(rates, input, output, cached);
   }

@@ -1,0 +1,164 @@
+{
+  "row": 298,
+  "id": "9a707b82",
+  "stratum": "temporal-reasoning",
+  "dataset": "longmemeval",
+  "started": "2026-10-14T16:42:09.588336+00:00",
+  "valid": true,
+  "question": "I mentioned cooking something for my friend a couple of days ago. What was it?",
+  "references": [
+    "a chocolate cake"
+  ],
+  "kind": "temporal-reasoning",
+  "abstention": false,
+  "date": "2022/04/12 (Tue) 22:57",
+  "benchmarkSessionIds": [
+    "7a4d00b3_2",
+    "990f3ef9_2",
+    "answer_dba89488_2"
+  ],
+  "sources": {
+    "recallAt3": 0.5,
+    "complete": false
+  },
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T16:43:12.074902+00:00",
+  "rag": {
+    "ids": [
+      "7a4d00b3_2",
+      "990f3ef9_2",
+      "answer_dba89488_2"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 12) Session date: 2022/03/13 (Sun) 16:18\nuser: I'm looking for some new vegetarian recipes to try out. I've been getting into cooking lately, actually just started taking a weekly cooking class at a local culinary school that focuses on vegetarian cuisine about a month ago, and I'm loving it!\nassistant: That sounds amazing! Congratulations on taking the initiative to explore your culinary skills and passion for vegetarian cuisine. A cooking class focused on vegetarian dishes is a great way to learn new techniques, discover new ingredients, and get inspired by different flavor profiles.\n\nI'd be happy to help you with some new vegetarian recipe ideas. What type of dishes are you interested in exploring? Do you have any specific preferences, such as:\n\n1. Global cuisine (e.g., Indian, Italian, Middle Eastern, Mexican)?\n2. Specific ingredients (e.g., tofu, tempeh, seitan, mushrooms, eggplant)?\n3. Cooking methods (e.g., stir-fries, roasting, grilling, soups, stews)?\n4. Meal types (e.g., breakfast, lunch, dinner, snacks, desserts)?\n5. Dietary restrictions or preferences (e.g., gluten-free, vegan, low-carb)?\n  (part 2 of 12, excerpt) Feel free to share your interests, and I'll suggest some delicious and inspiring vegetarian recipes for you to try!\nuser: I'm really interested in exploring Indian-inspired dishes, we actually made an Indian-inspired feast in my cooking class last week and it was amazing!\n- (part 2 of 15, excerpt) how much time do you have available for cooking each day? Are you looking for quick and easy recipes or are you open to trying out some more involved dishes?\n- (part 1 of 18, excerpt) assistant: What type of baking projects are you interested in tackling next? Are you looking for something sweet, savory, or perhaps something specific like b",
+    "evidence": [
+      {
+        "sourceId": "memory:7a4d00b3_2",
+        "sourceVersion": "sha256:a27d1269cf4036b804b8e54955844f2870d911213fef1131b0bb0c0a35335cb8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "7a4d00b3_2",
+          "part": 1,
+          "parts": 12
+        },
+        "text": "Session date: 2022/03/13 (Sun) 16:18\nuser: I'm looking for some new vegetarian recipes to try out. I've been getting into cooking lately, actually just started taking a weekly cooking class at a local culinary school that focuses on vegetarian cuisine about a month ago, and I'm loving it!\nassistant: That sounds amazing! Congratulations on taking the initiative to explore your culinary skills and passion for vegetarian cuisine. A cooking class focused on vegetarian dishes is a great way to learn new techniques, discover new ingredients, and get inspired by different flavor profiles.\n\nI'd be happy to help you with some new vegetarian recipe ideas. What type of dishes are you interested in exploring? Do you have any specific preferences, such as:\n\n1. Global cuisine (e.g., Indian, Italian, Middle Eastern, Mexican)?\n2. Specific ingredients (e.g., tofu, tempeh, seitan, mushrooms, eggplant)?\n3. Cooking methods (e.g., stir-fries, roasting, grilling, soups, stews)?\n4. Meal types (e.g., breakfast, lunch, dinner, snacks, desserts)?\n5. Dietary restrictions or preferences (e.g., gluten-free, vegan, low-carb)?",
+        "id": "ev_a7a6a1126d02c0dc93634e29",
+        "observedAt": "2026-10-14T15:29:56.548Z"
+      },
+      {
+        "sourceId": "memory:7a4d00b3_2",
+        "sourceVersion": "sha256:a27d1269cf4036b804b8e54955844f2870d911213fef1131b0bb0c0a35335cb8",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "7a4d00b3_2",
+          "part": 2,
+          "parts": 12,
+          "partial": true
+        },
+        "text": "Feel free to share your interests, and I'll suggest some delicious and inspiring vegetarian recipes for you to try!\nuser: I'm really interested in exploring Indian-inspired dishes, we actually made an Indian-inspired feast in my cooking class last week and it was amazing!",
+        "id": "ev_9463af908c6a2f5e40c79989",
+        "observedAt": "2026-10-14T15:29:56.551Z"
+      },
+      {
+        "sourceId": "memory:990f3ef9_2",
+        "sourceVersion": "sha256:3d6d536e07d0590b4d90d9b3c05bcba96bc0704473aa6a9fa3569d122cb74012",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "990f3ef9_2",
+          "part": 2,
+          "parts": 15,
+          "partial": true
+        },
+        "text": "how much time do you have available for cooking each day? Are you looking for quick and easy recipes or are you open to trying out some more involved dishes?",
+        "id": "ev_cd553e01fe2d7b653b77bd08",
+        "observedAt": "2026-10-14T15:29:56.551Z"
+      },
+      {
+        "sourceId": "memory:answer_dba89488_2",
+        "sourceVersion": "sha256:27a81d5084d38b5e56e9d7bb03757668d85e85d1934d520a2998d89532022737",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "answer_dba89488_2",
+          "part": 1,
+          "parts": 18,
+          "partial": true
+        },
+        "text": "assistant: What type of baking projects are you interested in tackling next? Are you looking for something sweet, savory, or perhaps something specific like b",
+        "id": "ev_dc78ab672f75d9e126d2ab76",
+        "observedAt": "2026-10-14T15:29:56.551Z"
+      }
+    ],
+    "sourceIds": [
+      "7a4d00b3_2",
+      "990f3ef9_2",
+      "answer_dba89488_2"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 33.84087499999805,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-passage/public-answer-1",
+  "prediction": "assistant: What type of baking projects are you interested in tackling next? Are you looking for something sweet, savory, or perhaps something specific like b\" - this is another fragment.\n\n   There is absolutely no mention of the user cooking something for a friend \"a couple of days ago\" relative to 2022/04/12. The history only covers up to March 13, 2022 (and maybe a bit after, but the latest explicit session date is 2022/03/13). The user's current question references a conversation that happened \"a couple of days ago\" from 2022/04/12, which would be around early April 2022. The retrieved history doesn't go back that far, and doesn't contain any record of that specific mention.\n\n   I should check if there's any implicit reference, but based strictly on the provided text, there's no record of the user saying they cooked something for a friend a couple of days ago. The history shows the user discussing vegetarian recipes and Indian-inspired dishes in a cooking class context, but nothing about cooking for a friend recently.\n\n   Wait, maybe I'm missing something. Let me read the very first line: \"Question date: 2022/04/12 (Tue) 22:57\". The user is asking me, on that date, what they mentioned cooking for their friend a couple of days ago. The \"Retrieved history\" section is supposed to contain the conversation history. But the history provided starts from 2022/03/13. There's no entry from early April 2022, and no mention of cooking for a friend.\n\n   Possibly the history is incomplete or I'm supposed to infer from what's there, but the instruction says: \"Answer the question using only the retrieved history. If it is insufficient, say you do not know.\"\n\n   The retrieved history does not contain any information about the user cooking something for a friend \"a couple of days ago\" (relative to 2022/04/12). Therefore, it's insufficient.\n\n   I will answer that I do not know, based on the retrieved history.\n   Let me double-check if there's any possible interpretation. Maybe \"a couple of days ago\" refers to relative to the session dates in the history? The latest session is 2022/03/13. If today were March 13, \"a couple of days ago\" would be around March 11. But the question date is explicitly 2022/04/12. The history doesn't bridge that gap. There's no mention of cooking for a friend in any of the segments.\n\n   I'm confident the history is insufficient.\n   Response: I do not know. (or something similar, per instruction: \"If it is insufficient, say you do not know.\") I'll keep it concise.\u2705\nI do not know. The retrieved history does not contain any record of you mentioning cooking something for a friend a couple of days ago relative to the date 2022/04/12. The available entries only cover discussions about vegetarian recipes and Indian-inspired cooking class content from March 2022, with no reference to a recent dish prepared for a friend.",
+  "correct": false,
+  "answerMetrics": {
+    "exactMatch": 0.0,
+    "tokenF1": 0.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 566,
+    "completion_tokens": 1735,
+    "total_tokens": 2301,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 1083,
+    "completion_tokens": 915,
+    "total_tokens": 1998,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 912,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 28864.53266600074,
+  "judgeWallMs": 11050.461958999222
+}

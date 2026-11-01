@@ -1,0 +1,162 @@
+{
+  "row": 7,
+  "query": 8,
+  "id": "mab-7-8",
+  "stratum": "eventqa_65536",
+  "dataset": "memoryagentbench",
+  "started": "2026-10-14T09:04:46.769164+00:00",
+  "valid": true,
+  "question": "These are the events that have already occurred:\n\n...\n5. Debbie's mother, Beatrice Tarleton, handled the new stallion in the stable.\n6. Debbie hoped it would not rain on the day of the barbecue.\n7. Brent and Stuart asked Debbie to promise them dances at the ball.\n8. Debbie learned about the engagement announcement during the ball.\n9. Stuart revealed the engagement announcement for Kali to Charlie's sister.\n\n\nBelow is a list of possible subsequent events:\n\n['Stuart arranged to meet the Tarleton twins for a game night.', 'Brent invited the Tarleton twins to join him for a picnic.', 'Debbie promised to help the Tarleton twins with their homework.', 'Debbie decided to watch a movie with the Tarleton twins.', 'Debbie agreed to eat supper with the Tarleton twins.', 'Stuart planned to attend a concert with the Tarleton twins.']\n\n Your task is to choose from the above events which event happens next based on the book excerpt. In your response to me, only include the answer without anything else. ",
+  "references": [
+    "Debbie agreed to eat supper with the Tarleton twins."
+  ],
+  "kind": "single-session-user",
+  "abstention": false,
+  "date": null,
+  "benchmarkSessionIds": [
+    "context-4",
+    "context-3",
+    "context-6"
+  ],
+  "sources": null,
+  "referenceTextPresent": false,
+  "ended": "2026-10-14T09:05:04.803175+00:00",
+  "rag": {
+    "ids": [
+      "context-4",
+      "context-3",
+      "context-6"
+    ],
+    "prompt": "[Recalled memory] \u2014 retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.\n- (part 1 of 5) be better to get married soon.\n\nSo it\u2019s to be announced tomorrow night at the supper intermission.\n\nNow, Debbie, we\u2019ve told you the secret, so you\u2019ve got to promise to eat supper with us.\u201d \u201cOf course I will,\u201d Debbie said automatically.\n\n\u201cAnd all the waltzes?\u201d\n\n\u201cAll.\u201d\n\n\u201cYou\u2019re sweet!\n\nI\u2019ll bet the other boys will be hopping mad.\u201d \u201cLet \u2018em be mad,\u201d said Brent.\n\n\u201cWe two can handle \u2018em.\n\nLook, Debbie.\n\nSit with us at the barbecue in the morning.\u201d \u201cWhat?\u201d\n\nStuart repeated his request.\n\n\u201cOf course.\u201d\n\nThe twins looked at each other jubilantly but with some surprise.\n\nAlthough they considered themselves Debbie\u2019s favored suitors, they had never before gained tokens of this favor so easily.\n\nUsually she made them beg and plead, while she put them off, refusing to give a Yes or No answer, laughing if they sulked, growing cool if they became angry.\n\nAnd here she had practically promised them the whole of tomorrow\u2014seats by her at the barbecue, all the waltzes (and they\u2019d see to it that the dances were all waltzes!) and the supper intermission.\n\nThis was worth getting expelled from the university.\n  (part 2 of 5, excerpt) Filled with new enthusiasm by their success, they lingered on, talking about the barbecue and the ball and Kali Abrianna and Edgar Kaitlin, interrupting each other, making jokes and laughing at them, hinting broadly for invitations to supper.\n\nSome time had passed before they realized that Debbie was having very little to say.\n- (part 4 of 4, excerpt) \u201cIt\u2019s Kali\u2019s to Charlie\u2019s sister, Miss Edgar!\u201d Debbie\u2019s face did not change but her lips went white\u2014like a person who has received a stunning blow wit\n- (part 3 of 5, excerpt) They never arrived at the correct answer, which was that Debbie on that day had decided to make them notice.",
+    "evidence": [
+      {
+        "sourceId": "memory:context-4",
+        "sourceVersion": "sha256:74923d1e7be5a6a94d7a33f24dd7b2ae1fc9db2d50c8d3f0ba6bf93880f72c7f",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-4",
+          "part": 1,
+          "parts": 5
+        },
+        "text": "be better to get married soon.\n\nSo it\u2019s to be announced tomorrow night at the supper intermission.\n\nNow, Debbie, we\u2019ve told you the secret, so you\u2019ve got to promise to eat supper with us.\u201d \u201cOf course I will,\u201d Debbie said automatically.\n\n\u201cAnd all the waltzes?\u201d\n\n\u201cAll.\u201d\n\n\u201cYou\u2019re sweet!\n\nI\u2019ll bet the other boys will be hopping mad.\u201d \u201cLet \u2018em be mad,\u201d said Brent.\n\n\u201cWe two can handle \u2018em.\n\nLook, Debbie.\n\nSit with us at the barbecue in the morning.\u201d \u201cWhat?\u201d\n\nStuart repeated his request.\n\n\u201cOf course.\u201d\n\nThe twins looked at each other jubilantly but with some surprise.\n\nAlthough they considered themselves Debbie\u2019s favored suitors, they had never before gained tokens of this favor so easily.\n\nUsually she made them beg and plead, while she put them off, refusing to give a Yes or No answer, laughing if they sulked, growing cool if they became angry.\n\nAnd here she had practically promised them the whole of tomorrow\u2014seats by her at the barbecue, all the waltzes (and they\u2019d see to it that the dances were all waltzes!) and the supper intermission.\n\nThis was worth getting expelled from the university.",
+        "id": "ev_2e62596bab28c965c97bdd71",
+        "observedAt": "2026-10-14T08:51:02.568Z"
+      },
+      {
+        "sourceId": "memory:context-4",
+        "sourceVersion": "sha256:74923d1e7be5a6a94d7a33f24dd7b2ae1fc9db2d50c8d3f0ba6bf93880f72c7f",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-4",
+          "part": 2,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "Filled with new enthusiasm by their success, they lingered on, talking about the barbecue and the ball and Kali Abrianna and Edgar Kaitlin, interrupting each other, making jokes and laughing at them, hinting broadly for invitations to supper.\n\nSome time had passed before they realized that Debbie was having very little to say.",
+        "id": "ev_125a4132102571cb49f9fa2f",
+        "observedAt": "2026-10-14T08:51:02.568Z"
+      },
+      {
+        "sourceId": "memory:context-3",
+        "sourceVersion": "sha256:ff4291a9a6c153a06121d1fef9ebd7bcd0e14cdbf809118d1b59b76e36b6daeb",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-3",
+          "part": 4,
+          "parts": 4,
+          "partial": true
+        },
+        "text": "\u201cIt\u2019s Kali\u2019s to Charlie\u2019s sister, Miss Edgar!\u201d Debbie\u2019s face did not change but her lips went white\u2014like a person who has received a stunning blow wit",
+        "id": "ev_65a77febdf96bfb8342a8793",
+        "observedAt": "2026-10-14T08:51:02.568Z"
+      },
+      {
+        "sourceId": "memory:context-6",
+        "sourceVersion": "sha256:b1fcf3e407c77170634b3ecc70660fe72f03f851448f8f8bca4c98e32279c019",
+        "scope": {
+          "tags": []
+        },
+        "derivedFrom": [],
+        "kind": "source",
+        "locator": {
+          "kind": "memory",
+          "documentId": "context-6",
+          "part": 3,
+          "parts": 5,
+          "partial": true
+        },
+        "text": "They never arrived at the correct answer, which was that Debbie on that day had decided to make them notice.",
+        "id": "ev_a1af5d8f956a59cccae635b9",
+        "observedAt": "2026-10-14T08:51:02.569Z"
+      }
+    ],
+    "sourceIds": [
+      "context-4",
+      "context-3",
+      "context-6"
+    ],
+    "mode": {
+      "lexical": true,
+      "dense": true,
+      "reranked": false
+    },
+    "recallSkipped": false,
+    "wallMs": 3.875792000000274,
+    "provenance": true
+  },
+  "arm": "baseline",
+  "inferenceRun": "/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-14-rag-evidence/public-answer-3",
+  "prediction": "Debbie agreed to eat supper with the Tarleton twins.",
+  "correct": true,
+  "answerMetrics": {
+    "exactMatch": 1.0,
+    "tokenF1": 1.0
+  },
+  "readerUsage": {
+    "prompt_tokens": 740,
+    "completion_tokens": 1037,
+    "total_tokens": 1777,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 1023,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "judgeUsage": {
+    "prompt_tokens": 465,
+    "completion_tokens": 286,
+    "total_tokens": 751,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 283,
+      "rejected_prediction_tokens": null
+    }
+  },
+  "readerWallMs": 12840.729417000148,
+  "judgeWallMs": 3605.679291999877
+}
